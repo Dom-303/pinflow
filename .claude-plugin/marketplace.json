@@ -1,21 +1,21 @@
 {
-  "name": "domscribe",
+  "name": "pinflow",
   "owner": {
-    "name": "Patch Orbit",
-    "email": "kaushik@patchorbit.com"
+    "name": "Dom-303"
   },
   "metadata": {
-    "description": "Domscribe is a pixel-to-code development tool that maps running UI elements to their exact source locations, capturing runtime context (props, state, DOM) for handoff to coding agents via MCP."
+    "description": "PinFlow is a visual review and change workflow for live web apps, built on top of the Domscribe source-mapped runtime foundation."
   },
   "plugins": [
     {
-      "name": "domscribe",
-      "description": "Domscribe is a pixel-to-code development tool that maps running UI elements to their exact source locations, capturing runtime context (props, state, DOM) for handoff to coding agents via MCP.",
+      "name": "pinflow",
+      "description": "PinFlow is a visual review and change workflow for live web apps, built on top of the Domscribe source-mapped runtime foundation.",
       "source": ".",
-      "homepage": "https://github.com/patchorbit/domscribe",
-      "repository": "https://github.com/patchorbit/domscribe",
+      "homepage": "https://github.com/Dom-303/pinflow",
+      "repository": "https://github.com/Dom-303/pinflow",
       "license": "MIT",
       "keywords": [
+        "pinflow",
         "domscribe",
         "pixel-to-code",
         "ui-to-code",

@@ -1,9 +1,9 @@
 {
-  "name": "domscribe",
+  "name": "pinflow",
   "version": "0.5.2-codex.1",
-  "description": "Codex plugin manifest for Domscribe.",
+  "description": "Codex plugin manifest for PinFlow, built on top of the Domscribe foundation.",
   "author": {
-    "name": "Patch Orbit / EventBaer"
+    "name": "Dom-303"
   },
   "license": "MIT",
   "skills": "./skills",

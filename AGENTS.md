@@ -1,10 +1,10 @@
-# Domscribe For Codex
+# PinFlow For Codex
 
-This repository is the upstream Domscribe workspace, adapted here for Codex-based development.
+This repository is the `PinFlow` fork, built on top of the upstream Domscribe workspace and adapted for Codex-based development.
 
 ## What This Repo Is
 
-Domscribe is a pixel-to-code development tool that maps running UI elements to their source locations and passes that context to coding agents.
+PinFlow is a visual review and change workflow for live web apps. It is built on top of the Domscribe source-mapped runtime foundation and passes UI context to coding agents.
 
 Main packages:
 
@@ -38,12 +38,12 @@ Important existing conventions:
 - Keep changes narrowly scoped to the package actually being adapted.
 - Treat Domscribe as an upstream product repo, not an EventBaer app repo.
 
-## EventBaer Adaptation Direction
+## PinFlow Direction
 
-This local branch is being used to adapt Domscribe for a Codex-centered workflow and a more customized multi-project preview/review setup.
+This fork is being adapted into `PinFlow` as a Codex- and Claude-friendly multi-project preview/review tool.
 
 Current goals:
 
 - Add Codex-native repo onboarding.
-- Support Codex as a first-class agent workflow alongside existing generic MCP usage.
+- Keep Claude as a first-class supported agent path.
 - Prepare for future UI customization, localization, and workflow refinement without unnecessary upstream drift.

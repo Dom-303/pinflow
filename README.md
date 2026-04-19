@@ -1,17 +1,19 @@
 <p align="center">
-  <img src="./docs/logo.png" alt="Domscribe" width="200" />
+  <img src="./docs/logo.png" alt="PinFlow" width="200" />
 </p>
 
-<h1 align="center">Domscribe</h1>
+<h1 align="center">PinFlow</h1>
+
+<p align="center"><strong>Pin it, flow it, ship it.</strong></p>
 
 <p align="center">
   <a href="https://www.npmjs.com/search?q=%40domscribe"><img src="https://img.shields.io/npm/v/%40domscribe/core?label=npm&color=cb3837" alt="npm version" /></a>
-  <a href="https://github.com/patchorbit/domscribe/actions"><img src="https://img.shields.io/github/actions/workflow/status/patchorbit/domscribe/ci.yml?label=CI" alt="CI status" /></a>
+  <a href="https://github.com/Dom-303/pinflow/actions"><img src="https://img.shields.io/github/actions/workflow/status/Dom-303/pinflow/ci.yml?label=CI" alt="CI status" /></a>
   <a href="#"><img src="https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/Narrator/1bedc40fc56874758abd3b7caf4d6748/raw/domscribe-coverage.json" alt="test coverage" /></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license" /></a>
   <img src="https://img.shields.io/badge/TypeScript-5.x-3178c6?logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/node-%3E%3D18-417e38?logo=node.js&logoColor=white" alt="Node.js >= 18" />
-  <a href="https://github.com/patchorbit/domscribe/pulls"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen" alt="PRs welcome" /></a>
+  <a href="https://github.com/Dom-303/pinflow/pulls"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen" alt="PRs welcome" /></a>
 </p>
 
 <p align="center">
@@ -26,22 +28,20 @@
 </p>
 
 <p align="center">
+  <img src="https://img.shields.io/badge/Codex-111111?style=flat&logo=openai&logoColor=white" alt="Codex" />
   <img src="https://img.shields.io/badge/Claude_Code-d97706?style=flat&logo=anthropic&logoColor=white" alt="Claude Code" />
-  <img src="https://img.shields.io/badge/GitHub_Copilot-000?style=flat&logo=githubcopilot&logoColor=white" alt="GitHub Copilot" />
-  <a href="https://cursor.directory/plugins/domscribe"><img src="https://img.shields.io/badge/Cursor-000?style=flat&logo=cursor&logoColor=white" alt="Cursor" /></a>
-  <a href="https://geminicli.com/extensions/?name=patchorbitdomscribe"><img src="https://img.shields.io/badge/Gemini-4285F4?style=flat&logo=googlegemini&logoColor=white" alt="Gemini" /></a>
-  <img src="https://img.shields.io/badge/Kiro-a855f7?style=flat&logoColor=white" alt="Kiro" />
+  <img src="https://img.shields.io/badge/MCP-Compatible-2563eb?style=flat&logoColor=white" alt="MCP Compatible" />
 </p>
 
 <p align="center">
-  <a href="https://domscribe.com"><img src="./docs/demo.gif" alt="Domscribe demo — click an element, capture context, resolve to source" /></a>
+  <img src="./docs/demo.gif" alt="PinFlow demo — click an element, capture context, resolve to source" />
 </p>
 
 ---
 
 **AI coding agents edit your source files blind — they can't see your running frontend, and your frontend can't tell them where to look.**
 
-Domscribe bridges both directions: click a DOM element to tell your agent what to change, or let your agent query any source location to see exactly what it looks like live in the browser. Build-time stable IDs, deep runtime context (props, state, DOM), framework-agnostic, any MCP-compatible agent. Zero production impact.
+PinFlow bridges both directions: click a DOM element to tell your agent what to change, or let your agent query any source location to see exactly what it looks like live in the browser. It is built on top of the Domscribe source-mapped runtime foundation. Build-time stable IDs, deep runtime context (props, state, DOM), framework-agnostic, any MCP-compatible agent. Zero production impact.
 
 ---
 
@@ -53,7 +53,7 @@ npx domscribe init
 
 The setup wizard walks you through two steps:
 
-1. **Connect your coding agent** — select your agent (Claude Code, Copilot, Gemini, Kiro, or others) and the wizard installs the plugin automatically.
+1. **Connect your coding agent** — select your agent (`Codex`, `Claude`, or another MCP-compatible setup) and the wizard installs the plugin automatically.
 2. **Add to your app** — select your framework and bundler, the wizard installs the right package and shows you the config snippet to add.
 
 That's it. Start your dev server and you're ready to go.
@@ -79,7 +79,7 @@ Your agent calls `domscribe.query.bySource` with a file path and line number and
 
 ### UI → Code: Point and tell
 
-Click any element in the browser overlay, describe the change in plain English, and submit. Domscribe captures the element's source location, runtime context, and your instruction as an annotation. The agent claims it, navigates to the exact file and line, and implements the change. The overlay shows the agent's response in real time via WebSocket.
+Click any element in the browser overlay, describe the change in plain English, and submit. PinFlow captures the element's source location, runtime context, and your instruction as an annotation. The agent claims it, navigates to the exact file and line, and implements the change. The overlay shows the agent's response in real time via WebSocket.
 
 <p align="center">
   <img src="./docs/ui-to-code.png" alt="UI → Code: Point and tell" width="900" />
@@ -103,7 +103,7 @@ Click any element in the browser overlay, describe the change in plain English, 
 > [!NOTE]
 > `npx domscribe init` handles both steps below automatically. Use manual setup only if you need finer control.
 
-Domscribe has two sides: **app-side** (bundler + framework plugins) and **agent-side** (MCP for your coding agent). Both are needed for the full workflow.
+PinFlow has two sides: **app-side** (bundler + framework plugins) and **agent-side** (MCP for your coding agent). Both are needed for the full workflow.
 
 ### App-Side — Add to Your Bundler
 
@@ -306,41 +306,25 @@ This creates a `domscribe.config.json` at your repo root that tells all Domscrib
 
 ### Agent-Side — Connect Your Coding Agent
 
-Domscribe exposes 12 tools and 4 prompts via MCP. Agent plugins bundle the MCP config and a skill file that teaches the agent how to use the tools effectively.
+PinFlow exposes 12 tools and 4 prompts via MCP. The visible product is `PinFlow`; the current technical MCP namespace remains `domscribe` for compatibility.
 
 #### Claude Code
 
 ```shell
-claude plugin marketplace add patchorbit/domscribe
-claude plugin install domscribe@domscribe
+claude plugin marketplace add Dom-303/pinflow
+claude plugin install pinflow@pinflow
 ```
 
-#### GitHub Copilot
+#### Codex
 
-```bash
-copilot plugin install patchorbit/domscribe
-```
-
-#### Gemini CLI
-
-```bash
-gemini extensions install https://github.com/patchorbit/domscribe
-```
-
-#### Amazon Kiro
-
-Open the Powers panel → **Add power from GitHub** → enter `https://github.com/patchorbit/domscribe/tree/main/domscribe-power`.
-
-#### Cursor
-
-<a href="https://cursor.directory/plugins/domscribe"><img src="https://img.shields.io/badge/Add_to_Cursor-000?style=for-the-badge&logo=cursor&logoColor=white" alt="Add to Cursor" /></a>
+Codex support is provided in this fork via the included `.codex-plugin/plugin.json` and [AGENTS.md](./AGENTS.md).
 
 #### Any agent (Skills and MCP)
 
-Install the Domscribe skills:
+Install the PinFlow skills:
 
 ```sh
-npx skills add patchorbit/domscribe
+npx skills add Dom-303/pinflow
 ```
 
 Then add this MCP config to your agent:
@@ -362,7 +346,7 @@ Then add this MCP config to your agent:
 ## How It Works
 
 <p align="center">
-  <img src="./docs/architecture.png" alt="Domscribe architecture diagram" />
+  <img src="./docs/architecture.png" alt="PinFlow architecture diagram" />
 </p>
 
 **1. Inject.** The bundler plugin parses each source file, injects HMR-stable `data-ds` IDs via xxhash64, and records each mapping in `.domscribe/manifest.jsonl`.
@@ -377,7 +361,7 @@ Then add this MCP config to your agent:
 
 ## Comparison
 
-| Feature               | Domscribe                                    | [Stagewise](https://github.com/stagewise-io/stagewise) | [DevInspector MCP](https://github.com/mcpc-tech/dev-inspector-mcp) | [React Grab](https://github.com/aidenybai/react-grab) | [Frontman](https://github.com/frontman-ai/frontman) |
+| Feature               | PinFlow                                      | [Stagewise](https://github.com/stagewise-io/stagewise) | [DevInspector MCP](https://github.com/mcpc-tech/dev-inspector-mcp) | [React Grab](https://github.com/aidenybai/react-grab) | [Frontman](https://github.com/frontman-ai/frontman) |
 | --------------------- | -------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------ | ----------------------------------------------------- | --------------------------------------------------- |
 | Build-time stable IDs | ✅ `data-ds` via AST                         | ❌ Runtime (CDP)                                       | ❌ No stable IDs                                                   | ❌ `_debugSource`                                     | ❌ Runtime framework introspection                  |
 | DOM→source manifest   | ✅ JSONL, append-only                        | ❌                                                     | ❌                                                                 | ❌                                                    | ❌                                                  |

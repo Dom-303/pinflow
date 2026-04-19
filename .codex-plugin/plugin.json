@@ -1,0 +1,20 @@
+{
+  "name": "domscribe",
+  "version": "0.5.2-codex.1",
+  "description": "Codex plugin manifest for Domscribe.",
+  "author": {
+    "name": "Patch Orbit / EventBaer"
+  },
+  "license": "MIT",
+  "skills": "./skills",
+  "mcpServers": {
+    "domscribe": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@domscribe/mcp"
+      ]
+    }
+  }
+}

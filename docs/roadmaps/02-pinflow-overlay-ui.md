@@ -7,6 +7,7 @@ Turn the current overlay into a visibly `PinFlow` product surface:
 - German-first working interface
 - cleaner terminology
 - better visual hierarchy
+- deliberate light/dark theming
 - room for later queue and automation features
 
 ## Why Second
@@ -34,12 +35,18 @@ The overlay is the daily working surface. Once the visible brand exists, the nex
 - Introduce more polished empty states and action labels
 - Make the collapsed/expanded states feel more productized
 - Create a calmer and more modern visual system
+- Add a manual theme switcher directly in the UI
+- Treat the current `Paper Glow` direction as the canonical `Light Mode`
+- Design and implement a matching `Dark Mode` rather than a quick inverted palette
+- Persist the user-selected theme locally so the choice survives restarts
+- Support theme-aware assets, especially a light logo and a dark logo
 
 ## Later
 
 - Rework structural layout when queue/dispatcher features need more space
 - Add optional project switcher or environment switcher when the multi-project workflow matures
 - Consider replacing or redesigning parts of the current sidebar interaction model
+- Revisit whether theme controls should stay compact in the main sidebar or move into a richer session/settings surface
 
 ## Design Rules
 
@@ -48,6 +55,9 @@ The overlay is the daily working surface. Once the visible brand exists, the nex
 - Prefer German for the working surface
 - Keep developer internals and package names in English where useful
 - Optimize for clarity over ornament
+- Keep theme switching manual and explicit in the first version
+- Do not add system-theme auto-detection until there is a real need for it
+- Make both themes feel like first-class product surfaces, not one primary theme plus a fallback skin
 
 ## Structural Warning Signs
 
@@ -65,3 +75,4 @@ Until then, direct overlay adaptation is the right level of change.
 - The user-facing overlay feels like `PinFlow`, not a translated upstream demo
 - Core working language is German
 - The UI is clearer, calmer, and better aligned with the intended workflow
+- Users can switch between persistent `Light` and `Dark` modes without losing product coherence

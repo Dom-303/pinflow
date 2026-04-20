@@ -83,7 +83,7 @@ export class DsHeader extends LitElement {
       }
 
       .btn-icon:hover {
-        background: rgba(215, 178, 127, 0.14);
+        background: var(--ds-highlight);
         color: var(--ds-text-primary);
       }
 

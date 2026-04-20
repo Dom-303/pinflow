@@ -30,16 +30,44 @@ export class DsElementPreview extends LitElement {
     css`
       :host {
         display: block;
-        background: rgba(6, 182, 212, 0.06);
-        border-left: 3px solid var(--ds-cyan-500);
-        border-radius: var(--ds-radius-md);
+        position: relative;
+        background:
+          linear-gradient(
+            180deg,
+            rgba(255, 253, 249, 0.96) 0%,
+            rgba(247, 241, 232, 0.94) 100%
+          );
+        border: 1px solid var(--ds-shell-border-soft);
+        border-radius: calc(var(--ds-radius-lg) + 2px);
+        box-shadow: var(--ds-shadow-md);
         overflow: hidden;
-        /* Clean design: left accent only, subtle background */
+      }
+
+      :host::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(
+            circle at top left,
+            rgba(255, 255, 255, 0.82) 0%,
+            rgba(255, 255, 255, 0) 54%
+          ),
+          linear-gradient(
+            135deg,
+            rgba(247, 222, 192, 0.16) 0%,
+            rgba(247, 222, 192, 0) 46%
+          );
+        pointer-events: none;
       }
 
       /* Main content area - single unified padding */
       .element-content {
-        padding: var(--ds-space-md);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: var(--ds-space-sm);
+        padding: 14px;
       }
 
       /* Header row: primary info + dismiss button */
@@ -48,79 +76,133 @@ export class DsElementPreview extends LitElement {
         align-items: flex-start;
         justify-content: space-between;
         gap: var(--ds-space-sm);
-        margin-bottom: var(--ds-space-xs);
       }
 
       /* Primary row: tag + component name inline */
       .element-primary {
         display: flex;
-        align-items: baseline;
-        gap: var(--ds-space-sm);
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
         flex: 1;
         min-width: 0;
       }
 
-      /* Dismiss button */
+      .section-label {
+        font-size: var(--ds-font-size-xs);
+        font-weight: var(--ds-font-weight-medium);
+        color: var(--ds-text-tertiary);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .identity-row {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: var(--ds-space-sm);
+        min-width: 0;
+      }
+
       .btn-dismiss {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 24px;
-        height: 24px;
+        width: 28px;
+        height: 28px;
         padding: 0;
-        background: transparent;
-        border: none;
-        border-radius: var(--ds-radius-sm);
-        color: var(--ds-text-tertiary);
+        background: rgba(255, 252, 247, 0.82);
+        border: 1px solid var(--ds-shell-border-muted);
+        border-radius: var(--ds-radius-md);
+        box-shadow: var(--ds-shadow-sm);
+        color: var(--ds-text-secondary);
         cursor: pointer;
-        transition: all var(--ds-transition-fast);
+        transition:
+          color var(--ds-transition-fast),
+          background var(--ds-transition-fast),
+          border-color var(--ds-transition-fast),
+          transform var(--ds-transition-fast);
         flex-shrink: 0;
       }
 
       .btn-dismiss:hover {
-        background: rgba(255, 255, 255, 0.1);
-        color: var(--ds-text-secondary);
+        background: var(--ds-shell-surface-strong);
+        border-color: var(--ds-shell-border-soft);
+        color: var(--ds-text-primary);
+        transform: translateY(-1px);
       }
 
       .btn-dismiss svg {
-        width: 14px;
-        height: 14px;
+        width: 13px;
+        height: 13px;
       }
 
       .tag-name {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        background: rgba(255, 252, 247, 0.84);
+        border: 1px solid rgba(225, 213, 198, 0.94);
+        border-radius: var(--ds-radius-full);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.78);
         font-family: var(--ds-font-mono);
-        font-size: var(--ds-font-size-md);
+        font-size: 13px;
         font-weight: var(--ds-font-weight-semibold);
-        color: var(--ds-text-accent);
+        color: var(--ds-text-primary);
       }
 
       .component-name {
         font-size: var(--ds-font-size-sm);
-        color: var(--ds-cyan-400);
-        margin-left: auto;
+        font-weight: var(--ds-font-weight-medium);
+        color: var(--ds-text-secondary);
+      }
+
+      .source-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
+      }
+
+      .source-label {
+        font-size: var(--ds-font-size-xs);
+        color: var(--ds-text-tertiary);
+        white-space: nowrap;
       }
 
       /* Source location - compact, truncated */
       .source-location {
+        display: inline-flex;
+        align-items: center;
+        min-width: 0;
+        max-width: 100%;
+        padding: 3px 8px;
+        background: rgba(247, 243, 236, 0.88);
+        border: 1px solid var(--ds-shell-border-muted);
+        border-radius: var(--ds-radius-full);
         font-family: var(--ds-font-mono);
         font-size: var(--ds-font-size-sm);
         color: var(--ds-text-secondary);
         cursor: default;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       .source-location:hover {
         color: var(--ds-text-primary);
+        background: rgba(255, 252, 247, 0.96);
       }
 
       /* Context panel spacing */
       ds-context-panel {
-        margin-top: var(--ds-space-sm);
+        margin-top: 2px;
       }
 
       .empty-state {
+        padding: 14px;
         font-size: var(--ds-font-size-sm);
-        color: var(--ds-text-tertiary);
-        font-style: italic;
+        color: var(--ds-text-secondary);
       }
     `,
   ];
@@ -188,7 +270,7 @@ export class DsElementPreview extends LitElement {
       this.storeController.state;
 
     if (!selectedElement) {
-      return html`<div class="empty-state">No element selected</div>`;
+      return html`<div class="empty-state">Kein Element ausgewaehlt</div>`;
     }
 
     const tagName = selectedElement.tagName.toLowerCase();
@@ -213,19 +295,31 @@ export class DsElementPreview extends LitElement {
 
     return html`
       <div class="element-content">
-        <!-- Header: tag name + component name + dismiss button -->
         <div class="element-header">
           <div class="element-primary">
-            <span class="tag-name">&lt;${tagName}&gt;</span>
-            ${componentName
-              ? html`<span class="component-name">${componentName}</span>`
+            <span class="section-label">Auswahl</span>
+            <div class="identity-row">
+              <span class="tag-name">&lt;${tagName}&gt;</span>
+              ${componentName
+                ? html`<span class="component-name">${componentName}</span>`
+                : null}
+            </div>
+            ${sourcePath
+              ? html`
+                  <div class="source-row">
+                    <span class="source-label">Quelle</span>
+                    <span class="source-location" title="${sourcePath.full}"
+                      >${sourcePath.display}</span
+                    >
+                  </div>
+                `
               : null}
           </div>
           <button
             class="btn-dismiss"
             @click=${this.handleClearSelection}
-            title="Clear selection"
-            aria-label="Clear element selection"
+            title="Auswahl aufheben"
+            aria-label="Elementauswahl aufheben"
           >
             <svg
               viewBox="0 0 24 24"
@@ -237,15 +331,6 @@ export class DsElementPreview extends LitElement {
             </svg>
           </button>
         </div>
-
-        <!-- Source location - compact, hover for full path -->
-        ${sourcePath
-          ? html`<span class="source-location" title="${sourcePath.full}"
-              >${sourcePath.display}</span
-            >`
-          : null}
-
-        <!-- Props/State collapsible panel -->
         <ds-context-panel .props=${props} .state=${state}></ds-context-panel>
       </div>
     `;

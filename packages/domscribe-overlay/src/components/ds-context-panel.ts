@@ -38,49 +38,52 @@ export class DsContextPanel extends LitElement {
 
       .section {
         padding-top: var(--ds-space-sm);
-        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        border-top: 1px solid rgba(219, 205, 188, 0.78);
       }
 
       .section + .section {
-        margin-top: var(--ds-space-sm);
+        margin-top: var(--ds-space-md);
       }
 
       .section-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: var(--ds-space-xs) 0;
+        padding: 2px 2px 4px;
+        border-radius: var(--ds-radius-sm);
         cursor: pointer;
-        transition: color var(--ds-transition-fast);
+        transition:
+          color var(--ds-transition-fast),
+          background var(--ds-transition-fast);
       }
 
       .section-header:hover {
         color: var(--ds-text-primary);
+        background: rgba(243, 237, 228, 0.78);
       }
 
       .section-title {
         display: flex;
         align-items: center;
-        gap: var(--ds-space-sm);
-        font-size: var(--ds-font-size-xs);
+        gap: 6px;
+        font-size: 11px;
         font-weight: var(--ds-font-weight-medium);
-        color: var(--ds-text-tertiary);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        text-align: center;
+        color: var(--ds-text-secondary);
+        letter-spacing: 0.01em;
       }
 
       .section-count {
         font-size: var(--ds-font-size-xs);
         color: var(--ds-text-tertiary);
-        background: rgba(255, 255, 255, 0.06);
-        padding: 1px 5px;
-        border-radius: var(--ds-radius-sm);
+        background: rgba(255, 252, 247, 0.82);
+        border: 1px solid var(--ds-shell-border-muted);
+        padding: 1px 7px;
+        border-radius: var(--ds-radius-full);
       }
 
       .chevron {
-        width: 14px;
-        height: 14px;
+        width: 12px;
+        height: 12px;
         color: var(--ds-text-tertiary);
         transition: transform var(--ds-transition-fast);
       }
@@ -90,30 +93,38 @@ export class DsContextPanel extends LitElement {
       }
 
       .section-content {
-        padding: var(--ds-space-sm) 0;
-        max-height: 150px;
+        display: grid;
+        gap: 6px;
+        margin-top: 6px;
+        padding-top: var(--ds-space-sm);
+        border-top: 1px solid rgba(231, 223, 210, 0.7);
+        max-height: 164px;
         overflow-y: auto;
       }
 
       .property {
-        display: flex;
+        display: grid;
+        grid-template-columns: minmax(72px, auto) minmax(0, 1fr);
         gap: var(--ds-space-sm);
-        padding: var(--ds-space-xs) 0;
+        align-items: start;
+        padding: 7px 10px;
+        background: rgba(255, 252, 247, 0.58);
+        border: 1px solid rgba(231, 223, 210, 0.8);
+        border-radius: 10px;
         font-size: var(--ds-font-size-xs);
       }
 
       .property-name {
-        flex-shrink: 0;
         font-family: var(--ds-font-mono);
-        color: var(--ds-text-accent);
+        color: var(--ds-text-secondary);
+        white-space: nowrap;
       }
 
       .property-value {
+        min-width: 0;
         font-family: var(--ds-font-mono);
-        color: var(--ds-text-tertiary);
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        color: var(--ds-text-primary);
+        overflow-wrap: anywhere;
       }
     `,
   ];
@@ -195,10 +206,10 @@ export class DsContextPanel extends LitElement {
     }
 
     return html`
-      ${this.renderSection('Props', this.props, this.propsExpanded, () =>
+      ${this.renderSection('Eigenschaften', this.props, this.propsExpanded, () =>
         this.toggleProps(),
       )}
-      ${this.renderSection('State', this.state, this.stateExpanded, () =>
+      ${this.renderSection('Status', this.state, this.stateExpanded, () =>
         this.toggleState(),
       )}
     `;

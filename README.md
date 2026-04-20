@@ -41,7 +41,10 @@
 
 **AI coding agents edit your source files blind — they can't see your running frontend, and your frontend can't tell them where to look.**
 
-PinFlow bridges both directions: click a DOM element to tell your agent what to change, or let your agent query any source location to see exactly what it looks like live in the browser. It is built on top of the Domscribe source-mapped runtime foundation. Build-time stable IDs, deep runtime context (props, state, DOM), framework-agnostic, any MCP-compatible agent. Zero production impact.
+PinFlow bridges both directions: click a DOM element to tell your agent what to change, or let your agent query any source location to see exactly what it looks like live in the browser. It is built on top of the original [Domscribe](https://github.com/patchorbit/domscribe) source-mapped runtime foundation. Build-time stable IDs, deep runtime context (props, state, DOM), framework-agnostic, any MCP-compatible agent. Zero production impact.
+
+> [!NOTE]
+> `PinFlow` is our productized adaptation of the original [Domscribe](https://github.com/patchorbit/domscribe) codebase. The visible product surface, workflow wording, and UI can evolve here, while the current technical compatibility layer intentionally still uses `domscribe` package names, commands, and artifact paths.
 
 ---
 

@@ -1,7 +1,10 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="./assets/9.png" />
-    <img src="./assets/10.png" alt="PinFlow" width="520" />
+    <source
+      media="(prefers-color-scheme: dark)"
+      srcset="./assets/pinflow-horizontal-dark.png"
+    />
+    <img src="./assets/pinflow-horizontal-light.png" alt="PinFlow" width="520" />
   </picture>
 </p>
 

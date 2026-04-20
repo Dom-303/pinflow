@@ -1,9 +1,9 @@
 /**
  * Theme - CSS variables and design tokens for the overlay
  *
- * Domscribe Design System
- * Primary: Cyan (#06b6d4) - Technical precision, clarity, trust
- * Foundation: Cool-tinted dark grays - Developer-first aesthetic
+ * PinFlow overlay design system
+ * Primary: warm paper glow accents
+ * Foundation: soft editorial neutrals for a calm workspace
  */
 
 import { css } from 'lit';
@@ -14,78 +14,78 @@ import { css } from 'lit';
 export const themeStyles = css`
   :host {
     /* ========================================
-     * DOMSCRIBE DESIGN SYSTEM
+     * PINFLOW OVERLAY DESIGN SYSTEM
      * ======================================== */
 
-    /* Cyan Scale - Primary Brand */
-    --ds-cyan-50: #ecfeff;
-    --ds-cyan-100: #cffafe;
-    --ds-cyan-200: #a5f3fc;
-    --ds-cyan-300: #67e8f9;
-    --ds-cyan-400: #22d3ee;
-    --ds-cyan-500: #06b6d4;
-    --ds-cyan-600: #0891b2;
-    --ds-cyan-700: #0e7490;
-    --ds-cyan-800: #155e75;
-    --ds-cyan-900: #164e63;
+    /* Accent Scale - kept on existing token names for compatibility */
+    --ds-cyan-50: #fff8ef;
+    --ds-cyan-100: #f9ead8;
+    --ds-cyan-200: #f1d9b8;
+    --ds-cyan-300: #e7c193;
+    --ds-cyan-400: #d9a976;
+    --ds-cyan-500: #c79564;
+    --ds-cyan-600: #b78253;
+    --ds-cyan-700: #9b6940;
+    --ds-cyan-800: #7a5132;
+    --ds-cyan-900: #5b3d28;
 
-    /* Neutral Scale - Cool-tinted grays */
-    --ds-neutral-50: #fafafa;
-    --ds-neutral-100: #f4f4f5;
-    --ds-neutral-200: #e4e4e7;
-    --ds-neutral-300: #d4d4d8;
-    --ds-neutral-400: #a1a1aa;
-    --ds-neutral-500: #71717a;
-    --ds-neutral-600: #52525b;
-    --ds-neutral-700: #3f3f46;
-    --ds-neutral-800: #27272a;
-    --ds-neutral-900: #18181b;
-    --ds-neutral-950: #0a0a0b;
+    /* Neutral Scale - Warm paper and taupe */
+    --ds-neutral-50: #fffdfa;
+    --ds-neutral-100: #faf6ef;
+    --ds-neutral-200: #efe7dc;
+    --ds-neutral-300: #e1d5c6;
+    --ds-neutral-400: #b6a796;
+    --ds-neutral-500: #8d8175;
+    --ds-neutral-600: #6f6458;
+    --ds-neutral-700: #564c44;
+    --ds-neutral-800: #413932;
+    --ds-neutral-900: #312b25;
+    --ds-neutral-950: #211c17;
 
     /* ========================================
      * SEMANTIC TOKENS
      * ======================================== */
 
-    /* Backgrounds - Layered depth (dark to light) */
-    --ds-bg-app: var(--ds-neutral-950);
-    --ds-bg-primary: var(--ds-neutral-900);
-    --ds-bg-secondary: var(--ds-neutral-800);
-    --ds-bg-tertiary: var(--ds-neutral-700);
-    --ds-bg-hover: var(--ds-neutral-700);
-    --ds-bg-active: var(--ds-neutral-600);
+    /* Backgrounds - warm paper surfaces */
+    --ds-bg-app: #f3efe8;
+    --ds-bg-primary: #f7f3ec;
+    --ds-bg-secondary: rgba(255, 251, 244, 0.86);
+    --ds-bg-tertiary: #fffdfa;
+    --ds-bg-hover: #f3ede4;
+    --ds-bg-active: #ece4d8;
 
     /* Text colors */
-    --ds-text-primary: var(--ds-neutral-50);
-    --ds-text-secondary: var(--ds-neutral-400);
-    --ds-text-tertiary: var(--ds-neutral-500);
-    --ds-text-accent: var(--ds-cyan-500);
+    --ds-text-primary: #312b25;
+    --ds-text-secondary: #6f6458;
+    --ds-text-tertiary: #8d8175;
+    --ds-text-accent: #b27d4f;
 
     /* Brand colors */
-    --ds-brand-primary: var(--ds-cyan-500);
-    --ds-brand-secondary: var(--ds-cyan-600);
-    --ds-brand-light: var(--ds-cyan-400);
+    --ds-brand-primary: #c79564;
+    --ds-brand-secondary: #b78253;
+    --ds-brand-light: #e1bf98;
 
     /* Status colors */
     --ds-success: #10b981;
     --ds-warning: #f59e0b;
     --ds-error: #ef4444;
-    --ds-info: var(--ds-cyan-500);
+    --ds-info: var(--ds-brand-primary);
 
     /* Highlight color (for element picker) */
-    --ds-highlight: rgba(6, 182, 212, 0.15);
-    --ds-highlight-border: var(--ds-cyan-500);
-    --ds-highlight-glow: 0 0 20px rgba(6, 182, 212, 0.3);
+    --ds-highlight: rgba(199, 149, 100, 0.14);
+    --ds-highlight-border: #c79564;
+    --ds-highlight-glow: 0 0 26px rgba(215, 178, 127, 0.22);
 
     /* Border colors */
-    --ds-border-primary: var(--ds-neutral-700);
-    --ds-border-secondary: var(--ds-neutral-800);
-    --ds-border-focus: var(--ds-cyan-500);
+    --ds-border-primary: #e7dfd2;
+    --ds-border-secondary: #efe7dc;
+    --ds-border-focus: #c79564;
 
     /* Shadows */
-    --ds-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-    --ds-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.5);
-    --ds-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.6);
-    --ds-shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.7);
+    --ds-shadow-sm: 0 4px 10px rgba(92, 71, 48, 0.05);
+    --ds-shadow-md: 0 10px 24px rgba(92, 71, 48, 0.08);
+    --ds-shadow-lg: 0 18px 40px rgba(92, 71, 48, 0.1);
+    --ds-shadow-xl: 0 28px 60px rgba(92, 71, 48, 0.12);
 
     /* Spacing */
     --ds-space-xs: 4px;
@@ -96,9 +96,9 @@ export const themeStyles = css`
     --ds-space-2xl: 32px;
 
     /* Border radius */
-    --ds-radius-sm: 4px;
-    --ds-radius-md: 8px;
-    --ds-radius-lg: 12px;
+    --ds-radius-sm: 8px;
+    --ds-radius-md: 12px;
+    --ds-radius-lg: 18px;
     --ds-radius-full: 9999px;
 
     /* Typography */

@@ -29,15 +29,17 @@ export class DsHeader extends LitElement {
     css`
       :host {
         display: block;
-        padding: var(--ds-space-md);
-        background: var(--ds-bg-secondary);
+        padding: 16px 16px 12px;
+        background: rgba(255, 251, 244, 0.84);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid rgba(239, 231, 220, 0.86);
         transition: box-shadow var(--ds-transition-fast);
         position: relative;
         z-index: 1;
       }
 
       :host([scrolled]) {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 10px 24px rgba(92, 71, 48, 0.08);
       }
 
       .header-row {
@@ -59,9 +61,9 @@ export class DsHeader extends LitElement {
       }
 
       .brand-name {
-        font-size: var(--ds-font-size-lg);
-        font-weight: var(--ds-font-weight-medium);
-        letter-spacing: -0.02em;
+        font-size: 17px;
+        font-weight: var(--ds-font-weight-semibold);
+        letter-spacing: -0.03em;
         color: var(--ds-text-primary);
       }
 
@@ -72,8 +74,8 @@ export class DsHeader extends LitElement {
         width: 32px;
         height: 32px;
         padding: 0;
-        background: transparent;
-        border: none;
+        background: rgba(255, 253, 250, 0.72);
+        border: 1px solid rgba(231, 223, 210, 0.9);
         border-radius: var(--ds-radius-md);
         color: var(--ds-text-secondary);
         cursor: pointer;
@@ -81,7 +83,7 @@ export class DsHeader extends LitElement {
       }
 
       .btn-icon:hover {
-        background: var(--ds-bg-hover);
+        background: rgba(215, 178, 127, 0.14);
         color: var(--ds-text-primary);
       }
 

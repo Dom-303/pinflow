@@ -65,13 +65,25 @@ export class DsSidebar extends LitElement {
         display: flex;
         flex-direction: column;
         position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
+        top: 12px;
+        right: 12px;
+        bottom: 12px;
         width: var(--ds-sidebar-width);
-        background: var(--ds-bg-primary);
-        /* No left border - shadow provides enough visual separation */
+        background:
+          radial-gradient(
+            circle at top right,
+            rgba(245, 222, 192, 0.72),
+            transparent 34%
+          ),
+          linear-gradient(
+            180deg,
+            rgba(255, 252, 247, 0.96) 0%,
+            rgba(246, 242, 234, 0.96) 100%
+          );
+        border: 1px solid var(--ds-border-primary);
+        border-radius: 24px;
         box-shadow: var(--ds-shadow-xl);
+        overflow: hidden;
       }
 
       .sidebar-content {
@@ -85,16 +97,16 @@ export class DsSidebar extends LitElement {
       .main-content {
         flex: 1;
         overflow-y: auto;
-        padding: var(--ds-space-md);
+        padding: 16px 16px 12px;
       }
 
       .section-title {
-        font-size: var(--ds-font-size-sm);
+        font-size: 11px;
         font-weight: var(--ds-font-weight-medium);
         color: var(--ds-text-secondary);
         text-transform: uppercase;
-        letter-spacing: 0.05em;
-        margin-bottom: var(--ds-space-sm);
+        letter-spacing: 0.08em;
+        margin-bottom: 14px;
       }
 
       .empty-state {
@@ -120,13 +132,15 @@ export class DsSidebar extends LitElement {
         display: flex;
         flex-direction: column;
         gap: var(--ds-space-md);
-        padding: var(--ds-space-md);
-        background: var(--ds-bg-secondary);
+        padding: 16px;
+        background: rgba(255, 251, 244, 0.72);
+        backdrop-filter: blur(12px);
+        border-top: 1px solid rgba(231, 223, 210, 0.9);
         transition: box-shadow var(--ds-transition-fast);
       }
 
       .action-zone.has-more {
-        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 -12px 28px rgba(92, 71, 48, 0.08);
       }
 
       /* Status bar - right-aligned */
@@ -137,6 +151,7 @@ export class DsSidebar extends LitElement {
         gap: var(--ds-space-xs);
         font-size: var(--ds-font-size-xs);
         color: var(--ds-text-tertiary);
+        letter-spacing: 0.01em;
       }
 
       .status-dot {
@@ -165,7 +180,7 @@ export class DsSidebar extends LitElement {
 
         <!-- Scrollable annotations area -->
         <div class="main-content" @scroll=${this.handleScroll}>
-          <div class="section-title">Annotations (${annotations.length})</div>
+          <div class="section-title">Anmerkungen (${annotations.length})</div>
           ${html`<ds-annotation-list></ds-annotation-list>`}
         </div>
 
@@ -186,7 +201,7 @@ export class DsSidebar extends LitElement {
                 ? 'connected'
                 : 'disconnected'}"
             ></span>
-            <span>${relayConnected ? 'Connected' : 'Disconnected'}</span>
+            <span>${relayConnected ? 'Verbunden' : 'Nicht verbunden'}</span>
           </div>
         </div>
       </div>

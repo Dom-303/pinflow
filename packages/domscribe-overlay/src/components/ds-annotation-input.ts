@@ -35,15 +35,22 @@ export class DsAnnotationInput extends LitElement {
       }
 
       .input-wrapper {
-        background: var(--ds-bg-tertiary);
+        background: rgba(255, 253, 250, 0.92);
         border: 1px solid var(--ds-border-primary);
         border-radius: var(--ds-radius-lg);
         overflow: hidden;
-        transition: border-color var(--ds-transition-fast);
+        box-shadow: var(--ds-shadow-sm);
+        backdrop-filter: blur(10px);
+        transition:
+          border-color var(--ds-transition-fast),
+          box-shadow var(--ds-transition-fast),
+          transform var(--ds-transition-fast);
       }
 
       .input-wrapper:focus-within {
         border-color: var(--ds-brand-primary);
+        box-shadow: var(--ds-highlight-glow);
+        transform: translateY(-1px);
       }
 
       .textarea-container.disabled {
@@ -83,7 +90,7 @@ export class DsAnnotationInput extends LitElement {
         justify-content: space-between;
         padding: var(--ds-space-sm) var(--ds-space-md);
         border-top: 1px solid var(--ds-border-secondary);
-        background: rgba(0, 0, 0, 0.15);
+        background: rgba(255, 251, 244, 0.72);
       }
 
       .action-group {
@@ -120,7 +127,7 @@ export class DsAnnotationInput extends LitElement {
 
       .action-btn.active {
         color: var(--ds-brand-primary);
-        background: rgba(6, 182, 212, 0.1);
+        background: var(--ds-highlight);
       }
 
       .action-btn svg {
@@ -139,7 +146,8 @@ export class DsAnnotationInput extends LitElement {
         background: var(--ds-brand-primary);
         border: none;
         border-radius: var(--ds-radius-md);
-        color: var(--ds-neutral-950);
+        box-shadow: var(--ds-shadow-sm);
+        color: var(--ds-bg-tertiary);
         cursor: pointer;
         transition: all var(--ds-transition-fast);
       }
@@ -151,8 +159,9 @@ export class DsAnnotationInput extends LitElement {
       .submit-btn:disabled {
         opacity: 0.4;
         cursor: not-allowed;
-        background: var(--ds-bg-tertiary);
+        background: var(--ds-bg-secondary);
         color: var(--ds-text-tertiary);
+        box-shadow: none;
       }
 
       .submit-btn svg {
@@ -164,7 +173,7 @@ export class DsAnnotationInput extends LitElement {
       .hint {
         margin-top: var(--ds-space-xs);
         font-size: var(--ds-font-size-xs);
-        color: var(--ds-text-tertiary);
+        color: var(--ds-text-secondary);
         text-align: center;
       }
     `,

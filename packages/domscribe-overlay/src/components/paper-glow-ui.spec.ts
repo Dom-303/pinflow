@@ -9,6 +9,10 @@ const mockStore = {
   setMode: vi.fn(),
   setTheme: vi.fn(),
   toggleTheme: vi.fn(),
+  setDispatchSessionOverrides: vi.fn(),
+  updateDispatchProjectDefaults: vi.fn(),
+  clearDispatchSessionOverrides: vi.fn(),
+  toggleDispatchPaused: vi.fn(),
   enterCaptureMode: vi.fn(),
   submitAnnotation: vi.fn().mockResolvedValue(undefined),
 };
@@ -20,6 +24,17 @@ const mockState = {
   mode: 'expanded',
   theme: 'light' as const,
   tabOffsetY: 50,
+  dispatchProjectDefaults: {
+    channel: 'codex' as const,
+    mode: 'manual' as const,
+    threshold: 3,
+    concurrency: 3,
+    continuation: 'automatic' as const,
+  },
+  dispatchSession: {
+    overrides: {},
+    paused: false,
+  },
 };
 
 const enableCapture = vi.fn();
@@ -51,6 +66,17 @@ describe('Paper Glow UI contract', () => {
     mockState.relayConnected = false;
     mockState.mode = 'expanded';
     mockState.theme = 'light';
+    mockState.dispatchProjectDefaults = {
+      channel: 'codex',
+      mode: 'manual',
+      threshold: 3,
+      concurrency: 3,
+      continuation: 'automatic',
+    };
+    mockState.dispatchSession = {
+      overrides: {},
+      paused: false,
+    };
     vi.clearAllMocks();
   });
 
@@ -122,15 +148,34 @@ describe('Paper Glow UI contract', () => {
 
     await sidebar.updateComplete;
 
+    const workflowPanel = sidebar.shadowRoot.querySelector(
+      'ds-workflow-panel',
+    ) as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await workflowPanel.updateComplete;
+
     expect(sidebar.shadowRoot.textContent).toContain('Anmerkungen (2)');
     expect(sidebar.shadowRoot.textContent).toContain('Verbunden');
     expect(sidebar.shadowRoot.querySelector('.status-dot.connected')).not.toBeNull();
     expect(sidebar.shadowRoot.querySelector('ds-annotation-input')).not.toBeNull();
+    expect(workflowPanel.shadowRoot.textContent).toContain('Queue und Versand');
+    expect(workflowPanel.shadowRoot.textContent).toContain('Codex');
 
     const darkToggle = sidebar.shadowRoot.querySelector(
       'button[aria-label="Dunkelmodus aktivieren"]',
     ) as HTMLButtonElement;
     darkToggle.click();
     expect(mockStore.setTheme).toHaveBeenCalledWith('dark');
+
+    const claudeButton = workflowPanel.shadowRoot.querySelector(
+      'button[aria-label="Kanal Claude fuer diese Session aktivieren"]',
+    ) as HTMLButtonElement;
+    claudeButton.click();
+    expect(mockStore.setDispatchSessionOverrides).toHaveBeenCalledWith({
+      channel: 'claude',
+    });
   });
 });

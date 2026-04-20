@@ -7,6 +7,10 @@ import type {
   ManifestEntry,
   Annotation,
 } from '@domscribe/core';
+import type {
+  DispatchProjectDefaults,
+  DispatchSessionState,
+} from './dispatch-config.js';
 
 /**
  * Overlay display mode
@@ -28,6 +32,8 @@ export interface OverlayState {
   sidebarWidth: number;
   /** Vertical position of the collapsed tab as a percentage (0–100). Default: 50 (center). */
   tabOffsetY: number;
+  dispatchProjectDefaults: DispatchProjectDefaults;
+  dispatchSession: DispatchSessionState;
 
   // Connection State
   relayConnected: boolean;

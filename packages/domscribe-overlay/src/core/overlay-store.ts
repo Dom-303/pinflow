@@ -18,6 +18,18 @@ import type {
   OverlayOptions,
   OverlayTheme,
 } from './types.js';
+import {
+  DEFAULT_DISPATCH_PROJECT_DEFAULTS,
+  DEFAULT_DISPATCH_SESSION_STATE,
+  mergeDispatchConfig,
+  normalizeProjectDefaults,
+  normalizeSessionOverrides,
+} from './dispatch-config.js';
+import type {
+  DispatchProjectDefaults,
+  DispatchSessionOverrides,
+  EffectiveDispatchConfig,
+} from './dispatch-config.js';
 import { BridgeDispatch } from '@domscribe/runtime';
 import { RelayService } from '../services/relay-service.js';
 
@@ -35,6 +47,8 @@ const DEFAULT_STATE: OverlayState = {
   theme: 'light',
   sidebarWidth: 360,
   tabOffsetY: 50,
+  dispatchProjectDefaults: DEFAULT_DISPATCH_PROJECT_DEFAULTS,
+  dispatchSession: DEFAULT_DISPATCH_SESSION_STATE,
 
   // Connection State
   relayConnected: false,
@@ -69,6 +83,7 @@ export class OverlayStore {
 
   private static readonly TAB_OFFSET_KEY = 'domscribe:tabOffsetY';
   private static readonly THEME_KEY = 'pinflow:theme';
+  private static readonly DISPATCH_DEFAULTS_KEY = 'pinflow:dispatchDefaults';
 
   private constructor(options?: OverlayOptions) {
     this.state = {
@@ -77,6 +92,8 @@ export class OverlayStore {
       theme: options?.initialTheme ?? OverlayStore.loadTheme(),
       sidebarWidth: options?.sidebarWidth ?? 360,
       tabOffsetY: OverlayStore.loadTabOffsetY(),
+      dispatchProjectDefaults: OverlayStore.loadDispatchProjectDefaults(),
+      dispatchSession: { ...DEFAULT_DISPATCH_SESSION_STATE, overrides: {} },
       debug: options?.debug ?? false,
     };
   }
@@ -112,6 +129,20 @@ export class OverlayStore {
     return 'light';
   }
 
+  private static loadDispatchProjectDefaults(): DispatchProjectDefaults {
+    try {
+      const stored = localStorage.getItem(OverlayStore.DISPATCH_DEFAULTS_KEY);
+      if (!stored) {
+        return DEFAULT_DISPATCH_PROJECT_DEFAULTS;
+      }
+      return normalizeProjectDefaults(
+        JSON.parse(stored) as Partial<DispatchProjectDefaults>,
+      );
+    } catch {
+      return DEFAULT_DISPATCH_PROJECT_DEFAULTS;
+    }
+  }
+
   /**
    * Set and persist the tab vertical offset (0–100 %)
    */
@@ -145,6 +176,69 @@ export class OverlayStore {
    */
   toggleTheme(): void {
     this.setTheme(this.state.theme === 'light' ? 'dark' : 'light');
+  }
+
+  getEffectiveDispatchConfig(): EffectiveDispatchConfig {
+    return mergeDispatchConfig(
+      this.state.dispatchProjectDefaults,
+      this.state.dispatchSession,
+    );
+  }
+
+  updateDispatchProjectDefaults(
+    partial: Partial<DispatchProjectDefaults>,
+  ): void {
+    const nextDefaults = normalizeProjectDefaults({
+      ...this.state.dispatchProjectDefaults,
+      ...partial,
+    });
+
+    this.setState({ dispatchProjectDefaults: nextDefaults });
+
+    try {
+      localStorage.setItem(
+        OverlayStore.DISPATCH_DEFAULTS_KEY,
+        JSON.stringify(nextDefaults),
+      );
+    } catch {
+      // localStorage unavailable
+    }
+  }
+
+  setDispatchSessionOverrides(
+    partial: Partial<DispatchSessionOverrides>,
+  ): void {
+    this.setState({
+      dispatchSession: {
+        ...this.state.dispatchSession,
+        overrides: normalizeSessionOverrides({
+          ...this.state.dispatchSession.overrides,
+          ...partial,
+        }),
+      },
+    });
+  }
+
+  clearDispatchSessionOverrides(): void {
+    this.setState({
+      dispatchSession: {
+        ...DEFAULT_DISPATCH_SESSION_STATE,
+        paused: this.state.dispatchSession.paused,
+      },
+    });
+  }
+
+  setDispatchPaused(paused: boolean): void {
+    this.setState({
+      dispatchSession: {
+        ...this.state.dispatchSession,
+        paused,
+      },
+    });
+  }
+
+  toggleDispatchPaused(): void {
+    this.setDispatchPaused(!this.state.dispatchSession.paused);
   }
 
   /**

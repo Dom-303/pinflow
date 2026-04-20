@@ -17,6 +17,7 @@ import './ds-header.js';
 import './ds-element-preview.js';
 import './ds-annotation-input.js';
 import './ds-annotation-list.js';
+import './ds-workflow-panel.js';
 
 /**
  * Main sidebar component
@@ -282,6 +283,8 @@ export class DsSidebar extends LitElement {
           ${selectedElement
             ? html`<ds-element-preview></ds-element-preview>`
             : null}
+
+          <ds-workflow-panel></ds-workflow-panel>
 
           <!-- Annotation input with integrated capture button -->
           <ds-annotation-input></ds-annotation-input>

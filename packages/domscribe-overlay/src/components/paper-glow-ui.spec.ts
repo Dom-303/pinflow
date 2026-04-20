@@ -36,21 +36,9 @@ vi.mock('../core/event-manager.js', () => ({
   },
 }));
 
-import { DsHeader } from './ds-header.js';
-import { DsSidebar } from './ds-sidebar.js';
-
-const getCssText = (styles: unknown): string =>
-  (Array.isArray(styles) ? styles : [styles])
-    .flatMap((style) => (Array.isArray(style) ? style : [style]))
-    .map((style) =>
-      typeof style === 'object' &&
-      style !== null &&
-      'cssText' in style &&
-      typeof style.cssText === 'string'
-        ? style.cssText
-        : String(style),
-    )
-    .join('\n');
+import './ds-header.js';
+import './ds-sidebar.js';
+import './ds-annotation-input.js';
 
 describe('Paper Glow UI contract', () => {
   beforeEach(() => {
@@ -80,15 +68,14 @@ describe('Paper Glow UI contract', () => {
     );
 
     expect(brand?.textContent).toBe('PinFlow');
+    expect(header.scrolled).toBe(false);
     expect(closeButton).not.toBeNull();
     expect(closeButton?.querySelector('svg path')).not.toBeNull();
-    expect(getCssText(DsHeader.styles)).toContain(
-      'background: rgba(255, 251, 244, 0.84);',
-    );
-    expect(getCssText(DsHeader.styles)).toContain('backdrop-filter: blur(12px);');
   });
 
   it('renders German-first annotation input copy', async () => {
+    expect(customElements.get('ds-annotation-input')).toBeDefined();
+
     const host = document.createElement('div');
     document.body.appendChild(host);
     render(html`<ds-annotation-input></ds-annotation-input>`, host);
@@ -133,7 +120,7 @@ describe('Paper Glow UI contract', () => {
 
     expect(sidebar.shadowRoot.textContent).toContain('Anmerkungen (2)');
     expect(sidebar.shadowRoot.textContent).toContain('Verbunden');
-    expect(getCssText(DsSidebar.styles)).toContain('circle at top right');
-    expect(getCssText(DsSidebar.styles)).toContain('border-radius: 24px;');
+    expect(sidebar.shadowRoot.querySelector('.status-dot.connected')).not.toBeNull();
+    expect(sidebar.shadowRoot.querySelector('ds-annotation-input')).not.toBeNull();
   });
 });

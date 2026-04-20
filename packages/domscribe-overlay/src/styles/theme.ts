@@ -81,6 +81,24 @@ export const themeStyles = css`
     --ds-border-secondary: #efe7dc;
     --ds-border-focus: #c79564;
 
+    /* Paper Glow shell tokens */
+    --ds-shell-surface: rgba(255, 251, 244, 0.84);
+    --ds-shell-surface-soft: rgba(255, 251, 244, 0.72);
+    --ds-shell-surface-quiet: rgba(255, 253, 250, 0.72);
+    --ds-shell-surface-strong: rgba(255, 253, 250, 0.92);
+    --ds-shell-border-soft: rgba(231, 223, 210, 0.9);
+    --ds-shell-border-muted: rgba(239, 231, 220, 0.86);
+    --ds-shell-glow: rgba(245, 222, 192, 0.72);
+    --ds-shell-shadow-raise: 0 10px 24px rgba(92, 71, 48, 0.08);
+    --ds-shell-shadow-float: 0 -12px 28px rgba(92, 71, 48, 0.08);
+    --ds-shell-blur: blur(12px);
+    --ds-shell-gradient:
+      linear-gradient(
+        180deg,
+        rgba(255, 252, 247, 0.96) 0%,
+        rgba(246, 242, 234, 0.96) 100%
+      );
+
     /* Shadows */
     --ds-shadow-sm: 0 4px 10px rgba(92, 71, 48, 0.05);
     --ds-shadow-md: 0 10px 24px rgba(92, 71, 48, 0.08);

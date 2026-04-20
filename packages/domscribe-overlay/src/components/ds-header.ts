@@ -30,16 +30,16 @@ export class DsHeader extends LitElement {
       :host {
         display: block;
         padding: 16px 16px 12px;
-        background: rgba(255, 251, 244, 0.84);
-        backdrop-filter: blur(12px);
-        border-bottom: 1px solid rgba(239, 231, 220, 0.86);
+        background: var(--ds-shell-surface);
+        backdrop-filter: var(--ds-shell-blur);
+        border-bottom: 1px solid var(--ds-shell-border-muted);
         transition: box-shadow var(--ds-transition-fast);
         position: relative;
         z-index: 1;
       }
 
       :host([scrolled]) {
-        box-shadow: 0 10px 24px rgba(92, 71, 48, 0.08);
+        box-shadow: var(--ds-shell-shadow-raise);
       }
 
       .header-row {
@@ -74,8 +74,8 @@ export class DsHeader extends LitElement {
         width: 32px;
         height: 32px;
         padding: 0;
-        background: rgba(255, 253, 250, 0.72);
-        border: 1px solid rgba(231, 223, 210, 0.9);
+        background: var(--ds-shell-surface-quiet);
+        border: 1px solid var(--ds-shell-border-soft);
         border-radius: var(--ds-radius-md);
         color: var(--ds-text-secondary);
         cursor: pointer;

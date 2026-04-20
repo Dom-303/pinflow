@@ -70,17 +70,9 @@ export class DsSidebar extends LitElement {
         bottom: 12px;
         width: var(--ds-sidebar-width);
         background:
-          radial-gradient(
-            circle at top right,
-            rgba(245, 222, 192, 0.72),
-            transparent 34%
-          ),
-          linear-gradient(
-            180deg,
-            rgba(255, 252, 247, 0.96) 0%,
-            rgba(246, 242, 234, 0.96) 100%
-          );
-        border: 1px solid var(--ds-border-primary);
+          radial-gradient(circle at top right, var(--ds-shell-glow), transparent 34%),
+          var(--ds-shell-gradient);
+        border: 1px solid var(--ds-shell-border-soft);
         border-radius: 24px;
         box-shadow: var(--ds-shadow-xl);
         overflow: hidden;
@@ -133,14 +125,14 @@ export class DsSidebar extends LitElement {
         flex-direction: column;
         gap: var(--ds-space-md);
         padding: 16px;
-        background: rgba(255, 251, 244, 0.72);
-        backdrop-filter: blur(12px);
-        border-top: 1px solid rgba(231, 223, 210, 0.9);
+        background: var(--ds-shell-surface-soft);
+        backdrop-filter: var(--ds-shell-blur);
+        border-top: 1px solid var(--ds-shell-border-soft);
         transition: box-shadow var(--ds-transition-fast);
       }
 
       .action-zone.has-more {
-        box-shadow: 0 -12px 28px rgba(92, 71, 48, 0.08);
+        box-shadow: var(--ds-shell-shadow-float);
       }
 
       /* Status bar - right-aligned */

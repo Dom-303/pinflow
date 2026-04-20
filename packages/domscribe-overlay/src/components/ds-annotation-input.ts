@@ -35,12 +35,12 @@ export class DsAnnotationInput extends LitElement {
       }
 
       .input-wrapper {
-        background: rgba(255, 253, 250, 0.92);
-        border: 1px solid var(--ds-border-primary);
+        background: var(--ds-shell-surface-strong);
+        border: 1px solid var(--ds-shell-border-soft);
         border-radius: var(--ds-radius-lg);
         overflow: hidden;
         box-shadow: var(--ds-shadow-sm);
-        backdrop-filter: blur(10px);
+        backdrop-filter: var(--ds-shell-blur);
         transition:
           border-color var(--ds-transition-fast),
           box-shadow var(--ds-transition-fast),
@@ -90,7 +90,7 @@ export class DsAnnotationInput extends LitElement {
         justify-content: space-between;
         padding: var(--ds-space-sm) var(--ds-space-md);
         border-top: 1px solid var(--ds-border-secondary);
-        background: rgba(255, 251, 244, 0.72);
+        background: var(--ds-shell-surface-soft);
       }
 
       .action-group {

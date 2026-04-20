@@ -55,12 +55,7 @@ export class DsAnnotationItem extends LitElement {
         justify-content: space-between;
         gap: var(--ds-space-sm);
         padding: 12px 13px;
-        background:
-          linear-gradient(
-            180deg,
-            rgba(255, 253, 249, 0.95) 0%,
-            rgba(248, 243, 236, 0.92) 100%
-          );
+        background: var(--ds-card-surface);
         border: 1px solid var(--ds-panel-border);
         border-radius: calc(var(--ds-radius-lg) - 2px);
         box-shadow: var(--ds-panel-shadow-soft);
@@ -72,12 +67,7 @@ export class DsAnnotationItem extends LitElement {
       }
 
       .collapsed-row:hover {
-        background:
-          linear-gradient(
-            180deg,
-            rgba(255, 254, 251, 0.98) 0%,
-            rgba(251, 246, 239, 0.96) 100%
-          );
+        background: var(--ds-card-surface-strong);
         border-color: var(--ds-panel-border-strong);
         transform: translateY(-1px);
       }
@@ -100,12 +90,7 @@ export class DsAnnotationItem extends LitElement {
 
       /* ======== Expanded card ======== */
       .card {
-        background:
-          linear-gradient(
-            180deg,
-            rgba(255, 253, 249, 0.96) 0%,
-            rgba(248, 243, 236, 0.94) 100%
-          );
+        background: var(--ds-card-surface);
         border: 1px solid var(--ds-panel-border);
         border-radius: calc(var(--ds-radius-lg) - 2px);
         box-shadow: var(--ds-panel-shadow);
@@ -121,11 +106,11 @@ export class DsAnnotationItem extends LitElement {
         justify-content: space-between;
         padding: 12px 13px 10px;
         cursor: pointer;
-        border-bottom: 1px solid rgba(231, 223, 210, 0.68);
+        border-bottom: 1px solid var(--ds-chrome-divider);
       }
 
       .card-header:hover {
-        background: rgba(255, 252, 247, 0.6);
+        background: var(--ds-panel-surface);
       }
 
       .element-info {
@@ -181,7 +166,7 @@ export class DsAnnotationItem extends LitElement {
 
       .copy-btn:hover {
         color: var(--ds-text-primary);
-        background: rgba(255, 252, 247, 0.84);
+        background: var(--ds-panel-surface-strong);
       }
 
       .copy-btn.copied {
@@ -270,13 +255,8 @@ export class DsAnnotationItem extends LitElement {
       .agent-response {
         margin-top: var(--ds-space-sm);
         padding: 10px 12px;
-        background:
-          linear-gradient(
-            180deg,
-            rgba(255, 247, 237, 0.95) 0%,
-            rgba(251, 242, 231, 0.9) 100%
-          );
-        border: 1px solid rgba(236, 210, 177, 0.86);
+        background: var(--ds-response-surface);
+        border: 1px solid var(--ds-response-border);
         border-radius: 14px;
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.62);
       }
@@ -323,8 +303,8 @@ export class DsAnnotationItem extends LitElement {
         justify-content: flex-start;
         gap: var(--ds-space-xs);
         padding: 10px 13px;
-        background: rgba(255, 250, 243, 0.58);
-        border-top: 1px solid rgba(231, 223, 210, 0.7);
+        background: var(--ds-note-surface);
+        border-top: 1px solid var(--ds-chrome-divider);
       }
 
       .action-btn {
@@ -385,8 +365,8 @@ export class DsAnnotationItem extends LitElement {
         align-items: center;
         justify-content: space-between;
         padding: 10px 13px 12px;
-        border-top: 1px solid rgba(239, 231, 220, 0.74);
-        background: rgba(255, 252, 247, 0.42);
+        border-top: 1px solid var(--ds-chrome-divider);
+        background: var(--ds-panel-surface-muted);
       }
 
       .timestamp {

@@ -38,7 +38,7 @@ export class DsContextPanel extends LitElement {
 
       .section {
         padding-top: var(--ds-space-sm);
-        border-top: 1px solid rgba(219, 205, 188, 0.78);
+        border-top: 1px solid var(--ds-chrome-divider);
       }
 
       .section + .section {
@@ -59,7 +59,7 @@ export class DsContextPanel extends LitElement {
 
       .section-header:hover {
         color: var(--ds-text-primary);
-        background: rgba(243, 237, 228, 0.78);
+        background: var(--ds-panel-surface-muted);
       }
 
       .section-title {
@@ -75,7 +75,7 @@ export class DsContextPanel extends LitElement {
       .section-count {
         font-size: var(--ds-font-size-xs);
         color: var(--ds-text-tertiary);
-        background: rgba(255, 252, 247, 0.82);
+        background: var(--ds-pill-surface);
         border: 1px solid var(--ds-shell-border-muted);
         padding: 1px 7px;
         border-radius: var(--ds-radius-full);
@@ -97,7 +97,7 @@ export class DsContextPanel extends LitElement {
         gap: 6px;
         margin-top: 6px;
         padding-top: var(--ds-space-sm);
-        border-top: 1px solid rgba(231, 223, 210, 0.7);
+        border-top: 1px solid var(--ds-chrome-divider);
         max-height: 164px;
         overflow-y: auto;
       }
@@ -108,8 +108,8 @@ export class DsContextPanel extends LitElement {
         gap: var(--ds-space-sm);
         align-items: start;
         padding: 7px 10px;
-        background: rgba(255, 252, 247, 0.58);
-        border: 1px solid rgba(231, 223, 210, 0.8);
+        background: var(--ds-panel-surface-muted);
+        border: 1px solid var(--ds-panel-border);
         border-radius: 10px;
         font-size: var(--ds-font-size-xs);
       }

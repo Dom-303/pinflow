@@ -157,7 +157,7 @@ export class DsPickerOverlay extends LitElement {
   };
 
   override render() {
-    const { hoveredElement } = this.storeController.state;
+    const { hoveredElement, theme } = this.storeController.state;
 
     return html`
       <div class="overlay">
@@ -167,11 +167,13 @@ export class DsPickerOverlay extends LitElement {
 
         ${this.highlightRect
           ? html`<ds-highlight-box
+              theme=${theme}
               .rect=${this.highlightRect}
             ></ds-highlight-box>`
           : null}
         ${hoveredElement && this.tooltipPosition
           ? html`<ds-tooltip
+              theme=${theme}
               .element=${hoveredElement}
               .x=${this.tooltipPosition.x}
               .y=${this.tooltipPosition.y}

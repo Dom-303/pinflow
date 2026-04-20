@@ -98,7 +98,60 @@ export class DsSidebar extends LitElement {
         color: var(--ds-text-secondary);
         text-transform: uppercase;
         letter-spacing: 0.08em;
+        margin: 0;
+      }
+
+      .content-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--ds-space-md);
         margin-bottom: 14px;
+      }
+
+      .theme-switch {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        padding: 2px;
+        background: var(--ds-pill-surface);
+        border: 1px solid var(--ds-pill-border);
+        border-radius: var(--ds-radius-full);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      }
+
+      .theme-option {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 9px;
+        background: transparent;
+        border: none;
+        border-radius: var(--ds-radius-full);
+        color: var(--ds-text-secondary);
+        font-family: inherit;
+        font-size: var(--ds-font-size-xs);
+        font-weight: var(--ds-font-weight-medium);
+        cursor: pointer;
+        transition:
+          background var(--ds-transition-fast),
+          color var(--ds-transition-fast),
+          transform var(--ds-transition-fast);
+      }
+
+      .theme-option:hover {
+        color: var(--ds-text-primary);
+      }
+
+      .theme-option.active {
+        background: var(--ds-panel-surface-strong);
+        color: var(--ds-text-primary);
+        box-shadow: var(--ds-shadow-sm);
+      }
+
+      .theme-option svg {
+        width: 12px;
+        height: 12px;
       }
 
       .empty-state {
@@ -162,8 +215,12 @@ export class DsSidebar extends LitElement {
     `,
   ];
 
+  private handleThemeChange(theme: 'light' | 'dark') {
+    this.storeController.store.setTheme(theme);
+  }
+
   override render() {
-    const { selectedElement, annotations, relayConnected } =
+    const { selectedElement, annotations, relayConnected, theme } =
       this.storeController.state;
 
     return html`
@@ -172,7 +229,50 @@ export class DsSidebar extends LitElement {
 
         <!-- Scrollable annotations area -->
         <div class="main-content" @scroll=${this.handleScroll}>
-          <div class="section-title">Anmerkungen (${annotations.length})</div>
+          <div class="content-header">
+            <div class="section-title">Anmerkungen (${annotations.length})</div>
+            <div class="theme-switch" aria-label="Farbschema">
+              <button
+                class="theme-option ${theme === 'light' ? 'active' : ''}"
+                @click=${() => this.handleThemeChange('light')}
+                aria-label="Hellmodus aktivieren"
+                title="Hellmodus aktivieren"
+              >
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="4"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                  />
+                  <path
+                    d="M12 2v2.5M12 19.5V22M4.93 4.93l1.77 1.77M17.3 17.3l1.77 1.77M2 12h2.5M19.5 12H22M4.93 19.07l1.77-1.77M17.3 6.7l1.77-1.77"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"
+                  />
+                </svg>
+                Hell
+              </button>
+              <button
+                class="theme-option ${theme === 'dark' ? 'active' : ''}"
+                @click=${() => this.handleThemeChange('dark')}
+                aria-label="Dunkelmodus aktivieren"
+                title="Dunkelmodus aktivieren"
+              >
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path
+                    d="M20 15.5A8.5 8.5 0 118.5 4a7 7 0 0011.5 11.5z"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                Dunkel
+              </button>
+            </div>
+          </div>
           ${html`<ds-annotation-list></ds-annotation-list>`}
         </div>
 

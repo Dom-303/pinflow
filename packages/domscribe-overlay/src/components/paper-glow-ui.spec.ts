@@ -7,6 +7,8 @@ import { html, render } from 'lit';
 
 const mockStore = {
   setMode: vi.fn(),
+  setTheme: vi.fn(),
+  toggleTheme: vi.fn(),
   enterCaptureMode: vi.fn(),
   submitAnnotation: vi.fn().mockResolvedValue(undefined),
 };
@@ -16,6 +18,7 @@ const mockState = {
   annotations: [] as Array<{ id: string; metadata?: { status?: string } }>,
   relayConnected: false,
   mode: 'expanded',
+  theme: 'light' as const,
   tabOffsetY: 50,
 };
 
@@ -47,6 +50,7 @@ describe('Paper Glow UI contract', () => {
     mockState.annotations = [];
     mockState.relayConnected = false;
     mockState.mode = 'expanded';
+    mockState.theme = 'light';
     vi.clearAllMocks();
   });
 
@@ -122,5 +126,11 @@ describe('Paper Glow UI contract', () => {
     expect(sidebar.shadowRoot.textContent).toContain('Verbunden');
     expect(sidebar.shadowRoot.querySelector('.status-dot.connected')).not.toBeNull();
     expect(sidebar.shadowRoot.querySelector('ds-annotation-input')).not.toBeNull();
+
+    const darkToggle = sidebar.shadowRoot.querySelector(
+      'button[aria-label="Dunkelmodus aktivieren"]',
+    ) as HTMLButtonElement;
+    darkToggle.click();
+    expect(mockStore.setTheme).toHaveBeenCalledWith('dark');
   });
 });

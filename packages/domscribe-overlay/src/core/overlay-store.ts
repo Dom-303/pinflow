@@ -12,7 +12,12 @@ import type {
   ManifestEntry,
 } from '@domscribe/core';
 import { InteractionModeEnum, InteractionTypeEnum } from '@domscribe/core';
-import type { OverlayState, OverlayMode, OverlayOptions } from './types.js';
+import type {
+  OverlayState,
+  OverlayMode,
+  OverlayOptions,
+  OverlayTheme,
+} from './types.js';
 import { BridgeDispatch } from '@domscribe/runtime';
 import { RelayService } from '../services/relay-service.js';
 
@@ -27,6 +32,7 @@ export type StateListener = (state: Readonly<OverlayState>) => void;
 const DEFAULT_STATE: OverlayState = {
   // UI State
   mode: 'collapsed',
+  theme: 'light',
   sidebarWidth: 360,
   tabOffsetY: 50,
 
@@ -62,11 +68,13 @@ export class OverlayStore {
   private listeners: Set<StateListener> = new Set();
 
   private static readonly TAB_OFFSET_KEY = 'domscribe:tabOffsetY';
+  private static readonly THEME_KEY = 'pinflow:theme';
 
   private constructor(options?: OverlayOptions) {
     this.state = {
       ...DEFAULT_STATE,
       mode: options?.initialMode ?? 'collapsed',
+      theme: options?.initialTheme ?? OverlayStore.loadTheme(),
       sidebarWidth: options?.sidebarWidth ?? 360,
       tabOffsetY: OverlayStore.loadTabOffsetY(),
       debug: options?.debug ?? false,
@@ -90,6 +98,21 @@ export class OverlayStore {
   }
 
   /**
+   * Load persisted theme from localStorage
+   */
+  private static loadTheme(): OverlayTheme {
+    try {
+      const stored = localStorage.getItem(OverlayStore.THEME_KEY);
+      if (stored === 'light' || stored === 'dark') {
+        return stored;
+      }
+    } catch {
+      // localStorage unavailable
+    }
+    return 'light';
+  }
+
+  /**
    * Set and persist the tab vertical offset (0–100 %)
    */
   setTabOffsetY(percent: number): void {
@@ -103,6 +126,25 @@ export class OverlayStore {
     } catch {
       // localStorage unavailable
     }
+  }
+
+  /**
+   * Set and persist the active product theme
+   */
+  setTheme(theme: OverlayTheme): void {
+    this.setState({ theme });
+    try {
+      localStorage.setItem(OverlayStore.THEME_KEY, theme);
+    } catch {
+      // localStorage unavailable
+    }
+  }
+
+  /**
+   * Toggle between light and dark themes
+   */
+  toggleTheme(): void {
+    this.setTheme(this.state.theme === 'light' ? 'dark' : 'light');
   }
 
   /**

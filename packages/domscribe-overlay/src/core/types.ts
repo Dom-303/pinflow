@@ -14,11 +14,17 @@ import type {
 export type OverlayMode = 'collapsed' | 'expanded' | 'capturing';
 
 /**
+ * Product theme mode
+ */
+export type OverlayTheme = 'light' | 'dark';
+
+/**
  * Overlay state managed by OverlayStore
  */
 export interface OverlayState {
   // UI State
   mode: OverlayMode;
+  theme: OverlayTheme;
   sidebarWidth: number;
   /** Vertical position of the collapsed tab as a percentage (0–100). Default: 50 (center). */
   tabOffsetY: number;
@@ -54,6 +60,12 @@ export interface OverlayOptions {
    * @default 'collapsed'
    */
   initialMode?: OverlayMode;
+
+  /**
+   * Initial overlay theme
+   * @default 'light'
+   */
+  initialTheme?: OverlayTheme;
 
   /**
    * Enable debug logging

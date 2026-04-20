@@ -65,8 +65,8 @@ export class DsAnnotationList extends LitElement {
 
       /* ======== Status group ======== */
       .status-group {
-        background: rgba(255, 250, 243, 0.5);
-        border: 1px solid rgba(239, 231, 220, 0.8);
+        background: var(--ds-panel-surface-muted);
+        border: 1px solid var(--ds-panel-border);
         border-radius: calc(var(--ds-radius-lg) - 2px);
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.54);
         overflow: hidden;
@@ -93,11 +93,11 @@ export class DsAnnotationList extends LitElement {
       .status-header.open {
         border-radius: calc(var(--ds-radius-lg) - 2px)
           calc(var(--ds-radius-lg) - 2px) 0 0;
-        border-bottom: 1px solid rgba(231, 223, 210, 0.7);
+        border-bottom: 1px solid var(--ds-chrome-divider);
       }
 
       .status-header:hover {
-        background: rgba(255, 252, 247, 0.72);
+        background: var(--ds-panel-surface);
       }
 
       .status-header.empty {

@@ -31,12 +31,7 @@ export class DsElementPreview extends LitElement {
       :host {
         display: block;
         position: relative;
-        background:
-          linear-gradient(
-            180deg,
-            rgba(255, 253, 249, 0.96) 0%,
-            rgba(247, 241, 232, 0.94) 100%
-          );
+        background: var(--ds-card-surface);
         border: 1px solid var(--ds-shell-border-soft);
         border-radius: calc(var(--ds-radius-lg) + 2px);
         box-shadow: var(--ds-shadow-md);
@@ -50,12 +45,12 @@ export class DsElementPreview extends LitElement {
         background:
           radial-gradient(
             circle at top left,
-            rgba(255, 255, 255, 0.82) 0%,
+            var(--ds-panel-surface-strong) 0%,
             rgba(255, 255, 255, 0) 54%
           ),
           linear-gradient(
             135deg,
-            rgba(247, 222, 192, 0.16) 0%,
+            var(--ds-shell-glow) 0%,
             rgba(247, 222, 192, 0) 46%
           );
         pointer-events: none;
@@ -111,7 +106,7 @@ export class DsElementPreview extends LitElement {
         width: 28px;
         height: 28px;
         padding: 0;
-        background: rgba(255, 252, 247, 0.82);
+        background: var(--ds-pill-surface);
         border: 1px solid var(--ds-shell-border-muted);
         border-radius: var(--ds-radius-md);
         box-shadow: var(--ds-shadow-sm);
@@ -141,8 +136,8 @@ export class DsElementPreview extends LitElement {
         display: inline-flex;
         align-items: center;
         padding: 4px 10px;
-        background: rgba(255, 252, 247, 0.84);
-        border: 1px solid rgba(225, 213, 198, 0.94);
+        background: var(--ds-pill-surface);
+        border: 1px solid var(--ds-pill-border);
         border-radius: var(--ds-radius-full);
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.78);
         font-family: var(--ds-font-mono);
@@ -177,7 +172,7 @@ export class DsElementPreview extends LitElement {
         min-width: 0;
         max-width: 100%;
         padding: 3px 8px;
-        background: rgba(247, 243, 236, 0.88);
+        background: var(--ds-panel-surface-muted);
         border: 1px solid var(--ds-shell-border-muted);
         border-radius: var(--ds-radius-full);
         font-family: var(--ds-font-mono);
@@ -191,7 +186,7 @@ export class DsElementPreview extends LitElement {
 
       .source-location:hover {
         color: var(--ds-text-primary);
-        background: rgba(255, 252, 247, 0.96);
+        background: var(--ds-panel-surface-strong);
       }
 
       /* Context panel spacing */

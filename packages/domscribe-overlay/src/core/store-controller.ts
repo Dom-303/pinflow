@@ -7,7 +7,7 @@
 
 import type { ReactiveController, ReactiveControllerHost } from 'lit';
 import { OverlayStore } from './overlay-store.js';
-import type { OverlayState } from './types.js';
+import type { OverlayState, OverlayTheme } from './types.js';
 
 /**
  * Lit reactive controller that integrates with OverlayStore
@@ -33,6 +33,7 @@ export class StoreController implements ReactiveController {
     this.host = host;
     this.host.addController(this);
     this._state = OverlayStore.getInstance().getState();
+    this.syncThemeAttribute(this._state.theme);
   }
 
   /**
@@ -43,6 +44,7 @@ export class StoreController implements ReactiveController {
 
     this.unsubscribe = store.subscribe((state) => {
       this._state = state;
+      this.syncThemeAttribute(state.theme);
       this.host.requestUpdate();
     });
   }
@@ -67,5 +69,11 @@ export class StoreController implements ReactiveController {
    */
   get store(): OverlayStore {
     return OverlayStore.getInstance();
+  }
+
+  private syncThemeAttribute(theme: OverlayTheme): void {
+    if (this.host instanceof HTMLElement) {
+      this.host.setAttribute('theme', theme);
+    }
   }
 }

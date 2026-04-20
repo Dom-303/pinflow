@@ -1,19 +1,14 @@
 /**
- * DsTab - Collapsed activation tab
+ * DsTab - Collapsed activation tab.
  *
- * An inverted-D (ᗡ) shaped tab stuck to the right edge of the viewport.
- * Exact horizontal mirror of the centralized logo (SIMPLIFIED variant),
- * with inverted colors: cyan D fill, dark cursor.
- *
- * The tab can be dragged vertically along the right edge. A small drag
- * threshold distinguishes click (open sidebar) from drag (reposition).
+ * Uses the compact PinFlow icon asset as a draggable collapsed launcher.
  */
 
-import { LitElement, html, css, svg } from 'lit';
+import { LitElement, html, css } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { StoreController } from '../core/store-controller.js';
 import { themeStyles } from '../styles/theme.js';
-import { CURSOR_PATH, SIMPLIFIED } from './logo/logo-paths.js';
+import { getThemeIconAsset } from './logo/index.js';
 
 /** Minimum px of movement before we treat it as a drag instead of a click. */
 const DRAG_THRESHOLD = 4;
@@ -48,11 +43,20 @@ export class DsTab extends LitElement {
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 0;
-        background: none;
-        border: none;
+        width: 52px;
+        height: 52px;
+        padding: 6px;
+        background: var(--ds-shell-surface-strong);
+        border: 1px solid var(--ds-shell-border-soft);
+        border-radius: 18px 0 0 18px;
+        box-shadow: var(--ds-panel-shadow);
         cursor: pointer;
         touch-action: none; /* prevent scroll while dragging */
+        transform: translateX(10px);
+        transition:
+          transform var(--ds-transition-fast),
+          box-shadow var(--ds-transition-fast),
+          background var(--ds-transition-fast);
       }
 
       :host(.dragging) .tab {
@@ -65,20 +69,18 @@ export class DsTab extends LitElement {
         border-radius: var(--ds-radius-md);
       }
 
-      .tab-shape {
+      .tab:hover {
+        transform: translateX(4px);
+        box-shadow: var(--ds-shadow-xl);
+      }
+
+      .tab-icon {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: contain;
+        border-radius: 14px;
         filter: drop-shadow(var(--ds-tab-shadow));
-        transition:
-          filter var(--ds-transition-fast),
-          transform var(--ds-transition-fast);
-      }
-
-      .tab:hover .tab-shape {
-        filter: drop-shadow(-12px 18px 32px rgba(92, 71, 48, 0.22));
-        transform: translateX(-1px);
-      }
-
-      .tab:hover .d-fill {
-        fill: var(--ds-cyan-400);
       }
     `,
   ];
@@ -157,11 +159,8 @@ export class DsTab extends LitElement {
   /* ── render ── */
 
   override render() {
-    const offsetY = this.storeController.state.tabOffsetY;
+    const { tabOffsetY: offsetY, theme } = this.storeController.state;
 
-    // Mirror the entire centralized logo horizontally via scale(-1,1).
-    // This produces the exact ᗡ shape from the D, with the cursor mirrored too.
-    // Colors inverted: cyan D, dark cursor.
     return html`
       <style>
         :host {
@@ -174,29 +173,12 @@ export class DsTab extends LitElement {
         title="PinFlow oeffnen (Strg+Umschalt+D)"
         aria-label="PinFlow-Overlay oeffnen"
       >
-        <svg
-          class="tab-shape"
-          width="36"
-          height="80"
-          viewBox="0 0 64 64"
-          fill="none"
+        <img
+          class="tab-icon"
+          src=${getThemeIconAsset(theme)}
+          alt="PinFlow"
           aria-hidden="true"
-        >
-          ${svg`
-            <g transform="translate(64, 0) scale(-1, 1)">
-              <!-- D shape (mirrored) — cyan fill -->
-              <path
-                class="d-fill"
-                d="${SIMPLIFIED.dPath}"
-                fill="var(--ds-cyan-500)"
-              />
-              <!-- Cursor (mirrored) — dark fill -->
-              <g transform="${SIMPLIFIED.cursorTransform}">
-                <path d="${CURSOR_PATH}" fill="var(--ds-neutral-50)" />
-              </g>
-            </g>
-          `}
-        </svg>
+        />
       </button>
     `;
   }

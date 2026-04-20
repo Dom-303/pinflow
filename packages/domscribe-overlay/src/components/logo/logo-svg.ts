@@ -15,6 +15,20 @@ import {
   SIMPLIFIED_THRESHOLD,
 } from './logo-paths.js';
 
+export const lightIconAsset = new URL(
+  './assets/pinflow-icon-light.png',
+  import.meta.url,
+).href;
+
+export const darkIconAsset = new URL(
+  './assets/pinflow-icon-dark.png',
+  import.meta.url,
+).href;
+
+export function getThemeIconAsset(theme: 'light' | 'dark'): string {
+  return theme === 'dark' ? darkIconAsset : lightIconAsset;
+}
+
 /**
  * Counter for generating unique mask IDs
  */
@@ -96,7 +110,7 @@ function fullMask(maskId: string): TemplateResult {
 }
 
 /**
- * Generate a Domscribe logo SVG
+ * Generate a PinFlow vector logo SVG
  *
  * @example
  * ```ts
@@ -105,7 +119,7 @@ function fullMask(maskId: string): TemplateResult {
  *   return html`
  *     <div class="brand">
  *       ${logoSvg({ size: 24 })}
- *       <span>domscribe</span>
+ *       <span>PinFlow</span>
  *     </div>
  *   `;
  * }

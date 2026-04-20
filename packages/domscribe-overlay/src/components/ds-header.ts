@@ -9,7 +9,7 @@ import { LitElement, html, css } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { StoreController } from '../core/store-controller.js';
 import { themeStyles, utilityStyles } from '../styles/theme.js';
-import { logoSvg } from './logo/index.js';
+import { getThemeIconAsset } from './logo/index.js';
 
 /**
  * Sidebar header component
@@ -58,6 +58,9 @@ export class DsHeader extends LitElement {
         width: 24px;
         height: 24px;
         flex-shrink: 0;
+        display: block;
+        object-fit: contain;
+        border-radius: 7px;
       }
 
       .brand-name {
@@ -99,10 +102,16 @@ export class DsHeader extends LitElement {
   }
 
   override render() {
+    const { theme } = this.storeController.state;
+
     return html`
       <div class="header-row">
         <div class="brand">
-          ${logoSvg({ size: 24, className: 'brand-logo', variant: 'auto' })}
+          <img
+            class="brand-logo"
+            src=${getThemeIconAsset(theme)}
+            alt="PinFlow Logo"
+          />
           <span class="brand-name">PinFlow</span>
         </div>
 

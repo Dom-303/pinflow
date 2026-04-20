@@ -1,16 +1,15 @@
 /**
- * Logo module - Single source of truth for Domscribe logo
- *
- * @example
- * ```ts
- * import { logoSvg } from './logo/index.js';
- *
- * // In render():
- * ${logoSvg({ size: 24 })}
- * ```
+ * Logo module - PinFlow brand helpers for vector and asset-based rendering.
  */
 
-export { logoSvg, type LogoOptions, type LogoVariant } from './logo-svg.js';
+export {
+  logoSvg,
+  type LogoOptions,
+  type LogoVariant,
+  lightIconAsset,
+  darkIconAsset,
+  getThemeIconAsset,
+} from './logo-svg.js';
 export {
   CURSOR_PATH,
   CLICK_LINE_PATH,

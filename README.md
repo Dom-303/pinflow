@@ -1,5 +1,8 @@
 <p align="center">
-  <img src="./docs/logo.png" alt="PinFlow" width="200" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./assets/9.png" />
+    <img src="./assets/10.png" alt="PinFlow" width="520" />
+  </picture>
 </p>
 
 <h1 align="center">PinFlow</h1>
@@ -34,7 +37,7 @@
 </p>
 
 <p align="center">
-  <img src="./docs/demo.gif" alt="PinFlow demo — click an element, capture context, resolve to source" />
+  <img src="./assets/demo.gif" alt="PinFlow demo — click an element, capture context, resolve to source" />
 </p>
 
 ---
@@ -72,7 +75,7 @@ That's it. Start your dev server and you're ready to go.
 Your agent calls `domscribe.query.bySource` with a file path and line number and gets back the live DOM snapshot, current props, component state, and rendered attributes — directly from the running browser. No human interaction needed.
 
 <p align="center">
-  <img src="./docs/code-to-ui.png" alt="Code → UI: Let the agent see the browser" width="900" />
+  <img src="./assets/code-to-ui.png" alt="Code → UI: Let the agent see the browser" width="900" />
 </p>
 
 > [!TIP]
@@ -85,7 +88,7 @@ Your agent calls `domscribe.query.bySource` with a file path and line number and
 Click any element in the browser overlay, describe the change in plain English, and submit. PinFlow captures the element's source location, runtime context, and your instruction as an annotation. The agent claims it, navigates to the exact file and line, and implements the change. The overlay shows the agent's response in real time via WebSocket.
 
 <p align="center">
-  <img src="./docs/ui-to-code.png" alt="UI → Code: Point and tell" width="900" />
+  <img src="./assets/ui-to-code.png" alt="UI → Code: Point and tell" width="900" />
 </p>
 
 ### More
@@ -349,7 +352,7 @@ Then add this MCP config to your agent:
 ## How It Works
 
 <p align="center">
-  <img src="./docs/architecture.png" alt="PinFlow architecture diagram" />
+  <img src="./assets/architecture.png" alt="PinFlow architecture diagram" />
 </p>
 
 **1. Inject.** The bundler plugin parses each source file, injects HMR-stable `data-ds` IDs via xxhash64, and records each mapping in `.domscribe/manifest.jsonl`.

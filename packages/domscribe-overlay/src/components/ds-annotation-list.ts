@@ -27,11 +27,11 @@ const STATUS_ORDER: AnnotationStatus[] = [
 ];
 
 const STATUS_LABELS: Record<string, string> = {
-  queued: 'Queued',
-  processing: 'Processing',
-  processed: 'Processed',
-  failed: 'Failed',
-  archived: 'Archived',
+  queued: 'Offen',
+  processing: 'In Arbeit',
+  processed: 'Erledigt',
+  failed: 'Fehlgeschlagen',
+  archived: 'Archiviert',
 };
 
 /**
@@ -60,12 +60,15 @@ export class DsAnnotationList extends LitElement {
       .accordion {
         display: flex;
         flex-direction: column;
-        gap: var(--ds-space-sm);
+        gap: 10px;
       }
 
       /* ======== Status group ======== */
       .status-group {
-        border-radius: var(--ds-radius-md);
+        background: rgba(255, 250, 243, 0.5);
+        border: 1px solid rgba(239, 231, 220, 0.8);
+        border-radius: calc(var(--ds-radius-lg) - 2px);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.54);
         overflow: hidden;
       }
 
@@ -73,25 +76,28 @@ export class DsAnnotationList extends LitElement {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: var(--ds-space-md);
-        background: var(--ds-bg-tertiary);
+        padding: 12px 14px;
+        background: transparent;
         border: none;
-        border-radius: var(--ds-radius-md);
+        border-radius: calc(var(--ds-radius-lg) - 2px);
         width: 100%;
         cursor: pointer;
         transition:
           background var(--ds-transition-fast),
-          border-radius var(--ds-transition-fast);
+          border-radius var(--ds-transition-fast),
+          color var(--ds-transition-fast);
         font-family: inherit;
         color: var(--ds-text-primary);
       }
 
       .status-header.open {
-        border-radius: var(--ds-radius-md) var(--ds-radius-md) 0 0;
+        border-radius: calc(var(--ds-radius-lg) - 2px)
+          calc(var(--ds-radius-lg) - 2px) 0 0;
+        border-bottom: 1px solid rgba(231, 223, 210, 0.7);
       }
 
       .status-header:hover {
-        background: var(--ds-bg-active);
+        background: rgba(255, 252, 247, 0.72);
       }
 
       .status-header.empty {
@@ -107,14 +113,21 @@ export class DsAnnotationList extends LitElement {
         display: flex;
         align-items: center;
         gap: var(--ds-space-sm);
-        font-size: var(--ds-font-size-sm);
+        font-size: 13px;
         font-weight: var(--ds-font-weight-medium);
       }
 
       .status-count {
+        display: inline-flex;
+        align-items: center;
+        min-width: 24px;
+        padding: 1px 8px;
+        background: var(--ds-pill-surface);
+        border: 1px solid var(--ds-pill-border);
+        border-radius: var(--ds-radius-full);
         font-size: var(--ds-font-size-xs);
-        color: var(--ds-text-tertiary);
-        font-weight: var(--ds-font-weight-normal);
+        color: var(--ds-text-secondary);
+        font-weight: var(--ds-font-weight-medium);
       }
 
       .chevron {
@@ -133,8 +146,8 @@ export class DsAnnotationList extends LitElement {
       .group-content {
         display: flex;
         flex-direction: column;
-        gap: var(--ds-space-sm);
-        padding: var(--ds-space-sm);
+        gap: 10px;
+        padding: 10px 10px 12px;
       }
 
       /* ======== Pagination ======== */
@@ -143,7 +156,7 @@ export class DsAnnotationList extends LitElement {
         align-items: center;
         justify-content: center;
         gap: var(--ds-space-sm);
-        padding: var(--ds-space-xs) 0;
+        padding: 2px 0 0;
       }
 
       .page-btn {
@@ -153,9 +166,9 @@ export class DsAnnotationList extends LitElement {
         width: 24px;
         height: 24px;
         padding: 0;
-        background: transparent;
-        border: 1px solid var(--ds-border-primary);
-        border-radius: var(--ds-radius-sm);
+        background: var(--ds-pill-surface);
+        border: 1px solid var(--ds-pill-border);
+        border-radius: 10px;
         color: var(--ds-text-secondary);
         cursor: pointer;
         font-family: inherit;
@@ -163,8 +176,9 @@ export class DsAnnotationList extends LitElement {
       }
 
       .page-btn:hover:not(:disabled) {
-        background: var(--ds-bg-hover);
+        background: var(--ds-panel-surface-strong);
         color: var(--ds-text-primary);
+        border-color: var(--ds-panel-border-strong);
       }
 
       .page-btn:disabled {
@@ -180,6 +194,8 @@ export class DsAnnotationList extends LitElement {
       .page-info {
         font-size: var(--ds-font-size-xs);
         color: var(--ds-text-tertiary);
+        min-width: 42px;
+        text-align: center;
       }
 
       /* ======== Empty state ======== */
@@ -275,7 +291,7 @@ export class DsAnnotationList extends LitElement {
           class="page-btn"
           ?disabled=${currentPage === 0}
           @click=${() => this.setPage(status, currentPage - 1)}
-          title="Previous page"
+          title="Vorherige Seite"
         >
           <svg viewBox="0 0 24 24" fill="none">
             <path
@@ -292,7 +308,7 @@ export class DsAnnotationList extends LitElement {
           class="page-btn"
           ?disabled=${currentPage >= totalPages - 1}
           @click=${() => this.setPage(status, currentPage + 1)}
-          title="Next page"
+          title="Naechste Seite"
         >
           <svg viewBox="0 0 24 24" fill="none">
             <path
@@ -328,7 +344,7 @@ export class DsAnnotationList extends LitElement {
           <div class="status-label">
             <span class="header-dot ${status}"></span>
             ${STATUS_LABELS[status] ?? status}
-            <span class="status-count">(${count})</span>
+            <span class="status-count">${count}</span>
           </div>
           ${!isEmpty
             ? html`<svg

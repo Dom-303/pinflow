@@ -54,15 +54,32 @@ export class DsAnnotationItem extends LitElement {
         align-items: flex-start;
         justify-content: space-between;
         gap: var(--ds-space-sm);
-        padding: var(--ds-space-md);
-        background: var(--ds-bg-secondary);
-        border-radius: var(--ds-radius-md);
+        padding: 12px 13px;
+        background:
+          linear-gradient(
+            180deg,
+            rgba(255, 253, 249, 0.95) 0%,
+            rgba(248, 243, 236, 0.92) 100%
+          );
+        border: 1px solid var(--ds-panel-border);
+        border-radius: calc(var(--ds-radius-lg) - 2px);
+        box-shadow: var(--ds-panel-shadow-soft);
         cursor: pointer;
-        transition: background var(--ds-transition-fast);
+        transition:
+          background var(--ds-transition-fast),
+          border-color var(--ds-transition-fast),
+          transform var(--ds-transition-fast);
       }
 
       .collapsed-row:hover {
-        background: var(--ds-bg-tertiary);
+        background:
+          linear-gradient(
+            180deg,
+            rgba(255, 254, 251, 0.98) 0%,
+            rgba(251, 246, 239, 0.96) 100%
+          );
+        border-color: var(--ds-panel-border-strong);
+        transform: translateY(-1px);
       }
 
       .collapsed-inner {
@@ -75,7 +92,7 @@ export class DsAnnotationItem extends LitElement {
 
       .collapsed-text {
         font-size: var(--ds-font-size-sm);
-        color: var(--ds-text-primary);
+        color: var(--ds-text-secondary);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -83,22 +100,32 @@ export class DsAnnotationItem extends LitElement {
 
       /* ======== Expanded card ======== */
       .card {
-        background: var(--ds-bg-secondary);
-        border-radius: var(--ds-radius-md);
+        background:
+          linear-gradient(
+            180deg,
+            rgba(255, 253, 249, 0.96) 0%,
+            rgba(248, 243, 236, 0.94) 100%
+          );
+        border: 1px solid var(--ds-panel-border);
+        border-radius: calc(var(--ds-radius-lg) - 2px);
+        box-shadow: var(--ds-panel-shadow);
         overflow: hidden;
-        transition: background var(--ds-transition-fast);
+        transition:
+          background var(--ds-transition-fast),
+          border-color var(--ds-transition-fast);
       }
 
       .card-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: var(--ds-space-sm) var(--ds-space-md);
+        padding: 12px 13px 10px;
         cursor: pointer;
+        border-bottom: 1px solid rgba(231, 223, 210, 0.68);
       }
 
       .card-header:hover {
-        background: rgba(255, 255, 255, 0.03);
+        background: rgba(255, 252, 247, 0.6);
       }
 
       .element-info {
@@ -145,7 +172,7 @@ export class DsAnnotationItem extends LitElement {
         padding: 0;
         background: transparent;
         border: none;
-        border-radius: var(--ds-radius-sm);
+        border-radius: 10px;
         color: var(--ds-text-tertiary);
         cursor: pointer;
         flex-shrink: 0;
@@ -154,7 +181,7 @@ export class DsAnnotationItem extends LitElement {
 
       .copy-btn:hover {
         color: var(--ds-text-primary);
-        background: var(--ds-bg-hover);
+        background: rgba(255, 252, 247, 0.84);
       }
 
       .copy-btn.copied {
@@ -171,8 +198,12 @@ export class DsAnnotationItem extends LitElement {
         display: flex;
         align-items: center;
         gap: var(--ds-space-xs);
+        padding: 2px 8px;
+        background: var(--ds-pill-surface);
+        border: 1px solid var(--ds-pill-border);
+        border-radius: var(--ds-radius-full);
         font-size: var(--ds-font-size-xs);
-        color: var(--ds-text-tertiary);
+        color: var(--ds-text-secondary);
         flex-shrink: 0;
       }
 
@@ -200,7 +231,7 @@ export class DsAnnotationItem extends LitElement {
 
       /* ======== Card body ======== */
       .card-body {
-        padding: var(--ds-space-md);
+        padding: 12px 13px;
         padding-top: 0;
       }
 
@@ -238,10 +269,16 @@ export class DsAnnotationItem extends LitElement {
       /* ======== Agent response ======== */
       .agent-response {
         margin-top: var(--ds-space-sm);
-        padding: var(--ds-space-sm) var(--ds-space-md);
-        background: rgba(6, 182, 212, 0.05);
-        border-left: 2px solid var(--ds-brand-secondary);
-        border-radius: 0 var(--ds-radius-sm) var(--ds-radius-sm) 0;
+        padding: 10px 12px;
+        background:
+          linear-gradient(
+            180deg,
+            rgba(255, 247, 237, 0.95) 0%,
+            rgba(251, 242, 231, 0.9) 100%
+          );
+        border: 1px solid rgba(236, 210, 177, 0.86);
+        border-radius: 14px;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.62);
       }
 
       .agent-label {
@@ -252,6 +289,7 @@ export class DsAnnotationItem extends LitElement {
         font-weight: var(--ds-font-weight-medium);
         color: var(--ds-brand-primary);
         margin-bottom: var(--ds-space-xs);
+        letter-spacing: 0.01em;
       }
 
       .agent-label svg {
@@ -284,8 +322,9 @@ export class DsAnnotationItem extends LitElement {
         align-items: center;
         justify-content: flex-start;
         gap: var(--ds-space-xs);
-        padding: var(--ds-space-sm) var(--ds-space-md);
-        border-top: 1px solid var(--ds-border-secondary);
+        padding: 10px 13px;
+        background: rgba(255, 250, 243, 0.58);
+        border-top: 1px solid rgba(231, 223, 210, 0.7);
       }
 
       .action-btn {
@@ -293,9 +332,9 @@ export class DsAnnotationItem extends LitElement {
         align-items: center;
         gap: var(--ds-space-xs);
         padding: 3px 8px;
-        background: transparent;
-        border: 1px solid var(--ds-border-primary);
-        border-radius: var(--ds-radius-sm);
+        background: var(--ds-pill-surface);
+        border: 1px solid var(--ds-pill-border);
+        border-radius: 10px;
         font-family: inherit;
         font-size: var(--ds-font-size-xs);
         color: var(--ds-text-secondary);
@@ -305,9 +344,9 @@ export class DsAnnotationItem extends LitElement {
       }
 
       .action-btn:hover {
-        background: var(--ds-bg-hover);
+        background: var(--ds-panel-surface-strong);
         color: var(--ds-text-primary);
-        border-color: var(--ds-text-tertiary);
+        border-color: var(--ds-panel-border-strong);
       }
 
       .action-btn svg {
@@ -345,7 +384,9 @@ export class DsAnnotationItem extends LitElement {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: var(--ds-space-sm) var(--ds-space-md);
+        padding: 10px 13px 12px;
+        border-top: 1px solid rgba(239, 231, 220, 0.74);
+        background: rgba(255, 252, 247, 0.42);
       }
 
       .timestamp {
@@ -371,24 +412,24 @@ export class DsAnnotationItem extends LitElement {
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);
 
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
+    if (diffMins < 1) return 'Gerade eben';
+    if (diffMins < 60) return `vor ${diffMins} Min.`;
+    if (diffMins < 1440) return `vor ${Math.floor(diffMins / 60)} Std.`;
     return date.toLocaleDateString();
   }
 
   private getStatusLabel(status: string): string {
     switch (status) {
       case 'queued':
-        return 'Queued';
+        return 'Offen';
       case 'processing':
-        return 'Processing';
+        return 'In Arbeit';
       case 'processed':
-        return 'Processed';
+        return 'Erledigt';
       case 'failed':
-        return 'Failed';
+        return 'Fehlgeschlagen';
       case 'archived':
-        return 'Archived';
+        return 'Archiviert';
       default:
         return status;
     }
@@ -507,7 +548,7 @@ export class DsAnnotationItem extends LitElement {
       <button
         class="copy-btn ${this.copied ? 'copied' : ''}"
         @click=${this.handleCopy}
-        title=${this.copied ? 'Copied!' : 'Copy annotation JSON'}
+        title=${this.copied ? 'Kopiert!' : 'Anmerkung als JSON kopieren'}
       >
         ${this.copied
           ? html`<svg viewBox="0 0 24 24" fill="none">
@@ -572,7 +613,7 @@ export class DsAnnotationItem extends LitElement {
             <circle cx="9" cy="13" r="1" fill="currentColor" />
             <circle cx="15" cy="13" r="1" fill="currentColor" />
           </svg>
-          Agent
+          Assistent
         </div>
         ${message ? html`<div class="agent-message">${message}</div>` : nothing}
       </div>
@@ -588,7 +629,7 @@ export class DsAnnotationItem extends LitElement {
         <button
           class="action-btn locate"
           @click=${this.handleLocate}
-          title="Scroll to element"
+          title="Zum Element springen"
         >
           <svg viewBox="0 0 24 24" fill="none">
             <circle
@@ -605,14 +646,14 @@ export class DsAnnotationItem extends LitElement {
               stroke-linecap="round"
             />
           </svg>
-          Locate
+          Finden
         </button>
 
         <!-- Refresh -->
         <button
           class="action-btn refresh"
           @click=${this.handleRefresh}
-          title="Re-capture element metadata"
+          title="Elementdaten neu erfassen"
         >
           <svg viewBox="0 0 24 24" fill="none">
             <path
@@ -630,7 +671,7 @@ export class DsAnnotationItem extends LitElement {
               stroke-linejoin="round"
             />
           </svg>
-          Refresh
+          Aktualisieren
         </button>
 
         <span class="action-spacer"></span>
@@ -641,7 +682,7 @@ export class DsAnnotationItem extends LitElement {
               <button
                 class="action-btn archive"
                 @click=${this.handleArchive}
-                title="Archive annotation"
+                title="Anmerkung archivieren"
               >
                 <svg viewBox="0 0 24 24" fill="none">
                   <path
@@ -652,7 +693,7 @@ export class DsAnnotationItem extends LitElement {
                     stroke-linejoin="round"
                   />
                 </svg>
-                Archive
+                Archivieren
               </button>
             `
           : nothing}
@@ -662,8 +703,8 @@ export class DsAnnotationItem extends LitElement {
           class="action-btn danger"
           @click=${this.handleDeleteClick}
           title=${this.confirmingDelete
-            ? 'Click again to confirm'
-            : 'Delete annotation'}
+            ? 'Zum Bestaetigen erneut klicken'
+            : 'Anmerkung loeschen'}
         >
           <svg viewBox="0 0 24 24" fill="none">
             <path
@@ -674,7 +715,7 @@ export class DsAnnotationItem extends LitElement {
               stroke-linejoin="round"
             />
           </svg>
-          ${this.confirmingDelete ? 'Confirm?' : 'Delete'}
+          ${this.confirmingDelete ? 'Wirklich?' : 'Loeschen'}
         </button>
       </div>
     `;
@@ -765,13 +806,13 @@ export class DsAnnotationItem extends LitElement {
                   @keydown=${this.handleEditKeyDown}
                   @blur=${this.saveEdit}
                 ></textarea>
-                <div class="edit-hint">Enter to save, Esc to cancel</div>
+                <div class="edit-hint">Enter zum Speichern, Esc zum Abbrechen</div>
               `
             : html`
                 <p
                   class="content"
                   @dblclick=${this.handleContentDblClick}
-                  title="Double-click to edit"
+                  title="Zum Bearbeiten doppelklicken"
                 >
                   ${content}
                 </p>

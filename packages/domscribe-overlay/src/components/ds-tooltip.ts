@@ -42,10 +42,11 @@ export class DsTooltip extends LitElement {
         flex-direction: column;
         gap: var(--ds-space-xs);
         padding: var(--ds-space-sm) var(--ds-space-md);
-        background: var(--ds-bg-primary);
-        border: 1px solid var(--ds-border-primary);
-        border-radius: var(--ds-radius-md);
-        box-shadow: var(--ds-shadow-lg);
+        background: var(--ds-tooltip-surface);
+        border: 1px solid var(--ds-panel-border);
+        border-radius: calc(var(--ds-radius-md) + 2px);
+        box-shadow: var(--ds-panel-shadow);
+        backdrop-filter: var(--ds-shell-blur);
         font-size: var(--ds-font-size-sm);
         white-space: nowrap;
         transform: translate(12px, 12px);
@@ -64,7 +65,8 @@ export class DsTooltip extends LitElement {
       }
 
       .component-name {
-        color: var(--ds-info);
+        color: var(--ds-brand-secondary);
+        font-weight: var(--ds-font-weight-medium);
       }
 
       .element-id {
@@ -121,7 +123,7 @@ export class DsTooltip extends LitElement {
         </div>
         ${info.dataDs
           ? html`<span class="element-id">data-ds="${info.dataDs}"</span>`
-          : html`<span class="no-id">No data-ds attribute</span>`}
+          : html`<span class="no-id">Kein data-ds-Attribut</span>`}
       </div>
     `;
   }

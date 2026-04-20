@@ -66,16 +66,19 @@ export class DsTab extends LitElement {
       }
 
       .tab-shape {
-        filter: drop-shadow(-2px 0 6px rgba(0, 0, 0, 0.4));
-        transition: filter var(--ds-transition-fast);
+        filter: drop-shadow(var(--ds-tab-shadow));
+        transition:
+          filter var(--ds-transition-fast),
+          transform var(--ds-transition-fast);
       }
 
       .tab:hover .tab-shape {
-        filter: drop-shadow(-3px 0 10px rgba(0, 0, 0, 0.5));
+        filter: drop-shadow(-12px 18px 32px rgba(92, 71, 48, 0.22));
+        transform: translateX(-1px);
       }
 
       .tab:hover .d-fill {
-        fill: var(--ds-brand-secondary);
+        fill: var(--ds-cyan-400);
       }
     `,
   ];
@@ -168,8 +171,8 @@ export class DsTab extends LitElement {
       <button
         class="tab"
         @pointerdown=${this.onPointerDown}
-        title="Open Domscribe (Ctrl+Shift+D)"
-        aria-label="Open Domscribe overlay"
+        title="PinFlow oeffnen (Strg+Umschalt+D)"
+        aria-label="PinFlow-Overlay oeffnen"
       >
         <svg
           class="tab-shape"
@@ -185,11 +188,11 @@ export class DsTab extends LitElement {
               <path
                 class="d-fill"
                 d="${SIMPLIFIED.dPath}"
-                fill="var(--ds-brand-primary)"
+                fill="var(--ds-cyan-500)"
               />
               <!-- Cursor (mirrored) — dark fill -->
               <g transform="${SIMPLIFIED.cursorTransform}">
-                <path d="${CURSOR_PATH}" fill="var(--ds-bg-primary)" />
+                <path d="${CURSOR_PATH}" fill="var(--ds-neutral-50)" />
               </g>
             </g>
           `}

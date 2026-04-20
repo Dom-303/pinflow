@@ -48,7 +48,13 @@ export class DsPickerOverlay extends LitElement {
       .overlay {
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.05);
+        background:
+          radial-gradient(
+            circle at top,
+            var(--ds-picker-spotlight) 0%,
+            rgba(247, 222, 192, 0) 42%
+          ),
+          var(--ds-picker-scrim);
       }
 
       .instructions {
@@ -59,13 +65,14 @@ export class DsPickerOverlay extends LitElement {
         display: flex;
         align-items: center;
         gap: var(--ds-space-sm);
-        padding: var(--ds-space-sm) var(--ds-space-lg);
-        background: var(--ds-bg-primary);
-        border: 1px solid var(--ds-border-primary);
+        padding: 10px 16px;
+        background: var(--ds-tooltip-surface);
+        border: 1px solid var(--ds-panel-border);
         border-radius: var(--ds-radius-full);
         font-size: var(--ds-font-size-sm);
         color: var(--ds-text-primary);
-        box-shadow: var(--ds-shadow-lg);
+        box-shadow: var(--ds-panel-shadow);
+        backdrop-filter: var(--ds-shell-blur);
       }
 
       .instructions kbd {
@@ -75,11 +82,12 @@ export class DsPickerOverlay extends LitElement {
         min-width: 24px;
         height: 20px;
         padding: 0 var(--ds-space-xs);
-        background: var(--ds-bg-tertiary);
-        border: 1px solid var(--ds-border-secondary);
+        background: var(--ds-pill-surface);
+        border: 1px solid var(--ds-pill-border);
         border-radius: var(--ds-radius-sm);
         font-family: var(--ds-font-mono);
         font-size: var(--ds-font-size-xs);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.58);
       }
     `,
   ];
@@ -154,7 +162,7 @@ export class DsPickerOverlay extends LitElement {
     return html`
       <div class="overlay">
         <div class="instructions">
-          Click to select element • Press <kbd>ESC</kbd> to cancel
+          Klicke auf ein Element zum Auswaehlen • <kbd>ESC</kbd> zum Abbrechen
         </div>
 
         ${this.highlightRect

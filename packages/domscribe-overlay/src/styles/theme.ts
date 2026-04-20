@@ -98,6 +98,24 @@ export const themeStyles = css`
         rgba(255, 252, 247, 0.96) 0%,
         rgba(246, 242, 234, 0.96) 100%
       );
+    --ds-panel-surface: rgba(255, 252, 247, 0.82);
+    --ds-panel-surface-strong: rgba(255, 253, 250, 0.94);
+    --ds-panel-surface-muted: rgba(247, 241, 232, 0.74);
+    --ds-panel-border: rgba(231, 223, 210, 0.9);
+    --ds-panel-border-strong: rgba(225, 213, 198, 0.95);
+    --ds-panel-shadow: 0 14px 34px rgba(92, 71, 48, 0.08);
+    --ds-panel-shadow-soft: 0 6px 18px rgba(92, 71, 48, 0.06);
+    --ds-pill-surface: rgba(255, 252, 247, 0.9);
+    --ds-pill-border: rgba(225, 213, 198, 0.92);
+    --ds-picker-scrim: rgba(66, 49, 31, 0.07);
+    --ds-picker-spotlight: rgba(247, 222, 192, 0.22);
+    --ds-tab-shadow: -10px 16px 28px rgba(92, 71, 48, 0.18);
+    --ds-tooltip-surface:
+      linear-gradient(
+        180deg,
+        rgba(255, 253, 249, 0.97) 0%,
+        rgba(247, 241, 232, 0.96) 100%
+      );
 
     /* Shadows */
     --ds-shadow-sm: 0 4px 10px rgba(92, 71, 48, 0.05);

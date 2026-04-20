@@ -62,7 +62,6 @@ export class DsHeader extends LitElement {
         font-size: var(--ds-font-size-lg);
         font-weight: var(--ds-font-weight-medium);
         letter-spacing: -0.02em;
-        text-transform: lowercase;
         color: var(--ds-text-primary);
       }
 
@@ -102,14 +101,14 @@ export class DsHeader extends LitElement {
       <div class="header-row">
         <div class="brand">
           ${logoSvg({ size: 24, className: 'brand-logo', variant: 'auto' })}
-          <span class="brand-name">domscribe</span>
+          <span class="brand-name">PinFlow</span>
         </div>
 
         <button
           class="btn-icon"
           @click=${this.handleClose}
-          title="Close (ESC)"
-          aria-label="Close sidebar"
+          title="Schliessen (ESC)"
+          aria-label="Seitenleiste schliessen"
         >
           <svg
             viewBox="0 0 24 24"

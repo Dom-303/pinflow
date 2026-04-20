@@ -52,10 +52,14 @@ describe('Paper Glow UI contract', () => {
 
     await header.updateComplete;
 
-    expect(header.shadowRoot.textContent).toContain('PinFlow');
-    expect(header.shadowRoot.querySelector('button')?.getAttribute('title')).toContain(
-      'Schliessen',
+    const brand = header.shadowRoot.querySelector('.brand-name');
+    const closeButton = header.shadowRoot.querySelector(
+      'button[aria-label="Seitenleiste schliessen"]',
     );
+
+    expect(brand?.textContent).toBe('PinFlow');
+    expect(closeButton).not.toBeNull();
+    expect(closeButton?.querySelector('svg path')).not.toBeNull();
   });
 
   it('renders German-first annotation input copy', async () => {

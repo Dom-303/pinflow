@@ -233,10 +233,10 @@ export class DsAnnotationInput extends LitElement {
 
     // Contextual placeholder based on state
     const placeholder = !relayConnected
-      ? 'Connecting to relay...'
+      ? 'Verbinde mit Relay...'
       : !hasElement
-        ? 'Select an element first...'
-        : 'Describe the change you want...';
+        ? 'Waehle zuerst ein Element aus...'
+        : 'Beschreibe die gewuenschte Aenderung...';
 
     return html`
       <div class="input-wrapper">
@@ -263,9 +263,9 @@ export class DsAnnotationInput extends LitElement {
               @click=${this.handleCapture}
               ?disabled=${isCapturing}
               title=${hasElement
-                ? 'Element selected - click to change'
-                : 'Capture element'}
-              aria-label="Capture element"
+                ? 'Element ausgewaehlt - zum Wechseln klicken'
+                : 'Element markieren'}
+              aria-label="Element markieren"
             >
               <!-- Cursor with sparkles icon -->
               <svg viewBox="0 0 24 24" fill="none">
@@ -290,8 +290,8 @@ export class DsAnnotationInput extends LitElement {
               class="submit-btn"
               @click=${this.handleSubmit}
               ?disabled=${!canSubmit}
-              title="Submit annotation (Ctrl+Enter)"
-              aria-label="Submit annotation"
+              title="Anmerkung senden (Strg+Enter)"
+              aria-label="Anmerkung senden"
             >
               <svg viewBox="0 0 24 24" fill="none">
                 <path
@@ -307,7 +307,7 @@ export class DsAnnotationInput extends LitElement {
         </div>
       </div>
       ${hasElement
-        ? html`<div class="hint">Press Ctrl+Enter to submit</div>`
+        ? html`<div class="hint">Mit Strg+Enter senden</div>`
         : null}
     `;
   }

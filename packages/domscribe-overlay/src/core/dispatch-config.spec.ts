@@ -3,6 +3,7 @@ import type { Annotation } from '@domscribe/core';
 import {
   DEFAULT_DISPATCH_PROJECT_DEFAULTS,
   DEFAULT_DISPATCH_SESSION_STATE,
+  analyzeDispatchQueue,
   mergeDispatchConfig,
   normalizeProjectDefaults,
   normalizeSessionOverrides,
@@ -78,6 +79,30 @@ describe('dispatch-config', () => {
       completed: 1,
       failed: 1,
       archived: 1,
+    });
+  });
+
+  it('analyzes releasable queue work with local tracking and capacity', () => {
+    const annotations = [
+      { metadata: { id: 'ann-1', status: 'queued' } },
+      { metadata: { id: 'ann-2', status: 'queued' } },
+      { metadata: { id: 'ann-3', status: 'processing' } },
+      { metadata: { id: 'ann-4', status: 'processed' } },
+    ] as Annotation[];
+
+    expect(
+      analyzeDispatchQueue(annotations, {
+        releasedAnnotationIds: ['ann-1'],
+        awaitingConfirmationIds: ['ann-2'],
+        concurrency: 3,
+      }),
+    ).toEqual({
+      queuedIds: ['ann-1', 'ann-2'],
+      unreleasedWaitingIds: [],
+      inFlightIds: ['ann-3', 'ann-1'],
+      awaitingConfirmationIds: ['ann-2'],
+      releasableIds: [],
+      capacityRemaining: 1,
     });
   });
 });

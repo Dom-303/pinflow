@@ -10,6 +10,7 @@ import type {
 import type {
   DispatchProjectDefaults,
   DispatchSessionState,
+  DispatchChannel,
 } from './dispatch-config.js';
 
 /**
@@ -21,6 +22,25 @@ export type OverlayMode = 'collapsed' | 'expanded' | 'capturing';
  * Product theme mode
  */
 export type OverlayTheme = 'light' | 'dark';
+
+export type DispatchBatchStatus =
+  | 'queued'
+  | 'running'
+  | 'completed'
+  | 'failed'
+  | 'mixed';
+
+export interface DispatchBatch {
+  id: string;
+  channel: DispatchChannel;
+  annotationIds: string[];
+  releasedAt: string;
+  status: DispatchBatchStatus;
+  queuedCount: number;
+  processingCount: number;
+  completedCount: number;
+  failedCount: number;
+}
 
 /**
  * Overlay state managed by OverlayStore
@@ -34,6 +54,7 @@ export interface OverlayState {
   tabOffsetY: number;
   dispatchProjectDefaults: DispatchProjectDefaults;
   dispatchSession: DispatchSessionState;
+  dispatchBatches: DispatchBatch[];
 
   // Connection State
   relayConnected: boolean;

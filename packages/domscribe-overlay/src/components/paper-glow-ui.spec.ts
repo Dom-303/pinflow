@@ -13,6 +13,7 @@ const mockStore = {
   updateDispatchProjectDefaults: vi.fn(),
   clearDispatchSessionOverrides: vi.fn(),
   toggleDispatchPaused: vi.fn(),
+  releaseNextDispatchBatch: vi.fn(),
   enterCaptureMode: vi.fn(),
   submitAnnotation: vi.fn().mockResolvedValue(undefined),
 };
@@ -20,6 +21,16 @@ const mockStore = {
 const mockState = {
   selectedElement: null as null | { tagName: string },
   annotations: [] as Array<{ id: string; metadata?: { status?: string } }>,
+  dispatchBatches: [] as Array<{
+    id: string;
+    channel: string;
+    annotationIds: string[];
+    status: string;
+    queuedCount: number;
+    processingCount: number;
+    completedCount: number;
+    failedCount: number;
+  }>,
   relayConnected: false,
   mode: 'expanded',
   theme: 'light' as const,
@@ -34,6 +45,9 @@ const mockState = {
   dispatchSession: {
     overrides: {},
     paused: false,
+    releasedAnnotationIds: [],
+    awaitingConfirmationIds: [],
+    flowActive: false,
   },
 };
 
@@ -63,6 +77,7 @@ describe('Paper Glow UI contract', () => {
     document.body.innerHTML = '';
     mockState.selectedElement = null;
     mockState.annotations = [];
+    mockState.dispatchBatches = [];
     mockState.relayConnected = false;
     mockState.mode = 'expanded';
     mockState.theme = 'light';
@@ -76,6 +91,9 @@ describe('Paper Glow UI contract', () => {
     mockState.dispatchSession = {
       overrides: {},
       paused: false,
+      releasedAnnotationIds: [],
+      awaitingConfirmationIds: [],
+      flowActive: false,
     };
     vi.clearAllMocks();
   });
@@ -135,6 +153,18 @@ describe('Paper Glow UI contract', () => {
       { id: 'note-1', metadata: { status: 'queued' } },
       { id: 'note-2', metadata: { status: 'processed' } },
     ];
+    mockState.dispatchBatches = [
+      {
+        id: 'batch-1',
+        channel: 'codex',
+        annotationIds: ['note-1', 'note-2'],
+        status: 'running',
+        queuedCount: 1,
+        processingCount: 1,
+        completedCount: 0,
+        failedCount: 0,
+      },
+    ];
     mockState.relayConnected = true;
 
     const host = document.createElement('div');
@@ -163,6 +193,8 @@ describe('Paper Glow UI contract', () => {
     expect(sidebar.shadowRoot.querySelector('ds-annotation-input')).not.toBeNull();
     expect(workflowPanel.shadowRoot.textContent).toContain('Queue und Versand');
     expect(workflowPanel.shadowRoot.textContent).toContain('Codex');
+    expect(workflowPanel.shadowRoot.textContent).toContain('Letzte Batches');
+    expect(workflowPanel.shadowRoot.textContent).toContain('running');
 
     const darkToggle = sidebar.shadowRoot.querySelector(
       'button[aria-label="Dunkelmodus aktivieren"]',
@@ -177,5 +209,12 @@ describe('Paper Glow UI contract', () => {
     expect(mockStore.setDispatchSessionOverrides).toHaveBeenCalledWith({
       channel: 'claude',
     });
+
+    const releaseButton = workflowPanel.shadowRoot.querySelector(
+      '.dispatch-btn',
+    ) as HTMLButtonElement;
+    expect(releaseButton.textContent).toContain('Naechsten Batch senden');
+    releaseButton.click();
+    expect(mockStore.releaseNextDispatchBatch).toHaveBeenCalledTimes(1);
   });
 });

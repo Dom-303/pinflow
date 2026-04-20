@@ -205,7 +205,7 @@ export class RelayService {
         ],
         limit: 50,
       });
-      this.store.setState({ annotations: result.annotations });
+      this.store.setAnnotations(result.annotations);
     } catch (error) {
       if (this.store.getState().debug) {
         console.error(

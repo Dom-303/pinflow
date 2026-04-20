@@ -15,7 +15,14 @@
         "tsConfig": "packages/domscribe-overlay/tsconfig.lib.json",
         "generatePackageJson": true,
         "generateExportsField": true,
-        "assets": ["packages/domscribe-overlay/*.md"]
+        "assets": [
+          "packages/domscribe-overlay/*.md",
+          {
+            "input": "packages/domscribe-overlay/src/components/logo/assets",
+            "glob": "**/*",
+            "output": "components/logo/assets"
+          }
+        ]
       }
     },
     "lint": {

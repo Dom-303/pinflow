@@ -23,6 +23,9 @@ export interface DispatchSessionOverrides {
 export interface DispatchSessionState {
   overrides: DispatchSessionOverrides;
   paused: boolean;
+  releasedAnnotationIds: string[];
+  awaitingConfirmationIds: string[];
+  flowActive: boolean;
 }
 
 export interface EffectiveDispatchConfig extends DispatchProjectDefaults {
@@ -37,6 +40,15 @@ export interface QueueSummary {
   archived: number;
 }
 
+export interface DispatchQueueAnalysis {
+  queuedIds: string[];
+  unreleasedWaitingIds: string[];
+  inFlightIds: string[];
+  awaitingConfirmationIds: string[];
+  releasableIds: string[];
+  capacityRemaining: number;
+}
+
 export const DEFAULT_DISPATCH_PROJECT_DEFAULTS: DispatchProjectDefaults = {
   channel: 'codex',
   mode: 'manual',
@@ -48,6 +60,9 @@ export const DEFAULT_DISPATCH_PROJECT_DEFAULTS: DispatchProjectDefaults = {
 export const DEFAULT_DISPATCH_SESSION_STATE: DispatchSessionState = {
   overrides: {},
   paused: false,
+  releasedAnnotationIds: [],
+  awaitingConfirmationIds: [],
+  flowActive: false,
 };
 
 export function normalizeThreshold(value: number | undefined): number {
@@ -157,4 +172,67 @@ export function summarizeQueue(annotations: Annotation[]): QueueSummary {
   }
 
   return summary;
+}
+
+export function analyzeDispatchQueue(
+  annotations: Annotation[],
+  options: {
+    releasedAnnotationIds: string[];
+    awaitingConfirmationIds: string[];
+    concurrency: number;
+  },
+): DispatchQueueAnalysis {
+  const queuedIds: string[] = [];
+  const processingIds: string[] = [];
+  const liveIds = new Set<string>();
+
+  for (const annotation of annotations) {
+    const id = annotation.metadata.id;
+    liveIds.add(id);
+
+    if (annotation.metadata.status === 'queued') {
+      queuedIds.push(id);
+    }
+
+    if (annotation.metadata.status === 'processing') {
+      processingIds.push(id);
+    }
+  }
+
+  const releasedActiveIds = options.releasedAnnotationIds.filter((id) => {
+    const annotation = annotations.find((entry) => entry.metadata.id === id);
+    return (
+      liveIds.has(id) &&
+      (annotation?.metadata.status === 'queued' ||
+        annotation?.metadata.status === 'processing')
+    );
+  });
+
+  const awaitingConfirmationIds = options.awaitingConfirmationIds.filter((id) => {
+    const annotation = annotations.find((entry) => entry.metadata.id === id);
+    return liveIds.has(id) && annotation?.metadata.status === 'queued';
+  });
+
+  const inFlightIds = Array.from(
+    new Set([...processingIds, ...releasedActiveIds]),
+  );
+
+  const unreleasedWaitingIds = queuedIds.filter(
+    (id) =>
+      !releasedActiveIds.includes(id) && !awaitingConfirmationIds.includes(id),
+  );
+
+  const capacityRemaining = Math.max(
+    0,
+    normalizeConcurrency(options.concurrency) - inFlightIds.length,
+  );
+
+  return {
+    queuedIds,
+    unreleasedWaitingIds,
+    inFlightIds,
+    awaitingConfirmationIds,
+    releasableIds: unreleasedWaitingIds.slice(0, capacityRemaining),
+    capacityRemaining,
+  };
 }

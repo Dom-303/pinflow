@@ -17,8 +17,11 @@ import type {
   OverlayMode,
   OverlayOptions,
   OverlayTheme,
+  DispatchBatch,
+  DispatchBatchStatus,
 } from './types.js';
 import {
+  analyzeDispatchQueue,
   DEFAULT_DISPATCH_PROJECT_DEFAULTS,
   DEFAULT_DISPATCH_SESSION_STATE,
   mergeDispatchConfig,
@@ -49,6 +52,7 @@ const DEFAULT_STATE: OverlayState = {
   tabOffsetY: 50,
   dispatchProjectDefaults: DEFAULT_DISPATCH_PROJECT_DEFAULTS,
   dispatchSession: DEFAULT_DISPATCH_SESSION_STATE,
+  dispatchBatches: [],
 
   // Connection State
   relayConnected: false,
@@ -203,6 +207,8 @@ export class OverlayStore {
     } catch {
       // localStorage unavailable
     }
+
+    this.reconcileDispatchQueue();
   }
 
   setDispatchSessionOverrides(
@@ -217,6 +223,8 @@ export class OverlayStore {
         }),
       },
     });
+
+    this.reconcileDispatchQueue();
   }
 
   clearDispatchSessionOverrides(): void {
@@ -224,8 +232,14 @@ export class OverlayStore {
       dispatchSession: {
         ...DEFAULT_DISPATCH_SESSION_STATE,
         paused: this.state.dispatchSession.paused,
+        releasedAnnotationIds: this.state.dispatchSession.releasedAnnotationIds,
+        awaitingConfirmationIds:
+          this.state.dispatchSession.awaitingConfirmationIds,
+        flowActive: this.state.dispatchSession.flowActive,
       },
     });
+
+    this.reconcileDispatchQueue();
   }
 
   setDispatchPaused(paused: boolean): void {
@@ -235,10 +249,29 @@ export class OverlayStore {
         paused,
       },
     });
+
+    this.reconcileDispatchQueue();
   }
 
   toggleDispatchPaused(): void {
     this.setDispatchPaused(!this.state.dispatchSession.paused);
+  }
+
+  releaseNextDispatchBatch(): string[] {
+    const effective = this.getEffectiveDispatchConfig();
+    const analysis = analyzeDispatchQueue(this.state.annotations, {
+      releasedAnnotationIds: this.state.dispatchSession.releasedAnnotationIds,
+      awaitingConfirmationIds:
+        this.state.dispatchSession.awaitingConfirmationIds,
+      concurrency: effective.concurrency,
+    });
+
+    const nextIds =
+      analysis.awaitingConfirmationIds.length > 0
+        ? analysis.awaitingConfirmationIds
+        : analysis.releasableIds;
+
+    return this.applyDispatchRelease(nextIds);
   }
 
   /**
@@ -284,6 +317,12 @@ export class OverlayStore {
     }
 
     this.notifyListeners();
+  }
+
+  setAnnotations(annotations: Annotation[]): void {
+    this.setState({ annotations });
+    this.reconcileDispatchQueue();
+    this.reconcileDispatchBatches();
   }
 
   /**
@@ -580,20 +619,18 @@ export class OverlayStore {
    * Add annotations (e.g., from WebSocket updates)
    */
   addAnnotations(annotations: Annotation[]): void {
-    this.setState({
-      annotations: [...annotations, ...this.state.annotations],
-    });
+    this.setAnnotations([...annotations, ...this.state.annotations]);
   }
 
   /**
    * Update an existing annotation
    */
   updateAnnotation(id: string, updates: Partial<Annotation>): void {
-    this.setState({
-      annotations: this.state.annotations.map((a) =>
+    this.setAnnotations(
+      this.state.annotations.map((a) =>
         a.metadata.id === id ? { ...a, ...updates } : a,
       ),
-    });
+    );
   }
 
   /**
@@ -693,5 +730,236 @@ export class OverlayStore {
     }, 2000);
 
     return element;
+  }
+
+  private reconcileDispatchQueue(): void {
+    const effective = this.getEffectiveDispatchConfig();
+    const analysis = analyzeDispatchQueue(this.state.annotations, {
+      releasedAnnotationIds: this.state.dispatchSession.releasedAnnotationIds,
+      awaitingConfirmationIds:
+        this.state.dispatchSession.awaitingConfirmationIds,
+      concurrency: effective.concurrency,
+    });
+
+    const hasQueuedWork =
+      analysis.queuedIds.length > 0 ||
+      analysis.awaitingConfirmationIds.length > 0 ||
+      analysis.inFlightIds.length > 0;
+
+    const nextFlowActive =
+      this.state.dispatchSession.flowActive && hasQueuedWork;
+
+    const shouldSyncTracking =
+      analysis.inFlightIds.join('|') !==
+        this.state.dispatchSession.releasedAnnotationIds.join('|') ||
+      analysis.awaitingConfirmationIds.join('|') !==
+        this.state.dispatchSession.awaitingConfirmationIds.join('|') ||
+      nextFlowActive !== this.state.dispatchSession.flowActive;
+
+    if (shouldSyncTracking) {
+      this.setState({
+        dispatchSession: {
+          ...this.state.dispatchSession,
+          releasedAnnotationIds: analysis.inFlightIds,
+          awaitingConfirmationIds: analysis.awaitingConfirmationIds,
+          flowActive: nextFlowActive,
+        },
+      });
+    }
+
+    if (
+      effective.paused ||
+      effective.channel === 'queue_only' ||
+      analysis.releasableIds.length === 0
+    ) {
+      return;
+    }
+
+    const canContinue =
+      this.state.dispatchSession.flowActive || analysis.inFlightIds.length > 0;
+    const thresholdReached =
+      analysis.unreleasedWaitingIds.length >= effective.threshold;
+
+    if (effective.mode === 'manual') {
+      return;
+    }
+
+    if (effective.mode === 'immediate') {
+      if (canContinue) {
+        this.continueDispatchFlow(effective.continuation, analysis.releasableIds);
+        return;
+      }
+
+      this.applyDispatchRelease(analysis.releasableIds);
+      return;
+    }
+
+    if (!thresholdReached && !canContinue) {
+      return;
+    }
+
+    this.continueDispatchFlow(effective.continuation, analysis.releasableIds);
+  }
+
+  private continueDispatchFlow(
+    continuation: EffectiveDispatchConfig['continuation'],
+    releasableIds: string[],
+  ): void {
+    if (releasableIds.length === 0) {
+      return;
+    }
+
+    if (continuation === 'automatic') {
+      this.applyDispatchRelease(releasableIds);
+      return;
+    }
+
+    if (continuation === 'confirm') {
+      this.setState({
+        dispatchSession: {
+          ...this.state.dispatchSession,
+          awaitingConfirmationIds: releasableIds,
+          flowActive: true,
+        },
+      });
+    }
+  }
+
+  private reconcileDispatchBatches(): void {
+    if (this.state.dispatchBatches.length === 0) {
+      return;
+    }
+
+    const nextBatches = this.state.dispatchBatches.map((batch) =>
+      this.syncDispatchBatch(batch),
+    );
+
+    const hasChanged = nextBatches.some((batch, index) => {
+      const previous = this.state.dispatchBatches[index];
+      return (
+        batch.status !== previous.status ||
+        batch.queuedCount !== previous.queuedCount ||
+        batch.processingCount !== previous.processingCount ||
+        batch.completedCount !== previous.completedCount ||
+        batch.failedCount !== previous.failedCount
+      );
+    });
+
+    if (hasChanged) {
+      this.setState({ dispatchBatches: nextBatches });
+    }
+  }
+
+  private syncDispatchBatch(batch: DispatchBatch): DispatchBatch {
+    const included = this.state.annotations.filter((annotation) =>
+      batch.annotationIds.includes(annotation.metadata.id),
+    );
+
+    const queuedCount = included.filter(
+      (annotation) => annotation.metadata.status === 'queued',
+    ).length;
+    const processingCount = included.filter(
+      (annotation) => annotation.metadata.status === 'processing',
+    ).length;
+    const completedCount = included.filter(
+      (annotation) => annotation.metadata.status === 'processed',
+    ).length;
+    const failedCount = included.filter(
+      (annotation) => annotation.metadata.status === 'failed',
+    ).length;
+
+    return {
+      ...batch,
+      status: OverlayStore.resolveDispatchBatchStatus({
+        queuedCount,
+        processingCount,
+        completedCount,
+        failedCount,
+      }),
+      queuedCount,
+      processingCount,
+      completedCount,
+      failedCount,
+    };
+  }
+
+  private static resolveDispatchBatchStatus({
+    queuedCount,
+    processingCount,
+    completedCount,
+    failedCount,
+  }: {
+    queuedCount: number;
+    processingCount: number;
+    completedCount: number;
+    failedCount: number;
+  }): DispatchBatchStatus {
+    if (processingCount > 0) {
+      return 'running';
+    }
+
+    if (queuedCount > 0) {
+      return 'queued';
+    }
+
+    if (completedCount > 0 && failedCount > 0) {
+      return 'mixed';
+    }
+
+    if (failedCount > 0) {
+      return 'failed';
+    }
+
+    return 'completed';
+  }
+
+  private applyDispatchRelease(annotationIds: string[]): string[] {
+    if (annotationIds.length === 0) {
+      return [];
+    }
+
+    const channel = this.getEffectiveDispatchConfig().channel;
+    const nextBatch: DispatchBatch = this.syncDispatchBatch({
+      id: `batch-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      channel,
+      annotationIds,
+      releasedAt: new Date().toISOString(),
+      status: 'queued',
+      queuedCount: 0,
+      processingCount: 0,
+      completedCount: 0,
+      failedCount: 0,
+    });
+
+    const nextReleased = Array.from(
+      new Set([
+        ...this.state.dispatchSession.releasedAnnotationIds,
+        ...annotationIds,
+      ]),
+    );
+
+    this.setState({
+      dispatchSession: {
+        ...this.state.dispatchSession,
+        releasedAnnotationIds: nextReleased,
+        awaitingConfirmationIds:
+          this.state.dispatchSession.awaitingConfirmationIds.filter(
+            (id) => !annotationIds.includes(id),
+          ),
+        flowActive: true,
+      },
+      dispatchBatches: [nextBatch, ...this.state.dispatchBatches].slice(0, 12),
+    });
+
+    window.dispatchEvent(
+      new CustomEvent('pinflow:dispatch-release', {
+        detail: {
+          annotationIds,
+          channel,
+        },
+      }),
+    );
+
+    return annotationIds;
   }
 }

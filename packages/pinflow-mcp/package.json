@@ -1,0 +1,25 @@
+{
+  "name": "@pinflow/mcp",
+  "version": "0.6.0-pinflow.0",
+  "description": "MCP server compatibility layer for PinFlow runtime context workflows",
+  "type": "module",
+  "main": "src/bin/domscribe-mcp.ts",
+  "distBin": {
+    "domscribe-mcp": "./bin/domscribe-mcp.js",
+    "pinflow-mcp": "./bin/pinflow-mcp.js"
+  },
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "dependencies": {
+    "@domscribe/relay": "workspace:*"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Dom-303/pinflow.git",
+    "directory": "packages/pinflow-mcp"
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "name": "@domscribe/react",
+  "version": "0.6.0-pinflow.0",
+  "description": "React adapter for PinFlow",
+  "type": "module",
+  "main": "src/index.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./vite": {
+      "types": "./src/vite/index.ts",
+      "import": "./src/vite/index.ts",
+      "default": "./src/vite/index.ts"
+    },
+    "./webpack": {
+      "types": "./src/webpack/index.ts",
+      "import": "./src/webpack/index.ts",
+      "default": "./src/webpack/index.ts"
+    },
+    "./auto-init": {
+      "types": "./src/auto-init/index.ts",
+      "import": "./src/auto-init/index.ts",
+      "default": "./src/auto-init/index.ts"
+    }
+  },
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "distExports": {
+    "./vite": "./vite/index.js",
+    "./webpack": "./webpack/index.js",
+    "./auto-init": "./auto-init.js"
+  },
+  "dependencies": {
+    "@domscribe/core": "workspace:*",
+    "@domscribe/runtime": "workspace:*",
+    "@domscribe/transform": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/webpack": "^5.28.5",
+    "happy-dom": "^12.0.0",
+    "react": "^18.2.0",
+    "webpack": "^5.102.0"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "vite": "^5.0.0 || ^6.0.0 || ^7.0.0",
+    "webpack": "^5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "vite": {
+      "optional": true
+    },
+    "webpack": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Dom-303/pinflow.git",
+    "directory": "packages/pinflow-react"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "name": "pinflow-mcp",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "packages/pinflow-mcp/src",
+  "tags": [
+    "scope:infra",
+    "type:lib"
+  ],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": [
+        "{workspaceRoot}/dist/packages/pinflow-mcp"
+      ],
+      "options": {
+        "rootDir": "packages/pinflow-mcp/src",
+        "outputPath": "dist/packages/pinflow-mcp",
+        "main": "packages/pinflow-mcp/src/bin/domscribe-mcp.ts",
+        "tsConfig": "packages/pinflow-mcp/tsconfig.lib.json",
+        "generatePackageJson": true,
+        "generateExportsField": true,
+        "assets": [
+          "packages/pinflow-mcp/*.md"
+        ]
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "eslintConfig": "eslint.config.mjs",
+        "lintFilePatterns": [
+          "packages/pinflow-mcp/**/*.ts"
+        ]
+      }
+    },
+    "typecheck": {
+      "executor": "nx:noop"
+    },
+    "watch-deps": {
+      "executor": "nx:noop"
+    },
+    "build-deps": {
+      "executor": "nx:noop"
+    }
+  }
+}

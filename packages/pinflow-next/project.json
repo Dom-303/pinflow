@@ -1,0 +1,61 @@
+{
+  "name": "pinflow-next",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "packages/pinflow-next/src",
+  "tags": [
+    "scope:adapter",
+    "type:adapter-lib",
+    "type:test"
+  ],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": [
+        "{workspaceRoot}/dist/packages/pinflow-next"
+      ],
+      "options": {
+        "rootDir": "packages/pinflow-next/src",
+        "outputPath": "dist/packages/pinflow-next",
+        "main": "packages/pinflow-next/src/index.ts",
+        "tsConfig": "packages/pinflow-next/tsconfig.lib.json",
+        "generatePackageJson": true,
+        "generateExportsField": true,
+        "assets": [
+          "packages/pinflow-next/*.md"
+        ]
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "eslintConfig": "eslint.config.mjs",
+        "lintFilePatterns": [
+          "packages/pinflow-next/**/*.ts",
+          "packages/pinflow-next/**/*.tsx"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": [
+        "{projectRoot}/test-output"
+      ],
+      "options": {
+        "config": "packages/pinflow-next/vite.config.ts"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:noop"
+    },
+    "watch-deps": {
+      "executor": "nx:noop"
+    },
+    "build-deps": {
+      "executor": "nx:noop"
+    }
+  }
+}

@@ -544,6 +544,13 @@ Fix:
 - any generator or fixture paths
 - any hardcoded package folder references in scripts and docs
 
+After the directory rename, run a fresh workspace install so pnpm rewrites any
+workspace symlinks that still point at the old `packages/domscribe-*` paths:
+
+```bash
+corepack pnpm install
+```
+
 - [ ] **Step 4: Verify the workspace still builds**
 
 Run:

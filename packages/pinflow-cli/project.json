@@ -1,0 +1,50 @@
+{
+  "name": "pinflow-cli",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "packages/pinflow-cli/src",
+  "tags": [
+    "scope:infra",
+    "type:lib"
+  ],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": [
+        "{workspaceRoot}/dist/packages/pinflow-cli"
+      ],
+      "options": {
+        "rootDir": "packages/pinflow-cli/src",
+        "outputPath": "dist/packages/pinflow-cli",
+        "main": "packages/pinflow-cli/src/bin/domscribe.ts",
+        "tsConfig": "packages/pinflow-cli/tsconfig.lib.json",
+        "generatePackageJson": true,
+        "generateExportsField": true,
+        "assets": [
+          "packages/pinflow-cli/*.md"
+        ]
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "eslintConfig": "eslint.config.mjs",
+        "lintFilePatterns": [
+          "packages/pinflow-cli/**/*.ts"
+        ]
+      }
+    },
+    "typecheck": {
+      "executor": "nx:noop"
+    },
+    "watch-deps": {
+      "executor": "nx:noop"
+    },
+    "build-deps": {
+      "executor": "nx:noop"
+    }
+  }
+}

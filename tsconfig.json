@@ -3,16 +3,16 @@
   "compileOnSave": false,
   "files": [],
   "references": [
-    { "path": "./packages/domscribe-core" },
-    { "path": "./packages/domscribe-manifest" },
-    { "path": "./packages/domscribe-relay" },
-    { "path": "./packages/domscribe-runtime" },
-    { "path": "./packages/domscribe-overlay" },
-    { "path": "./packages/domscribe-transform" },
-    { "path": "./packages/domscribe-react" },
-    { "path": "./packages/domscribe-vue" },
-    { "path": "./packages/domscribe-next" },
-    { "path": "./packages/domscribe-nuxt" },
+    { "path": "./packages/pinflow-core" },
+    { "path": "./packages/pinflow-manifest" },
+    { "path": "./packages/pinflow-relay" },
+    { "path": "./packages/pinflow-runtime" },
+    { "path": "./packages/pinflow-overlay" },
+    { "path": "./packages/pinflow-transform" },
+    { "path": "./packages/pinflow-react" },
+    { "path": "./packages/pinflow-vue" },
+    { "path": "./packages/pinflow-next" },
+    { "path": "./packages/pinflow-nuxt" },
     { "path": "./packages/domscribe-test-fixtures" }
   ]
 }

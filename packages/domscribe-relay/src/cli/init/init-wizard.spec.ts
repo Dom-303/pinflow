@@ -39,9 +39,9 @@ describe('runInitWizard', () => {
     await runInitWizard(baseOptions);
 
     // Assert
-    expect(clack.intro).toHaveBeenCalledWith('Domscribe Setup');
+    expect(clack.intro).toHaveBeenCalledWith('PinFlow Setup');
     expect(clack.outro).toHaveBeenCalledWith(
-      expect.stringContaining('Domscribe will take care of the rest'),
+      expect.stringContaining('PinFlow will take care of the rest'),
     );
   });
 

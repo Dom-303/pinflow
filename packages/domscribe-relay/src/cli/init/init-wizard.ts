@@ -19,7 +19,7 @@ import type { InitOptions } from './types.js';
  * (via `autoStart: true` in the bundler plugin).
  */
 export async function runInitWizard(options: InitOptions): Promise<void> {
-  clack.intro('Domscribe Setup');
+  clack.intro('PinFlow Setup');
 
   await runAgentStep(options);
 
@@ -29,6 +29,6 @@ export async function runInitWizard(options: InitOptions): Promise<void> {
   runGitignoreStep(options, process.cwd());
 
   clack.outro(
-    'Add the config above to your project, then start your dev server — Domscribe will take care of the rest.',
+    'Add the config above to your project, then start your dev server — PinFlow will take care of the rest.',
   );
 }

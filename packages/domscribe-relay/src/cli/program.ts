@@ -1,5 +1,5 @@
 /**
- * Domscribe CLI
+ * PinFlow CLI
  *
  * Commands:
  *   serve   - Start the relay server (foreground or daemon)
@@ -18,9 +18,9 @@ import { McpCommand } from './commands/mcp.command.js';
 const program = new Command();
 
 program
-  .name('domscribe')
+  .name('pinflow')
   .description(
-    'Domscribe Relay - Local development server for UI-aware dev tooling',
+    'PinFlow Relay - Local development server for UI-aware dev tooling',
   )
   .version(RELAY_VERSION);
 
@@ -45,7 +45,7 @@ program.addCommand(StatusCommand);
 program.addCommand(McpCommand);
 
 /**
- * init command - Initialize Domscribe for a coding agent
+ * init command - Initialize PinFlow for a coding agent
  */
 program.addCommand(InitCommand);
 

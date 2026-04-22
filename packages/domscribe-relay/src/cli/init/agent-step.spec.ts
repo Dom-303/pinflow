@@ -143,12 +143,12 @@ describe('runAgentStep', () => {
       expect(spawnSync).toHaveBeenCalledTimes(2);
       expect(spawnSync).toHaveBeenCalledWith(
         'claude',
-        ['plugin', 'marketplace', 'add', 'patchorbit/domscribe'],
+        ['plugin', 'marketplace', 'add', 'Dom-303/pinflow'],
         { stdio: 'inherit' },
       );
       expect(spawnSync).toHaveBeenCalledWith(
         'claude',
-        ['plugin', 'install', 'domscribe@domscribe'],
+        ['plugin', 'install', 'pinflow@pinflow'],
         { stdio: 'inherit' },
       );
       expect(clack.log.success).toHaveBeenCalled();

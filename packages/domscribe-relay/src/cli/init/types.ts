@@ -92,30 +92,28 @@ export const AGENTS: readonly AgentConfig[] = [
     label: 'Claude Code',
     installType: 'command',
     commands: [
-      'claude plugin marketplace add patchorbit/domscribe',
-      'claude plugin install domscribe@domscribe',
+      'claude plugin marketplace add Dom-303/pinflow',
+      'claude plugin install pinflow@pinflow',
     ],
   },
   {
     id: 'copilot',
     label: 'GitHub Copilot',
     installType: 'command',
-    commands: ['copilot plugin install patchorbit/domscribe'],
+    commands: ['copilot plugin install Dom-303/pinflow'],
   },
   {
     id: 'gemini',
     label: 'Gemini CLI',
     installType: 'command',
-    commands: [
-      'gemini extensions install https://github.com/patchorbit/domscribe',
-    ],
+    commands: ['gemini extensions install https://github.com/Dom-303/pinflow'],
   },
   {
     id: 'kiro',
     label: 'Amazon Kiro',
     installType: 'manual',
     manualInstructions:
-      'Open the Powers panel → Add power from GitHub → enter https://github.com/patchorbit/domscribe',
+      'Open the Powers panel → Add power from GitHub → enter https://github.com/Dom-303/pinflow',
   },
   {
     id: 'cursor',
@@ -128,7 +126,7 @@ export const AGENTS: readonly AgentConfig[] = [
     id: 'other',
     label: 'Other (manual MCP setup)',
     installType: 'manual',
-    manualInstructions: `Run:\n  npx skills add patchorbit/domscribe\n\nThen add this MCP config to your agent:\n\n${MCP_CONFIG}`,
+    manualInstructions: `Run:\n  npx skills add Dom-303/pinflow\n\nThen add this MCP config to your agent:\n\n${MCP_CONFIG}`,
   },
 ] as const;
 

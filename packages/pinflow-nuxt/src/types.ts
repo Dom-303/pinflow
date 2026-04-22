@@ -6,7 +6,7 @@
  *
  * @module @pinflow/nuxt/types
  */
-export interface DomscribeNuxtOptions {
+export interface PinFlowNuxtOptions {
   /**
    * File pattern to include for transformation.
    *
@@ -88,3 +88,5 @@ export interface DomscribeNuxtOptions {
         debug?: boolean;
       };
 }
+
+export type DomscribeNuxtOptions = PinFlowNuxtOptions;

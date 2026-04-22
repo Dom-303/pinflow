@@ -1,7 +1,7 @@
 /**
- * Auto-initialize Domscribe runtime + overlay from the loader preamble.
+ * Auto-initialize PinFlow runtime + overlay from the loader preamble.
  *
- * This module replaces DomscribeDevProvider — it runs at module load time
+ * This module replaces the old DomscribeDevProvider pattern — it runs at module load time
  * instead of requiring a React component in the tree.  The turbopack loader
  * injects `import('@pinflow/next/auto-init').catch(function(){})` into
  * every transformed file, guarded by a `__PINFLOW_AUTO_INIT__` flag to

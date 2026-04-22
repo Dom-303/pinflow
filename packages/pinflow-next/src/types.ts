@@ -6,7 +6,7 @@
  *
  * @module @pinflow/next/types
  */
-export interface DomscribeNextOptions {
+export interface PinFlowNextOptions {
   /**
    * Enable transformation.
    * Set to false in production builds.
@@ -97,4 +97,4 @@ export interface DomscribeNextOptions {
       };
 }
 
-export type PinFlowNextOptions = DomscribeNextOptions;
+export type DomscribeNextOptions = PinFlowNextOptions;

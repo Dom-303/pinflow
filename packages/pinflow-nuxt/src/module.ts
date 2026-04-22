@@ -1,5 +1,5 @@
 /**
- * Nuxt module definition for Domscribe.
+ * Nuxt module definition for PinFlow.
  *
  * Orchestrates relay startup, head-script globals injection, Vite/Webpack
  * transform registration, and client-only runtime plugin installation.
@@ -13,18 +13,20 @@ import {
   defineNuxtModule,
   extendWebpackConfig,
 } from '@nuxt/kit';
-import { domscribe } from '@pinflow/transform/plugins/vite';
-import { DomscribeWebpackPlugin } from '@pinflow/transform/plugins/webpack';
-import type { DomscribeNuxtOptions } from './types.js';
+import { pinflow } from '@pinflow/transform/plugins/vite';
+import { PinFlowWebpackPlugin } from '@pinflow/transform/plugins/webpack';
+import type { PinFlowNuxtOptions } from './types.js';
 
 /**
  * The Nuxt module. Use as the default export of @pinflow/nuxt or
- * add to `modules` in nuxt.config with the `domscribe` config key.
+ * add to `modules` in nuxt.config with the `pinflow` config key.
+ *
+ * Legacy `domscribe` config is still read as a fallback during the migration.
  */
-export const domscribeModule = defineNuxtModule<DomscribeNuxtOptions>({
+export const pinflowModule = defineNuxtModule<PinFlowNuxtOptions>({
   meta: {
     name: '@pinflow/nuxt',
-    configKey: 'domscribe',
+    configKey: 'pinflow',
   },
   defaults: {
     debug: false,
@@ -32,13 +34,18 @@ export const domscribeModule = defineNuxtModule<DomscribeNuxtOptions>({
     relay: {},
   },
   async setup(options, nuxt) {
+    const effectiveOptions = mergeLegacyNuxtOptions(
+      options,
+      nuxt as typeof nuxt & { options: { domscribe?: PinFlowNuxtOptions } },
+    );
+
     // Only enable in development (unless force-transform is set for testing)
     if (!nuxt.options.dev && !process.env.DOMSCRIBE_FORCE_TRANSFORM) {
       return;
     }
 
     const { resolve } = createResolver(import.meta.url);
-    const debug = options.debug ?? false;
+    const debug = effectiveOptions.debug ?? false;
     const forceTransform = !!process.env.DOMSCRIBE_FORCE_TRANSFORM;
 
     // 1. Start relay to discover actual host/port.
@@ -48,14 +55,14 @@ export const domscribeModule = defineNuxtModule<DomscribeNuxtOptions>({
     let relayHost: string | undefined;
     let relayPort: number | undefined;
 
-    if (options.relay?.autoStart !== false) {
+    if (effectiveOptions.relay?.autoStart !== false) {
       try {
         const { RelayControl } = await import('@pinflow/relay');
         const relayControl = new RelayControl(nuxt.options.rootDir);
         const result = await relayControl.ensureRunning({
-          port: options.relay?.port,
-          host: options.relay?.host,
-          bodyLimit: options.relay?.bodyLimit,
+          port: effectiveOptions.relay?.port,
+          host: effectiveOptions.relay?.host,
+          bodyLimit: effectiveOptions.relay?.bodyLimit,
         });
         relayHost = result.host;
         relayPort = result.port;
@@ -88,9 +95,11 @@ export const domscribeModule = defineNuxtModule<DomscribeNuxtOptions>({
         `window.__DOMSCRIBE_RELAY_HOST__=${JSON.stringify(relayHost)}`,
       );
     }
-    if (options.overlay !== false) {
+    if (effectiveOptions.overlay !== false) {
       const overlayOptions =
-        typeof options.overlay === 'object' ? options.overlay : {};
+        typeof effectiveOptions.overlay === 'object'
+          ? effectiveOptions.overlay
+          : {};
       parts.push(
         `window.__PINFLOW_OVERLAY_OPTIONS__=${JSON.stringify(overlayOptions)}`,
       );
@@ -118,10 +127,10 @@ export const domscribeModule = defineNuxtModule<DomscribeNuxtOptions>({
     //    so transforms run during `nuxi build` (production) too.
     addVitePlugin(
       () => {
-        const plugin = domscribe({
-          ...options,
+        const plugin = pinflow({
+          ...effectiveOptions,
           rootDir: nuxt.options.rootDir,
-          relay: { ...options.relay, autoStart: false },
+          relay: { ...effectiveOptions.relay, autoStart: false },
         });
         // The Vite plugin defaults to `apply: 'serve'` (dev-only). During
         // `nuxi build` Vite runs in build mode and skips serve-only plugins.
@@ -139,8 +148,9 @@ export const domscribeModule = defineNuxtModule<DomscribeNuxtOptions>({
       (config) => {
         // Add webpack loader for file transforms
         config.module?.rules?.push({
-          test: options.include ?? /\.(jsx|tsx|vue)$/i,
-          exclude: options.exclude ?? /node_modules|\.test\.|\.spec\./i,
+          test: effectiveOptions.include ?? /\.(jsx|tsx|vue)$/i,
+          exclude:
+            effectiveOptions.exclude ?? /node_modules|\.test\.|\.spec\./i,
           enforce: 'pre' as const,
           use: [
             {
@@ -153,10 +163,10 @@ export const domscribeModule = defineNuxtModule<DomscribeNuxtOptions>({
         // Add webpack plugin for relay/overlay coordination
         // Relay is already running — skip auto-start.
         config.plugins?.push(
-          new DomscribeWebpackPlugin({
+          new PinFlowWebpackPlugin({
             debug,
-            relay: { ...options.relay, autoStart: false },
-            overlay: options.overlay,
+            relay: { ...effectiveOptions.relay, autoStart: false },
+            overlay: effectiveOptions.overlay,
           }),
         );
       },
@@ -170,3 +180,21 @@ export const domscribeModule = defineNuxtModule<DomscribeNuxtOptions>({
     });
   },
 });
+
+export const domscribeModule = pinflowModule;
+
+function mergeLegacyNuxtOptions(
+  options: PinFlowNuxtOptions,
+  nuxt: { options: { domscribe?: PinFlowNuxtOptions } },
+): PinFlowNuxtOptions {
+  const legacy = nuxt.options.domscribe ?? {};
+
+  return {
+    ...legacy,
+    ...options,
+    relay: {
+      ...(legacy.relay ?? {}),
+      ...(options.relay ?? {}),
+    },
+  };
+}

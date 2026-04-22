@@ -1,5 +1,5 @@
 /**
- * @pinflow/nuxt - Nuxt module for Domscribe
+ * @pinflow/nuxt - Nuxt module for PinFlow
  *
  * Zero-config Nuxt integration that provides:
  * - Build-time AST injection of stable element IDs (Vite + Webpack)
@@ -9,5 +9,5 @@
  * @module @pinflow/nuxt
  */
 
-export { domscribeModule as default } from './module.js';
-export type { DomscribeNuxtOptions } from './types.js';
+export { pinflowModule as default, pinflowModule, domscribeModule } from './module.js';
+export type { DomscribeNuxtOptions, PinFlowNuxtOptions } from './types.js';

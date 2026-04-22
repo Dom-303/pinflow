@@ -1,5 +1,5 @@
 /**
- * @pinflow/next - Next.js integration for Domscribe
+ * @pinflow/next - Next.js integration for PinFlow
  *
  * Zero-config Next.js integration that provides:
  * - Build-time AST injection of stable element IDs (Turbopack + Webpack)
@@ -9,5 +9,5 @@
  * @module @pinflow/next
  */
 
-export { withPinFlow, withDomscribe } from './with-domscribe.js';
+export { withPinFlow, withDomscribe } from './with-pinflow.js';
 export type { DomscribeNextOptions, PinFlowNextOptions } from './types.js';

@@ -5,7 +5,7 @@ import {
   withDomscribe,
   withPinFlow,
   type WebpackConfig,
-} from './with-domscribe.js';
+} from './with-pinflow.js';
 
 // Mock createRequire so we can control resolve behavior
 vi.mock('node:module', () => ({
@@ -41,13 +41,13 @@ function createMockWebpackContext(): WebpackConfigContext {
   } as WebpackConfigContext;
 }
 
-describe('withDomscribe', () => {
+describe('withPinFlow', () => {
   afterEach(() => {
     vi.unstubAllEnvs();
   });
 
   it('should return a function that accepts NextConfig', () => {
-    const wrapper = withDomscribe();
+    const wrapper = withPinFlow();
 
     expect(typeof wrapper).toBe('function');
   });
@@ -58,7 +58,7 @@ describe('withDomscribe', () => {
 
   it('should return a NextConfig object', () => {
     vi.stubEnv('NODE_ENV', 'development');
-    const wrapper = withDomscribe();
+    const wrapper = withPinFlow();
 
     const result = wrapper({ reactStrictMode: true });
 
@@ -68,7 +68,7 @@ describe('withDomscribe', () => {
 
   it('should preserve existing next config properties', () => {
     vi.stubEnv('NODE_ENV', 'development');
-    const wrapper = withDomscribe();
+    const wrapper = withPinFlow();
 
     const result = wrapper({ reactStrictMode: true, poweredByHeader: false });
 
@@ -79,7 +79,7 @@ describe('withDomscribe', () => {
   it('should accept empty options', () => {
     vi.stubEnv('NODE_ENV', 'development');
 
-    const result = withDomscribe()({});
+    const result = withPinFlow()({});
 
     expect(result).toBeDefined();
   });
@@ -88,7 +88,7 @@ describe('withDomscribe', () => {
     it('should apply dev transforms when NODE_ENV is development', () => {
       vi.stubEnv('NODE_ENV', 'development');
 
-      const result = withDomscribe()({});
+      const result = withPinFlow()({});
 
       // Dev path sets up turbopack rules with loader entries
       const turbopack = result.turbopack as Record<string, unknown>;
@@ -100,7 +100,7 @@ describe('withDomscribe', () => {
     it('should apply production aliases when NODE_ENV is production', () => {
       vi.stubEnv('NODE_ENV', 'production');
 
-      const result = withDomscribe()({});
+      const result = withPinFlow()({});
 
       // Production path sets up resolve aliases instead of loader rules
       const turbopack = result.turbopack as Record<string, unknown>;
@@ -112,7 +112,7 @@ describe('withDomscribe', () => {
       vi.stubEnv('NODE_ENV', 'production');
       vi.stubEnv('DOMSCRIBE_FORCE_TRANSFORM', '1');
 
-      const result = withDomscribe()({});
+      const result = withPinFlow()({});
 
       // Force transform overrides production — turbopack rules should have loader rules
       const turbopack = result.turbopack as Record<string, unknown>;
@@ -128,7 +128,7 @@ describe('withDomscribe', () => {
     });
 
     it('should alias @pinflow/overlay in turbopack config', () => {
-      const result = withDomscribe()({});
+      const result = withPinFlow()({});
 
       const turbopack = result.turbopack as Record<string, unknown>;
       const resolveAlias = turbopack['resolveAlias'] as Record<string, string>;
@@ -136,7 +136,7 @@ describe('withDomscribe', () => {
     });
 
     it('should alias @pinflow/overlay in webpack config', () => {
-      const result = withDomscribe()({});
+      const result = withPinFlow()({});
       const webpackFn = result.webpack as (
         config: WebpackConfig,
         context: WebpackConfigContext,
@@ -151,7 +151,7 @@ describe('withDomscribe', () => {
     });
 
     it('should set resolve alias even when config has no resolve field', () => {
-      const result = withDomscribe()({});
+      const result = withPinFlow()({});
       const webpackFn = result.webpack as (
         config: WebpackConfig,
         context: WebpackConfigContext,
@@ -166,7 +166,7 @@ describe('withDomscribe', () => {
     });
 
     it('should preserve existing turbopack config', () => {
-      const result = withDomscribe()({
+      const result = withPinFlow()({
         turbopack: {
           resolveAlias: { existing: 'value' },
         } as NextConfig['turbopack'],
@@ -180,7 +180,7 @@ describe('withDomscribe', () => {
 
     it('should chain existing webpack function', () => {
       const existingWebpack = vi.fn((config: WebpackConfig) => config);
-      const result = withDomscribe()({
+      const result = withPinFlow()({
         webpack: existingWebpack as unknown as NextConfig['webpack'],
       });
       const webpackFn = result.webpack as (
@@ -194,7 +194,7 @@ describe('withDomscribe', () => {
     });
 
     it('should return config directly when no existing webpack function', () => {
-      const result = withDomscribe()({});
+      const result = withPinFlow()({});
       const webpackFn = result.webpack as (
         config: WebpackConfig,
         context: WebpackConfigContext,
@@ -214,7 +214,7 @@ describe('withDomscribe', () => {
 
     describe('turbopack config', () => {
       it('should add rules for *.jsx and *.tsx', () => {
-        const result = withDomscribe()({});
+        const result = withPinFlow()({});
 
         const turbopack = result.turbopack as Record<string, unknown>;
         const rules = turbopack['rules'] as Record<string, unknown>;
@@ -223,7 +223,7 @@ describe('withDomscribe', () => {
       });
 
       it('should exclude foreign modules (node_modules)', () => {
-        const result = withDomscribe()({});
+        const result = withPinFlow()({});
 
         const turbopack = result.turbopack as Record<string, unknown>;
         const rules = turbopack['rules'] as Record<string, unknown>;
@@ -232,7 +232,7 @@ describe('withDomscribe', () => {
       });
 
       it('should configure loader with correct options', () => {
-        const result = withDomscribe({
+        const result = withPinFlow({
           debug: true,
           relay: { port: 4400 },
           overlay: true,
@@ -255,7 +255,7 @@ describe('withDomscribe', () => {
       });
 
       it('should resolve turbopack loader path', () => {
-        const result = withDomscribe()({});
+        const result = withPinFlow()({});
 
         const turbopack = result.turbopack as Record<string, unknown>;
         const rules = turbopack['rules'] as Record<string, unknown>;
@@ -266,7 +266,7 @@ describe('withDomscribe', () => {
 
       it('should preserve existing turbopack rules', () => {
         const existingRule = { loaders: [{ loader: 'some-loader' }] };
-        const result = withDomscribe()({
+        const result = withPinFlow()({
           turbopack: {
             rules: { '*.css': existingRule },
           } as NextConfig['turbopack'],
@@ -281,13 +281,13 @@ describe('withDomscribe', () => {
 
     describe('webpack config', () => {
       it('should return a webpack function', () => {
-        const result = withDomscribe()({});
+        const result = withPinFlow()({});
 
         expect(typeof result.webpack).toBe('function');
       });
 
       it('should push a loader rule for included files', () => {
-        const result = withDomscribe()({});
+        const result = withPinFlow()({});
         const webpackFn = result.webpack as (
           config: WebpackConfig,
           context: WebpackConfigContext,
@@ -307,7 +307,7 @@ describe('withDomscribe', () => {
       it('should use custom include/exclude patterns', () => {
         const include = /\.tsx$/;
         const exclude = /node_modules/;
-        const result = withDomscribe({ include, exclude })({});
+        const result = withPinFlow({ include, exclude })({});
         const webpackFn = result.webpack as (
           config: WebpackConfig,
           context: WebpackConfigContext,
@@ -322,7 +322,7 @@ describe('withDomscribe', () => {
       });
 
       it('should pass loader options including debug, relay, overlay', () => {
-        const result = withDomscribe({
+        const result = withPinFlow({
           debug: true,
           relay: { port: 5000, host: '0.0.0.0', bodyLimit: 5242880 },
           overlay: { initialMode: 'expanded', debug: true },
@@ -349,7 +349,7 @@ describe('withDomscribe', () => {
 
       it('should chain existing webpack function', () => {
         const existingWebpack = vi.fn((config: WebpackConfig) => config);
-        const result = withDomscribe()({
+        const result = withPinFlow()({
           webpack: existingWebpack as unknown as NextConfig['webpack'],
         });
         const webpackFn = result.webpack as (
@@ -365,7 +365,7 @@ describe('withDomscribe', () => {
       });
 
       it('should return config when no existing webpack function', () => {
-        const result = withDomscribe()({});
+        const result = withPinFlow()({});
         const webpackFn = result.webpack as (
           config: WebpackConfig,
           context: WebpackConfigContext,
@@ -380,7 +380,7 @@ describe('withDomscribe', () => {
 
     describe('default options', () => {
       it('should default debug to false', () => {
-        const result = withDomscribe()({});
+        const result = withPinFlow()({});
 
         const turbopack = result.turbopack as Record<string, unknown>;
         const rules = turbopack['rules'] as Record<string, unknown>;
@@ -391,7 +391,7 @@ describe('withDomscribe', () => {
       });
 
       it('should default overlay to true', () => {
-        const result = withDomscribe()({});
+        const result = withPinFlow()({});
 
         const turbopack = result.turbopack as Record<string, unknown>;
         const rules = turbopack['rules'] as Record<string, unknown>;
@@ -402,7 +402,7 @@ describe('withDomscribe', () => {
       });
 
       it('should default relay to empty object', () => {
-        const result = withDomscribe()({});
+        const result = withPinFlow()({});
 
         const turbopack = result.turbopack as Record<string, unknown>;
         const rules = turbopack['rules'] as Record<string, unknown>;

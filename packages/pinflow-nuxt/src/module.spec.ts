@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import type { DomscribeNuxtOptions } from './types.js';
+import type { PinFlowNuxtOptions } from './types.js';
 
 // ── Hoisted mocks (available inside vi.mock factories) ───────────────────────
 
@@ -7,6 +7,8 @@ interface MockNuxt {
   options: {
     dev: boolean;
     rootDir: string;
+    pinflow?: PinFlowNuxtOptions;
+    domscribe?: PinFlowNuxtOptions;
     app: {
       head: {
         script: Array<{ innerHTML: string }>;
@@ -17,9 +19,9 @@ interface MockNuxt {
 
 interface CapturedModuleDefinition {
   meta: Record<string, unknown>;
-  defaults: DomscribeNuxtOptions;
+  defaults: PinFlowNuxtOptions;
   setup: (
-    options: DomscribeNuxtOptions,
+    options: PinFlowNuxtOptions,
     nuxt: MockNuxt,
   ) => Promise<void> | void;
 }
@@ -29,8 +31,8 @@ const {
   mockAddVitePlugin,
   mockExtendWebpackConfig,
   mockResolve,
-  mockDomscribeVitePlugin,
-  MockDomscribeWebpackPlugin,
+  mockPinFlowVitePlugin,
+  MockPinFlowWebpackPlugin,
   mockEnsureRunning,
   MockRelayControl,
   captured,
@@ -45,11 +47,11 @@ const {
     mockExtendWebpackConfig: vi.fn(),
     mockResolve: vi.fn((path: string) => `/resolved${path}`),
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    mockDomscribeVitePlugin: vi.fn((_opts: unknown) => ({
-      name: 'vite-plugin-domscribe',
+    mockPinFlowVitePlugin: vi.fn((_opts: unknown) => ({
+      name: 'vite-plugin-pinflow',
       apply: 'serve' as string | undefined,
     })),
-    MockDomscribeWebpackPlugin: vi.fn(),
+    MockPinFlowWebpackPlugin: vi.fn(),
     mockEnsureRunning,
     MockRelayControl: vi.fn(function (this: {
       ensureRunning: typeof mockEnsureRunning;
@@ -76,11 +78,11 @@ vi.mock('@nuxt/kit', () => ({
 }));
 
 vi.mock('@pinflow/transform/plugins/vite', () => ({
-  domscribe: (opts: unknown) => mockDomscribeVitePlugin(opts),
+  pinflow: (opts: unknown) => mockPinFlowVitePlugin(opts),
 }));
 
 vi.mock('@pinflow/transform/plugins/webpack', () => ({
-  DomscribeWebpackPlugin: MockDomscribeWebpackPlugin,
+  PinFlowWebpackPlugin: MockPinFlowWebpackPlugin,
 }));
 
 vi.mock('@pinflow/relay', () => ({
@@ -112,7 +114,7 @@ function getModuleDefinition(): CapturedModuleDefinition {
 }
 
 function callSetup(
-  options: DomscribeNuxtOptions,
+  options: PinFlowNuxtOptions,
   nuxt: MockNuxt,
 ): Promise<void> | void {
   return getModuleDefinition().setup(options, nuxt);
@@ -123,7 +125,7 @@ import './module.js';
 
 // ── Tests ────────────────────────────────────────────────────────────────────
 
-describe('domscribeModule', () => {
+describe('pinflowModule', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockEnsureRunning.mockResolvedValue({ host: '127.0.0.1', port: 4400 });
@@ -138,8 +140,8 @@ describe('domscribeModule', () => {
       expect(getModuleDefinition().meta.name).toBe('@pinflow/nuxt');
     });
 
-    it('should set config key to domscribe', () => {
-      expect(getModuleDefinition().meta.configKey).toBe('domscribe');
+    it('should set config key to pinflow', () => {
+      expect(getModuleDefinition().meta.configKey).toBe('pinflow');
     });
   });
 
@@ -185,6 +187,33 @@ describe('domscribeModule', () => {
         await callSetup({ debug: false, overlay: true, relay: {} }, nuxt);
 
         expect(mockAddPlugin).toHaveBeenCalled();
+      });
+
+      it('should merge legacy domscribe config during the rename window', async () => {
+        const nuxt = createMockNuxt({
+          domscribe: {
+            debug: true,
+            overlay: { initialMode: 'expanded' },
+            relay: { port: 3300 },
+          },
+        });
+
+        await callSetup({}, nuxt);
+
+        const [factory] = mockAddVitePlugin.mock.calls[0] as [
+          () => unknown,
+          Record<string, unknown>,
+        ];
+
+        factory();
+
+        expect(mockPinFlowVitePlugin).toHaveBeenCalledWith(
+          expect.objectContaining({
+            debug: true,
+            overlay: { initialMode: 'expanded' },
+            relay: { port: 3300, autoStart: false },
+          }),
+        );
       });
     });
 
@@ -340,9 +369,9 @@ describe('domscribeModule', () => {
           Record<string, unknown>,
         ];
 
-        // Invoke factory to check domscribe() was called correctly
+        // Invoke factory to check pinflow() was called correctly
         factory();
-        expect(mockDomscribeVitePlugin).toHaveBeenCalledWith(
+        expect(mockPinFlowVitePlugin).toHaveBeenCalledWith(
           expect.objectContaining({
             debug: true,
             overlay: true,
@@ -460,7 +489,7 @@ describe('domscribeModule', () => {
         };
         configFn(config);
 
-        expect(MockDomscribeWebpackPlugin).toHaveBeenCalledWith({
+        expect(MockPinFlowWebpackPlugin).toHaveBeenCalledWith({
           debug: true,
           relay: { port: 5000, autoStart: false },
           overlay: true,

@@ -3,12 +3,12 @@ import { RelayControl } from '../../lifecycle/relay-control.js';
 import { getWorkspaceRoot } from '../utils.js';
 
 export const StatusCommand = new Command('status')
-  .description('Check if relay is running')
+  .description('Check whether the PinFlow relay is running')
   .action(async () => {
     try {
       await status();
     } catch (error) {
-      console.error(`[domscribe-cli] Failed to check relay status: ${error}`);
+      console.error(`[pinflow-cli] Failed to check relay status: ${error}`);
       process.exit(1);
     }
   });
@@ -17,7 +17,7 @@ async function status() {
   const workspaceRoot = getWorkspaceRoot();
 
   if (!workspaceRoot) {
-    console.error('[domscribe-cli] No workspace root found');
+    console.error('[pinflow-cli] No workspace root found');
     process.exit(1);
   }
 
@@ -26,8 +26,8 @@ async function status() {
   const { running, runData, lockData } = await relayControl.getStatus();
 
   if (!running || !runData || !lockData) {
-    console.warn('[domscribe-cli] Relay is not running.');
-    console.log('\nStart with: domscribe serve');
+    console.warn('[pinflow-cli] Relay is not running.');
+    console.log('\nStart with: pinflow serve');
     process.exit(1);
   }
 
@@ -35,7 +35,7 @@ async function status() {
   const { host, port, startedAt } = lockData;
   const uptime = Date.now() - new Date(startedAt).getTime();
 
-  console.log('[domscribe-cli] Relay is running');
+  console.log('[pinflow-cli] Relay is running');
   console.log(`  PID:     ${pid}`);
   console.log(`  Port:    ${port}`);
   console.log(`  Host:    ${host}`);

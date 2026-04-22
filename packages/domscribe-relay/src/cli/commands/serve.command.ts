@@ -11,7 +11,7 @@ interface ServeCommandOptions {
 }
 
 export const ServeCommand = new Command('serve')
-  .description('Start the relay server')
+  .description('Start the PinFlow relay server')
   .option('-d, --daemon', 'Run as background daemon')
   .option('-p, --port <number>', 'Port to listen on (0 for dynamic)')
   .option('--host <string>', 'Host to bind to')
@@ -24,7 +24,7 @@ export const ServeCommand = new Command('serve')
     try {
       await serve(options);
     } catch (error) {
-      console.error(`[domscribe-cli] Failed to start relay: ${error}`);
+      console.error(`[pinflow-cli] Failed to start relay: ${error}`);
       process.exit(1);
     }
   });
@@ -51,9 +51,9 @@ async function serve(options: ServeCommandOptions) {
       bodyLimit,
     });
 
-    console.log(`[domscribe-cli] Relay daemon started on port ${assignedPort}`);
-    console.log(`\nTo check status: domscribe status`);
-    console.log(`To stop it: domscribe stop`);
+    console.log(`[pinflow-cli] Relay daemon started on port ${assignedPort}`);
+    console.log(`\nTo check status: pinflow status`);
+    console.log(`To stop it: pinflow stop`);
     return;
   }
 
@@ -61,10 +61,10 @@ async function serve(options: ServeCommandOptions) {
 
   if (existing?.host && existing?.port) {
     console.log(
-      `[domscribe-cli] Relay daemon already running on port ${existing.port}`,
+      `[pinflow-cli] Relay daemon already running on port ${existing.port}`,
     );
-    console.log(`\nTo check status: domscribe status`);
-    console.log(`To stop it: domscribe stop`);
+    console.log(`\nTo check status: pinflow status`);
+    console.log(`To stop it: pinflow stop`);
     return;
   }
 

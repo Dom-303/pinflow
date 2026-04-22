@@ -11,7 +11,7 @@ interface FixtureJson {
   bundler?: string;
 }
 
-const PROJECT_ROOT = 'packages/domscribe-test-fixtures';
+const PROJECT_ROOT = 'packages/pinflow-test-fixtures';
 
 /**
  * Bundlers that the integration test builder supports.
@@ -43,7 +43,7 @@ function findFixtureJsonFiles(dir: string): string[] {
   return results;
 }
 
-// Trigger on the project.json of domscribe-test-fixtures, since fixture.json
+// Trigger on the project.json of pinflow-test-fixtures, since fixture.json
 // files are nxignored and won't match a glob pattern.
 export const createNodes: CreateNodesV2 = [
   `${PROJECT_ROOT}/project.json`,

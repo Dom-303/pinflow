@@ -168,7 +168,7 @@ git commit -m "feat: add pinflow package scope aliases"
 - Modify: `packages/domscribe-cli/README.md`
 - Modify: `packages/domscribe-cli/src/bin/domscribe.ts`
 - Modify: `packages/domscribe-cli/src/bin/pinflow.ts`
-- Test: `packages/domscribe-test-fixtures/shared/pinflow-cli-aliases.spec.ts`
+- Test: `packages/pinflow-test-fixtures/shared/pinflow-cli-aliases.spec.ts`
 
 - [ ] **Step 1: Write the failing CLI identity check**
 
@@ -230,7 +230,7 @@ In `packages/domscribe-cli/src/bin/domscribe.ts`, ensure the file remains a comp
 Run:
 
 ```bash
-corepack pnpm exec vitest run packages/domscribe-test-fixtures/shared/pinflow-cli-aliases.spec.ts --config packages/domscribe-test-fixtures/vite.config.ts
+corepack pnpm exec vitest run packages/pinflow-test-fixtures/shared/pinflow-cli-aliases.spec.ts --config packages/pinflow-test-fixtures/vite.config.ts
 corepack pnpm exec nx build domscribe-cli
 node -e "const pkg=require('./packages/domscribe-cli/package.json'); if(pkg.name !== 'pinflow') process.exit(1)"
 ```
@@ -256,7 +256,7 @@ git commit -m "feat: make pinflow the canonical cli package"
 - Modify: `.claude-plugin/plugin.json`
 - Modify: `.codex-plugin/plugin.json`
 - Modify: `.mcp.json`
-- Test: `packages/domscribe-test-fixtures/shared/pinflow-cli-aliases.spec.ts`
+- Test: `packages/pinflow-test-fixtures/shared/pinflow-cli-aliases.spec.ts`
 
 - [ ] **Step 1: Write the failing MCP identity check**
 
@@ -491,7 +491,7 @@ Examples:
 Run:
 
 ```bash
-corepack pnpm exec vitest run packages/domscribe-test-fixtures/shared/workspace-identity.spec.ts --config packages/domscribe-test-fixtures/vite.config.ts
+corepack pnpm exec vitest run packages/pinflow-test-fixtures/shared/workspace-identity.spec.ts --config packages/pinflow-test-fixtures/vite.config.ts
 corepack pnpm exec tsx scripts/pinflow-preview.ts --fixture vite-v5-react-18-ts --port 4301 --prepare-only
 ```
 
@@ -574,7 +574,7 @@ git commit -m "refactor: rename workspace internals to pinflow"
 ### Task 9: Rebuild Fixture And Preview Pipeline On The New Identity
 
 **Files:**
-- Modify: `packages/domscribe-test-fixtures/**/*`
+- Modify: `packages/pinflow-test-fixtures/**/*`
 - Modify: preview scripts and registry helpers
 - Test: canonical preview flow and selected fixture tests
 
@@ -604,7 +604,7 @@ Expected:
 Run:
 
 ```bash
-corepack pnpm exec nx test domscribe-test-fixtures
+corepack pnpm exec nx test pinflow-test-fixtures
 ```
 
 or the renamed equivalent once the project is moved.

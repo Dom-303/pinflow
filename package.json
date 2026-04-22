@@ -8,8 +8,8 @@
   "license": "MIT",
   "scripts": {
     "sync-dist": "nx run-many -t sync-dist",
-    "build:all": "nx run-many -t=lint,test,build --exclude domscribe-test-fixtures --output-style=stream",
-    "build:affected": "nx affected -t lint,test,build --exclude domscribe-test-fixtures --output-style=stream",
+    "build:all": "nx run-many -t=lint,test,build --exclude pinflow-test-fixtures --output-style=stream",
+    "build:affected": "nx affected -t lint,test,build --exclude pinflow-test-fixtures --output-style=stream",
     "release:version:local": "nx release version prerelease --preid pinflow --git-commit=false --git-tag=false --stage-changes=false",
     "release:publish:local": "nx run-many -t sync-dist && nx release publish --registry=http://localhost:4873",
     "release:local": "pnpm run build:all && pnpm run release:version:local && pnpm run release:publish:local",
@@ -21,12 +21,12 @@
     "registry:publish": "pnpm run build:all && pnpm run registry:publish:only",
     "registry:publish:only": "pnpm run release:version:local && pnpm run release:publish:local",
     "registry:publish:current": "corepack pnpm exec tsx scripts/publish-current.ts",
-    "registry:install": "npx tsx packages/domscribe-test-fixtures/scripts/install-fixture.ts",
+    "registry:install": "npx tsx packages/pinflow-test-fixtures/scripts/install-fixture.ts",
     "pinflow:preview": "corepack pnpm exec tsx scripts/pinflow-preview.ts",
     "pinflow:preview:vite-react": "corepack pnpm exec tsx scripts/pinflow-preview.ts --fixture vite-v5-react-18-ts --port 4301",
-    "pipeline:full": "pnpm run registry:publish && pnpm run registry:install && nx run-many -t integration,e2e -p domscribe-test-fixtures",
-    "pipeline:integration": "nx integration domscribe-test-fixtures",
-    "pipeline:e2e": "pnpm run registry:publish && pnpm run registry:install && nx e2e domscribe-test-fixtures"
+    "pipeline:full": "pnpm run registry:publish && pnpm run registry:install && nx run-many -t integration,e2e -p pinflow-test-fixtures",
+    "pipeline:integration": "nx integration pinflow-test-fixtures",
+    "pipeline:e2e": "pnpm run registry:publish && pnpm run registry:install && nx e2e pinflow-test-fixtures"
   },
   "private": true,
   "devDependencies": {
@@ -42,6 +42,8 @@
     "@swc/core": "1.15.8",
     "@swc/helpers": "0.5.19",
     "@types/node": "25.3.3",
+    "@vitejs/plugin-react": "^4.7.0",
+    "@vitejs/plugin-vue": "^5.0.0",
     "@vitest/coverage-v8": "4.0.18",
     "@vitest/ui": "4.0.18",
     "ajv": "^8.18.0",
@@ -63,7 +65,7 @@
   },
   "workspaces": [
     "packages/*",
-    "!packages/domscribe-test-fixtures/fixtures/**"
+    "!packages/pinflow-test-fixtures/fixtures/**"
   ],
   "keywords": [
     "pinflow",

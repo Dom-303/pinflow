@@ -9,7 +9,7 @@
  *
  * Usage:
  *   FIXTURE_ID=vite-v5-react-18-ts node --import @swc-node/register/esm \
- *     packages/domscribe-test-fixtures/scripts/install-fixture.ts
+ *     packages/pinflow-test-fixtures/scripts/install-fixture.ts
  */
 
 import { resolve, dirname } from 'path';

@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "types": ["vitest/globals", "vitest/importMeta", "vite/client", "vitest"],
-    "tsBuildInfoFile": "../../dist/packages/domscribe-test-fixtures/tsconfig.spec.tsbuildinfo",
+    "tsBuildInfoFile": "../../dist/packages/pinflow-test-fixtures/tsconfig.spec.tsbuildinfo",
     "lib": [
       "es2024",
       "ESNext.Array",

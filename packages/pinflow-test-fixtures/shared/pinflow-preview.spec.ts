@@ -16,7 +16,7 @@ describe('pinflow preview plan', () => {
     expect(plan.fixturePath).toContain('fixtures/vite/v5/react-18-ts');
     expect(plan.steps.map((step) => step.command)).toEqual([
       `corepack pnpm run registry:publish:current -- --registry ${PINFLOW_PREVIEW_REGISTRY_URL}`,
-      `FIXTURE_ID=vite-v5-react-18-ts REGISTRY_URL=${PINFLOW_PREVIEW_REGISTRY_URL} REGISTRY_PORT=${PINFLOW_PREVIEW_REGISTRY_PORT} corepack pnpm exec tsx packages/domscribe-test-fixtures/scripts/install-fixture.ts`,
+      `FIXTURE_ID=vite-v5-react-18-ts REGISTRY_URL=${PINFLOW_PREVIEW_REGISTRY_URL} REGISTRY_PORT=${PINFLOW_PREVIEW_REGISTRY_PORT} corepack pnpm exec tsx packages/pinflow-test-fixtures/scripts/install-fixture.ts`,
       'corepack pnpm dev --host 0.0.0.0 --port 4301',
     ]);
   });

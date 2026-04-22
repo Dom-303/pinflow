@@ -113,7 +113,7 @@ Click any element in the browser overlay, describe the change in plain English, 
 ### More
 
 - 🎯 **Build-time stable IDs** — deterministic `data-ds` attributes injected via AST, stable across HMR and fast refresh
-- 🧩 **Framework-agnostic** — React 18-19, Vue 3, Next.js 15-16, Nuxt 3+, with an [extensible adapter interface](./packages/domscribe-runtime/CUSTOM_ADAPTERS.md)
+- 🧩 **Framework-agnostic** — React 18-19, Vue 3, Next.js 15-16, Nuxt 3+, with an [extensible adapter interface](./packages/pinflow-runtime/CUSTOM_ADAPTERS.md)
 - 📦 **Any bundler** — Vite 5-7, Webpack 5, Turbopack
 - 🔍 **Deep runtime capture** — live props, state, and DOM snapshots via React fiber walking and Vue VNode inspection
 - 🛡️ **Zero production impact** — all instrumentation stripped in production builds, enforced in CI
@@ -315,9 +315,9 @@ module.exports = {
 
 </details>
 
-> **Working examples:** See [`packages/domscribe-test-fixtures/fixtures/`](./packages/domscribe-test-fixtures/fixtures/) for the current compatibility fixtures across every supported framework and bundler combination.
+> **Working examples:** See [`packages/pinflow-test-fixtures/fixtures/`](./packages/pinflow-test-fixtures/fixtures/) for the current compatibility fixtures across every supported framework and bundler combination.
 
-For plugin configuration options, see the current compatibility package docs in the [`@domscribe/transform` README](./packages/domscribe-transform/README.md).
+For plugin configuration options, see the current compatibility package docs in the [`@domscribe/transform` README](./packages/pinflow-transform/README.md).
 
 #### Monorepos
 
@@ -427,7 +427,7 @@ No single competitor combines build-time stable IDs, deep runtime capture, bidir
 | `pinflow.annotation.search`         | Full-text search across annotation content                                              |
 | `pinflow.status`                    | Relay daemon health, manifest stats, queue counts                                       |
 
-See the compatibility package docs in the [`@domscribe/mcp` README](./packages/domscribe-mcp/README.md) for detailed tool schemas, response formats, and prompt definitions.
+See the compatibility package docs in the [`@domscribe/mcp` README](./packages/pinflow-mcp/README.md) for detailed tool schemas, response formats, and prompt definitions.
 
 ---
 

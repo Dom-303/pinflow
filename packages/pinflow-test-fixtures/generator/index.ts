@@ -1,7 +1,7 @@
 /**
  * Test Fixture Generator
  *
- * Scaffolds a new test fixture for the domscribe-test-fixtures package.
+ * Scaffolds a new test fixture for the pinflow-test-fixtures package.
  * Copies canonical components from the registry, renders EJS templates,
  * and generates fixture.json manifest.
  *
@@ -86,7 +86,7 @@ function getOutputPath(
 ): string {
   if (isMetaFramework(framework)) {
     return joinPathFragments(
-      'packages/domscribe-test-fixtures/fixtures',
+      'packages/pinflow-test-fixtures/fixtures',
       framework,
       `v${frameworkVersion}`,
       language,
@@ -94,7 +94,7 @@ function getOutputPath(
   }
 
   return joinPathFragments(
-    'packages/domscribe-test-fixtures/fixtures',
+    'packages/pinflow-test-fixtures/fixtures',
     bundler,
     `v${bundlerVersion}`,
     `${framework}-${frameworkVersion}-${language}`,
@@ -110,7 +110,7 @@ function getTemplateRelPath(bundler: string, framework: string): string {
     : `${bundler}-${framework}`;
 
   return joinPathFragments(
-    'packages/domscribe-test-fixtures/fixtures/_templates',
+    'packages/pinflow-test-fixtures/fixtures/_templates',
     templateSubdir,
   );
 }
@@ -127,7 +127,7 @@ function getTemplateDirAbsolute(bundler: string, framework: string): string {
  */
 function getRegistryDir(framework: string, frameworkVersion: string): string {
   return joinPathFragments(
-    'packages/domscribe-test-fixtures/fixtures/_registry',
+    'packages/pinflow-test-fixtures/fixtures/_registry',
     framework,
     frameworkVersion,
   );
@@ -616,7 +616,7 @@ export async function testFixtureGenerator(
 
   // 8. Copy shared CSS
   const sharedCssPath =
-    'packages/domscribe-test-fixtures/fixtures/_shared/styles/design-system.css';
+    'packages/pinflow-test-fixtures/fixtures/_shared/styles/design-system.css';
   if (tree.exists(sharedCssPath)) {
     const cssContent = tree.read(sharedCssPath);
     if (cssContent) {

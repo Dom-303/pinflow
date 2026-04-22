@@ -13,6 +13,6 @@
     { "path": "./packages/pinflow-vue" },
     { "path": "./packages/pinflow-next" },
     { "path": "./packages/pinflow-nuxt" },
-    { "path": "./packages/domscribe-test-fixtures" }
+    { "path": "./packages/pinflow-test-fixtures" }
   ]
 }

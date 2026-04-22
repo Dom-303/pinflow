@@ -17,7 +17,7 @@
  * the manifest after the second build.
  *
  * Operates on a single fixture specified by the FIXTURE_ID env var.
- * Usage: FIXTURE_ID=vite-v5-react-18-ts nx integration domscribe-test-fixtures
+ * Usage: FIXTURE_ID=vite-v5-react-18-ts nx integration pinflow-test-fixtures
  */
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';

@@ -6,7 +6,7 @@ function readFixture(relativePath: string): string {
   return readFileSync(
     resolve(
       process.cwd(),
-      'packages/domscribe-test-fixtures/fixtures',
+      'packages/pinflow-test-fixtures/fixtures',
       relativePath,
     ),
     'utf8',

@@ -6,7 +6,7 @@ function readFixture(relativePath: string): string {
   return readFileSync(
     resolve(
       process.cwd(),
-      'packages/domscribe-test-fixtures/fixtures/vite/v5/react-18-ts',
+      'packages/pinflow-test-fixtures/fixtures/vite/v5/react-18-ts',
       relativePath,
     ),
     'utf8',

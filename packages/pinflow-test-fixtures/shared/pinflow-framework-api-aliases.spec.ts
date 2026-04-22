@@ -8,22 +8,22 @@ function readRepoFile(relativePath: string): string {
 
 describe('pinflow framework api aliases', () => {
   it('exports PinFlow aliases alongside existing Domscribe names', () => {
-    const nextIndex = readRepoFile('packages/domscribe-next/src/index.ts');
+    const nextIndex = readRepoFile('packages/pinflow-next/src/index.ts');
     const reactViteIndex = readRepoFile(
-      'packages/domscribe-react/src/vite/index.ts',
+      'packages/pinflow-react/src/vite/index.ts',
     );
-    const vueViteIndex = readRepoFile('packages/domscribe-vue/src/vite/index.ts');
+    const vueViteIndex = readRepoFile('packages/pinflow-vue/src/vite/index.ts');
     const transformViteIndex = readRepoFile(
-      'packages/domscribe-transform/src/plugins/vite/index.ts',
+      'packages/pinflow-transform/src/plugins/vite/index.ts',
     );
     const reactWebpackIndex = readRepoFile(
-      'packages/domscribe-react/src/webpack/index.ts',
+      'packages/pinflow-react/src/webpack/index.ts',
     );
     const vueWebpackIndex = readRepoFile(
-      'packages/domscribe-vue/src/webpack/index.ts',
+      'packages/pinflow-vue/src/webpack/index.ts',
     );
     const transformWebpackIndex = readRepoFile(
-      'packages/domscribe-transform/src/plugins/webpack/index.ts',
+      'packages/pinflow-transform/src/plugins/webpack/index.ts',
     );
 
     expect(nextIndex).toContain('withPinFlow');
@@ -37,9 +37,9 @@ describe('pinflow framework api aliases', () => {
 
   it('prefers PinFlow names in the main onboarding docs', () => {
     const readme = readRepoFile('README.md');
-    const reactReadme = readRepoFile('packages/domscribe-react/README.md');
-    const vueReadme = readRepoFile('packages/domscribe-vue/README.md');
-    const transformReadme = readRepoFile('packages/domscribe-transform/README.md');
+    const reactReadme = readRepoFile('packages/pinflow-react/README.md');
+    const vueReadme = readRepoFile('packages/pinflow-vue/README.md');
+    const transformReadme = readRepoFile('packages/pinflow-transform/README.md');
 
     expect(readme).toContain('withPinFlow');
     expect(readme).toContain('PinFlowWebpackPlugin');

@@ -15,11 +15,14 @@ describe('pinflow preferred cli docs', () => {
     expect(readme).toContain('Compatibility alias: `domscribe`');
   });
 
-  it('documents pinflow-mcp as the preferred installed binary while keeping the current mcp compatibility config', () => {
+  it('documents pinflow-mcp as the preferred installed binary while keeping compatibility aliases available', () => {
     const readme = readRepoFile('README.md');
 
     expect(readme).toContain('Preferred installed MCP binary: `pinflow-mcp`');
-    expect(readme).toContain('Current compatibility config keeps the MCP server key as `domscribe`');
-    expect(readme).toContain('"args": ["-y", "@domscribe/mcp"]');
+    expect(readme).toContain('Preferred MCP server key: `pinflow`');
+    expect(readme).toContain('"args": ["-y", "@pinflow/mcp"]');
+    expect(readme).toContain(
+      'Compatibility aliases remain available for older `domscribe.*` MCP clients',
+    );
   });
 });

@@ -7,7 +7,7 @@ interface ProjectJson {
 }
 
 /** Projects that are not publishable and should not get dist-related targets. */
-const EXCLUDED_PROJECTS = new Set(['domscribe-test-fixtures']);
+const EXCLUDED_PROJECTS = new Set(['pinflow-test-fixtures']);
 
 /**
  * Adds `sync-dist` and `clean` targets to all publishable library projects.

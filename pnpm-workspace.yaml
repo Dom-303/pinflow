@@ -1,3 +1,3 @@
 packages:
   - packages/*
-  - "!packages/domscribe-test-fixtures/fixtures/**"
+  - "!packages/pinflow-test-fixtures/fixtures/**"

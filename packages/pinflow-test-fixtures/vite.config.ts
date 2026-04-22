@@ -10,11 +10,11 @@ export default defineConfig(() => {
 
   return {
     root: __dirname,
-    cacheDir: '../../node_modules/.vite/packages/domscribe-test-fixtures',
+    cacheDir: '../../node_modules/.vite/packages/pinflow-test-fixtures',
     plugins: [],
     test: {
       globalSetup: ['./integration/global-setup.ts'],
-      name: 'domscribe-test-fixtures',
+      name: 'pinflow-test-fixtures',
       watch: false,
       globals: true,
       environment: 'node',

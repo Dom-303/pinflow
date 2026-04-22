@@ -7,7 +7,7 @@ import {
   PINFLOW_PREVIEW_REGISTRY_PORT,
   PINFLOW_PREVIEW_REGISTRY_URL,
   type PinflowPreviewOptions,
-} from '../packages/domscribe-test-fixtures/shared/pinflow-preview.js';
+} from '../packages/pinflow-test-fixtures/shared/pinflow-preview.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const workspaceRoot = resolve(__dirname, '..');

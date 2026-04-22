@@ -14,7 +14,7 @@
  * (injector-performance.bench.ts) — no @domscribe/* imports needed here.
  *
  * Operates on a single fixture specified by the FIXTURE_ID env var.
- * Usage: FIXTURE_ID=webpack-v5-react-19-ts nx integration domscribe-test-fixtures
+ * Usage: FIXTURE_ID=webpack-v5-react-19-ts nx integration pinflow-test-fixtures
  */
 
 import { describe, it, expect } from 'vitest';

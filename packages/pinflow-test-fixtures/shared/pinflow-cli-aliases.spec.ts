@@ -9,14 +9,14 @@ function readRepoFile(relativePath: string): string {
 describe('pinflow cli aliases', () => {
   it('makes pinflow the canonical cli package while keeping domscribe as an alias', () => {
     const pkg = JSON.parse(
-      readRepoFile('packages/domscribe-cli/package.json'),
+      readRepoFile('packages/pinflow-cli/package.json'),
     ) as {
       name?: string;
       distBin?: Record<string, string>;
     };
-    const aliasSource = readRepoFile('packages/domscribe-cli/src/bin/pinflow.ts');
+    const aliasSource = readRepoFile('packages/pinflow-cli/src/bin/pinflow.ts');
     const compatibilitySource = readRepoFile(
-      'packages/domscribe-cli/src/bin/domscribe.ts',
+      'packages/pinflow-cli/src/bin/domscribe.ts',
     );
 
     expect(pkg.name).toBe('pinflow');
@@ -33,13 +33,13 @@ describe('pinflow cli aliases', () => {
 
   it('adds a pinflow-mcp binary alias that routes through the pinflow command shape', () => {
     const pkg = JSON.parse(
-      readRepoFile('packages/domscribe-mcp/package.json'),
+      readRepoFile('packages/pinflow-mcp/package.json'),
     ) as {
       name?: string;
       distBin?: Record<string, string>;
     };
     const aliasSource = readRepoFile(
-      'packages/domscribe-mcp/src/bin/pinflow-mcp.ts',
+      'packages/pinflow-mcp/src/bin/pinflow-mcp.ts',
     );
 
     expect(pkg.name).toBe('@pinflow/mcp');

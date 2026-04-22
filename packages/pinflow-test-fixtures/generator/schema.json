@@ -1,7 +1,7 @@
 {
   "cli": "nx",
   "title": "Test fixture generator",
-  "description": "Scaffolds a new test fixture for the domscribe-test-fixtures package.",
+  "description": "Scaffolds a new test fixture for the pinflow-test-fixtures package.",
   "type": "object",
   "properties": {
     "framework": {

@@ -258,10 +258,10 @@ describe('domscribeModule', () => {
         const scripts = nuxt.options.app.head.script;
         expect(scripts.length).toBe(1);
         expect(scripts[0].innerHTML).toContain(
-          'window.__DOMSCRIBE_RELAY_PORT__=4400',
+          'window.__PINFLOW_RELAY_PORT__=4400',
         );
         expect(scripts[0].innerHTML).toContain(
-          'window.__DOMSCRIBE_RELAY_HOST__="127.0.0.1"',
+          'window.__PINFLOW_RELAY_HOST__="127.0.0.1"',
         );
       });
 
@@ -272,7 +272,7 @@ describe('domscribeModule', () => {
 
         const scripts = nuxt.options.app.head.script;
         expect(scripts[0].innerHTML).toContain(
-          'window.__DOMSCRIBE_OVERLAY_OPTIONS__={}',
+          'window.__PINFLOW_OVERLAY_OPTIONS__={}',
         );
       });
 
@@ -290,7 +290,7 @@ describe('domscribeModule', () => {
 
         const scripts = nuxt.options.app.head.script;
         const innerHTML = scripts[0].innerHTML;
-        expect(innerHTML).toContain('__DOMSCRIBE_OVERLAY_OPTIONS__=');
+        expect(innerHTML).toContain('__PINFLOW_OVERLAY_OPTIONS__=');
         expect(innerHTML).toContain('"initialMode":"expanded"');
         expect(innerHTML).toContain('"debug":true');
       });
@@ -302,7 +302,7 @@ describe('domscribeModule', () => {
 
         const scripts = nuxt.options.app.head.script;
         expect(scripts[0].innerHTML).not.toContain(
-          '__DOMSCRIBE_OVERLAY_OPTIONS__',
+          '__PINFLOW_OVERLAY_OPTIONS__',
         );
       });
 

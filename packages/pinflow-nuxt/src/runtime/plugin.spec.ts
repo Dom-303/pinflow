@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-// Provide `window` global for Node environment (plugin.ts checks window.__DOMSCRIBE_OVERLAY_OPTIONS__)
+// Provide `window` global for Node environment (plugin.ts checks PinFlow overlay globals)
 if (typeof globalThis.window === 'undefined') {
   (globalThis as unknown as Record<string, unknown>).window = globalThis;
 }
@@ -62,6 +62,9 @@ describe('runtime/plugin', () => {
 
   afterEach(() => {
     delete (globalThis as unknown as Record<string, unknown>)[
+      '__PINFLOW_OVERLAY_OPTIONS__'
+    ];
+    delete (globalThis as unknown as Record<string, unknown>)[
       '__DOMSCRIBE_OVERLAY_OPTIONS__'
     ];
   });
@@ -81,7 +84,17 @@ describe('runtime/plugin', () => {
     });
   });
 
-  it('should initialize overlay when __DOMSCRIBE_OVERLAY_OPTIONS__ is set', async () => {
+  it('should initialize overlay when __PINFLOW_OVERLAY_OPTIONS__ is set', async () => {
+    (globalThis as unknown as Record<string, unknown>)[
+      '__PINFLOW_OVERLAY_OPTIONS__'
+    ] = { initialMode: 'expanded' };
+
+    await getPluginFn()();
+
+    expect(mockInitOverlay).toHaveBeenCalled();
+  });
+
+  it('should still initialize overlay from the legacy __DOMSCRIBE_OVERLAY_OPTIONS__ fallback', async () => {
     (globalThis as unknown as Record<string, unknown>)[
       '__DOMSCRIBE_OVERLAY_OPTIONS__'
     ] = { initialMode: 'expanded' };
@@ -91,7 +104,7 @@ describe('runtime/plugin', () => {
     expect(mockInitOverlay).toHaveBeenCalled();
   });
 
-  it('should not initialize overlay when __DOMSCRIBE_OVERLAY_OPTIONS__ is not set', async () => {
+  it('should not initialize overlay when neither PinFlow nor legacy overlay options are set', async () => {
     await getPluginFn()();
 
     expect(mockInitOverlay).not.toHaveBeenCalled();
@@ -99,7 +112,7 @@ describe('runtime/plugin', () => {
 
   it('should handle overlay init failure gracefully', async () => {
     (globalThis as unknown as Record<string, unknown>)[
-      '__DOMSCRIBE_OVERLAY_OPTIONS__'
+      '__PINFLOW_OVERLAY_OPTIONS__'
     ] = {};
     mockInitOverlay.mockRejectedValue(new Error('overlay broken'));
 

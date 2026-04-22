@@ -4,9 +4,9 @@ import path from 'path';
 export default defineConfig({
   resolve: {
     alias: {
-      // auto-init dynamically imports @domscribe/overlay which isn't a direct
+      // auto-init dynamically imports @pinflow/overlay which isn't a direct
       // dependency — help Vite resolve it for tests (vi.mock intercepts at runtime)
-      '@domscribe/overlay': path.resolve(
+      '@pinflow/overlay': path.resolve(
         __dirname,
         '../pinflow-overlay/src/index.ts',
       ),

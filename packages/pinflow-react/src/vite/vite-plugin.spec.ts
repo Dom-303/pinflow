@@ -5,6 +5,9 @@ vi.mock('@pinflow/transform/plugins/vite', () => ({
   domscribe: vi.fn(
     (options?: Record<string, unknown>): Plugin => ({
       name: 'vite-plugin-domscribe-transform',
+      transform: options?._baseTransformResult
+        ? async () => options._baseTransformResult as { code: string }
+        : undefined,
       transformIndexHtml: options?._baseTags
         ? () => ({ html: '', tags: options._baseTags as HtmlTagDescriptor[] })
         : undefined,
@@ -59,6 +62,7 @@ describe('domscribe (react/vite)', () => {
       expect(result).toContain(`from '@pinflow/react'`);
       expect(result).toContain('RuntimeManager');
       expect(result).toContain('createReactAdapter');
+      expect(result).toContain('window.__PINFLOW_OVERLAY_OPTIONS__');
     });
 
     it('should embed default runtime options when none provided', () => {
@@ -205,6 +209,27 @@ describe('domscribe (react/vite)', () => {
       const tags = (result as { tags: HtmlTagDescriptor[] }).tags;
       // Base has no transformIndexHtml → only the runtime init tag
       expect(tags).toHaveLength(1);
+    });
+  });
+
+  describe('transform', () => {
+    it('should use the PinFlow runtime guard in the injected init preamble', async () => {
+      const plugin = domscribe({
+        _baseTransformResult: { code: 'export const value = 1;' },
+      } as never);
+      const transform = plugin.transform as (
+        code: string,
+        sourceFile: string,
+      ) => Promise<{ code: string } | null>;
+
+      const result = await transform.call(
+        {},
+        'export const value = 1;',
+        '/src/example.tsx',
+      );
+
+      expect(result?.code).toContain('window.__PINFLOW_REACT_INIT__');
+      expect(result?.code).not.toContain('window.__DOMSCRIBE_REACT_INIT__');
     });
   });
 });

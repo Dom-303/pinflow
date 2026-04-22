@@ -44,8 +44,8 @@ function buildVitePreamble(opts: {
 
   // Suppress React Fragment prop warning for data-ds (once per page load)
   parts.push(
-    `if(!window.__DOMSCRIBE_CONSOLE_PATCHED__){` +
-      `window.__DOMSCRIBE_CONSOLE_PATCHED__=true;` +
+    `if(!window.__PINFLOW_CONSOLE_PATCHED__){` +
+      `window.__PINFLOW_CONSOLE_PATCHED__=true;` +
       `var _ce=console.error;` +
       `console.error=function(){` +
       `if(typeof arguments[0]==='string'){var _s=Array.prototype.join.call(arguments,' ');if(_s.indexOf('data-ds')!==-1&&_s.indexOf('React.Fragment')!==-1)return}` +
@@ -54,9 +54,13 @@ function buildVitePreamble(opts: {
   );
 
   if (opts.relayPort !== undefined) {
+    parts.push(`window.__PINFLOW_RELAY_PORT__=${opts.relayPort}`);
     parts.push(`window.__DOMSCRIBE_RELAY_PORT__=${opts.relayPort}`);
   }
   if (opts.relayHost !== undefined) {
+    parts.push(
+      `window.__PINFLOW_RELAY_HOST__=${JSON.stringify(opts.relayHost)}`,
+    );
     parts.push(
       `window.__DOMSCRIBE_RELAY_HOST__=${JSON.stringify(opts.relayHost)}`,
     );
@@ -67,6 +71,9 @@ function buildVitePreamble(opts: {
       initialMode: opts.overlayOptions.initialMode ?? 'collapsed',
       debug: opts.overlayOptions.debug ?? opts.debug,
     };
+    parts.push(
+      `window.__PINFLOW_OVERLAY_OPTIONS__=${JSON.stringify(overlayOptionsObj)}`,
+    );
     parts.push(
       `window.__DOMSCRIBE_OVERLAY_OPTIONS__=${JSON.stringify(overlayOptionsObj)}`,
     );
@@ -386,8 +393,8 @@ export function domscribe(options: VitePluginOptions = {}): Plugin {
       tags.push({
         tag: 'script',
         children:
-          `if(!window.__DOMSCRIBE_CONSOLE_PATCHED__){` +
-          `window.__DOMSCRIBE_CONSOLE_PATCHED__=true;` +
+          `if(!window.__PINFLOW_CONSOLE_PATCHED__){` +
+          `window.__PINFLOW_CONSOLE_PATCHED__=true;` +
           `var _ce=console.error;` +
           `console.error=function(){` +
           `if(typeof arguments[0]==='string'){var _s=Array.prototype.join.call(arguments,' ');if(_s.indexOf('data-ds')!==-1&&_s.indexOf('React.Fragment')!==-1)return}` +
@@ -401,7 +408,7 @@ export function domscribe(options: VitePluginOptions = {}): Plugin {
       if (relayPort && relayHost) {
         tags.push({
           tag: 'script',
-          children: `window.__DOMSCRIBE_RELAY_PORT__ = ${relayPort}; window.__DOMSCRIBE_RELAY_HOST__ = "${relayHost}";`,
+          children: `window.__PINFLOW_RELAY_PORT__ = ${relayPort}; window.__PINFLOW_RELAY_HOST__ = "${relayHost}"; window.__DOMSCRIBE_RELAY_PORT__ = ${relayPort}; window.__DOMSCRIBE_RELAY_HOST__ = "${relayHost}";`,
           injectTo: 'head-prepend',
         });
       }
@@ -416,7 +423,7 @@ export function domscribe(options: VitePluginOptions = {}): Plugin {
 
         tags.push({
           tag: 'script',
-          children: `window.__DOMSCRIBE_OVERLAY_OPTIONS__ = ${JSON.stringify(overlayOptionsObj)};`,
+          children: `window.__PINFLOW_OVERLAY_OPTIONS__ = ${JSON.stringify(overlayOptionsObj)}; window.__DOMSCRIBE_OVERLAY_OPTIONS__ = ${JSON.stringify(overlayOptionsObj)};`,
           injectTo: 'head-prepend',
         });
 
@@ -425,7 +432,7 @@ export function domscribe(options: VitePluginOptions = {}): Plugin {
         tags.push({
           tag: 'script',
           attrs: { type: 'module' },
-          children: `import('/node_modules/@pinflow/overlay/index.js').then(m => m.initOverlay()).catch(e => console.warn('[domscribe] Failed to load overlay:', e.message));`,
+          children: `import('@pinflow/overlay').then(m => m.initOverlay()).catch(e => console.warn('[pinflow] Failed to load overlay:', e.message));`,
           injectTo: 'body',
         });
       }

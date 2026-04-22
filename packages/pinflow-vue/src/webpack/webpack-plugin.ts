@@ -61,17 +61,21 @@ export class DomscribeWebpackPlugin implements WebpackPluginInstance {
 
   apply(compiler: Compiler): void {
     const { DefinePlugin } = compiler.webpack;
+    const runtimeOptions = JSON.stringify({
+      phase: this.runtimeOptions.phase,
+      debug: this.debug,
+      redactPII: this.runtimeOptions.redactPII,
+      blockSelectors: this.runtimeOptions.blockSelectors,
+    });
+    const adapterOptions = JSON.stringify({
+      maxTreeDepth: this.captureOptions.maxTreeDepth,
+      debug: this.debug,
+    });
     new DefinePlugin({
-      __DOMSCRIBE_RUNTIME_OPTIONS__: JSON.stringify({
-        phase: this.runtimeOptions.phase,
-        debug: this.debug,
-        redactPII: this.runtimeOptions.redactPII,
-        blockSelectors: this.runtimeOptions.blockSelectors,
-      }),
-      __DOMSCRIBE_ADAPTER_OPTIONS__: JSON.stringify({
-        maxTreeDepth: this.captureOptions.maxTreeDepth,
-        debug: this.debug,
-      }),
+      __PINFLOW_RUNTIME_OPTIONS__: runtimeOptions,
+      __PINFLOW_ADAPTER_OPTIONS__: adapterOptions,
+      __DOMSCRIBE_RUNTIME_OPTIONS__: runtimeOptions,
+      __DOMSCRIBE_ADAPTER_OPTIONS__: adapterOptions,
     }).apply(compiler);
     this.addAdapterEntry(compiler);
     this.basePlugin.apply(compiler);

@@ -62,12 +62,12 @@ export const domscribeModule = defineNuxtModule<DomscribeNuxtOptions>({
 
         if (debug) {
           console.log(
-            `[domscribe/nuxt] Relay running at http://${relayHost}:${relayPort}`,
+          `[pinflow/nuxt] Relay running at http://${relayHost}:${relayPort}`,
           );
         }
       } catch (error) {
         console.warn(
-          `[domscribe/nuxt] Relay check failed: ${error instanceof Error ? error.message : String(error)}`,
+          `[pinflow/nuxt] Relay check failed: ${error instanceof Error ? error.message : String(error)}`,
         );
       }
     }
@@ -77,9 +77,13 @@ export const domscribeModule = defineNuxtModule<DomscribeNuxtOptions>({
     //    by the time the runtime plugin initializes.
     const parts: string[] = [];
     if (relayPort !== undefined) {
+      parts.push(`window.__PINFLOW_RELAY_PORT__=${relayPort}`);
       parts.push(`window.__DOMSCRIBE_RELAY_PORT__=${relayPort}`);
     }
     if (relayHost !== undefined) {
+      parts.push(
+        `window.__PINFLOW_RELAY_HOST__=${JSON.stringify(relayHost)}`,
+      );
       parts.push(
         `window.__DOMSCRIBE_RELAY_HOST__=${JSON.stringify(relayHost)}`,
       );
@@ -87,6 +91,9 @@ export const domscribeModule = defineNuxtModule<DomscribeNuxtOptions>({
     if (options.overlay !== false) {
       const overlayOptions =
         typeof options.overlay === 'object' ? options.overlay : {};
+      parts.push(
+        `window.__PINFLOW_OVERLAY_OPTIONS__=${JSON.stringify(overlayOptions)}`,
+      );
       parts.push(
         `window.__DOMSCRIBE_OVERLAY_OPTIONS__=${JSON.stringify(overlayOptions)}`,
       );

@@ -134,6 +134,16 @@ describe('DomscribeWebpackPlugin (vue)', () => {
 
       expect(MockDefinePlugin.calls).toHaveLength(1);
       expect(MockDefinePlugin.calls[0]).toEqual({
+        __PINFLOW_RUNTIME_OPTIONS__: JSON.stringify({
+          phase: undefined,
+          debug: false,
+          redactPII: undefined,
+          blockSelectors: undefined,
+        }),
+        __PINFLOW_ADAPTER_OPTIONS__: JSON.stringify({
+          maxTreeDepth: undefined,
+          debug: false,
+        }),
         __DOMSCRIBE_RUNTIME_OPTIONS__: JSON.stringify({
           phase: undefined,
           debug: false,
@@ -157,7 +167,7 @@ describe('DomscribeWebpackPlugin (vue)', () => {
       plugin.apply(compiler);
 
       const definitions = MockDefinePlugin.calls[0];
-      const runtimeOpts = JSON.parse(definitions.__DOMSCRIBE_RUNTIME_OPTIONS__);
+      const runtimeOpts = JSON.parse(definitions.__PINFLOW_RUNTIME_OPTIONS__);
       expect(runtimeOpts.phase).toBe(2);
       expect(runtimeOpts.redactPII).toBe(false);
       expect(runtimeOpts.blockSelectors).toEqual(['.secret']);
@@ -172,7 +182,7 @@ describe('DomscribeWebpackPlugin (vue)', () => {
       plugin.apply(compiler);
 
       const definitions = MockDefinePlugin.calls[0];
-      const adapterOpts = JSON.parse(definitions.__DOMSCRIBE_ADAPTER_OPTIONS__);
+      const adapterOpts = JSON.parse(definitions.__PINFLOW_ADAPTER_OPTIONS__);
       expect(adapterOpts.maxTreeDepth).toBe(25);
     });
 
@@ -183,8 +193,8 @@ describe('DomscribeWebpackPlugin (vue)', () => {
       plugin.apply(compiler);
 
       const definitions = MockDefinePlugin.calls[0];
-      const runtimeOpts = JSON.parse(definitions.__DOMSCRIBE_RUNTIME_OPTIONS__);
-      const adapterOpts = JSON.parse(definitions.__DOMSCRIBE_ADAPTER_OPTIONS__);
+      const runtimeOpts = JSON.parse(definitions.__PINFLOW_RUNTIME_OPTIONS__);
+      const adapterOpts = JSON.parse(definitions.__PINFLOW_ADAPTER_OPTIONS__);
       expect(runtimeOpts.debug).toBe(true);
       expect(adapterOpts.debug).toBe(true);
     });

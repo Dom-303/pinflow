@@ -14,13 +14,14 @@ export default defineNuxtPlugin(async () => {
   });
 
   // Initialize overlay if options were injected by the module's head script
-  if (window.__DOMSCRIBE_OVERLAY_OPTIONS__) {
+  const win = window as unknown as Window & Record<string, unknown>;
+  if (win.__PINFLOW_OVERLAY_OPTIONS__ || win.__DOMSCRIBE_OVERLAY_OPTIONS__) {
     try {
       const { initOverlay } = await import('@pinflow/overlay');
       await initOverlay();
     } catch (e) {
       console.warn(
-        '[domscribe/nuxt] Failed to init overlay:',
+        '[pinflow/nuxt] Failed to init overlay:',
         e instanceof Error ? e.message : String(e),
       );
     }

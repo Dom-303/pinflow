@@ -93,12 +93,12 @@ export function domscribe(options?: DomscribeReactPluginOptions): Plugin {
         `    debug: ${debug},`,
         `    hookNameResolvers: _resolvers,`,
         `  }),`,
-        `}).catch(e => console.warn('[domscribe] Failed to init React runtime:', e.message));`,
+        `}).catch(e => console.warn('[pinflow] Failed to init React runtime:', e.message));`,
         ``,
         `// Init overlay if configured (SSR fallback — transformIndexHtml may not fire).`,
         `// Uses bare specifier so Vite resolves to the same pre-bundled module instance`,
         `// that RuntimeManager uses, ensuring singleton sharing.`,
-        `if (typeof window !== 'undefined' && window.__DOMSCRIBE_OVERLAY_OPTIONS__) {`,
+        `if (typeof window !== 'undefined' && (window.__PINFLOW_OVERLAY_OPTIONS__ || window.__DOMSCRIBE_OVERLAY_OPTIONS__)) {`,
         `  import('@pinflow/overlay').then(m => m.initOverlay()).catch(() => {});`,
         `}`,
       ].join('\n');
@@ -109,7 +109,7 @@ export function domscribe(options?: DomscribeReactPluginOptions): Plugin {
   // Wrap the base transform hook to inject a React runtime init preamble.
   // In SSR frameworks (e.g. React Router 7), transformIndexHtml may not fire,
   // so we inject `import('/@pinflow/react-init.js')` into every transformed
-  // file, guarded by a `__DOMSCRIBE_REACT_INIT__` flag to run only once.
+  // file, guarded by a `__PINFLOW_REACT_INIT__` flag to run only once.
   basePlugin.transform = async function (code, sourceFile) {
     const baseTransformFn =
       typeof baseTransform === 'function' ? baseTransform : undefined;
@@ -126,8 +126,8 @@ export function domscribe(options?: DomscribeReactPluginOptions): Plugin {
     }
 
     const reactInitPreamble =
-      `if(typeof window!=='undefined'&&!window.__DOMSCRIBE_REACT_INIT__){` +
-      `window.__DOMSCRIBE_REACT_INIT__=true;` +
+      `if(typeof window!=='undefined'&&!window.__PINFLOW_REACT_INIT__){` +
+      `window.__PINFLOW_REACT_INIT__=true;` +
       `import('${INIT_MODULE_PATH}').catch(function(){})` +
       `}\n`;
 

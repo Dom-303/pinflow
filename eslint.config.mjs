@@ -10,7 +10,7 @@ export default [
       '**/test-output',
       '**/vite.config.*.timestamp*',
       '**/vitest.config.*.timestamp*',
-      'packages/domscribe-test-fixtures/fixtures/**',
+      'packages/pinflow-test-fixtures/fixtures/**',
     ],
   },
   {

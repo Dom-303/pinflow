@@ -20,9 +20,8 @@ const version = rootPkg.version;
 /** Plugin manifests that contain a "version" field to keep in sync. */
 const PLUGIN_MANIFESTS = [
   '.plugin/plugin.json',
-  'gemini-extension.json',
   '.claude-plugin/plugin.json',
-  '.cursor-plugin/plugin.json',
+  '.codex-plugin/plugin.json',
 ];
 
 let changed = false;

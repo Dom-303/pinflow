@@ -1,0 +1,24 @@
+{
+  "name": "pinflow",
+  "version": "0.6.0-pinflow.0",
+  "description": "CLI compatibility layer and local workflow entrypoint for PinFlow",
+  "type": "module",
+  "main": "src/bin/pinflow.ts",
+  "distBin": {
+    "pinflow": "./bin/pinflow.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@pinflow/relay": "workspace:*"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Dom-303/pinflow.git",
+    "directory": "packages/pinflow-cli"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "name": "@pinflow/nuxt",
+  "version": "0.6.0-pinflow.0",
+  "description": "Nuxt module for PinFlow",
+  "type": "module",
+  "main": "src/index.ts",
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "dependencies": {
+    "@pinflow/overlay": "workspace:*",
+    "@pinflow/relay": "workspace:*",
+    "@pinflow/transform": "workspace:*",
+    "@pinflow/runtime": "workspace:*",
+    "@pinflow/vue": "workspace:*"
+  },
+  "devDependencies": {
+    "@nuxt/kit": "^4.0.0",
+    "@nuxt/schema": "^4.0.0"
+  },
+  "peerDependencies": {
+    "nuxt": ">=3.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Dom-303/pinflow.git",
+    "directory": "packages/pinflow-nuxt"
+  }
+}

@@ -1,16 +1,16 @@
 {
-  "name": "domscribe",
-  "version": "0.5.2",
-  "description": "Domscribe is a pixel-to-code development tool that maps running UI elements to their exact source locations, capturing runtime context (props, state, DOM) for handoff to coding agents via MCP.",
+  "name": "pinflow",
+  "version": "0.6.0-pinflow.0",
+  "description": "PinFlow is a visual review and change workflow for live web apps with Claude-compatible runtime context tooling.",
   "author": {
-    "name": "Patch Orbit",
-    "email": "kaushik@patchorbit.com"
+    "name": "Dom-303"
   },
-  "homepage": "https://github.com/patchorbit/domscribe",
-  "repository": "https://github.com/patchorbit/domscribe",
+  "homepage": "https://github.com/Dom-303/pinflow",
+  "repository": "https://github.com/Dom-303/pinflow",
   "license": "MIT",
   "keywords": [
-    "domscribe",
+    "pinflow",
+    "pinflow-compat",
     "pixel-to-code",
     "ui-to-code",
     "dom-annotation",
@@ -29,12 +29,12 @@
     "nuxt"
   ],
   "mcpServers": {
-    "domscribe": {
+    "pinflow": {
       "type": "stdio",
       "command": "npx",
       "args": [
         "-y",
-        "@domscribe/mcp"
+        "@pinflow/mcp"
       ]
     }
   }

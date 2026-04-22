@@ -1,4 +1,4 @@
-# Domscribe Technical Specification
+# PinFlow Technical Specification
 
 **Version:** 0.0.1-dev.152
 **Last Updated:** 2026-03-15
@@ -25,18 +25,21 @@
 
 ## 1. Overview
 
-Domscribe is a pixel-to-code development tool that bridges the gap between running web applications and their source code. It enables developers to:
+PinFlow is a pixel-to-code development tool, built on top of the original PinFlow foundation, that bridges the gap between running web applications and their source code. It enables developers to:
 
 1. **Click elements** in a running web app via an in-browser overlay UI
 2. **Capture runtime context** — component props, state, event bindings, and framework metadata
 3. **Map interactions to exact source locations** — file path, line, column, component name
 4. **Hand off context to coding agents** via the Model Context Protocol (MCP)
 
-The system operates exclusively in development mode. Production builds strip all Domscribe artifacts (data attributes, overlay scripts, relay connections) to zero runtime cost.
+The system operates exclusively in development mode. Production builds strip all PinFlow compatibility artifacts (data attributes, overlay scripts, relay connections) to zero runtime cost.
+
+> [!NOTE]
+> This specification documents the current PinFlow product direction on top of the still-active `pinflow` compatibility layer. Many package names, API identifiers, MCP tool names, and artifact paths therefore still appear below in their current technical form.
 
 ### Design Principles
 
-- **Zero production impact** — All instrumentation is dev-only; production builds contain no Domscribe code or metadata
+- **Zero production impact** — All instrumentation is dev-only; production builds contain no PinFlow runtime instrumentation or compatibility metadata
 - **Framework-agnostic core** — Shared types, schemas, and protocols are decoupled from any specific framework
 - **Append-only persistence** — The manifest uses JSONL format with hash-based staleness tracking for crash safety
 - **Stable IDs across HMR** — Element IDs survive hot module replacement via content-hash caching (>80% cache hit rate)
@@ -85,7 +88,8 @@ The system operates exclusively in development mode. Production builds strip all
                                 +-----------+------------+
                                             |
                                 +-----------v------------+
-                                | Coding Agent (Claude)  |
+                                | Coding Agent           |
+                                | (Codex / Claude / MCP) |
                                 | via MCP Protocol       |
                                 +------------------------+
 ```
@@ -97,7 +101,7 @@ Source File (.tsx/.vue)
         |
         v
 +--------------------+     +---------------------+     +--------------------+
-| Bundler Plugin     |---->| DomscribeInjector   |---->| IDStabilizer       |
+| Bundler Plugin     |---->| PinFlowInjector   |---->| IDStabilizer       |
 | (Vite/Webpack)     |     | (AST Transform)     |     | (xxhash + cache)   |
 +--------------------+     +---------+-----------+     +--------------------+
                                      |
@@ -114,28 +118,28 @@ Source File (.tsx/.vue)
                                      |  100ms flush)      |
                                      +---------+----------+
                                                v
-                                     .domscribe/manifest.jsonl
+                                     .pinflow/manifest.jsonl
 ```
 
 ### 2.3 Package Dependency Graph
 
 ```
-@domscribe/core ─────────────────────────────────────────── Foundation
+@pinflow/core ─────────────────────────────────────────── Foundation
     │
-    ├── @domscribe/manifest ─────────────────────────────── Index Management
+    ├── @pinflow/manifest ─────────────────────────────── Index Management
     │       │
-    │       ├── @domscribe/transform ────────────────────── AST Injection
+    │       ├── @pinflow/transform ────────────────────── AST Injection
     │       │       │
-    │       │       ├── @domscribe/next ─────────────────── Next.js Integration
-    │       │       └── @domscribe/nuxt ─────────────────── Nuxt 3 Module
+    │       │       ├── @pinflow/next ─────────────────── Next.js Integration
+    │       │       └── @pinflow/nuxt ─────────────────── Nuxt 3 Module
     │       │
-    │       └── @domscribe/relay ────────────────────────── Dev Server + MCP
+    │       └── @pinflow/relay ────────────────────────── Dev Server + MCP
     │
-    ├── @domscribe/runtime ──────────────────────────────── Browser Context Capture
+    ├── @pinflow/runtime ──────────────────────────────── Browser Context Capture
     │       │
-    │       ├── @domscribe/react ────────────────────────── React Adapter
-    │       ├── @domscribe/vue ──────────────────────────── Vue 3 Adapter
-    │       └── @domscribe/overlay ──────────────────────── Lit UI Components
+    │       ├── @pinflow/react ────────────────────────── React Adapter
+    │       ├── @pinflow/vue ──────────────────────────── Vue 3 Adapter
+    │       └── @pinflow/overlay ──────────────────────── Lit UI Components
     │               │
     │               └── (depends on runtime + relay)
     │
@@ -157,7 +161,7 @@ Enforced at lint time via `@nx/enforce-module-boundaries`:
 
 ## 3. Package Specifications
 
-### 3.1 @domscribe/core
+### 3.1 @pinflow/core
 
 **Purpose:** Shared types, Zod schemas, utilities, constants, and error handling.
 
@@ -184,8 +188,8 @@ Enforced at lint time via `@nx/enforce-module-boundaries`:
 #### Error System (RFC 7807)
 
 ```typescript
-class DomscribeError extends Error {
-  code: DomscribeErrorCode;
+class PinFlowError extends Error {
+  code: PinFlowErrorCode;
   title: string;
   detail: string;
   status: number;
@@ -203,7 +207,7 @@ Error codes: `DS_VALIDATION_FAILED`, `DS_MANIFEST_INVALID`, `DS_MANIFEST_NOTFOUN
 | `WS_EVENTS`      | WebSocket events: `ANNOTATION_CREATED`, `MANIFEST_UPDATED`, etc.                             |
 | `PATTERNS`       | Regex: `MANIFEST_ENTRY_ID`, `ANNOTATION_ID`, `NAMESPACED_ID`                                 |
 | `DEFAULT_CONFIG` | Relay host/port, health check timeouts                                                       |
-| `PATHS`          | File system: `.domscribe/*`, `manifest.jsonl`, `manifest.index.json`                         |
+| `PATHS`          | File system: `.pinflow/*`, `manifest.jsonl`, `manifest.index.json`                         |
 | `HTTP_STATUS`    | Standard HTTP codes                                                                          |
 
 #### Utilities
@@ -217,11 +221,11 @@ Error codes: `DS_VALIDATION_FAILED`, `DS_MANIFEST_INVALID`, `DS_MANIFEST_NOTFOUN
 
 ---
 
-### 3.2 @domscribe/manifest
+### 3.2 @pinflow/manifest
 
 **Purpose:** Manages the append-only JSONL manifest that maps DOM elements to source code locations.
 
-**Dependencies:** `@domscribe/core`, `xxhash-wasm`, `zod`
+**Dependencies:** `@pinflow/core`, `xxhash-wasm`, `zod`
 
 #### Components
 
@@ -261,18 +265,18 @@ Error codes: `DS_VALIDATION_FAILED`, `DS_MANIFEST_INVALID`, `DS_MANIFEST_NOTFOUN
 #### Storage Format
 
 ```
-# .domscribe/manifest.jsonl (append-only)
+# .pinflow/manifest.jsonl (append-only)
 {"id":"A1B2C3D4","file":"src/App.tsx","start":{"line":5,"column":4},"end":{"line":5,"column":30},"tagName":"div","fileHash":"a1b2c3d4e5f6"}
 {"id":"E5F6G7H8","file":"src/App.tsx","start":{"line":8,"column":6},"end":{"line":8,"column":42},"tagName":"Button","componentName":"Button","fileHash":"a1b2c3d4e5f6"}
 ```
 
 ---
 
-### 3.3 @domscribe/runtime
+### 3.3 @pinflow/runtime
 
 **Purpose:** Browser-side context capture — extracts component props, state, and metadata from live DOM elements.
 
-**Dependencies:** `@domscribe/core`
+**Dependencies:** `@pinflow/core`
 
 #### RuntimeManager (singleton)
 
@@ -286,7 +290,7 @@ interface RuntimeOptions {
 }
 ```
 
-- Skips initialization if `window.__DOMSCRIBE_RELAY_PORT__` is not set (production guard)
+- Skips initialization if `window.__PINFLOW_RELAY_PORT__` is not set (production guard)
 - `captureForElement(element)` → `RuntimeContext`
 
 #### FrameworkAdapter Interface
@@ -328,21 +332,21 @@ Pluggable transport layer for runtime ↔ overlay communication:
 
 ---
 
-### 3.4 @domscribe/relay
+### 3.4 @pinflow/relay
 
 **Purpose:** Local development server providing REST API, WebSocket events, and MCP server for coding agents.
 
-**Dependencies:** `@domscribe/core`, `@domscribe/manifest`, `fastify`, `@fastify/cors`, `@fastify/websocket`, `@modelcontextprotocol/sdk`, `commander`, `zod`
+**Dependencies:** `@pinflow/core`, `@pinflow/manifest`, `fastify`, `@fastify/cors`, `@fastify/websocket`, `@modelcontextprotocol/sdk`, `commander`, `zod`
 
 #### CLI
 
 | Command            | Description                                 |
 | ------------------ | ------------------------------------------- |
-| `domscribe serve`  | Start relay server                          |
-| `domscribe init`   | Initialize workspace (create `.domscribe/`) |
-| `domscribe status` | Check relay daemon status                   |
-| `domscribe stop`   | Stop relay daemon                           |
-| `domscribe-mcp`    | Run as MCP server (stdio transport)         |
+| `pinflow serve`  | Start relay server                          |
+| `pinflow init`   | Initialize workspace (create `.pinflow/`) |
+| `pinflow status` | Check relay daemon status                   |
+| `pinflow stop`   | Stop relay daemon                           |
+| `pinflow-mcp`    | Run as MCP server (stdio transport)         |
 
 #### REST API Endpoints
 
@@ -394,23 +398,23 @@ Pluggable transport layer for runtime ↔ overlay communication:
 
 #### Daemon Lifecycle
 
-- **Lock-based singleton:** File lock at `.domscribe/relay.lock` (PID + port)
+- **Lock-based singleton:** File lock at `.pinflow/relay.lock` (PID + port)
 - **RelayControl.ensureRunning():** Start if not running, return host:port
 - **Health check:** HTTP polling with 500ms timeout, 5s max wait
 - **Graceful shutdown:** SIGTERM handler releases lock + closes connections
 
 #### Client Libraries
 
-- `RelayHttpClient` — REST communication (`@domscribe/relay/client`)
+- `RelayHttpClient` — REST communication (`@pinflow/relay/client`)
 - `RelayWebsocketClient` — WebSocket real-time events
 
 ---
 
-### 3.5 @domscribe/overlay
+### 3.5 @pinflow/overlay
 
 **Purpose:** In-browser UI built with Lit web components (shadow DOM) for element selection, context viewing, and annotation management.
 
-**Dependencies:** `@domscribe/core`, `@domscribe/runtime`, `@domscribe/relay`, `lit`
+**Dependencies:** `@pinflow/core`, `@pinflow/runtime`, `@pinflow/relay`, `lit`
 
 #### Web Components
 
@@ -455,21 +459,21 @@ interface OverlayState {
 
 | Path                           | Description                         |
 | ------------------------------ | ----------------------------------- |
-| `@domscribe/overlay`           | Main entry (all components + store) |
-| `@domscribe/overlay/auto-init` | Lazy-loading auto-initialization    |
+| `@pinflow/overlay`           | Main entry (all components + store) |
+| `@pinflow/overlay/auto-init` | Lazy-loading auto-initialization    |
 
 ---
 
-### 3.6 @domscribe/transform
+### 3.6 @pinflow/transform
 
 **Purpose:** AST-level injection of stable `data-ds` attributes into JSX/Vue templates, plus bundler plugins.
 
-**Dependencies:** `@domscribe/core`, `@domscribe/manifest`, `@domscribe/relay`, `acorn`, `acorn-jsx`, `acorn-walk`, `@babel/parser`, `@babel/types`, `magic-string`, `source-map`
+**Dependencies:** `@pinflow/core`, `@pinflow/manifest`, `@pinflow/relay`, `acorn`, `acorn-jsx`, `acorn-walk`, `@babel/parser`, `@babel/types`, `magic-string`, `source-map`
 
-#### DomscribeInjector
+#### PinFlowInjector
 
 ```typescript
-class DomscribeInjector {
+class PinFlowInjector {
   initialize(options: InjectorOptions): Promise<void>;
   inject(source: string, params: InjectParams): Promise<InjectorResult>;
 }
@@ -512,11 +516,11 @@ interface ParserInterface {
 
 | Subpath Export                           | Plugin           | Target                        |
 | ---------------------------------------- | ---------------- | ----------------------------- |
-| `@domscribe/transform/plugins/vite`      | Vite plugin      | `{ domscribe }`               |
-| `@domscribe/transform/plugins/webpack`   | Webpack plugin   | `{ DomscribeWebpackPlugin }`  |
-| `@domscribe/transform/webpack-loader`    | Webpack loader   | String path for loader chains |
-| `@domscribe/transform/plugins/turbopack` | Turbopack plugin | Next.js 16+                   |
-| `@domscribe/transform/turbopack-loader`  | Turbopack loader | String path                   |
+| `@pinflow/transform/plugins/vite`      | Vite plugin      | `{ pinflow }`               |
+| `@pinflow/transform/plugins/webpack`   | Webpack plugin   | `{ PinFlowWebpackPlugin }`  |
+| `@pinflow/transform/webpack-loader`    | Webpack loader   | String path for loader chains |
+| `@pinflow/transform/plugins/turbopack` | Turbopack plugin | Next.js 16+                   |
+| `@pinflow/transform/turbopack-loader`  | Turbopack loader | String path                   |
 
 #### Transform Statistics
 
@@ -536,11 +540,11 @@ interface TransformStats {
 
 ---
 
-### 3.7 @domscribe/react
+### 3.7 @pinflow/react
 
 **Purpose:** React framework adapter for runtime context capture.
 
-**Dependencies:** `@domscribe/core`, `@domscribe/runtime`
+**Dependencies:** `@pinflow/core`, `@pinflow/runtime`
 **Peer Dependencies:** `react >=16.8.0`
 
 #### ReactAdapter
@@ -563,17 +567,17 @@ Key capabilities:
 
 | Path                         | Description                         |
 | ---------------------------- | ----------------------------------- |
-| `@domscribe/react/vite`      | Vite plugin (auto-loads adapter)    |
-| `@domscribe/react/webpack`   | Webpack plugin (auto-loads adapter) |
-| `@domscribe/react/auto-init` | Auto-initialization module          |
+| `@pinflow/react/vite`      | Vite plugin (auto-loads adapter)    |
+| `@pinflow/react/webpack`   | Webpack plugin (auto-loads adapter) |
+| `@pinflow/react/auto-init` | Auto-initialization module          |
 
 ---
 
-### 3.8 @domscribe/vue
+### 3.8 @pinflow/vue
 
 **Purpose:** Vue 3 framework adapter for runtime context capture.
 
-**Dependencies:** `@domscribe/core`, `@domscribe/runtime`
+**Dependencies:** `@pinflow/core`, `@pinflow/runtime`
 **Peer Dependencies:** `vue >=3.3.0`
 
 #### VueAdapter
@@ -587,36 +591,36 @@ Key capabilities:
 
 | Path                       | Description                |
 | -------------------------- | -------------------------- |
-| `@domscribe/vue/vite`      | Vite plugin                |
-| `@domscribe/vue/webpack`   | Webpack plugin             |
-| `@domscribe/vue/auto-init` | Auto-initialization module |
+| `@pinflow/vue/vite`      | Vite plugin                |
+| `@pinflow/vue/webpack`   | Webpack plugin             |
+| `@pinflow/vue/auto-init` | Auto-initialization module |
 
 ---
 
-### 3.9 @domscribe/next
+### 3.9 @pinflow/next
 
 **Purpose:** Next.js integration via Webpack/Turbopack config wrapping.
 
-**Dependencies:** `@domscribe/transform`, `@domscribe/runtime`, `@domscribe/react`
+**Dependencies:** `@pinflow/transform`, `@pinflow/runtime`, `@pinflow/react`
 **Peer Dependencies:** `next >=15.0.0`, `react ^18.0.0 || ^19.0.0`
 
-#### withDomscribe(nextConfig)
+#### withPinFlow(nextConfig)
 
 Config wrapper that:
 
 - Applies transform plugin in dev mode only
 - Injects relay globals + overlay scripts via HTML
-- Aliases `@domscribe/overlay` to no-op stub in production (zero bundle impact)
+- Aliases `@pinflow/overlay` to no-op stub in production (zero bundle impact)
 - Supports both Webpack (Next 15) and Turbopack (Next 16+)
 
-#### DomscribeDevProvider
+#### PinFlowDevProvider
 
 React component (client-only) that initializes RuntimeManager + RelayService on mount.
 
 #### Configuration
 
 ```typescript
-interface DomscribeNextOptions {
+interface PinFlowNextOptions {
   enabled?: boolean;
   include?: string[];
   exclude?: string[];
@@ -630,16 +634,16 @@ interface DomscribeNextOptions {
 
 | Path                           | Description                    |
 | ------------------------------ | ------------------------------ |
-| `@domscribe/next/runtime`      | DomscribeDevProvider component |
-| `@domscribe/next/noop/overlay` | Production no-op stub          |
+| `@pinflow/next/runtime`      | PinFlowDevProvider component |
+| `@pinflow/next/noop/overlay` | Production no-op stub          |
 
 ---
 
-### 3.10 @domscribe/nuxt
+### 3.10 @pinflow/nuxt
 
 **Purpose:** Nuxt 3 module for zero-config integration.
 
-**Dependencies:** `@domscribe/relay`, `@domscribe/transform`, `@domscribe/runtime`, `@domscribe/vue`
+**Dependencies:** `@pinflow/relay`, `@pinflow/transform`, `@pinflow/runtime`, `@pinflow/vue`
 **Peer Dependencies:** `nuxt >=3.0.0`
 
 #### Module Behavior
@@ -650,7 +654,7 @@ interface DomscribeNextOptions {
 - Registers client-only runtime plugin for RuntimeManager + VueAdapter initialization
 
 ```typescript
-interface DomscribeNuxtOptions {
+interface PinFlowNuxtOptions {
   debug?: boolean;
   overlay?: { enabled?: boolean; options?: OverlayOptions };
   relay?: { autoStart?: boolean; port?: number; host?: string };
@@ -666,7 +670,7 @@ interface DomscribeNuxtOptions {
 ```
 1. Developer saves .tsx/.vue file
 2. Bundler (Vite/Webpack) triggers transform
-3. Domscribe plugin intercepts file
+3. PinFlow plugin intercepts file
 4. Parser (Acorn/Babel/VueSFC) produces AST
 5. Injector finds all JSX opening elements
 6. For each element without existing data-ds:
@@ -674,7 +678,7 @@ interface DomscribeNuxtOptions {
    b. ManifestEntry created (file, line, column, tagName, componentName, fileHash)
    c. magic-string injects data-ds="<id>" attribute
 7. BatchWriter buffers manifest entries
-8. Flush to .domscribe/manifest.jsonl (every 50 entries or 100ms)
+8. Flush to .pinflow/manifest.jsonl (every 50 entries or 100ms)
 9. Transformed code + source map returned to bundler
 ```
 
@@ -971,7 +975,7 @@ extractHookState(fiber):
 2. `@nx/eslint/plugin` — lint target
 3. `@nx/vite/plugin` — Vite config auto-detection
 4. `@nx/vitest` — test targets
-5. `./packages/domscribe-test-fixtures/plugin/fixture-targets.ts` — per-fixture install/test targets
+5. `./packages/pinflow-test-fixtures/plugin/fixture-targets.ts` — per-fixture install/test targets
 6. `./scripts/nx-plugin.ts` — sync-dist + clean targets for all library packages
 
 #### Target Defaults
@@ -998,11 +1002,11 @@ extractHookState(fiber):
 ### 7.3 Build Pipeline
 
 ```
-Source (packages/domscribe-*/src/)
+Source (packages/pinflow-*/src/)
     │
     ▼ tsc (via @nx/js/typescript)
     │
-dist/packages/domscribe-*/
+dist/packages/pinflow-*/
     │
     ▼ sync-dist (scripts/sync-dist.mjs)
     │  - Copy version from source package.json
@@ -1011,7 +1015,7 @@ dist/packages/domscribe-*/
     │  - Patch bin entries from distBin
     │  - Remove distExports/distBin fields
     │
-dist/packages/domscribe-*/package.json (publish-ready)
+dist/packages/pinflow-*/package.json (publish-ready)
 ```
 
 ### 7.4 Release Pipelines
@@ -1070,9 +1074,9 @@ dist/packages/domscribe-*/package.json (publish-ready)
 
 ### 8.2 Test Fixtures
 
-**Location:** `packages/domscribe-test-fixtures/fixtures/`
+**Location:** `packages/pinflow-test-fixtures/fixtures/`
 
-Each fixture is a standalone application with its own `package.json` (uses npm, not pnpm). Fixtures are generated via `nx g @domscribe/test-fixtures:test-fixture`.
+Each fixture is a standalone application with its own `package.json` (uses npm, not pnpm). Fixtures are generated via `nx g @pinflow/test-fixtures:test-fixture`.
 
 #### Fixture Matrix
 
@@ -1124,7 +1128,7 @@ Each fixture is a standalone application with its own `package.json` (uses npm, 
 | `manifest-validation.test.ts` | Deep manifest entry validation after build | ID uniqueness, format, file existence, valid positions, bundle consistency       |
 | `manifest-mutation.test.ts`   | Append-only behavior on source changes     | fileHash filtering, ID stability for unmodified files, new entries for mutations |
 | `production-strip.test.ts`    | No dev artifacts in production builds      | Zero `data-ds` attributes, no overlay scripts in prod bundle                     |
-| `build-performance.bench.ts`  | Transform overhead measurement             | A/B comparison (with/without Domscribe), ≤50% overhead threshold                 |
+| `build-performance.bench.ts`  | Transform overhead measurement             | A/B comparison (with/without PinFlow), ≤50% overhead threshold                 |
 
 ### 8.4 E2E Tests
 
@@ -1167,7 +1171,7 @@ Nx Task Runner (controls fixture-level parallelism)
 6. For each fixture:
    a. Generate .npmrc pointing to Verdaccio
    b. npm install --no-package-lock
-   c. Write .domscribe-install-stamp
+   c. Write .pinflow-install-stamp
 7. Run tests (integration or e2e)
 ```
 
@@ -1225,7 +1229,7 @@ Nx Task Runner (controls fixture-level parallelism)
 | `SKIP_SETUP`                | Skip Verdaccio + build + publish pipeline     |
 | `SKIP_PUBLISH`              | Skip build/version/publish, only install      |
 | `SKIP_INSTALL`              | Skip fixture install, only build/publish      |
-| `DOMSCRIBE_FORCE_TRANSFORM` | Force transform in non-dev builds (Next/Nuxt) |
+| `PINFLOW_FORCE_TRANSFORM` | Force transform in non-dev builds (Next/Nuxt) |
 
 ---
 
@@ -1233,13 +1237,13 @@ Nx Task Runner (controls fixture-level parallelism)
 
 ### 11.1 Production Safety
 
-- **All Domscribe code is dev-only.** The `withDomscribe()` (Next) and `domscribeModule` (Nuxt) wrappers only apply transforms in development mode.
-- **Production builds:** `@domscribe/overlay` is aliased to a no-op stub. No `data-ds` attributes, no relay connections, no overlay scripts.
+- **All PinFlow code is dev-only.** The `withPinFlow()` (Next) and `pinflowModule` (Nuxt) wrappers only apply transforms in development mode.
+- **Production builds:** `@pinflow/overlay` is aliased to a no-op stub. No `data-ds` attributes, no relay connections, no overlay scripts.
 - `production-strip.test.ts` validates this invariant in CI for every fixture.
 
 ### 11.2 PII Redaction
 
-- Built into `@domscribe/core` with configurable patterns (email, phone, SSN, credit card, API keys)
+- Built into `@pinflow/core` with configurable patterns (email, phone, SSN, credit card, API keys)
 - Enabled by default (`redactPII: true` in `RuntimeOptions`)
 - Applied during serialization of captured props/state before storage or transmission
 
@@ -1258,4 +1262,4 @@ Nx Task Runner (controls fixture-level parallelism)
 
 ---
 
-_Generated from source analysis of the domscribe monorepo at commit 40193da._
+_Generated from source analysis of the pinflow monorepo at commit 40193da._

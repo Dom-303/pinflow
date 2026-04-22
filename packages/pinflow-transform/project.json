@@ -1,0 +1,61 @@
+{
+  "name": "pinflow-transform",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "packages/pinflow-transform/src",
+  "tags": [
+    "scope:build",
+    "type:lib",
+    "type:test"
+  ],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": [
+        "{workspaceRoot}/dist/packages/pinflow-transform"
+      ],
+      "options": {
+        "rootDir": "packages/pinflow-transform/src",
+        "outputPath": "dist/packages/pinflow-transform",
+        "main": "packages/pinflow-transform/src/index.ts",
+        "tsConfig": "packages/pinflow-transform/tsconfig.lib.json",
+        "generatePackageJson": true,
+        "generateExportsField": true,
+        "assets": [
+          "packages/pinflow-transform/*.md"
+        ]
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "eslintConfig": "eslint.config.mjs",
+        "lintFilePatterns": [
+          "packages/pinflow-transform/**/*.ts",
+          "packages/pinflow-transform/**/*.tsx"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": [
+        "{projectRoot}/test-output"
+      ],
+      "options": {
+        "config": "packages/pinflow-transform/vite.config.ts"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:noop"
+    },
+    "watch-deps": {
+      "executor": "nx:noop"
+    },
+    "build-deps": {
+      "executor": "nx:noop"
+    }
+  }
+}

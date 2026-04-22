@@ -54,7 +54,7 @@
       }
     },
     {
-      "plugin": "./packages/domscribe-test-fixtures/plugin/fixture-targets.ts"
+      "plugin": "./packages/pinflow-test-fixtures/plugin/fixture-targets.ts"
     },
     {
       "plugin": "./scripts/nx-plugin.ts"
@@ -83,7 +83,7 @@
     "libsDir": "packages"
   },
   "release": {
-    "projects": ["*", "!domscribe-test-fixtures"],
+    "projects": ["*", "!pinflow-test-fixtures"],
     "version": {
       "git": {
         "commit": false,

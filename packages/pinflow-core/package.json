@@ -1,0 +1,22 @@
+{
+  "name": "@pinflow/core",
+  "version": "0.6.0-pinflow.0",
+  "description": "Shared types, schemas, and utilities for PinFlow",
+  "type": "module",
+  "main": "src/index.ts",
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "dependencies": {
+    "nanoid": "^3.3.11",
+    "zod": "^4.3.6"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Dom-303/pinflow.git",
+    "directory": "packages/pinflow-core"
+  }
+}

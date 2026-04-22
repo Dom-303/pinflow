@@ -1,0 +1,58 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "../../dist/packages/pinflow-nuxt/tsconfig.tsbuildinfo",
+    "lib": [
+      "es2024",
+      "ESNext.Array",
+      "ESNext.Collection",
+      "ESNext.Iterator",
+      "ESNext.Promise",
+      "DOM"
+    ],
+    "target": "es2024",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "outDir": "../../dist/packages/pinflow-nuxt"
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "vite.config.ts",
+    "vite.config.mts",
+    "vitest.config.ts",
+    "vitest.config.mts",
+    "src/**/*.test.ts",
+    "src/**/*.spec.ts",
+    "src/**/*.test.tsx",
+    "src/**/*.spec.tsx",
+    "src/**/*.test.js",
+    "src/**/*.spec.js",
+    "src/**/*.test.jsx",
+    "src/**/*.spec.jsx",
+    "**/dist",
+    "**/build",
+    "**/.next",
+    "**/.turbo",
+    "**/coverage",
+    "**/generated",
+    "**/tmp",
+    "**/test-output",
+    "**/.nx"
+  ],
+  "references": [
+    {
+      "path": "../pinflow-transform/tsconfig.lib.json"
+    },
+    {
+      "path": "../pinflow-runtime/tsconfig.lib.json"
+    },
+    {
+      "path": "../pinflow-vue/tsconfig.lib.json"
+    },
+    {
+      "path": "../pinflow-relay/tsconfig.lib.json"
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "name": "pinflow-core",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "packages/pinflow-core/src",
+  "tags": [
+    "scope:core",
+    "type:lib",
+    "type:test"
+  ],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": [
+        "{workspaceRoot}/dist/packages/pinflow-core"
+      ],
+      "options": {
+        "rootDir": "packages/pinflow-core/src",
+        "outputPath": "dist/packages/pinflow-core",
+        "main": "packages/pinflow-core/src/index.ts",
+        "tsConfig": "packages/pinflow-core/tsconfig.lib.json",
+        "generatePackageJson": true,
+        "generateExportsField": true,
+        "assets": [
+          "packages/pinflow-core/*.md"
+        ]
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "eslintConfig": "eslint.config.mjs",
+        "lintFilePatterns": [
+          "packages/pinflow-core/**/*.ts",
+          "packages/pinflow-core/**/*.tsx"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": [
+        "{projectRoot}/test-output"
+      ],
+      "options": {
+        "config": "packages/pinflow-core/vite.config.ts"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:noop"
+    },
+    "watch-deps": {
+      "executor": "nx:noop"
+    },
+    "build-deps": {
+      "executor": "nx:noop"
+    }
+  }
+}

@@ -1,0 +1,79 @@
+# @pinflow/vue
+
+Vue 3 adapter for PinFlow — VNode resolution, Composition + Options API support, and bundler plugins.
+
+## Install
+
+```bash
+npm install -D @pinflow/vue
+```
+
+## Vite
+
+```ts
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+import { pinflow } from '@pinflow/vue/vite';
+
+export default defineConfig({
+  plugins: [vue(), pinflow()],
+});
+```
+
+## Webpack
+
+```js
+const { PinFlowWebpackPlugin } = require('@pinflow/vue/webpack');
+
+// Add to plugins array + add webpack loader rule
+// (see @pinflow/transform README for full webpack config)
+```
+
+## Plugin Options
+
+The Vue plugin extends the base transform plugin options with `runtime` and `capture` namespaces:
+
+```ts
+interface PinFlowVuePluginOptions {
+  // Base transform options
+  include?: RegExp;
+  exclude?: RegExp;
+  debug?: boolean;
+  relay?: { autoStart?: boolean; port?: number; host?: string };
+  overlay?:
+    | boolean
+    | { initialMode?: 'collapsed' | 'expanded'; debug?: boolean };
+
+  // Vue-specific
+  runtime?: PinFlowRuntimeOptions;
+  capture?: PinFlowVueCaptureOptions;
+}
+```
+
+Compatibility aliases `PinFlowVuePluginOptions`, `PinFlowRuntimeOptions`, and
+`PinFlowVueCaptureOptions` remain available during the migration window.
+
+### Runtime Options
+
+| Option           | Type                       | Default     | Description                                                                                            |
+| ---------------- | -------------------------- | ----------- | ------------------------------------------------------------------------------------------------------ |
+| `phase`          | `1 \| 2`                   | `1`         | Feature phase gate (Phase 1: props/state, Phase 2: events/perf)                                        |
+| `redactPII`      | `boolean`                  | `true`      | Redact sensitive values in captured data                                                               |
+| `blockSelectors` | `string[]`                 | `[]`        | CSS selectors to exclude from capture                                                                  |
+| `serialization`  | `SerializationConstraints` | `undefined` | Serialization bounds (maxDepth, maxArrayLength, maxTotalBytes, etc.) — see `@pinflow/runtime` README |
+
+### Capture Options
+
+| Option         | Type     | Default | Description                              |
+| -------------- | -------- | ------- | ---------------------------------------- |
+| `maxTreeDepth` | `number` | `50`    | Maximum component tree depth to traverse |
+
+## Subpath Exports
+
+- `@pinflow/vue/vite` — Vite plugin with Vue adapter
+- `@pinflow/vue/webpack` — Webpack plugin with Vue adapter
+- `@pinflow/vue/auto-init` — Auto-initialization module
+
+---
+
+Part of PinFlow, built on the original [PinFlow](https://github.com/patchorbit/pinflow) foundation. License: MIT.

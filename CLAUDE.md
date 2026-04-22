@@ -2,9 +2,9 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository. Detailed conventions, testing patterns, and architecture decisions are in `.claude/rules/`.
 
-## What is Domscribe?
+## What is PinFlow?
 
-Domscribe is a pixel-to-code development tool that lets developers click elements in running web apps, captures runtime context (props, state, events), and maps them to exact source locations for handoff to coding agents via MCP.
+PinFlow is a pixel-to-code development tool, based on PinFlow, that lets developers click elements in running web apps, capture runtime context (props, state, events), and map them to exact source locations for handoff to coding agents via MCP.
 
 ## How to Work on This Codebase
 
@@ -22,7 +22,7 @@ Domscribe is a pixel-to-code development tool that lets developers click element
 
 - **Unit tests mock dependencies.** Use `vi.mock()` and `vi.fn()`. Constructor DI makes this clean.
 - **Don't spy on globals** (`console`, etc.) — test behavior, not log output.
-- **Test-fixtures is the black-box layer** — integration/e2e tests there have zero `@domscribe/*` imports. They build real apps and validate outputs.
+- **Test-fixtures is the black-box layer** — integration/e2e tests there have zero `@pinflow/*` imports. They build real apps and validate outputs.
 - **Relay is the exception** — its unit tests use real services with temp directories (integration-style).
 
 **Don't over-engineer.** Match the complexity of existing code. No premature abstractions, no speculative features, no redundant tests.
@@ -40,20 +40,21 @@ pnpm build:all
 pnpm build:affected
 
 # Single package operations
-nx build domscribe-core
-nx test domscribe-core
-nx lint domscribe-core
-nx typecheck domscribe-core
+# Note: Nx project names still use the current compatibility layer (`pinflow-*`)
+nx build pinflow-core
+nx test pinflow-core
+nx lint pinflow-core
+nx typecheck pinflow-core
 
 # Run specific tests
-nx test domscribe-core -- --testPathPattern=annotation
-nx test domscribe-core -- -t "test name"
+nx test pinflow-core -- --testPathPattern=annotation
+nx test pinflow-core -- -t "test name"
 
 # Integration tests (test-fixtures package)
-nx integration domscribe-test-fixtures
+nx integration pinflow-test-fixtures
 
 # E2E tests (requires Verdaccio + published packages)
-nx e2e domscribe-test-fixtures
+nx e2e pinflow-test-fixtures
 # Skip env vars: SKIP_SETUP=1, SKIP_PUBLISH=1, SKIP_INSTALL=1
 
 # Local registry pipeline
@@ -69,28 +70,30 @@ npx verdaccio --config .verdaccio/config.yml --listen 4873
 
 ### Package Dependency Graph (bottom-up)
 
+The published package scopes below still use the current compatibility layer.
+
 ```
-@domscribe/core          — Shared types, schemas (zod), utilities, constants
-@domscribe/manifest      — Append-only DOM→source index (depends on core)
-@domscribe/runtime       — Browser-side context capture, framework adapters (depends on core)
-@domscribe/relay         — Local HTTP/WS server + MCP server + CLI (depends on core, manifest)
-@domscribe/overlay       — Lit web components for in-app UI (depends on core, runtime, relay)
-@domscribe/transform     — AST injection of stable element IDs + bundler plugins (depends on core, manifest, overlay, relay)
-@domscribe/react         — React adapter (depends on core, runtime)
-@domscribe/vue           — Vue adapter (depends on runtime, core)
-@domscribe/next          — Next.js integration via webpack (depends on transform, runtime, react)
-@domscribe/nuxt          — Nuxt module (depends on relay, transform, runtime, vue)
-@domscribe/test-fixtures — Integration & e2e test suites (private, not published)
+@pinflow/core          — Shared types, schemas (zod), utilities, constants
+@pinflow/manifest      — Append-only DOM→source index (depends on core)
+@pinflow/runtime       — Browser-side context capture, framework adapters (depends on core)
+@pinflow/relay         — Local HTTP/WS server + MCP server + CLI (depends on core, manifest)
+@pinflow/overlay       — Lit web components for in-app UI (depends on core, runtime, relay)
+@pinflow/transform     — AST injection of stable element IDs + bundler plugins (depends on core, manifest, overlay, relay)
+@pinflow/react         — React adapter (depends on core, runtime)
+@pinflow/vue           — Vue adapter (depends on runtime, core)
+@pinflow/next          — Next.js integration via webpack (depends on transform, runtime, react)
+@pinflow/nuxt          — Nuxt module (depends on relay, transform, runtime, vue)
+@pinflow/test-fixtures — Integration & e2e test suites (private, not published)
 ```
 
 ### Subpath Exports
 
 Several packages expose multiple entry points:
 
-- `@domscribe/transform/plugins/vite`, `@domscribe/transform/plugins/webpack`, `@domscribe/transform/webpack-loader`
-- `@domscribe/overlay/auto-init`
-- `@domscribe/react/vite`, `@domscribe/react/webpack`, `@domscribe/react/auto-init`
-- `@domscribe/vue/vite`, `@domscribe/vue/webpack`, `@domscribe/vue/auto-init`
+- `@pinflow/transform/plugins/vite`, `@pinflow/transform/plugins/webpack`, `@pinflow/transform/webpack-loader`
+- `@pinflow/overlay/auto-init`
+- `@pinflow/react/vite`, `@pinflow/react/webpack`, `@pinflow/react/auto-init`
+- `@pinflow/vue/vite`, `@pinflow/vue/webpack`, `@pinflow/vue/auto-init`
 
 Dist subpath exports are defined in `distExports` in each package.json, resolved by `scripts/resolve-workspace-deps.mjs`.
 
@@ -112,7 +115,7 @@ Defined in `eslint.config.mjs` via Nx enforce-module-boundaries:
 
 ### Test Fixtures
 
-Located in `packages/domscribe-test-fixtures/fixtures/{bundler}/{version}/{framework-ver-lang}/`. Each is a standalone app with its own `package.json` (uses npm, not pnpm). Fixtures are generated via `npx nx g @domscribe/test-fixtures:test-fixture`.
+Located in `packages/pinflow-test-fixtures/fixtures/{bundler}/{version}/{framework-ver-lang}/`. Each is a standalone app with its own `package.json` (uses npm, not pnpm). Fixtures are generated via `npx nx g @pinflow/test-fixtures:test-fixture`.
 
 - `_registry/` — Reference components copied into fixtures
 - `_templates/` — Generator templates (files use `__tmpl__` suffix, stripped during generation)

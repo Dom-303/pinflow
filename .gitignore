@@ -8,6 +8,7 @@ out-tsc
 test-output
 test-results
 playwright-report
+.superpowers
 
 # dependencies
 node_modules
@@ -55,17 +56,18 @@ vitest.config.*.timestamp*
 
 agent_docs/
 
-.domscribe/
+.pinflow/
 
 # Test fixture generated/build artifacts
-packages/domscribe-test-fixtures/fixtures/**/.npmrc
-packages/domscribe-test-fixtures/fixtures/**/.domscribe-install-stamp
-packages/domscribe-test-fixtures/fixtures/**/package-lock.json
-packages/domscribe-test-fixtures/fixtures/**/*.local
-packages/domscribe-test-fixtures/fixtures/**/.next
-packages/domscribe-test-fixtures/fixtures/**/next-env.d.ts
-packages/domscribe-test-fixtures/fixtures/**/.nuxt
-packages/domscribe-test-fixtures/fixtures/**/.output
+packages/pinflow-test-fixtures/fixtures/**/.npmrc
+packages/pinflow-test-fixtures/fixtures/**/.pinflow-install-stamp
+packages/pinflow-test-fixtures/fixtures/**/.pinflow-install-stamp
+packages/pinflow-test-fixtures/fixtures/**/package-lock.json
+packages/pinflow-test-fixtures/fixtures/**/*.local
+packages/pinflow-test-fixtures/fixtures/**/.next
+packages/pinflow-test-fixtures/fixtures/**/next-env.d.ts
+packages/pinflow-test-fixtures/fixtures/**/.nuxt
+packages/pinflow-test-fixtures/fixtures/**/.output
 .nx/polygraph
 .claude/worktrees
 .claude/settings.local.json

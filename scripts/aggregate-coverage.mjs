@@ -18,7 +18,7 @@ import { resolve, dirname, join } from 'path';
 const ROOT = resolve(dirname(new URL(import.meta.url).pathname), '..');
 
 const summaryFiles = readdirSync(join(ROOT, 'packages'))
-  .filter((d) => d.startsWith('domscribe-'))
+  .filter((d) => d.startsWith('pinflow-'))
   .map((d) =>
     join('packages', d, 'test-output/vitest/coverage/coverage-summary.json'),
   )

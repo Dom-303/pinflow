@@ -1,0 +1,23 @@
+/**
+ * PinFlow project configuration schema.
+ * @module @pinflow/core/types/config
+ */
+import { z } from 'zod';
+
+/**
+ * Schema for `pinflow.config.json`.
+ *
+ * @remarks
+ * Used in monorepo setups where the coding agent starts at the repo root
+ * but the frontend app lives in a subdirectory. The config file sits at
+ * the repo root and points to the app root where `.pinflow/` is located.
+ */
+export const PinFlowConfigSchema = z.object({
+  appRoot: z
+    .string()
+    .describe(
+      'Relative path from the config file to the frontend app root directory',
+    ),
+});
+
+export type PinFlowConfig = z.infer<typeof PinFlowConfigSchema>;

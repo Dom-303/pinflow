@@ -1,0 +1,64 @@
+/**
+ * Navigation Component
+ * Sidebar navigation for the PinFlow demo canvas
+ */
+
+import pinflowIcon from '../../../../../../../assets/pinflow-icon-light.png';
+
+export interface NavItem {
+  id: string;
+  label: string;
+  section?: string;
+}
+
+export const navItems: NavItem[] = [
+  { id: 'home', label: 'Home', section: 'Uebersicht' },
+<%- navItems %>
+];
+
+interface NavigationProps {
+  activeItem: string;
+  onNavigate: (id: string) => void;
+}
+
+export function Navigation({ activeItem, onNavigate }: NavigationProps) {
+  const sections = [...new Set(navItems.map((item) => item.section))];
+
+  return (
+    <div className="sidebar">
+      <div className="sidebar-header">
+        <div className="sidebar-logo">
+          <span className="sidebar-logo-badge" aria-hidden="true">
+            <img className="sidebar-logo-icon" src={pinflowIcon} alt="" />
+          </span>
+          <div className="sidebar-brand-copy">
+            <span className="sidebar-logo-text">PinFlow Demo</span>
+            <span className="sidebar-logo-subtext">
+              Vorschau fuer Auswahl, Mapping und Kommentare
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <nav className="sidebar-nav">
+        {sections.map((section) => (
+          <div key={section} className="sidebar-section">
+            <div className="sidebar-section-title">{section}</div>
+            {navItems
+              .filter((item) => item.section === section)
+              .map((item) => (
+                <div
+                  key={item.id}
+                  data-page-id={item.id}
+                  className={`sidebar-link ${activeItem === item.id ? 'active' : ''}`}
+                  onClick={() => onNavigate(item.id)}
+                >
+                  {item.label}
+                </div>
+              ))}
+          </div>
+        ))}
+      </nav>
+    </div>
+  );
+}

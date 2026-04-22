@@ -20,12 +20,12 @@ Every code change — feature, bug fix, or refactor — must come from a design 
 ## Naming
 
 - **Files**: kebab-case (`context-capturer.ts`, `fiber-walker.ts`). Suffixes: `.spec.ts` (tests), `.types.ts` (type-only), `.interface.ts` (interfaces)
-- **Classes**: PascalCase, descriptive (`DomscribeInjector`, `AnnotationService`, `ReactAdapter`)
+- **Classes**: PascalCase, descriptive (`PinFlowInjector`, `AnnotationService`, `ReactAdapter`) — existing compatibility names stay valid where already part of the codebase
 - **Functions**: camelCase, verb-first (`generateEntryId()`, `redactText()`, `isValidElementId()`)
 - **Constants**: UPPER_SNAKE_CASE with `as const` (`API_PATHS`, `WS_EVENTS`, `PATTERNS`)
 - **Types/Interfaces**: PascalCase. Suffix `-Schema` for Zod schemas, `-Options` for config, `-Result` for returns
 - **Error codes**: `DS_` prefix, UPPER_SNAKE_CASE enum (`DS_VALIDATION_FAILED`, `DS_MANIFEST_INVALID`)
-- **Console messages**: `[package-name]` prefix (`[domscribe-transform]`, `[VueAdapter]`)
+- **Console messages**: `[package-name]` prefix (`[pinflow-transform]`, `[VueAdapter]`)
 
 ## Exports
 
@@ -40,7 +40,7 @@ Ordered top-to-bottom:
 
 1. Node builtins: `import { existsSync } from 'fs'`
 2. Third-party: `import { z } from 'zod'`
-3. Internal packages: `import { DomscribeError } from '@domscribe/core'`
+3. Internal packages: `import { PinFlowError } from '@pinflow/core'` (current compatibility layer)
 4. Relative: `import { FiberWalker } from '../fiber/fiber-walker.js'`
 5. Type-only (last): `import type { ExtendedReactFiber } from '../fiber/types.js'`
 
@@ -59,8 +59,8 @@ All imports use `.js` extension (ESM compiled output).
 
 ## Error Handling
 
-- All domain errors use `DomscribeError` extending `Error` with RFC 7807 (Problem Details)
-- Catch blocks use `error: unknown` — narrow with `instanceof DomscribeError` then `instanceof Error`
+- All domain errors use `PinFlowError` extending `Error` with RFC 7807 (Problem Details) inside the current compatibility layer
+- Catch blocks use `error: unknown` — narrow with `instanceof PinFlowError` then `instanceof Error`
 - Errors expose `.toProblemDetails()` for API responses and `.toJSON()` for serialization
 - Debug logging is gated on `this.options.debug` — never unconditional
 

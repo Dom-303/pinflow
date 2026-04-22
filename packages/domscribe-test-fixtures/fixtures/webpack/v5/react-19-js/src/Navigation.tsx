@@ -91,8 +91,8 @@ export function Navigation({ activeItem, onNavigate }: NavigationProps) {
     <div className="sidebar">
       <div className="sidebar-header">
         <div className="sidebar-logo">
-          <div className="sidebar-logo-icon">D</div>
-          <span className="sidebar-logo-text">Domscribe Tests</span>
+          <div className="sidebar-logo-icon">P</div>
+          <span className="sidebar-logo-text">PinFlow Workspace</span>
         </div>
       </div>
 

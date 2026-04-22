@@ -109,8 +109,8 @@ function handleNavigate(id: string) {
   <div class="sidebar">
     <div class="sidebar-header">
       <div class="sidebar-logo">
-        <div class="sidebar-logo-icon">D</div>
-        <span class="sidebar-logo-text">Domscribe Tests</span>
+        <div class="sidebar-logo-icon">P</div>
+        <span class="sidebar-logo-text">PinFlow Workspace</span>
       </div>
     </div>
 

@@ -4,7 +4,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   app: {
     head: {
-      title: 'Domscribe Test Fixture - Nuxt <%= frameworkVersion %>',
+      title: 'PinFlow Preview - Nuxt <%= frameworkVersion %>',
     },
   },
   modules: ['@domscribe/nuxt'],

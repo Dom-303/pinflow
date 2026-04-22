@@ -8,6 +8,10 @@ Clean up the PinFlow fork after the product direction, overlay UX, and agent wor
 
 Cleanup should follow productization, not precede it. Right now the upstream Domscribe structure still gives us useful compatibility, test coverage, and release machinery. Removing pieces too early would increase risk and reduce our ability to compare against upstream behavior.
 
+## Migration Prerequisite
+
+Before running cleanup aggressively, finish the technical migration phases that make PinFlow preview and fixture-install flows reliable. Cleanup should not erase tooling or clues that are still needed to stabilize the current PinFlow product line.
+
 ## Cleanup Targets To Review Later
 
 ### 1. Fork and repo hygiene

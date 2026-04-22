@@ -10,28 +10,27 @@ Generalization is valuable, but it should follow product clarity and working aut
 
 ## Now
 
-- Keep the repo as a branded fork built on top of Domscribe
-- Preserve compatibility with the existing architecture
-- Avoid premature deep namespace changes
+- Execute `Phase A` of the PinFlow technical migration
+- Make preview and fixture installs resolve current PinFlow builds reliably
+- Treat versioning, package exports, and local registry behavior as active product work
 
 ## Soon
 
-- Support clearer multi-project setup docs
+- Align package and tooling surfaces with PinFlow
+- Reduce visible `Domscribe` friction in daily development flows
+- Document the canonical PinFlow preview and install path
 - Improve configuration guidance for different app roots and monorepo layouts
-- Make Codex onboarding as first-class as the existing agent surfaces
-- Formalize what belongs to upstream compatibility and what belongs to PinFlow-specific product behavior
 
 ## Later
 
-- Decide whether package namespaces should ever be renamed
-- Decide whether `.domscribe/` should become a branded artifact folder
-- Decide whether the MCP namespace should stay `domscribe` or receive a PinFlow layer
+- Decide whether deep namespace moves like `@pinflow/*` are worth the churn
+- Evaluate whether `.domscribe/` and MCP names should move with the product
 - Split product-facing docs from lower-level architecture docs if needed
 - Consider publishing strategy and versioning posture for the fork
 
 ## Namespace Strategy
 
-### Keep for Now
+### Keep for Phase A
 
 - package names
 - CLI names
@@ -47,7 +46,7 @@ Generalization is valuable, but it should follow product clarity and working aut
 
 ## Decision Rule
 
-Only do deeper renames when one of these becomes true:
+Only do deeper renames when one of these becomes true after Phase A and Phase B are stable:
 
 - the old namespace causes real user confusion
 - the branded fork becomes independently distributed
@@ -56,5 +55,5 @@ Only do deeper renames when one of these becomes true:
 ## Exit Criteria
 
 - PinFlow is clearly usable across many projects
-- The repo has a stable fork posture
+- The repo has a stable PinFlow preview and install posture
 - Future namespace decisions are deliberate rather than emotional

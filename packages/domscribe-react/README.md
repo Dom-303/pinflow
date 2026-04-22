@@ -13,17 +13,17 @@ npm install -D @domscribe/react
 ```ts
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { domscribe } from '@domscribe/react/vite';
+import { pinflow } from '@domscribe/react/vite';
 
 export default defineConfig({
-  plugins: [react(), domscribe()],
+  plugins: [react(), pinflow()],
 });
 ```
 
 ## Webpack
 
 ```js
-const { DomscribeWebpackPlugin } = require('@domscribe/react/webpack');
+const { PinFlowWebpackPlugin } = require('@domscribe/react/webpack');
 
 // Add to plugins array + add webpack loader rule
 // (see @domscribe/transform README for full webpack config)

@@ -140,11 +140,11 @@ PinFlow has two sides: **app-side** (bundler + framework plugins) and **agent-si
 ```ts
 // next.config.ts
 import type { NextConfig } from 'next';
-import { withDomscribe } from '@domscribe/next';
+import { withPinFlow } from '@domscribe/next';
 
 const nextConfig: NextConfig = {};
 
-export default withDomscribe()(nextConfig);
+export default withPinFlow()(nextConfig);
 ```
 
 </details>
@@ -170,10 +170,10 @@ Vite plugin:
 // vite.config.ts
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { domscribe } from '@domscribe/react/vite';
+import { pinflow } from '@domscribe/react/vite';
 
 export default defineConfig({
-  plugins: [react(), domscribe()],
+  plugins: [react(), pinflow()],
 });
 ```
 
@@ -181,7 +181,7 @@ Webpack plugin:
 
 ```js
 // webpack.config.js
-const { DomscribeWebpackPlugin } = require('@domscribe/react/webpack');
+const { PinFlowWebpackPlugin } = require('@domscribe/react/webpack');
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -202,7 +202,7 @@ module.exports = {
     ],
   },
   plugins: [
-    new DomscribeWebpackPlugin({
+    new PinFlowWebpackPlugin({
       enabled: isDevelopment,
       overlay: true,
     }),
@@ -221,10 +221,10 @@ Vite plugin:
 // vite.config.ts
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
-import { domscribe } from '@domscribe/vue/vite';
+import { pinflow } from '@domscribe/vue/vite';
 
 export default defineConfig({
-  plugins: [vue(), domscribe()],
+  plugins: [vue(), pinflow()],
 });
 ```
 
@@ -232,7 +232,7 @@ Webpack plugin:
 
 ```js
 // webpack.config.js
-const { DomscribeWebpackPlugin } = require('@domscribe/vue/webpack');
+const { PinFlowWebpackPlugin } = require('@domscribe/vue/webpack');
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -253,7 +253,7 @@ module.exports = {
     ],
   },
   plugins: [
-    new DomscribeWebpackPlugin({
+    new PinFlowWebpackPlugin({
       enabled: isDevelopment,
       overlay: true,
     }),
@@ -271,10 +271,10 @@ Vite plugin:
 ```ts
 // vite.config.ts
 import { defineConfig } from 'vite';
-import { domscribe } from '@domscribe/transform/plugins/vite';
+import { pinflow } from '@domscribe/transform/plugins/vite';
 
 export default defineConfig({
-  plugins: [domscribe()],
+  plugins: [pinflow()],
 });
 ```
 
@@ -283,7 +283,7 @@ Webpack plugin:
 ```js
 // webpack.config.js
 const {
-  DomscribeWebpackPlugin,
+  PinFlowWebpackPlugin,
 } = require('@domscribe/transform/plugins/webpack');
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
@@ -305,7 +305,7 @@ module.exports = {
     ],
   },
   plugins: [
-    new DomscribeWebpackPlugin({
+    new PinFlowWebpackPlugin({
       enabled: isDevelopment,
       overlay: true,
     }),
@@ -443,7 +443,7 @@ See the compatibility package docs in the [`@domscribe/mcp` README](./packages/d
 | `@domscribe/overlay`       | Lit web components (shadow DOM), element picker, annotation UI                      |
 | `@domscribe/react`         | React fiber walking, props/state extraction, Vite + Webpack plugins                 |
 | `@domscribe/vue`           | Vue 3 VNode resolution, Composition + Options API support, Vite + Webpack plugins   |
-| `@domscribe/next`          | `withDomscribe()` config wrapper for Next.js 15 + 16                                |
+| `@domscribe/next`          | `withPinFlow()` config wrapper for Next.js 15 + 16                                  |
 | `@domscribe/nuxt`          | Nuxt 3+ module with auto-relay and runtime plugin                                   |
 | `domscribe`                | Compatibility CLI binary. Preferred product commands are `pinflow serve`, `status`, `stop`, `init`, `mcp` |
 | `@domscribe/mcp`           | Compatibility MCP package. Preferred product binary is `pinflow-mcp`                |

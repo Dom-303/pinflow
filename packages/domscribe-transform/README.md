@@ -45,9 +45,9 @@ These options apply when `overlay` is set to an object instead of a boolean.
 ### Vite Plugin
 
 ```ts
-import { domscribe } from '@domscribe/transform/plugins/vite';
+import { pinflow } from '@domscribe/transform/plugins/vite';
 
-domscribe({
+pinflow({
   include: /\.(jsx|tsx|vue)$/i,
   exclude: /node_modules|\.test\.|\.spec\./i,
   debug: false,
@@ -71,9 +71,9 @@ domscribe({
 ### Webpack Plugin
 
 ```ts
-import { DomscribeWebpackPlugin } from '@domscribe/transform/plugins/webpack';
+import { PinFlowWebpackPlugin } from '@domscribe/transform/plugins/webpack';
 
-new DomscribeWebpackPlugin({
+new PinFlowWebpackPlugin({
   enabled: true,
   debug: false,
   relay: { autoStart: true, port: 0, host: '127.0.0.1' },
@@ -90,7 +90,7 @@ new DomscribeWebpackPlugin({
 
 #### Webpack Loader Options
 
-The webpack loader is managed internally by `DomscribeWebpackPlugin`. If you need to configure it directly via `@domscribe/transform/webpack-loader`:
+The webpack loader is managed internally by `PinFlowWebpackPlugin`. If you need to configure it directly via `@domscribe/transform/webpack-loader`:
 
 | Option    | Type      | Default | Description           |
 | --------- | --------- | ------- | --------------------- |
@@ -150,8 +150,8 @@ Returns the relay host and port detected during loader initialization. Available
 
 | Subpath                                  | Description                                    |
 | ---------------------------------------- | ---------------------------------------------- |
-| `@domscribe/transform/plugins/vite`      | Vite plugin (`domscribe`)                      |
-| `@domscribe/transform/plugins/webpack`   | Webpack plugin (`DomscribeWebpackPlugin`)      |
+| `@domscribe/transform/plugins/vite`      | Vite plugin (`pinflow`)                        |
+| `@domscribe/transform/plugins/webpack`   | Webpack plugin (`PinFlowWebpackPlugin`)        |
 | `@domscribe/transform/webpack-loader`    | Webpack loader path (string, for direct use)   |
 | `@domscribe/transform/plugins/turbopack` | Turbopack exports (`getInitResult`)            |
 | `@domscribe/transform/turbopack-loader`  | Turbopack loader path (string, for direct use) |

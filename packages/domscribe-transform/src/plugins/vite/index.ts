@@ -2,5 +2,5 @@
  * Vite plugin entry point
  * @module @domscribe/transform/plugins/vite
  */
-export { domscribe as vite, domscribe } from './vite.plugin.js';
+export { domscribe as vite, domscribe, domscribe as pinflow } from './vite.plugin.js';
 export type { VitePluginOptions } from './types.js';

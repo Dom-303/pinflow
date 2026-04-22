@@ -13,17 +13,17 @@ npm install -D @domscribe/vue
 ```ts
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
-import { domscribe } from '@domscribe/vue/vite';
+import { pinflow } from '@domscribe/vue/vite';
 
 export default defineConfig({
-  plugins: [vue(), domscribe()],
+  plugins: [vue(), pinflow()],
 });
 ```
 
 ## Webpack
 
 ```js
-const { DomscribeWebpackPlugin } = require('@domscribe/vue/webpack');
+const { PinFlowWebpackPlugin } = require('@domscribe/vue/webpack');
 
 // Add to plugins array + add webpack loader rule
 // (see @domscribe/transform README for full webpack config)

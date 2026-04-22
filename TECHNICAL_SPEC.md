@@ -1,4 +1,4 @@
-# Domscribe Technical Specification
+# PinFlow Technical Specification
 
 **Version:** 0.0.1-dev.152
 **Last Updated:** 2026-03-15
@@ -25,18 +25,21 @@
 
 ## 1. Overview
 
-Domscribe is a pixel-to-code development tool that bridges the gap between running web applications and their source code. It enables developers to:
+PinFlow is a pixel-to-code development tool, built on top of the original Domscribe foundation, that bridges the gap between running web applications and their source code. It enables developers to:
 
 1. **Click elements** in a running web app via an in-browser overlay UI
 2. **Capture runtime context** — component props, state, event bindings, and framework metadata
 3. **Map interactions to exact source locations** — file path, line, column, component name
 4. **Hand off context to coding agents** via the Model Context Protocol (MCP)
 
-The system operates exclusively in development mode. Production builds strip all Domscribe artifacts (data attributes, overlay scripts, relay connections) to zero runtime cost.
+The system operates exclusively in development mode. Production builds strip all PinFlow compatibility artifacts (data attributes, overlay scripts, relay connections) to zero runtime cost.
+
+> [!NOTE]
+> This specification documents the current PinFlow product direction on top of the still-active `domscribe` compatibility layer. Many package names, API identifiers, MCP tool names, and artifact paths therefore still appear below in their current technical form.
 
 ### Design Principles
 
-- **Zero production impact** — All instrumentation is dev-only; production builds contain no Domscribe code or metadata
+- **Zero production impact** — All instrumentation is dev-only; production builds contain no PinFlow runtime instrumentation or compatibility metadata
 - **Framework-agnostic core** — Shared types, schemas, and protocols are decoupled from any specific framework
 - **Append-only persistence** — The manifest uses JSONL format with hash-based staleness tracking for crash safety
 - **Stable IDs across HMR** — Element IDs survive hot module replacement via content-hash caching (>80% cache hit rate)
@@ -85,7 +88,8 @@ The system operates exclusively in development mode. Production builds strip all
                                 +-----------+------------+
                                             |
                                 +-----------v------------+
-                                | Coding Agent (Claude)  |
+                                | Coding Agent           |
+                                | (Codex / Claude / MCP) |
                                 | via MCP Protocol       |
                                 +------------------------+
 ```

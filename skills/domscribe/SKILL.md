@@ -1,27 +1,27 @@
 ---
 name: domscribe
-description: Work with Domscribe — the pixel-to-code bridge. Use when setting up, initializing, or configuring Domscribe for a project, OR when editing or modifying UI components (React, Vue, Next.js, Nuxt), implementing features from captured UI annotations, querying runtime context for source locations, exploring component structure, or when user mentions annotations, queued tasks, UI changes, props, state, DOM, or asks about how elements render at runtime.
+description: Work with PinFlow through the current domscribe compatibility layer. Use when setting up, initializing, or configuring PinFlow for a project, OR when editing or modifying UI components (React, Vue, Next.js, Nuxt), implementing features from captured UI annotations, querying runtime context for source locations, exploring component structure, or when user mentions annotations, queued tasks, UI changes, props, state, DOM, or asks about how elements render at runtime.
 allowed-tools: Read, Edit, Write, Bash, Glob, mcp__domscribe__*, domscribe.*, mcp.domscribe.*, process_next, check_status, explore_component, find_annotations
 ---
 
-# Domscribe
+# PinFlow
 
-Domscribe bridges running UI and source code. It maps every rendered element to its exact source location and captures live runtime context (props, state, DOM). This works in two directions:
+PinFlow bridges running UI and source code through the current domscribe compatibility layer. It maps every rendered element to its exact source location and captures live runtime context (props, state, DOM). This works in two directions:
 
-- **UI → Code**: User clicks an element in the browser, Domscribe captures it as an annotation with source location, runtime context, and user intent. You claim and implement it.
+- **UI → Code**: User clicks an element in the browser, PinFlow captures it as an annotation with source location, runtime context, and user intent. You claim and implement it.
 - **Code → UI**: You're editing a source file and want to know what an element looks like at runtime. Query by file and line to get live props, state, and DOM snapshot.
 
 ## Setup / Initialization
 
-If `domscribe.status` returns `active: false`, Domscribe is not yet configured in this workspace. The `.domscribe/` directory is created automatically when the dev server starts with the Domscribe bundler plugin configured. Follow this procedure to set it up:
+If `domscribe.status` returns `active: false`, PinFlow is not yet configured in this workspace. The `.domscribe/` directory is created automatically when the dev server starts with the current PinFlow-compatible bundler plugin configured. Follow this procedure to set it up:
 
 1. **Confirm dormant state** — call `domscribe.status`. If `active: false`, proceed. Note the `cwd` in the response.
 2. **Detect framework** — read `package.json` (at `cwd`, or at the `appRoot` from `domscribe.config.json` if it exists) and match dependencies against the table below.
 3. **Detect package manager** — check which lockfile exists at the project root.
 4. **Install the package** — run the appropriate install command via Bash (e.g., `pnpm add -D @domscribe/next`).
 5. **Edit the bundler config** — read the config file and apply the integration pattern. Load `references/config-patterns.md` for the exact import, transformation, and example for each framework.
-6. **Update `.gitignore`** — if `.domscribe` is not already listed, append a `# Domscribe artifacts` comment and `.domscribe` entry.
-7. **Inform the user** — tell them to start (or restart) their dev server. Domscribe activates automatically on first run.
+6. **Update `.gitignore`** — if `.domscribe` is not already listed, append a `# PinFlow compatibility artifacts` comment and `.domscribe` entry.
+7. **Inform the user** — tell them to start (or restart) their dev server. PinFlow activates automatically on first run.
 
 ### Framework Detection
 

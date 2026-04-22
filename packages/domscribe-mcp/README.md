@@ -56,9 +56,9 @@ Query source locations and retrieve live runtime context from the running browse
 
 | Tool                       | Description                                                                                                   |
 | -------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `domscribe.query.bySource` | Query a source file and line number to get live runtime context from the browser (props, state, DOM snapshot) |
-| `domscribe.manifest.query` | Find all manifest entries by file path, component name, or element ID                                         |
-| `domscribe.manifest.stats` | Manifest coverage statistics (entry count, file count, component count, cache hit rate)                       |
+| `pinflow.query.bySource` | Query a source file and line number to get live runtime context from the browser (props, state, DOM snapshot) |
+| `pinflow.manifest.query` | Find all manifest entries by file path, component name, or element ID                                         |
+| `pinflow.manifest.stats` | Manifest coverage statistics (entry count, file count, component count, cache hit rate)                       |
 
 ### Element Resolution (UI to Code)
 
@@ -66,8 +66,8 @@ Resolve `data-ds` element IDs injected at build time back to their source locati
 
 | Tool                      | Description                                                                             |
 | ------------------------- | --------------------------------------------------------------------------------------- |
-| `domscribe.resolve`       | Resolve a single `data-ds` element ID to its ManifestEntry (file, line, col, component) |
-| `domscribe.resolve.batch` | Resolve multiple element IDs in one call                                                |
+| `pinflow.resolve`       | Resolve a single `data-ds` element ID to its ManifestEntry (file, line, col, component) |
+| `pinflow.resolve.batch` | Resolve multiple element IDs in one call                                                |
 
 ### Annotation Workflow
 
@@ -75,18 +75,18 @@ Annotations are created when a developer clicks an element in the PinFlow overla
 
 | Tool                                | Description                                                                                     |
 | ----------------------------------- | ----------------------------------------------------------------------------------------------- |
-| `domscribe.annotation.process`      | Atomically claim the next queued annotation (`claimNext`) — prevents concurrent agent conflicts |
-| `domscribe.annotation.respond`      | Attach agent response and transition annotation to `PROCESSED`                                  |
-| `domscribe.annotation.updateStatus` | Manually transition annotation status                                                           |
-| `domscribe.annotation.get`          | Retrieve annotation by ID                                                                       |
-| `domscribe.annotation.list`         | List annotations with status and filter options                                                 |
-| `domscribe.annotation.search`       | Full-text search across annotation content                                                      |
+| `pinflow.annotation.process`      | Atomically claim the next queued annotation (`claimNext`) — prevents concurrent agent conflicts |
+| `pinflow.annotation.respond`      | Attach agent response and transition annotation to `PROCESSED`                                  |
+| `pinflow.annotation.updateStatus` | Manually transition annotation status                                                           |
+| `pinflow.annotation.get`          | Retrieve annotation by ID                                                                       |
+| `pinflow.annotation.list`         | List annotations with status and filter options                                                 |
+| `pinflow.annotation.search`       | Full-text search across annotation content                                                      |
 
 ### System
 
 | Tool               | Description                                           |
 | ------------------ | ----------------------------------------------------- |
-| `domscribe.status` | Relay daemon health, manifest stats, and queue counts |
+| `pinflow.status` | Relay daemon health, manifest stats, and queue counts |
 
 ## MCP Prompts
 
@@ -101,7 +101,7 @@ Pre-built prompts that guide agents through common PinFlow workflows.
 
 ## Example Responses
 
-### `domscribe.query.bySource`
+### `pinflow.query.bySource`
 
 Returns the source location matched in the manifest plus live runtime data captured from the browser.
 
@@ -129,7 +129,7 @@ Returns the source location matched in the manifest plus live runtime data captu
 
 ### Annotation Object
 
-Returned by `domscribe.annotation.get`, `domscribe.annotation.process`, and related tools.
+Returned by `pinflow.annotation.get`, `pinflow.annotation.process`, and related tools.
 
 ```json
 {

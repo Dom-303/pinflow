@@ -4,20 +4,20 @@ import { getResultText } from '../__test-utils__/mock-relay-client.js';
 
 describe('tool.defs', () => {
   describe('MCP_TOOLS', () => {
-    it('should define all expected tool names', () => {
-      expect(MCP_TOOLS.RESOLVE).toBe('domscribe.resolve');
-      expect(MCP_TOOLS.RESOLVE_BATCH).toBe('domscribe.resolve.batch');
-      expect(MCP_TOOLS.MANIFEST_STATS).toBe('domscribe.manifest.stats');
-      expect(MCP_TOOLS.MANIFEST_QUERY).toBe('domscribe.manifest.query');
-      expect(MCP_TOOLS.ANNOTATION_LIST).toBe('domscribe.annotation.list');
-      expect(MCP_TOOLS.ANNOTATION_GET).toBe('domscribe.annotation.get');
+    it('should define PinFlow-first tool names', () => {
+      expect(MCP_TOOLS.RESOLVE).toBe('pinflow.resolve');
+      expect(MCP_TOOLS.RESOLVE_BATCH).toBe('pinflow.resolve.batch');
+      expect(MCP_TOOLS.MANIFEST_STATS).toBe('pinflow.manifest.stats');
+      expect(MCP_TOOLS.MANIFEST_QUERY).toBe('pinflow.manifest.query');
+      expect(MCP_TOOLS.ANNOTATION_LIST).toBe('pinflow.annotation.list');
+      expect(MCP_TOOLS.ANNOTATION_GET).toBe('pinflow.annotation.get');
       expect(MCP_TOOLS.ANNOTATION_UPDATE_STATUS).toBe(
-        'domscribe.annotation.updateStatus',
+        'pinflow.annotation.updateStatus',
       );
-      expect(MCP_TOOLS.ANNOTATION_PROCESS).toBe('domscribe.annotation.process');
-      expect(MCP_TOOLS.ANNOTATION_RESPOND).toBe('domscribe.annotation.respond');
-      expect(MCP_TOOLS.ANNOTATION_SEARCH).toBe('domscribe.annotation.search');
-      expect(MCP_TOOLS.STATUS).toBe('domscribe.status');
+      expect(MCP_TOOLS.ANNOTATION_PROCESS).toBe('pinflow.annotation.process');
+      expect(MCP_TOOLS.ANNOTATION_RESPOND).toBe('pinflow.annotation.respond');
+      expect(MCP_TOOLS.ANNOTATION_SEARCH).toBe('pinflow.annotation.search');
+      expect(MCP_TOOLS.STATUS).toBe('pinflow.status');
     });
   });
 

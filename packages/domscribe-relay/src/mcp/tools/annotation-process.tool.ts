@@ -105,7 +105,7 @@ export class AnnotationsProcessTool implements McpToolDefinition<
         nextStep: response.found
           ? 'Implement the change described in userIntent. ' +
             'Then call the PinFlow source query tool with the same file and line to verify your changes in the live browser. ' +
-            'Then call domscribe.annotation.respond with your summary, then domscribe.annotation.updateStatus with status "processed".'
+            'Then call pinflow.annotation.respond with your summary, then pinflow.annotation.updateStatus with status "processed".'
           : undefined,
       };
 

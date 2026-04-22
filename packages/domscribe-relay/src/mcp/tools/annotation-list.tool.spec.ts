@@ -134,6 +134,6 @@ describe('AnnotationsListTool', () => {
 
     expect(tool.name).toBe(MCP_TOOLS.ANNOTATION_LIST);
     expect(tool.description).toContain('PinFlow annotations');
-    expect(tool.description).toContain('domscribe.annotation.process');
+    expect(tool.description).toContain('pinflow.annotation.process');
   });
 });

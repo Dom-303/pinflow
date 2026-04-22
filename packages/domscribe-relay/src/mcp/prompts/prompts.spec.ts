@@ -22,10 +22,10 @@ describe('ProcessNextPrompt', () => {
     expect(messages[0].role).toBe('user');
     expect(messages[0].content.type).toBe('text');
     expect(messages[0].content.text).toContain('PinFlow annotation');
-    expect(messages[0].content.text).toContain('domscribe.annotation.process');
-    expect(messages[0].content.text).toContain('domscribe.annotation.respond');
+    expect(messages[0].content.text).toContain('pinflow.annotation.process');
+    expect(messages[0].content.text).toContain('pinflow.annotation.respond');
     expect(messages[0].content.text).toContain(
-      'domscribe.annotation.updateStatus',
+      'pinflow.annotation.updateStatus',
     );
   });
 });
@@ -47,7 +47,7 @@ describe('CheckStatusPrompt', () => {
     expect(messages).toHaveLength(1);
     expect(messages[0].role).toBe('user');
     expect(messages[0].content.text).toContain('PinFlow system status');
-    expect(messages[0].content.text).toContain('domscribe.status');
+    expect(messages[0].content.text).toContain('pinflow.status');
   });
 });
 
@@ -67,7 +67,7 @@ describe('ExploreComponentPrompt', () => {
     expect(messages[0].content.text).toContain('"Header"');
     expect(messages[0].content.text).toContain('PinFlow');
     expect(messages[0].content.text).toContain('componentName="Header"');
-    expect(messages[0].content.text).toContain('domscribe.manifest.query');
+    expect(messages[0].content.text).toContain('pinflow.manifest.query');
   });
 });
 

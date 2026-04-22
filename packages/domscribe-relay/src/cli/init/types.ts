@@ -75,10 +75,10 @@ export interface InitOptions {
 
 const MCP_CONFIG = `{
   "mcpServers": {
-    "domscribe": {
+    "pinflow": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@domscribe/mcp"]
+      "args": ["-y", "@pinflow/mcp"]
     }
   }
 }`;

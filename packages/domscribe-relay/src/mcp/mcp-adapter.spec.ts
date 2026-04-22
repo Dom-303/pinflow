@@ -68,29 +68,34 @@ describe('McpAdapter', () => {
 
       // Assert
       const server = getServer(adapter);
-      expect(server.registeredTools.size).toBe(12);
-      expect(server.registeredTools.has('domscribe.resolve')).toBe(true);
-      expect(server.registeredTools.has('domscribe.resolve.batch')).toBe(true);
-      expect(server.registeredTools.has('domscribe.manifest.stats')).toBe(true);
-      expect(server.registeredTools.has('domscribe.manifest.query')).toBe(true);
-      expect(server.registeredTools.has('domscribe.annotation.get')).toBe(true);
-      expect(server.registeredTools.has('domscribe.annotation.list')).toBe(
+      expect(server.registeredTools.size).toBe(24);
+      expect(server.registeredTools.has('pinflow.resolve')).toBe(true);
+      expect(server.registeredTools.has('pinflow.resolve.batch')).toBe(true);
+      expect(server.registeredTools.has('pinflow.manifest.stats')).toBe(true);
+      expect(server.registeredTools.has('pinflow.manifest.query')).toBe(true);
+      expect(server.registeredTools.has('pinflow.annotation.get')).toBe(true);
+      expect(server.registeredTools.has('pinflow.annotation.list')).toBe(
         true,
       );
-      expect(server.registeredTools.has('domscribe.annotation.process')).toBe(
+      expect(server.registeredTools.has('pinflow.annotation.process')).toBe(
         true,
       );
       expect(
-        server.registeredTools.has('domscribe.annotation.updateStatus'),
+        server.registeredTools.has('pinflow.annotation.updateStatus'),
       ).toBe(true);
-      expect(server.registeredTools.has('domscribe.annotation.respond')).toBe(
+      expect(server.registeredTools.has('pinflow.annotation.respond')).toBe(
         true,
       );
-      expect(server.registeredTools.has('domscribe.annotation.search')).toBe(
+      expect(server.registeredTools.has('pinflow.annotation.search')).toBe(
+        true,
+      );
+      expect(server.registeredTools.has('pinflow.status')).toBe(true);
+      expect(server.registeredTools.has('pinflow.query.bySource')).toBe(true);
+      expect(server.registeredTools.has('domscribe.resolve')).toBe(true);
+      expect(server.registeredTools.has('domscribe.annotation.process')).toBe(
         true,
       );
       expect(server.registeredTools.has('domscribe.status')).toBe(true);
-      expect(server.registeredTools.has('domscribe.query.bySource')).toBe(true);
     });
 
     it('should register all 4 prompts', () => {
@@ -110,7 +115,7 @@ describe('McpAdapter', () => {
       expect(server.registeredPrompts.has('find_annotations')).toBe(true);
     });
 
-    it('should keep the compatibility MCP server identity', () => {
+    it('should use the PinFlow MCP server identity', () => {
       const adapter = new McpAdapter({
         mode: 'active',
         relayHost: 'localhost',
@@ -118,7 +123,7 @@ describe('McpAdapter', () => {
       });
 
       const server = getServer(adapter);
-      expect(server.metadata.name).toBe('domscribe');
+      expect(server.metadata.name).toBe('pinflow');
     });
 
     it('should start and connect transport', async () => {
@@ -156,7 +161,7 @@ describe('McpAdapter', () => {
       });
 
       const server = getServer(adapter);
-      const resolveTool = server.registeredTools.get('domscribe.resolve') as {
+      const resolveTool = server.registeredTools.get('pinflow.resolve') as {
         handler: (args: unknown) => Promise<unknown>;
       };
       const checkStatusPrompt = server.registeredPrompts.get(
@@ -174,7 +179,7 @@ describe('McpAdapter', () => {
         '[pinflow-mcp] MCP server started',
       );
       expect(consoleError).toHaveBeenCalledWith(
-        '[pinflow-mcp] Tool call: domscribe.resolve',
+        '[pinflow-mcp] Tool call: pinflow.resolve',
         { entryId: 'ds_test' },
       );
       expect(consoleError).toHaveBeenCalledWith(
@@ -199,7 +204,8 @@ describe('McpAdapter', () => {
 
       // Assert
       const server = getServer(adapter);
-      expect(server.registeredTools.size).toBe(1);
+      expect(server.registeredTools.size).toBe(2);
+      expect(server.registeredTools.has('pinflow.status')).toBe(true);
       expect(server.registeredTools.has('domscribe.status')).toBe(true);
     });
 

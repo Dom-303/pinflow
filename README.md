@@ -333,7 +333,7 @@ This creates a `domscribe.config.json` at your repo root that tells PinFlow's cu
 
 ### Agent-Side — Connect Your Coding Agent
 
-PinFlow exposes 12 tools and 4 prompts via MCP. The visible product is `PinFlow`; the current technical MCP namespace remains `domscribe` for compatibility until the deeper namespace decision in a later migration phase.
+PinFlow exposes 12 tools and 4 prompts via MCP. The preferred product-facing MCP namespace is now `pinflow`, while `domscribe.*` remains available as a temporary compatibility alias during the migration window.
 
 #### Claude Code
 
@@ -359,18 +359,18 @@ Then add this MCP config to your agent:
 ```json
 {
   "mcpServers": {
-    "domscribe": {
+    "pinflow": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@domscribe/mcp"]
+      "args": ["-y", "@pinflow/mcp"]
     }
   }
 }
 ```
 
 Preferred installed MCP binary: `pinflow-mcp`  
-Current compatibility config keeps the MCP server key as `domscribe`  
-Compatibility package path remains `@domscribe/mcp` for now
+Preferred MCP server key: `pinflow`
+Compatibility aliases remain available for older `domscribe.*` MCP clients
 
 ---
 
@@ -414,18 +414,18 @@ No single competitor combines build-time stable IDs, deep runtime capture, bidir
 
 | Tool                                | Description                                                                             |
 | ----------------------------------- | --------------------------------------------------------------------------------------- |
-| `domscribe.query.bySource`          | Query a source file + line and get live runtime context (props, state, DOM snapshot)    |
-| `domscribe.manifest.query`          | Find manifest entries by file path, component name, or element ID                       |
-| `domscribe.manifest.stats`          | Manifest coverage statistics (entry count, file count, component count, cache hit rate) |
-| `domscribe.resolve`                 | Resolve a `data-ds` element ID to its source location (file, line, col, component)      |
-| `domscribe.resolve.batch`           | Resolve multiple element IDs in one call                                                |
-| `domscribe.annotation.process`      | Atomically claim the next queued annotation (prevents concurrent agent conflicts)       |
-| `domscribe.annotation.respond`      | Attach agent response and transition to `PROCESSED`                                     |
-| `domscribe.annotation.updateStatus` | Manually transition annotation status                                                   |
-| `domscribe.annotation.get`          | Retrieve annotation by ID                                                               |
-| `domscribe.annotation.list`         | List annotations with status/filter options                                             |
-| `domscribe.annotation.search`       | Full-text search across annotation content                                              |
-| `domscribe.status`                  | Relay daemon health, manifest stats, queue counts                                       |
+| `pinflow.query.bySource`            | Query a source file + line and get live runtime context (props, state, DOM snapshot)    |
+| `pinflow.manifest.query`            | Find manifest entries by file path, component name, or element ID                       |
+| `pinflow.manifest.stats`            | Manifest coverage statistics (entry count, file count, component count, cache hit rate) |
+| `pinflow.resolve`                   | Resolve a `data-ds` element ID to its source location (file, line, col, component)      |
+| `pinflow.resolve.batch`             | Resolve multiple element IDs in one call                                                |
+| `pinflow.annotation.process`        | Atomically claim the next queued annotation (prevents concurrent agent conflicts)        |
+| `pinflow.annotation.respond`        | Attach agent response and transition to `PROCESSED`                                     |
+| `pinflow.annotation.updateStatus`   | Manually transition annotation status                                                   |
+| `pinflow.annotation.get`            | Retrieve annotation by ID                                                               |
+| `pinflow.annotation.list`           | List annotations with status/filter options                                             |
+| `pinflow.annotation.search`         | Full-text search across annotation content                                              |
+| `pinflow.status`                    | Relay daemon health, manifest stats, queue counts                                       |
 
 See the compatibility package docs in the [`@domscribe/mcp` README](./packages/domscribe-mcp/README.md) for detailed tool schemas, response formats, and prompt definitions.
 

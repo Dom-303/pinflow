@@ -37,7 +37,7 @@ export class AnnotationsUpdateStatusTool implements McpToolDefinition<
 > {
   name = MCP_TOOLS.ANNOTATION_UPDATE_STATUS;
   description =
-    'Final step in the annotation lifecycle — call this AFTER domscribe.annotation.respond. ' +
+    'Final step in the annotation lifecycle — call this AFTER pinflow.annotation.respond. ' +
     'Valid transitions: queued→processing, processing→processed/failed, any→archived. ' +
     'Mark as "processed" when done, "failed" with errorDetails if unable to implement, or "archived" to remove from queue.';
   inputSchema = AnnotationsUpdateStatusToolInputSchema;

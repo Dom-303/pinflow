@@ -6,7 +6,7 @@
 import { z } from 'zod';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { McpToolDefinition } from './tools/tool.defs.js';
+import { MCP_TOOL_COMPAT_ALIASES, McpToolDefinition } from './tools/tool.defs.js';
 import { McpPromptDefinition } from './prompts/prompt.defs.js';
 import { RelayHttpClient } from '../client/relay-http-client.js';
 import { RELAY_VERSION } from '../version.js';
@@ -82,7 +82,7 @@ export class McpAdapter {
     }
 
     this.server = new McpServer(
-      { name: 'domscribe', version: RELAY_VERSION },
+      { name: 'pinflow', version: RELAY_VERSION },
       { capabilities },
     );
 
@@ -116,19 +116,22 @@ export class McpAdapter {
     ];
 
     for (const tool of tools) {
-      this.server.registerTool(
-        tool.name,
-        {
-          description: tool.description,
-          inputSchema: tool.inputSchema,
-        },
-        async (args) => {
-          if (this.debug) {
-            console.error(`[pinflow-mcp] Tool call: ${tool.name}`, args);
-          }
-          return tool.toolCallback(args);
-        },
-      );
+      const registration = {
+        description: tool.description,
+        inputSchema: tool.inputSchema,
+      };
+      const handler = async (args: unknown) => {
+        if (this.debug) {
+          console.error(`[pinflow-mcp] Tool call: ${tool.name}`, args);
+        }
+        return tool.toolCallback(args as z.infer<typeof tool.inputSchema>);
+      };
+
+      this.server.registerTool(tool.name, registration, handler);
+
+      for (const alias of MCP_TOOL_COMPAT_ALIASES[tool.name] ?? []) {
+        this.server.registerTool(alias, registration, handler);
+      }
     }
   }
 
@@ -147,6 +150,22 @@ export class McpAdapter {
         return tool.toolCallback(args);
       },
     );
+
+    for (const alias of MCP_TOOL_COMPAT_ALIASES[tool.name] ?? []) {
+      this.server.registerTool(
+        alias,
+        {
+          description: tool.description,
+          inputSchema: tool.inputSchema,
+        },
+        async (args) => {
+          if (this.debug) {
+            console.error(`[pinflow-mcp] Tool call: ${tool.name}`, args);
+          }
+          return tool.toolCallback(args);
+        },
+      );
+    }
   }
 
   private registerPrompts(): void {

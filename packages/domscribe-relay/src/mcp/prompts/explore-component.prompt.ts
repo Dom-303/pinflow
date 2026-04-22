@@ -25,7 +25,7 @@ export class ExploreComponentPrompt
           type: 'text',
           text: `Explore the "${args.componentName}" component in PinFlow.
 
-Use the domscribe.manifest.query tool with componentName="${args.componentName}" to list all DOM elements.
+Use the pinflow.manifest.query tool with componentName="${args.componentName}" to list all DOM elements.
 
 For each element, show:
 - Tag name

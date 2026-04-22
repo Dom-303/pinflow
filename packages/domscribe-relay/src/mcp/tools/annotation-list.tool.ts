@@ -44,7 +44,7 @@ export class AnnotationsListTool implements McpToolDefinition<
   name = MCP_TOOLS.ANNOTATION_LIST;
   description =
     'List PinFlow annotations for monitoring and review purposes. ' +
-    'To process the NEXT queued annotation, use domscribe.annotation.process instead — it atomically claims and returns full context in one call. ' +
+    'To process the NEXT queued annotation, use pinflow.annotation.process instead — it atomically claims and returns full context in one call. ' +
     'Use this tool only to browse queue state, check counts, or review history by status.';
   inputSchema = AnnotationsListToolInputSchema;
   outputSchema = AnnotationsListToolOutputSchema;

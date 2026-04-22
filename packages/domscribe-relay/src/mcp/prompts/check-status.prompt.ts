@@ -23,7 +23,7 @@ export class CheckStatusPrompt
           type: 'text',
           text: `Check the PinFlow system status.
 
-Use the domscribe.status tool to get:
+Use the pinflow.status tool to get:
 - Relay server health (version, uptime, port)
 - Manifest statistics (entry count, file count, component count)
 - Annotation queue counts by status

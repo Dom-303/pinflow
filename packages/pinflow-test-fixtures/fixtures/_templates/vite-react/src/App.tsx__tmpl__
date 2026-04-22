@@ -1,26 +1,132 @@
 import { useState } from 'react';
 import { Navigation } from './Navigation';
-import codeToUiImage from '../../../../../../../assets/code-to-ui.png';
-import uiToCodeImage from '../../../../../../../assets/ui-to-code.png';
+import pinflowStackedLight from '../../../../../../../assets/pinflow-stacked-light.png';
 <%- componentImports %>
 
 interface ComponentConfig {
   id: string;
   title: string;
   description: string;
-  component: React.ComponentType;
+  component?: React.ComponentType;
 }
 
 const components: ComponentConfig[] = [
+  {
+    id: 'home',
+    title: 'PinFlow',
+    description:
+      'Visuelle Arbeitsoberflaeche fuer UI-Auswahl, Annotationen und Agenten-Workflows.',
+  },
 <%- componentConfigs %>
 ];
 
+function HomeIntro() {
+  return (
+    <section className="preview-home">
+      <article className="preview-home-hero">
+        <div className="preview-home-hero-art">
+          <img
+            className="preview-home-hero-image"
+            src={pinflowStackedLight}
+            alt="PinFlow"
+          />
+        </div>
+        <div className="preview-home-hero-copy">
+          <span className="preview-kicker">Startseite</span>
+          <h1 className="page-title">PinFlow</h1>
+          <p className="page-description">
+            Visuelle Arbeitsoberflaeche fuer Feedback, UI-Auswahl und
+            agentische Umsetzung direkt am laufenden Frontend.
+          </p>
+          <div className="preview-callout">
+            <strong>Wichtig:</strong> Die eigentliche PinFlow-Arbeitsflaeche
+            liegt rechts. Klicke auf das halb sichtbare PinFlow-Logo am rechten
+            Bildschirmrand, um den Arbeitsbereich auszuklappen.
+          </div>
+        </div>
+      </article>
+
+      <section className="preview-home-section">
+        <div className="preview-home-section-head">
+          <h2>Wofuer diese Demo gedacht ist</h2>
+          <p>
+            Diese Flaeche simuliert echte React-Oberflaechen, damit du Picker,
+            Kommentare, Mapping und spaetere Agenten-Workflows gegen
+            realistische UI-Muster pruefen kannst.
+          </p>
+        </div>
+        <div className="preview-home-points">
+          <article>
+            <strong>UI auswaehlen</strong>
+            <p>
+              Komponenten, verschachtelte Bereiche und dynamische Zustandswechsel
+              lassen sich direkt im Canvas markieren.
+            </p>
+          </article>
+          <article>
+            <strong>Kommentarfluss testen</strong>
+            <p>
+              Die rechte PinFlow-Flaeche ist der eigentliche Arbeitsbereich fuer
+              Annotationen, Queue und Versand.
+            </p>
+          </article>
+          <article>
+            <strong>Technische Sonderfaelle pruefen</strong>
+            <p>
+              Advanced Hooks, Portals, SSR und andere Muster bleiben bewusst
+              in der Navigation, damit die Demo fachlich aussagekraeftig bleibt.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section className="preview-home-section">
+        <div className="preview-home-section-head">
+          <h2>Bildmaterial, das noch ersetzt wird</h2>
+          <p>
+            Die alten Platzhalter-Visuals sind absichtlich raus. Diese drei
+            Bereiche bleiben als Platzhalter stehen, bis die finalen PinFlow-
+            Bilder vorliegen.
+          </p>
+        </div>
+        <div className="preview-home-placeholders">
+          <article className="placeholder-card">
+            <span className="placeholder-label">Demo</span>
+            <strong>PinFlow Demo-Visual wird aktualisiert</strong>
+            <p>
+              Hier kommt spaeter die neue Vorschau-Grafik fuer den Live-Canvas
+              hinein.
+            </p>
+          </article>
+          <article className="placeholder-card">
+            <span className="placeholder-label">Code zu UI</span>
+            <strong>Visual fuer Rueckmeldung zu Frontend</strong>
+            <p>
+              Der alte Uebergang von Code zu UI wird durch ein neues PinFlow-
+              Motiv ersetzt.
+            </p>
+          </article>
+          <article className="placeholder-card">
+            <span className="placeholder-label">Architektur</span>
+            <strong>Architektur-Grafik wird ueberarbeitet</strong>
+            <p>
+              Die technische Uebersicht bleibt bewusst als Platzhalter, bis das
+              neue PinFlow-Diagramm vorliegt.
+            </p>
+          </article>
+        </div>
+      </section>
+    </section>
+  );
+}
+
 export function App() {
-  const [activeComponent, setActiveComponent] = useState('<%= defaultComponentId %>');
+  const [activeComponent, setActiveComponent] = useState('home');
 
   const currentComponent =
     components.find((c) => c.id === activeComponent) || components[0];
   const Component = currentComponent.component;
+  const isHome = currentComponent.id === 'home';
 
   return (
     <div className="app">
@@ -31,45 +137,24 @@ export function App() {
 
       <main className="main-content">
         <div className="content-wrapper">
-          <header className="page-header">
-            <div className="preview-kicker">Vorschau-Flaeche</div>
-            <h1 className="page-title">{currentComponent.title}</h1>
-            <p className="page-description">{currentComponent.description}</p>
-            <div className="preview-callout">
-              <strong>Hinweis:</strong> Die eigentliche PinFlow-Arbeitsflaeche
-              liegt rechts. Diese linke Flaeche ist nur die Demo, damit du
-              Auswahl, Mapping und Kommentare an echten UI-Bausteinen testen
-              kannst.
-            </div>
-            <div className="preview-hero-grid">
-              <article className="preview-hero-card">
-                <img
-                  className="preview-hero-image"
-                  src={uiToCodeImage}
-                  alt="UI zu Code Visual"
-                />
-                <div className="preview-hero-copy">
-                  <span className="preview-hero-eyebrow">UI zu Code</span>
-                  <strong>Markieren, beschreiben, direkt in Arbeit ueberfuehren.</strong>
+          {isHome ? (
+            <HomeIntro />
+          ) : (
+            <>
+              <header className="page-header">
+                <div className="preview-kicker">Demo-Canvas</div>
+                <h1 className="page-title">{currentComponent.title}</h1>
+                <p className="page-description">{currentComponent.description}</p>
+                <div className="preview-callout">
+                  <strong>Hinweis:</strong> Die rechte PinFlow-Flaeche ist der
+                  eigentliche Arbeitsbereich. Die linke Seite bleibt bewusst ein
+                  technischer Demo-Canvas fuer echte UI-Muster.
                 </div>
-              </article>
-              <article className="preview-hero-card">
-                <img
-                  className="preview-hero-image"
-                  src={codeToUiImage}
-                  alt="Code zu UI Visual"
-                />
-                <div className="preview-hero-copy">
-                  <span className="preview-hero-eyebrow">Code zu UI</span>
-                  <strong>Rueckmeldung, Mapping und visuelle Kontrolle an einem Ort.</strong>
-                </div>
-              </article>
-            </div>
-          </header>
+              </header>
 
-          <div className="component-section">
-            <Component />
-          </div>
+              <div className="component-section">{Component ? <Component /> : null}</div>
+            </>
+          )}
         </div>
       </main>
     </div>

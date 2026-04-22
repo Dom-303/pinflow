@@ -11,6 +11,7 @@ import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { StoreController } from '../core/store-controller.js';
 import { themeStyles, utilityStyles } from '../styles/theme.js';
+import { getThemeIconAsset } from './logo/index.js';
 
 // Import child components
 import './ds-header.js';
@@ -86,8 +87,9 @@ export class DsSidebar extends LitElement {
         transform: translateY(-50%);
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-        padding: 10px 9px;
+        justify-content: center;
+        width: 44px;
+        height: 54px;
         border: 1px solid var(--ds-shell-border-soft);
         border-radius: 18px 0 0 18px;
         background: var(--ds-shell-surface-strong);
@@ -110,6 +112,13 @@ export class DsSidebar extends LitElement {
       .workspace-grip svg {
         width: 14px;
         height: 14px;
+      }
+
+      .workspace-grip-icon {
+        width: 24px;
+        height: 24px;
+        display: block;
+        object-fit: contain;
       }
 
       .sidebar-content {
@@ -269,15 +278,12 @@ export class DsSidebar extends LitElement {
           title="PinFlow einklappen"
           aria-label="PinFlow einklappen"
         >
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path
-              d="M15 6l-6 6 6 6"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
+          <img
+            class="workspace-grip-icon"
+            src=${getThemeIconAsset(theme)}
+            alt=""
+            aria-hidden="true"
+          />
         </button>
         <ds-header ?scrolled=${this.isScrolled}></ds-header>
 

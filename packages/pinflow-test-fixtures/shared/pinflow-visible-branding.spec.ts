@@ -27,13 +27,13 @@ describe('pinflow visible preview branding', () => {
     const viteConfig = readFixture('vite.config.ts');
 
     expect(navigation).toContain('PinFlow Demo');
-    expect(navigation).toContain('pinflow-horizontal-light.png');
-    expect(navigation).toContain('Erweiterte Hooks');
-    expect(app).toContain('Die eigentliche PinFlow-Arbeitsflaeche');
-    expect(app).toContain('liegt rechts.');
-    expect(app).toContain('UI zu Code');
-    expect(app).toContain('Code zu UI');
-    expect(viteConfig).toContain("initialMode: 'expanded'");
+    expect(navigation).toContain('pinflow-icon-light.png');
+    expect(navigation).toContain('Children Manipulation');
+    expect(app).toContain('Klicke auf das halb sichtbare PinFlow-Logo');
+    expect(app).toContain('pinflow-stacked-light.png');
+    expect(app).not.toContain('codeToUiImage');
+    expect(app).not.toContain('uiToCodeImage');
+    expect(viteConfig).toContain("initialMode: 'collapsed'");
     expect(viteConfig).toContain("initialTheme: 'light'");
   });
 });

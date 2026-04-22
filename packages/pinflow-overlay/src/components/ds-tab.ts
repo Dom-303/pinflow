@@ -43,16 +43,16 @@ export class DsTab extends LitElement {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 58px;
-        height: 52px;
-        padding: 7px;
+        width: 64px;
+        height: 64px;
+        padding: 8px;
         background: var(--ds-shell-surface-strong);
         border: 1px solid var(--ds-shell-border-soft);
-        border-radius: 18px 0 0 18px;
+        border-radius: 22px;
         box-shadow: var(--ds-panel-shadow);
         cursor: pointer;
         touch-action: none; /* prevent scroll while dragging */
-        transform: translateX(4px);
+        transform: translateX(18px);
         transition:
           transform var(--ds-transition-fast),
           box-shadow var(--ds-transition-fast),
@@ -70,7 +70,7 @@ export class DsTab extends LitElement {
       }
 
       .tab:hover {
-        transform: translateX(0);
+        transform: translateX(10px);
         box-shadow: var(--ds-shadow-xl);
       }
 
@@ -79,7 +79,7 @@ export class DsTab extends LitElement {
         height: 100%;
         display: block;
         object-fit: contain;
-        border-radius: 14px;
+        border-radius: 16px;
         filter: drop-shadow(var(--ds-tab-shadow));
       }
     `,

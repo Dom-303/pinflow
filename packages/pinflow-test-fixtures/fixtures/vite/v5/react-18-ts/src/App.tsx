@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Navigation } from './Navigation';
-import codeToUiImage from '../../../../../../../assets/code-to-ui.png';
-import uiToCodeImage from '../../../../../../../assets/ui-to-code.png';
+import pinflowStackedLight from '../../../../../../../assets/pinflow-stacked-light.png';
 import {
   AdvancedHooks,
   BasicElements,
@@ -36,164 +35,178 @@ interface ComponentConfig {
   id: string;
   title: string;
   description: string;
-  component: React.ComponentType;
+  component?: React.ComponentType;
 }
 
 const components: ComponentConfig[] = [
   {
+    id: 'home',
+    title: 'PinFlow',
+    description:
+      'Visuelle Arbeitsoberflaeche fuer UI-Auswahl, Annotationen und Agenten-Workflows.',
+  },
+  {
     id: 'advanced-hooks',
-    title: 'Erweiterte Hooks',
-    description: 'Demoflaeche fuer komplexere Hook-Muster und Interaktionen.',
+    title: 'Advanced Hooks',
+    description: 'Demo fuer komplexere Hook-Muster und interaktive Zustandslogik.',
     component: AdvancedHooks,
   },
   {
     id: 'basic-elements',
-    title: 'Grundelemente',
+    title: 'Basic Elements',
     description:
-      'Einfacher Vorschau-Baustein fuer Markierung, Mapping und Kommentare.',
+      'Kleine UI-Bausteine fuer Markierung, Mapping und erste Anmerkungen.',
     component: BasicElements,
   },
   {
     id: 'children-manipulation',
-    title: 'Kinder-Elemente',
-    description: 'Beispiel fuer verschachtelte Child-Strukturen und Auswahlpfade.',
+    title: 'Children Manipulation',
+    description:
+      'Verschachtelte Child-Strukturen fuer Auswahlpfade und Komponentenauflosung.',
     component: ChildrenManipulation,
   },
   {
     id: 'compound-components',
-    title: 'Verbundene Komponenten',
-    description: 'Testflaeche fuer gekoppelte UI-Bausteine mit geteiltem Zustand.',
+    title: 'Compound Components',
+    description:
+      'Gekoppelte Komponenten mit geteiltem Zustand und enger Layout-Beziehung.',
     component: CompoundComponents,
   },
   {
     id: 'conditional-rendering',
-    title: 'Bedingte Darstellung',
+    title: 'Conditional Rendering',
     description:
-      'Ansicht fuer dynamische UI-Zustaende und unterschiedliche Renderpfade.',
+      'Wechselnde Renderpfade fuer Zustandswechsel, Sichtbarkeit und Ausnahmen.',
     component: ConditionalRendering,
   },
   {
     id: 'context',
-    title: 'Kontext',
+    title: 'Context API',
     description:
       'Kontextbasierte Komponentenhierarchie fuer Source-Mapping und Auswahl.',
     component: Context,
   },
   {
     id: 'deeply-nested',
-    title: 'Tief verschachtelt',
-    description: 'Komplexe Tiefe fuer den Picker und robuste Komponentenauflosung.',
+    title: 'Deeply Nested',
+    description:
+      'Komplexe Tiefe fuer robustes Element-Picking und Komponentenauflosung.',
     component: DeeplyNested,
   },
   {
     id: 'dynamic-content',
-    title: 'Dynamische Inhalte',
-    description: 'Wechselnde Inhalte fuer Annotationen an lebendigen UI-Stellen.',
+    title: 'Dynamic Content',
+    description:
+      'Lebendige Inhalte fuer Annotationen an wechselnden UI-Stellen.',
     component: DynamicContent,
   },
   {
     id: 'edge-cases',
-    title: 'Sonderfaelle',
-    description: 'Sammelstelle fuer schwierige oder ungewohnliche UI-Randfaelle.',
+    title: 'Edge Cases',
+    description: 'Sammelstelle fuer schwierige oder ungewoehnliche UI-Randfaelle.',
     component: EdgeCases,
   },
   {
     id: 'error-boundaries',
-    title: 'Fehlergrenzen',
-    description: 'Fehlerszenarien fuer robuste Overlay- und Mapping-Prufungen.',
+    title: 'Error Boundaries',
+    description: 'Fehlerszenarien fuer robuste Overlay- und Mapping-Pruefungen.',
     component: ErrorBoundaries,
   },
   {
     id: 'event-handlers',
-    title: 'Ereignis-Handler',
-    description: 'Interaktive Teststrecke fuer Klicks, Fokus und Event-Delegation.',
+    title: 'Event Handlers',
+    description: 'Interaktive Teststrecke fuer Klicks, Fokus und Delegation.',
     component: EventHandlers,
   },
   {
     id: 'fragments',
-    title: 'Fragmente',
-    description: 'Mehrteilige React-Strukturen fuer die PinFlow-Auswahl.',
+    title: 'Fragments',
+    description:
+      'Mehrteilige React-Strukturen fuer Auswahl, Mapping und Layoutlogik.',
     component: Fragments,
   },
   {
     id: 'h-o-cs',
     title: 'HOCs',
-    description: 'Higher-Order-Component-Beispiele fuer Mapping und Komponentennamen.',
+    description:
+      'Higher-Order-Component-Beispiele fuer Komponentennamen und Huelle.',
     component: HOCs,
   },
   {
     id: 'lazy-loading',
-    title: 'Verzoegertes Laden',
-    description: 'Asynchrone Oberflaeche fuer Load-Zustaende und nachgeladene UI.',
+    title: 'Lazy Loading',
+    description: 'Asynchrone UI fuer Load-Zustaende und nachgeladene Bereiche.',
     component: LazyLoading,
   },
   {
     id: 'lists',
-    title: 'Listen',
-    description: 'Listenansichten fuer wiederholte Elemente und strukturierte Auswahl.',
+    title: 'Lists',
+    description:
+      'Listenansichten fuer wiederholte Elemente und strukturierte Auswahl.',
     component: Lists,
   },
   {
     id: 'member-expressions',
-    title: 'Member-Ausdruecke',
+    title: 'Member Expressions',
     description:
-      'Beispiel fuer tiefer gebaute Komponentenreferenzen und Source-Zuordnung.',
+      'Komponentenreferenzen und Source-Zuordnung in tieferen Zugriffspfaden.',
     component: MemberExpressions,
   },
   {
     id: 'memo',
     title: 'Memo',
-    description: 'Memoisierte Komponentenflaeche fuer stabile Referenzen im Preview-Canvas.',
+    description:
+      'Memoisierte Komponentenflaeche fuer stabile Referenzen im Preview-Canvas.',
     component: Memo,
   },
   {
     id: 'portals',
-    title: 'Portale',
+    title: 'Portals',
     description: 'Portale und Layer fuer Overlay, Fokus und z-index-nahe Pruefungen.',
     component: Portals,
   },
   {
     id: 'react18-features',
-    title: 'React-18-Funktionen',
+    title: 'React 18 Features',
     description: 'Aktuelle React-Features fuer moderne App-Flows in der Demo.',
     component: React18Features,
   },
   {
     id: 'ref-patterns',
-    title: 'Ref-Muster',
-    description: 'Ref-basierte Komponentenstrukturen fuer Fokus und Elementzugriff.',
+    title: 'Ref Patterns',
+    description: 'Ref-basierte Strukturen fuer Fokus und Elementzugriff.',
     component: RefPatterns,
   },
   {
     id: 'render-props',
     title: 'Render Props',
-    description: 'Dynamisch erzeugte UI ueber Render Props fuer Preview und Mapping.',
+    description:
+      'Dynamisch erzeugte UI ueber Render Props fuer Preview und Mapping.',
     component: RenderProps,
   },
   {
     id: 's-s-r-hydration',
-    title: 'SSR-Hydration',
+    title: 'SSR Hydration',
     description:
       'Hydrationsfaelle fuer serverseitig gerenderte Komponenten und Overlay-Start.',
     component: SSRHydration,
   },
   {
     id: 's-v-g-elements',
-    title: 'SVG-Elemente',
+    title: 'SVG Elements',
     description:
-      'Vektorbasierte UI-Bausteine fuer komplexere Auswahl- und Tooltip-Flows.',
+      'Vektorbasierte UI-Bausteine fuer Auswahl- und Tooltip-Flows.',
     component: SVGElements,
   },
   {
     id: 'self-closing',
-    title: 'Selbstschliessend',
-    description:
-      'Kompakte Syntaxfaelle fuer Parser, Mapping und Komponentenauflosung.',
+    title: 'Self Closing',
+    description: 'Kompakte Syntaxfaelle fuer Parser und Komponentenauflosung.',
     component: SelfClosing,
   },
   {
     id: 'smoke-test',
-    title: 'Smoke-Test',
+    title: 'Smoke Test',
     description: 'Schneller Gesamtcheck fuer PinFlow-Verhalten in der Vorschau.',
     component: SmokeTest,
   },
@@ -205,68 +218,145 @@ const components: ComponentConfig[] = [
   },
   {
     id: 'type-script-features',
-    title: 'TypeScript-Funktionen',
+    title: 'TypeScript Features',
     description:
       'Typisierte Komponentenflaeche fuer robuste Source- und Runtime-Mappings.',
     component: TypeScriptFeatures,
   },
 ];
 
+function HomeIntro() {
+  return (
+    <section className="preview-home">
+      <article className="preview-home-hero">
+        <div className="preview-home-hero-art">
+          <img
+            className="preview-home-hero-image"
+            src={pinflowStackedLight}
+            alt="PinFlow"
+          />
+        </div>
+        <div className="preview-home-hero-copy">
+          <span className="preview-kicker">Startseite</span>
+          <h1 className="page-title">PinFlow</h1>
+          <p className="page-description">
+            Visuelle Arbeitsoberflaeche fuer Feedback, UI-Auswahl und
+            agentische Umsetzung direkt am laufenden Frontend.
+          </p>
+          <div className="preview-callout">
+            <strong>Wichtig:</strong> Die eigentliche PinFlow-Arbeitsflaeche
+            liegt rechts. Klicke auf das halb sichtbare PinFlow-Logo am rechten
+            Bildschirmrand, um den Arbeitsbereich auszuklappen.
+          </div>
+        </div>
+      </article>
+
+      <section className="preview-home-section">
+        <div className="preview-home-section-head">
+          <h2>Wofuer diese Demo gedacht ist</h2>
+          <p>
+            Diese Flaeche simuliert echte React-Oberflaechen, damit du Picker,
+            Kommentare, Mapping und spaetere Agenten-Workflows gegen
+            realistische UI-Muster pruefen kannst.
+          </p>
+        </div>
+        <div className="preview-home-points">
+          <article>
+            <strong>UI auswaehlen</strong>
+            <p>
+              Komponenten, verschachtelte Bereiche und dynamische Zustandswechsel
+              lassen sich direkt im Canvas markieren.
+            </p>
+          </article>
+          <article>
+            <strong>Kommentarfluss testen</strong>
+            <p>
+              Die rechte PinFlow-Flaeche ist der eigentliche Arbeitsbereich fuer
+              Annotationen, Queue und Versand.
+            </p>
+          </article>
+          <article>
+            <strong>Technische Sonderfaelle pruefen</strong>
+            <p>
+              Advanced Hooks, Portals, SSR und andere Muster bleiben bewusst
+              in der Navigation, damit die Demo fachlich aussagekraeftig bleibt.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section className="preview-home-section">
+        <div className="preview-home-section-head">
+          <h2>Bildmaterial, das noch ersetzt wird</h2>
+          <p>
+            Die alten Platzhalter-Visuals sind absichtlich raus. Diese drei
+            Bereiche bleiben als Platzhalter stehen, bis die finalen PinFlow-
+            Bilder vorliegen.
+          </p>
+        </div>
+        <div className="preview-home-placeholders">
+          <article className="placeholder-card">
+            <span className="placeholder-label">Demo</span>
+            <strong>PinFlow Demo-Visual wird aktualisiert</strong>
+            <p>
+              Hier kommt spaeter die neue Vorschau-Grafik fuer den Live-Canvas
+              hinein.
+            </p>
+          </article>
+          <article className="placeholder-card">
+            <span className="placeholder-label">Code zu UI</span>
+            <strong>Visual fuer Rueckmeldung zu Frontend</strong>
+            <p>
+              Der alte Uebergang von Code zu UI wird durch ein neues PinFlow-
+              Motiv ersetzt.
+            </p>
+          </article>
+          <article className="placeholder-card">
+            <span className="placeholder-label">Architektur</span>
+            <strong>Architektur-Grafik wird ueberarbeitet</strong>
+            <p>
+              Die technische Uebersicht bleibt bewusst als Platzhalter, bis das
+              neue PinFlow-Diagramm vorliegt.
+            </p>
+          </article>
+        </div>
+      </section>
+    </section>
+  );
+}
+
 export function App() {
-  const [activeComponent, setActiveComponent] = useState('advanced-hooks');
+  const [activeComponent, setActiveComponent] = useState('home');
 
   const currentComponent =
     components.find((c) => c.id === activeComponent) || components[0];
   const Component = currentComponent.component;
+  const isHome = currentComponent.id === 'home';
 
   return (
     <div className="app">
-      <Navigation
-        activeItem={activeComponent}
-        onNavigate={setActiveComponent}
-      />
+      <Navigation activeItem={activeComponent} onNavigate={setActiveComponent} />
 
       <main className="main-content">
         <div className="content-wrapper">
-          <header className="page-header">
-            <div className="preview-kicker">Vorschau-Flaeche</div>
-            <h1 className="page-title">{currentComponent.title}</h1>
-            <p className="page-description">{currentComponent.description}</p>
-            <div className="preview-callout">
-              <strong>Hinweis:</strong> Die eigentliche PinFlow-Arbeitsflaeche
-              liegt rechts. Diese linke Flaeche ist nur die Demo, damit du
-              Auswahl, Mapping und Kommentare an echten UI-Bausteinen testen
-              kannst.
-            </div>
-            <div className="preview-hero-grid">
-              <article className="preview-hero-card">
-                <img
-                  className="preview-hero-image"
-                  src={uiToCodeImage}
-                  alt="UI zu Code Visual"
-                />
-                <div className="preview-hero-copy">
-                  <span className="preview-hero-eyebrow">UI zu Code</span>
-                  <strong>Markieren, beschreiben, direkt in Arbeit ueberfuehren.</strong>
+          {isHome ? (
+            <HomeIntro />
+          ) : (
+            <>
+              <header className="page-header">
+                <div className="preview-kicker">Demo-Canvas</div>
+                <h1 className="page-title">{currentComponent.title}</h1>
+                <p className="page-description">{currentComponent.description}</p>
+                <div className="preview-callout">
+                  <strong>Hinweis:</strong> Die rechte PinFlow-Flaeche ist der
+                  eigentliche Arbeitsbereich. Die linke Seite bleibt bewusst ein
+                  technischer Demo-Canvas fuer echte UI-Muster.
                 </div>
-              </article>
-              <article className="preview-hero-card">
-                <img
-                  className="preview-hero-image"
-                  src={codeToUiImage}
-                  alt="Code zu UI Visual"
-                />
-                <div className="preview-hero-copy">
-                  <span className="preview-hero-eyebrow">Code zu UI</span>
-                  <strong>Rueckmeldung, Mapping und visuelle Kontrolle an einem Ort.</strong>
-                </div>
-              </article>
-            </div>
-          </header>
+              </header>
 
-          <div className="component-section">
-            <Component />
-          </div>
+              <div className="component-section">{Component ? <Component /> : null}</div>
+            </>
+          )}
         </div>
       </main>
     </div>

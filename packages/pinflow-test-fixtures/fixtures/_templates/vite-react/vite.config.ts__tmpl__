@@ -8,7 +8,7 @@ export default defineConfig({
     pinflow({
       debug: false,
       overlay: {
-        initialMode: 'expanded',
+        initialMode: 'collapsed',
         initialTheme: 'light',
       },
     }),

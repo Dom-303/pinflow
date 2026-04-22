@@ -149,13 +149,29 @@ code {
 
 .sidebar-logo {
   display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
   gap: 0.9rem;
   text-decoration: none;
 }
 
-.sidebar-logo-image {
-  width: 152px;
-  height: auto;
+.sidebar-logo-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.9), transparent 70%),
+    linear-gradient(180deg, rgba(255, 252, 247, 0.94), rgba(242, 234, 224, 0.92));
+  border: 1px solid rgba(115, 95, 78, 0.14);
+  box-shadow: var(--shadow-sm);
+}
+
+.sidebar-logo-icon {
+  width: 1.8rem;
+  height: 1.8rem;
   display: block;
 }
 
@@ -232,7 +248,7 @@ code {
 .main-content {
   flex: 1;
   margin-left: var(--sidebar-width);
-  margin-right: 396px;
+  margin-right: 112px;
   min-height: 100vh;
   background: transparent;
 }
@@ -292,45 +308,110 @@ code {
   box-shadow: var(--shadow-sm);
 }
 
-.preview-hero-grid {
+.preview-home {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-  margin-top: 1.25rem;
-  max-width: 52rem;
+  gap: 1.5rem;
 }
 
-.preview-hero-card {
+.preview-home-hero {
   display: grid;
-  gap: 0.8rem;
-  padding: 0.9rem;
-  border-radius: 22px;
-  background: rgba(255, 255, 255, 0.76);
-  border: 1px solid rgba(115, 95, 78, 0.14);
+  gap: 1.35rem;
+  padding: 1.1rem;
+  border-radius: 32px;
+  background:
+    radial-gradient(circle at top right, rgba(235, 210, 176, 0.3), transparent 36%),
+    linear-gradient(180deg, rgba(255, 252, 247, 0.9), rgba(247, 241, 233, 0.92));
+  border: 1px solid rgba(115, 95, 78, 0.12);
+  box-shadow: var(--shadow-md);
+}
+
+.preview-home-hero-art {
+  position: relative;
+  min-height: 250px;
+  border-radius: 24px;
+  overflow: hidden;
+  background: #f3efe8;
+  border: 1px solid rgba(115, 95, 78, 0.12);
+}
+
+.preview-home-hero-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center 36%;
+  background: #f3efe8;
+}
+
+.preview-home-hero-copy {
+  display: grid;
+  gap: 0.9rem;
+  padding: 0.5rem 0.35rem 0.2rem;
+}
+
+.preview-home-section {
+  display: grid;
+  gap: 1rem;
+  padding: 1.35rem 1.45rem;
+  border-radius: 28px;
+  background: rgba(255, 252, 247, 0.78);
+  border: 1px solid rgba(115, 95, 78, 0.12);
   box-shadow: var(--shadow-sm);
 }
 
-.preview-hero-image {
-  width: 100%;
-  border-radius: 16px;
-  border: 1px solid rgba(115, 95, 78, 0.12);
-  display: block;
-  background: rgba(255, 255, 255, 0.86);
-}
-
-.preview-hero-copy {
+.preview-home-section-head {
   display: grid;
-  gap: 0.35rem;
-  color: var(--color-text-secondary);
-  font-size: 0.94rem;
+  gap: 0.45rem;
+  max-width: 48rem;
 }
 
-.preview-hero-eyebrow {
-  font-size: 0.76rem;
+.preview-home-section-head h2 {
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+}
+
+.preview-home-points {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.preview-home-points article,
+.placeholder-card {
+  display: grid;
+  gap: 0.55rem;
+  padding: 1rem 1.05rem;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(115, 95, 78, 0.1);
+  box-shadow: var(--shadow-sm);
+}
+
+.preview-home-placeholders {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.placeholder-card {
+  min-height: 220px;
+  align-content: start;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(250, 244, 235, 0.86));
+}
+
+.placeholder-label {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  padding: 0.28rem 0.58rem;
+  border-radius: 999px;
+  background: rgba(15, 118, 110, 0.08);
+  color: var(--color-text-accent);
+  font-size: 0.74rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--color-text-tertiary);
 }
 
 /* Component Sections - Enhanced */
@@ -1508,7 +1589,7 @@ fieldset .form-group label {
 
 @media (max-width: 1380px) {
   .main-content {
-    margin-right: 332px;
+    margin-right: 96px;
   }
 
   .content-wrapper {
@@ -1517,11 +1598,12 @@ fieldset .form-group label {
 }
 
 @media (max-width: 1120px) {
-  .preview-hero-grid {
+  .preview-home-points,
+  .preview-home-placeholders {
     grid-template-columns: 1fr;
   }
 
   .main-content {
-    margin-right: 0;
+    margin-right: 56px;
   }
 }

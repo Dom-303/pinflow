@@ -91,6 +91,7 @@ export type { RuntimeContext };
  */
 declare global {
   interface Window {
+    __PINFLOW_RELAY_PORT__?: number;
     __DOMSCRIBE_RELAY_PORT__?: number;
   }
 }

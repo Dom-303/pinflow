@@ -29,9 +29,14 @@ let initialized = false;
  * ```
  */
 export async function initOverlay(options?: OverlayOptions): Promise<void> {
-  if (typeof window !== 'undefined' && !window.__DOMSCRIBE_RELAY_PORT__) {
+  const relayPort =
+    typeof window !== 'undefined'
+      ? (window.__PINFLOW_RELAY_PORT__ ?? window.__DOMSCRIBE_RELAY_PORT__)
+      : undefined;
+
+  if (typeof window !== 'undefined' && !relayPort) {
     console.warn(
-      '[domscribe-overlay] No active Domscribe dev session detected. ' +
+      '[pinflow-overlay] No active PinFlow dev session detected. ' +
         'Overlay is dev-only and will not initialize in production.',
     );
     return;
@@ -45,6 +50,7 @@ export async function initOverlay(options?: OverlayOptions): Promise<void> {
   // Merge with window options (from build plugin injection)
   const resolvedOptions: OverlayOptions = {
     ...window.__DOMSCRIBE_OVERLAY_OPTIONS__,
+    ...window.__PINFLOW_OVERLAY_OPTIONS__,
     ...options,
   };
 

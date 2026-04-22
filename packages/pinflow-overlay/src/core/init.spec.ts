@@ -77,13 +77,17 @@ describe('initOverlay', () => {
 
   afterEach(() => {
     resetOverlay();
+    delete window.__PINFLOW_RELAY_PORT__;
+    delete window.__PINFLOW_OVERLAY_OPTIONS__;
     delete window.__DOMSCRIBE_RELAY_PORT__;
+    delete window.__DOMSCRIBE_OVERLAY_OPTIONS__;
     vi.restoreAllMocks();
   });
 
   describe('Dev-mode guard', () => {
-    it('should not initialize when __DOMSCRIBE_RELAY_PORT__ is not set', async () => {
+    it('should not initialize when no PinFlow or legacy relay port is set', async () => {
       // Arrange
+      delete window.__PINFLOW_RELAY_PORT__;
       delete window.__DOMSCRIBE_RELAY_PORT__;
       const consoleSpy = vi
         .spyOn(console, 'warn')
@@ -95,15 +99,30 @@ describe('initOverlay', () => {
       // Assert
       expect(isOverlayInitialized()).toBe(false);
       expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('No active Domscribe dev session detected'),
+        expect.stringContaining('No active PinFlow dev session detected'),
       );
       expect(mockOverlayStoreGetInstance).not.toHaveBeenCalled();
 
       consoleSpy.mockRestore();
     });
 
-    it('should initialize when __DOMSCRIBE_RELAY_PORT__ is set', async () => {
+    it('should initialize when __PINFLOW_RELAY_PORT__ is set', async () => {
       // Arrange
+      window.__PINFLOW_RELAY_PORT__ = 4500;
+
+      // Act
+      await initOverlay();
+
+      // Assert
+      expect(isOverlayInitialized()).toBe(true);
+      expect(mockOverlayStoreGetInstance).toHaveBeenCalled();
+      expect(mockEventManagerGetInstance).toHaveBeenCalled();
+      expect(mockRelayServiceGetInstance).toHaveBeenCalled();
+    });
+
+    it('should still initialize from the legacy __DOMSCRIBE_RELAY_PORT__ fallback', async () => {
+      // Arrange
+      delete window.__PINFLOW_RELAY_PORT__;
       window.__DOMSCRIBE_RELAY_PORT__ = 4500;
 
       // Act

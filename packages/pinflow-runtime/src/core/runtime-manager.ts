@@ -74,9 +74,14 @@ export class RuntimeManager {
    * @param options - Runtime options
    */
   async initialize(options: RuntimeOptions = {}): Promise<void> {
-    if (typeof window !== 'undefined' && !window.__DOMSCRIBE_RELAY_PORT__) {
+    const relayPort =
+      typeof window !== 'undefined'
+        ? (window.__PINFLOW_RELAY_PORT__ ?? window.__DOMSCRIBE_RELAY_PORT__)
+        : undefined;
+
+    if (typeof window !== 'undefined' && !relayPort) {
       console.warn(
-        '[domscribe-runtime] No active Domscribe dev session detected. ' +
+        '[pinflow-runtime] No active PinFlow dev session detected. ' +
           'RuntimeManager is dev-only and will not initialize in production.',
       );
       return;

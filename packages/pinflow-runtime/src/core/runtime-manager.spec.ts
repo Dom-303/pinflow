@@ -167,7 +167,7 @@ describe('RuntimeManager', () => {
     vi.clearAllMocks();
 
     // Set dev-mode signal so existing tests continue to work
-    window.__DOMSCRIBE_RELAY_PORT__ = 4500;
+    window.__PINFLOW_RELAY_PORT__ = 4500;
 
     // Reset singleton
     RuntimeManager.resetInstance();
@@ -188,6 +188,7 @@ describe('RuntimeManager', () => {
 
   afterEach(() => {
     RuntimeManager.resetInstance();
+    delete window.__PINFLOW_RELAY_PORT__;
     delete window.__DOMSCRIBE_RELAY_PORT__;
   });
 
@@ -856,8 +857,9 @@ describe('RuntimeManager', () => {
   });
 
   describe('Dev-mode guard', () => {
-    it('should not initialize when __DOMSCRIBE_RELAY_PORT__ is not set', async () => {
+    it('should not initialize when no PinFlow or legacy relay port is set', async () => {
       // Arrange
+      delete window.__PINFLOW_RELAY_PORT__;
       delete window.__DOMSCRIBE_RELAY_PORT__;
 
       // Act
@@ -868,8 +870,21 @@ describe('RuntimeManager', () => {
       expect(mockElementTracker.observeDOM).not.toHaveBeenCalled();
     });
 
-    it('should initialize when __DOMSCRIBE_RELAY_PORT__ is set', async () => {
+    it('should initialize when __PINFLOW_RELAY_PORT__ is set', async () => {
       // Arrange
+      window.__PINFLOW_RELAY_PORT__ = 4500;
+
+      // Act
+      await manager.initialize();
+
+      // Assert
+      expect(manager.isReady()).toBe(true);
+      expect(mockElementTracker.observeDOM).toHaveBeenCalled();
+    });
+
+    it('should still initialize when only the legacy __DOMSCRIBE_RELAY_PORT__ is set', async () => {
+      // Arrange
+      delete window.__PINFLOW_RELAY_PORT__;
       window.__DOMSCRIBE_RELAY_PORT__ = 4500;
 
       // Act

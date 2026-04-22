@@ -59,8 +59,12 @@ export class RelayService {
    * @returns true if connected successfully
    */
   async initialize(): Promise<boolean> {
-    const port = window.__DOMSCRIBE_RELAY_PORT__;
-    const host = window.__DOMSCRIBE_RELAY_HOST__ || '127.0.0.1';
+    const port =
+      window.__PINFLOW_RELAY_PORT__ ?? window.__DOMSCRIBE_RELAY_PORT__;
+    const host =
+      window.__PINFLOW_RELAY_HOST__ ??
+      window.__DOMSCRIBE_RELAY_HOST__ ??
+      '127.0.0.1';
     const debug = this.store.getState().debug;
 
     if (!port) {

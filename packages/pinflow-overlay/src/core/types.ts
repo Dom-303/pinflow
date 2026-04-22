@@ -112,6 +112,9 @@ export interface OverlayOptions {
  */
 declare global {
   interface Window {
+    __PINFLOW_RELAY_PORT__?: number;
+    __PINFLOW_RELAY_HOST__?: string;
+    __PINFLOW_OVERLAY_OPTIONS__?: OverlayOptions;
     __DOMSCRIBE_RELAY_PORT__?: number;
     __DOMSCRIBE_RELAY_HOST__?: string;
     __DOMSCRIBE_OVERLAY_OPTIONS__?: OverlayOptions;

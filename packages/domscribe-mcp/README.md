@@ -1,6 +1,6 @@
-# @domscribe/mcp
+# PinFlow MCP Compatibility Package
 
-Standalone MCP server that connects coding agents to Domscribe's runtime context via the Model Context Protocol.
+Standalone MCP server package for PinFlow runtime context workflows, with the current `@domscribe/mcp` package name kept for compatibility.
 
 ## Install
 
@@ -14,11 +14,23 @@ Or use directly without installing:
 npx -y @domscribe/mcp
 ```
 
+Preferred binary:
+
+```bash
+pinflow-mcp
+```
+
+Compatibility binary:
+
+```bash
+domscribe-mcp
+```
+
 Requires Node.js 20 or later.
 
 ## Usage
 
-Add `domscribe` to your MCP server configuration. The server communicates over stdio and requires no additional setup beyond a running Domscribe relay daemon.
+Add `domscribe` to your MCP server configuration for now. The server communicates over stdio and requires no additional setup beyond a running PinFlow relay daemon.
 
 ```json
 {
@@ -32,7 +44,7 @@ Add `domscribe` to your MCP server configuration. The server communicates over s
 }
 ```
 
-The relay daemon starts automatically when you run your dev server with Domscribe configured. The MCP server connects to it on localhost and exposes the full Domscribe toolset to your coding agent.
+The relay daemon starts automatically when you run your dev server with PinFlow configured. The MCP server connects to it on localhost and exposes the full runtime toolset to your coding agent.
 
 ## MCP Tools Reference
 
@@ -76,7 +88,7 @@ Annotations are created when a developer clicks an element in the Domscribe over
 
 ## MCP Prompts
 
-Pre-built prompts that guide agents through common Domscribe workflows.
+Pre-built prompts that guide agents through common PinFlow workflows.
 
 | Prompt              | Purpose                             |
 | ------------------- | ----------------------------------- |
@@ -145,7 +157,7 @@ Returned by `domscribe.annotation.get`, `domscribe.annotation.process`, and rela
 
 ## Links
 
-Part of [Domscribe](https://github.com/patchorbit/domscribe).
+PinFlow is built from the original [Domscribe](https://github.com/patchorbit/domscribe) foundation.
 
 ## License
 

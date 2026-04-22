@@ -5,7 +5,8 @@
   "type": "module",
   "main": "src/bin/domscribe.ts",
   "distBin": {
-    "domscribe": "./bin/domscribe.js"
+    "domscribe": "./bin/domscribe.js",
+    "pinflow": "./bin/pinflow.js"
   },
   "publishConfig": {
     "access": "public"

@@ -5,7 +5,8 @@
   "type": "module",
   "main": "src/bin/domscribe-mcp.ts",
   "distBin": {
-    "domscribe-mcp": "./bin/domscribe-mcp.js"
+    "domscribe-mcp": "./bin/domscribe-mcp.js",
+    "pinflow-mcp": "./bin/pinflow-mcp.js"
   },
   "publishConfig": {
     "access": "restricted"

@@ -10,11 +10,11 @@ import type { FrameworkId } from './types.js';
  */
 export const CONFIG_SNIPPETS: Record<FrameworkId, string> = {
   next: `import type { NextConfig } from 'next';
-import { withDomscribe } from '@pinflow/next';
+import { withPinFlow } from '@pinflow/next';
 
 const nextConfig: NextConfig = {};
 
-export default withDomscribe()(nextConfig);`,
+export default withPinFlow()(nextConfig);`,
 
   nuxt: `export default defineNuxtConfig({
   modules: ['@pinflow/nuxt'],
@@ -22,13 +22,13 @@ export default withDomscribe()(nextConfig);`,
 
   'react-vite': `import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { domscribe } from '@pinflow/react/vite';
+import { pinflow } from '@pinflow/react/vite';
 
 export default defineConfig({
-  plugins: [react(), domscribe()],
+  plugins: [react(), pinflow()],
 });`,
 
-  'react-webpack': `const { DomscribeWebpackPlugin } = require('@pinflow/react/webpack');
+  'react-webpack': `const { PinFlowWebpackPlugin } = require('@pinflow/react/webpack');
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -50,7 +50,7 @@ module.exports = {
     ],
   },
   plugins: [
-    new DomscribeWebpackPlugin({
+    new PinFlowWebpackPlugin({
       enabled: isDevelopment,
       overlay: true,
     }),
@@ -59,13 +59,13 @@ module.exports = {
 
   'vue-vite': `import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
-import { domscribe } from '@pinflow/vue/vite';
+import { pinflow } from '@pinflow/vue/vite';
 
 export default defineConfig({
-  plugins: [vue(), domscribe()],
+  plugins: [vue(), pinflow()],
 });`,
 
-  'vue-webpack': `const { DomscribeWebpackPlugin } = require('@pinflow/vue/webpack');
+  'vue-webpack': `const { PinFlowWebpackPlugin } = require('@pinflow/vue/webpack');
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -87,7 +87,7 @@ module.exports = {
     ],
   },
   plugins: [
-    new DomscribeWebpackPlugin({
+    new PinFlowWebpackPlugin({
       enabled: isDevelopment,
       overlay: true,
     }),
@@ -95,14 +95,14 @@ module.exports = {
 };`,
 
   'other-vite': `import { defineConfig } from 'vite';
-import { domscribe } from '@pinflow/transform/plugins/vite';
+import { pinflow } from '@pinflow/transform/plugins/vite';
 
 export default defineConfig({
-  plugins: [domscribe()],
+  plugins: [pinflow()],
 });`,
 
   'other-webpack': `const {
-  DomscribeWebpackPlugin,
+  PinFlowWebpackPlugin,
 } = require('@pinflow/transform/plugins/webpack');
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
@@ -125,7 +125,7 @@ module.exports = {
     ],
   },
   plugins: [
-    new DomscribeWebpackPlugin({
+    new PinFlowWebpackPlugin({
       enabled: isDevelopment,
       overlay: true,
     }),

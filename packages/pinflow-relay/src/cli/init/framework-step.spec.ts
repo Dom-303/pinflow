@@ -206,7 +206,7 @@ describe('runFrameworkStep', () => {
         expect.stringContaining('next.config.ts'),
       );
       expect(writeSpy).toHaveBeenCalledWith(
-        expect.stringContaining('withDomscribe'),
+        expect.stringContaining('withPinFlow'),
       );
     });
 
@@ -225,7 +225,7 @@ describe('runFrameworkStep', () => {
         expect.stringContaining('webpack-loader'),
       );
       expect(writeSpy).toHaveBeenCalledWith(
-        expect.stringContaining('DomscribeWebpackPlugin'),
+        expect.stringContaining('PinFlowWebpackPlugin'),
       );
     });
   });

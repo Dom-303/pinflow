@@ -57,7 +57,7 @@ export class DormantStatusTool implements McpToolDefinition<
         'To set up PinFlow: ' +
         '(1) Read package.json to detect the framework (next/nuxt/react/vue + vite/webpack), ' +
         '(2) detect the package manager from lockfiles (pnpm-lock.yaml/yarn.lock/bun.lock), ' +
-        '(3) install the appropriate @domscribe/* package as a dev dependency, ' +
+        '(3) install the appropriate @pinflow/* package as a dev dependency, ' +
         '(4) edit the bundler config file to add the PinFlow-compatible plugin, ' +
         '(5) add .pinflow to .gitignore, ' +
         '(6) ask the user to start their dev server.',

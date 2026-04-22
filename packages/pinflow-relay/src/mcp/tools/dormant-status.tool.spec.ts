@@ -42,7 +42,7 @@ describe('DormantStatusTool', () => {
       const structured = result.structuredContent as Record<string, unknown>;
       expect(structured['nextSteps']).toEqual(expect.any(String));
       expect(structured['nextSteps']).toContain('package.json');
-      expect(structured['nextSteps']).toContain('@domscribe');
+      expect(structured['nextSteps']).toContain('@pinflow');
     });
 
     it('should return text content matching structured content', async () => {
@@ -79,6 +79,6 @@ describe('DormantStatusTool', () => {
     expect(structured['guidance']).toContain('PinFlow is not active');
     expect(structured['guidance']).toContain('.pinflow');
     expect(structured['nextSteps']).toContain('PinFlow');
-    expect(structured['nextSteps']).toContain('@domscribe');
+    expect(structured['nextSteps']).toContain('@pinflow');
   });
 });

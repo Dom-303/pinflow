@@ -79,16 +79,13 @@ describe('initOverlay', () => {
     resetOverlay();
     delete window.__PINFLOW_RELAY_PORT__;
     delete window.__PINFLOW_OVERLAY_OPTIONS__;
-    delete window.__DOMSCRIBE_RELAY_PORT__;
-    delete window.__DOMSCRIBE_OVERLAY_OPTIONS__;
     vi.restoreAllMocks();
   });
 
   describe('Dev-mode guard', () => {
-    it('should not initialize when no PinFlow or legacy relay port is set', async () => {
+    it('should not initialize when no PinFlow relay port is set', async () => {
       // Arrange
       delete window.__PINFLOW_RELAY_PORT__;
-      delete window.__DOMSCRIBE_RELAY_PORT__;
       const consoleSpy = vi
         .spyOn(console, 'warn')
         .mockImplementation(() => undefined);
@@ -120,19 +117,21 @@ describe('initOverlay', () => {
       expect(mockRelayServiceGetInstance).toHaveBeenCalled();
     });
 
-    it('should still initialize from the legacy __DOMSCRIBE_RELAY_PORT__ fallback', async () => {
+    it('should ignore the legacy __DOMSCRIBE_RELAY_PORT__ fallback', async () => {
       // Arrange
       delete window.__PINFLOW_RELAY_PORT__;
+      // @ts-expect-error legacy compatibility contract under removal
       window.__DOMSCRIBE_RELAY_PORT__ = 4500;
 
       // Act
       await initOverlay();
 
       // Assert
-      expect(isOverlayInitialized()).toBe(true);
-      expect(mockOverlayStoreGetInstance).toHaveBeenCalled();
-      expect(mockEventManagerGetInstance).toHaveBeenCalled();
-      expect(mockRelayServiceGetInstance).toHaveBeenCalled();
+      expect(isOverlayInitialized()).toBe(false);
+      expect(mockOverlayStoreGetInstance).not.toHaveBeenCalled();
+      expect(mockEventManagerGetInstance).not.toHaveBeenCalled();
+      expect(mockRelayServiceGetInstance).not.toHaveBeenCalled();
     });
+
   });
 });

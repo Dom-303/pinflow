@@ -189,7 +189,6 @@ describe('RuntimeManager', () => {
   afterEach(() => {
     RuntimeManager.resetInstance();
     delete window.__PINFLOW_RELAY_PORT__;
-    delete window.__DOMSCRIBE_RELAY_PORT__;
   });
 
   describe('Singleton pattern', () => {
@@ -857,10 +856,9 @@ describe('RuntimeManager', () => {
   });
 
   describe('Dev-mode guard', () => {
-    it('should not initialize when no PinFlow or legacy relay port is set', async () => {
+    it('should not initialize when no PinFlow relay port is set', async () => {
       // Arrange
       delete window.__PINFLOW_RELAY_PORT__;
-      delete window.__DOMSCRIBE_RELAY_PORT__;
 
       // Act
       await manager.initialize();
@@ -882,18 +880,20 @@ describe('RuntimeManager', () => {
       expect(mockElementTracker.observeDOM).toHaveBeenCalled();
     });
 
-    it('should still initialize when only the legacy __DOMSCRIBE_RELAY_PORT__ is set', async () => {
+    it('should ignore the legacy __DOMSCRIBE_RELAY_PORT__ fallback', async () => {
       // Arrange
       delete window.__PINFLOW_RELAY_PORT__;
+      // @ts-expect-error legacy compatibility contract under removal
       window.__DOMSCRIBE_RELAY_PORT__ = 4500;
 
       // Act
       await manager.initialize();
 
       // Assert
-      expect(manager.isReady()).toBe(true);
-      expect(mockElementTracker.observeDOM).toHaveBeenCalled();
+      expect(manager.isReady()).toBe(false);
+      expect(mockElementTracker.observeDOM).not.toHaveBeenCalled();
     });
+
   });
 
   describe('Integration scenarios', () => {

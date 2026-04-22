@@ -13,14 +13,14 @@ PinFlow bridges running UI and source code through the current domscribe compati
 
 ## Setup / Initialization
 
-If `domscribe.status` returns `active: false`, PinFlow is not yet configured in this workspace. The `.domscribe/` directory is created automatically when the dev server starts with the current PinFlow-compatible bundler plugin configured. Follow this procedure to set it up:
+If `domscribe.status` returns `active: false`, PinFlow is not yet configured in this workspace. The `.pinflow/` directory is created automatically when the dev server starts with the current PinFlow-compatible bundler plugin configured. Follow this procedure to set it up:
 
 1. **Confirm dormant state** — call `domscribe.status`. If `active: false`, proceed. Note the `cwd` in the response.
-2. **Detect framework** — read `package.json` (at `cwd`, or at the `appRoot` from `domscribe.config.json` if it exists) and match dependencies against the table below.
+2. **Detect framework** — read `package.json` (at `cwd`, or at the `appRoot` from `pinflow.config.json` if it exists) and match dependencies against the table below.
 3. **Detect package manager** — check which lockfile exists at the project root.
-4. **Install the package** — run the appropriate install command via Bash (e.g., `pnpm add -D @domscribe/next`).
+4. **Install the package** — run the appropriate install command via Bash (e.g., `pnpm add -D @pinflow/next`).
 5. **Edit the bundler config** — read the config file and apply the integration pattern. Load `references/config-patterns.md` for the exact import, transformation, and example for each framework.
-6. **Update `.gitignore`** — if `.domscribe` is not already listed, append a `# PinFlow compatibility artifacts` comment and `.domscribe` entry.
+6. **Update `.gitignore`** — if `.pinflow` is not already listed, append a `# PinFlow artifacts` comment and `.pinflow` entry.
 7. **Inform the user** — tell them to start (or restart) their dev server. PinFlow activates automatically on first run.
 
 ### Framework Detection
@@ -42,14 +42,14 @@ Check `dependencies` and `devDependencies` in `package.json`. Match top-down (fi
 
 | Framework     | Package                | Config file         |
 | ------------- | ---------------------- | ------------------- |
-| next          | `@domscribe/next`      | `next.config.ts`    |
-| nuxt          | `@domscribe/nuxt`      | `nuxt.config.ts`    |
-| react-vite    | `@domscribe/react`     | `vite.config.ts`    |
-| react-webpack | `@domscribe/react`     | `webpack.config.js` |
-| vue-vite      | `@domscribe/vue`       | `vite.config.ts`    |
-| vue-webpack   | `@domscribe/vue`       | `webpack.config.js` |
-| other-vite    | `@domscribe/transform` | `vite.config.ts`    |
-| other-webpack | `@domscribe/transform` | `webpack.config.js` |
+| next          | `@pinflow/next`        | `next.config.ts`    |
+| nuxt          | `@pinflow/nuxt`        | `nuxt.config.ts`    |
+| react-vite    | `@pinflow/react`       | `vite.config.ts`    |
+| react-webpack | `@pinflow/react`       | `webpack.config.js` |
+| vue-vite      | `@pinflow/vue`         | `vite.config.ts`    |
+| vue-webpack   | `@pinflow/vue`         | `webpack.config.js` |
+| other-vite    | `@pinflow/transform`   | `vite.config.ts`    |
+| other-webpack | `@pinflow/transform`   | `webpack.config.js` |
 
 ### Package Manager Detection
 
@@ -64,9 +64,9 @@ Install command pattern: `<pm> add -D <package>` (pnpm/yarn/bun) or `npm install
 
 ### Monorepo Projects
 
-If `domscribe.config.json` exists at the project root with an `appRoot` field, the frontend app lives in that subdirectory. Install packages and find the bundler config relative to `appRoot`.
+If `pinflow.config.json` exists at the project root with an `appRoot` field, the frontend app lives in that subdirectory. Install packages and find the bundler config relative to `appRoot`.
 
-If the project appears to be a monorepo (e.g., `apps/`, `packages/` directories, workspace config in `package.json`) but no `domscribe.config.json` exists, ask the user which directory contains the frontend app. Then write `domscribe.config.json` at the project root:
+If the project appears to be a monorepo (e.g., `apps/`, `packages/` directories, workspace config in `package.json`) but no `pinflow.config.json` exists, ask the user which directory contains the frontend app. Then write `pinflow.config.json` at the project root:
 
 ```json
 { "appRoot": "apps/web" }
@@ -74,7 +74,7 @@ If the project appears to be a monorepo (e.g., `apps/`, `packages/` directories,
 
 ### After Setup
 
-The MCP server starts in dormant mode when no `.domscribe/` directory exists. After the user starts their dev server, the bundler plugin creates `.domscribe/` automatically. The MCP server will need to restart to detect the new workspace and transition to active mode with the full tool suite.
+The MCP server starts in dormant mode when no `.pinflow/` directory exists. After the user starts their dev server, the bundler plugin creates `.pinflow/` automatically. The MCP server will need to restart to detect the new workspace and transition to active mode with the full tool suite.
 
 ## Editing Components (Code → UI)
 

@@ -118,7 +118,7 @@ Click any element in the browser overlay, describe the change in plain English, 
 - 🔍 **Deep runtime capture** — live props, state, and DOM snapshots via React fiber walking and Vue VNode inspection
 - 🛡️ **Zero production impact** — all instrumentation stripped in production builds, enforced in CI
 - 🔒 **PII redaction** — emails, tokens, and sensitive patterns automatically scrubbed before leaving the browser
-- 📁 **Annotations live in your repo** — stored as JSON files in `.domscribe/annotations/`, exposed via REST APIs that MCP wraps for agent access
+- 📁 **Annotations live in your repo** — stored as JSON files in `.pinflow/annotations/`, exposed via REST APIs that MCP wraps for agent access
 - 📡 **Real-time feedback** — WebSocket relay pushes agent responses to the browser overlay as they happen
 
 ---
@@ -380,7 +380,7 @@ Compatibility aliases remain available for older `domscribe.*` MCP clients
   <img src="./assets/architecture.png" alt="PinFlow architecture diagram" />
 </p>
 
-**1. Inject.** The bundler plugin parses each source file, injects HMR-stable `data-ds` IDs via xxhash64, and records each mapping in `.domscribe/manifest.jsonl`.
+**1. Inject.** The bundler plugin parses each source file, injects HMR-stable `data-ds` IDs via xxhash64, and records each mapping in `.pinflow/manifest.jsonl`.
 
 **2. Capture.** Framework adapters (React fiber walking, Vue VNode inspection) extract live props, state, and component metadata. The overlay UI lets you click any element and see its full context.
 

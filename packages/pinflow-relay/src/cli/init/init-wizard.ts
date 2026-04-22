@@ -14,7 +14,7 @@ import type { InitOptions } from './types.js';
  * Run the full init wizard: agent → monorepo → framework → project setup.
  *
  * @remarks
- * The `.domscribe/` directory is NOT created here — it is created
+ * The `.pinflow/` directory is NOT created here — it is created
  * automatically by the relay when the dev server first starts
  * (via `autoStart: true` in the bundler plugin).
  */

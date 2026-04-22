@@ -75,9 +75,7 @@ export class RuntimeManager {
    */
   async initialize(options: RuntimeOptions = {}): Promise<void> {
     const relayPort =
-      typeof window !== 'undefined'
-        ? (window.__PINFLOW_RELAY_PORT__ ?? window.__DOMSCRIBE_RELAY_PORT__)
-        : undefined;
+      typeof window !== 'undefined' ? window.__PINFLOW_RELAY_PORT__ : undefined;
 
     if (typeof window !== 'undefined' && !relayPort) {
       console.warn(
@@ -90,7 +88,7 @@ export class RuntimeManager {
     if (this.isInitialized) {
       if (this.options.debug) {
         console.warn(
-          '[domscribe-runtime][runtime-manager] Already initialized, re-initializing with new options',
+          '[pinflow-runtime][runtime-manager] Already initialized, re-initializing with new options',
         );
       }
       this.cleanup();
@@ -128,7 +126,7 @@ export class RuntimeManager {
       this.isInitialized = true;
 
       if (this.options.debug) {
-        console.log('[domscribe-runtime][runtime-manager] Initialized', {
+        console.log('[pinflow-runtime][runtime-manager] Initialized', {
           phase: this.options.phase,
           adapter: this.options.adapter.name,
           trackedElements: this.elementTracker.getTrackedCount(),

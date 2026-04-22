@@ -1,7 +1,7 @@
 /**
  * Overlay initialization
  *
- * Entry point for initializing the Domscribe overlay UI.
+ * Entry point for initializing the PinFlow overlay UI.
  * Called automatically when injected via build plugins, or manually by user.
  */
 
@@ -16,11 +16,11 @@ import '../components/ds-overlay.js';
 let initialized = false;
 
 /**
- * Initialize the Domscribe overlay
+ * Initialize the PinFlow overlay
  *
  * @example
  * ```ts
- * // Auto-initialization via build plugin (reads window.__DOMSCRIBE_OVERLAY_OPTIONS__)
+ * // Auto-initialization via build plugin (reads window.__PINFLOW_OVERLAY_OPTIONS__)
  * import('@pinflow/overlay').then(m => m.initOverlay());
  *
  * // Manual initialization with options
@@ -30,9 +30,7 @@ let initialized = false;
  */
 export async function initOverlay(options?: OverlayOptions): Promise<void> {
   const relayPort =
-    typeof window !== 'undefined'
-      ? (window.__PINFLOW_RELAY_PORT__ ?? window.__DOMSCRIBE_RELAY_PORT__)
-      : undefined;
+    typeof window !== 'undefined' ? window.__PINFLOW_RELAY_PORT__ : undefined;
 
   if (typeof window !== 'undefined' && !relayPort) {
     console.warn(
@@ -43,13 +41,12 @@ export async function initOverlay(options?: OverlayOptions): Promise<void> {
   }
 
   if (initialized) {
-    console.warn('[domscribe-overlay] Already initialized');
+    console.warn('[pinflow-overlay] Already initialized');
     return;
   }
 
   // Merge with window options (from build plugin injection)
   const resolvedOptions: OverlayOptions = {
-    ...window.__DOMSCRIBE_OVERLAY_OPTIONS__,
     ...window.__PINFLOW_OVERLAY_OPTIONS__,
     ...options,
   };
@@ -57,7 +54,7 @@ export async function initOverlay(options?: OverlayOptions): Promise<void> {
   const debug = resolvedOptions.debug ?? false;
 
   if (debug) {
-    console.log('[domscribe-overlay] Initializing...', resolvedOptions);
+    console.log('[pinflow-overlay] Initializing...', resolvedOptions);
   }
 
   // Initialize store with options
@@ -72,7 +69,7 @@ export async function initOverlay(options?: OverlayOptions): Promise<void> {
   const connected = await relayService.initialize();
 
   if (debug) {
-    console.log('[domscribe-overlay] Relay connection:', connected);
+    console.log('[pinflow-overlay] Relay connection:', connected);
   }
 
   // Create and append overlay element
@@ -85,8 +82,8 @@ export async function initOverlay(options?: OverlayOptions): Promise<void> {
   initialized = true;
 
   if (debug) {
-    console.log('[domscribe-overlay] Initialized successfully');
-    console.log('[domscribe-overlay] Keyboard shortcuts:');
+    console.log('[pinflow-overlay] Initialized successfully');
+    console.log('[pinflow-overlay] Keyboard shortcuts:');
     console.log('  Ctrl+Shift+D - Toggle overlay');
     console.log('  ESC - Cancel capture / Collapse sidebar');
   }

@@ -36,11 +36,11 @@ describe('runGitignoreStep', () => {
     // Assert
     expect(writeFileSync).toHaveBeenCalledWith(
       '/project/.gitignore',
-      '# PinFlow compatibility artifacts\n.domscribe\n',
+      '# PinFlow artifacts\n.pinflow\n',
       'utf-8',
     );
     expect(clack.log.success).toHaveBeenCalledWith(
-      'Created .domscribe to .gitignore',
+      'Created .pinflow to .gitignore',
     );
   });
 
@@ -54,11 +54,11 @@ describe('runGitignoreStep', () => {
     // Assert
     expect(writeFileSync).toHaveBeenCalledWith(
       '/project/.gitignore',
-      'node_modules\ndist\n\n# PinFlow compatibility artifacts\n.domscribe\n',
+      'node_modules\ndist\n\n# PinFlow artifacts\n.pinflow\n',
       'utf-8',
     );
     expect(clack.log.success).toHaveBeenCalledWith(
-      'Added .domscribe to .gitignore',
+      'Added .pinflow to .gitignore',
     );
   });
 
@@ -72,14 +72,14 @@ describe('runGitignoreStep', () => {
     // Assert
     expect(writeFileSync).toHaveBeenCalledWith(
       '/project/.gitignore',
-      'node_modules\n\n# PinFlow compatibility artifacts\n.domscribe\n',
+      'node_modules\n\n# PinFlow artifacts\n.pinflow\n',
       'utf-8',
     );
   });
 
-  it('should skip when .domscribe is already present', () => {
+  it('should skip when .pinflow is already present', () => {
     // Arrange
-    vi.mocked(readFileSync).mockReturnValue('node_modules\n.domscribe\n');
+    vi.mocked(readFileSync).mockReturnValue('node_modules\n.pinflow\n');
 
     // Act
     runGitignoreStep(baseOptions, '/project');
@@ -87,13 +87,13 @@ describe('runGitignoreStep', () => {
     // Assert
     expect(writeFileSync).not.toHaveBeenCalled();
     expect(clack.log.info).toHaveBeenCalledWith(
-      '.gitignore already contains .domscribe',
+      '.gitignore already contains .pinflow',
     );
   });
 
-  it('should skip when .domscribe/ (with trailing slash) is present', () => {
+  it('should skip when .pinflow/ (with trailing slash) is present', () => {
     // Arrange
-    vi.mocked(readFileSync).mockReturnValue('.domscribe/\n');
+    vi.mocked(readFileSync).mockReturnValue('.pinflow/\n');
 
     // Act
     runGitignoreStep(baseOptions, '/project');
@@ -101,7 +101,7 @@ describe('runGitignoreStep', () => {
     // Assert
     expect(writeFileSync).not.toHaveBeenCalled();
     expect(clack.log.info).toHaveBeenCalledWith(
-      '.gitignore already contains .domscribe',
+      '.gitignore already contains .pinflow',
     );
   });
 
@@ -120,7 +120,7 @@ describe('runGitignoreStep', () => {
       // Assert
       expect(writeFileSync).not.toHaveBeenCalled();
       expect(clack.log.info).toHaveBeenCalledWith(
-        'Would create .gitignore with .domscribe',
+        'Would create .gitignore with .pinflow',
       );
     });
 
@@ -134,7 +134,7 @@ describe('runGitignoreStep', () => {
       // Assert
       expect(writeFileSync).not.toHaveBeenCalled();
       expect(clack.log.info).toHaveBeenCalledWith(
-        'Would append to .gitignore with .domscribe',
+        'Would append to .gitignore with .pinflow',
       );
     });
   });

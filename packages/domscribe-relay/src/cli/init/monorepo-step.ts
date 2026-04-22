@@ -20,7 +20,7 @@ export interface MonorepoResult {
 }
 
 /**
- * Write `domscribe.config.json` at the given directory.
+ * Write `pinflow.config.json` at the given directory.
  * Idempotent: skips if file exists and `--force` is not set.
  */
 function writeConfigIfNeeded(

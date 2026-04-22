@@ -6,6 +6,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import {
   mkdtempSync,
+  mkdirSync,
   rmSync,
   existsSync,
   readFileSync,
@@ -62,15 +63,18 @@ function createAnnotation(
 
 describe('FileAnnotationStorage', () => {
   let baseDir: string;
+  let legacyBaseDir: string;
   let storage: FileAnnotationStorage;
 
   beforeEach(() => {
     baseDir = mkdtempSync(path.join(tmpdir(), 'file-storage-test-'));
-    storage = new FileAnnotationStorage(baseDir);
+    legacyBaseDir = mkdtempSync(path.join(tmpdir(), 'file-storage-legacy-'));
+    storage = new FileAnnotationStorage(baseDir, { legacyBaseDir });
   });
 
   afterEach(() => {
     rmSync(baseDir, { recursive: true, force: true });
+    rmSync(legacyBaseDir, { recursive: true, force: true });
   });
 
   describe('initialize', () => {
@@ -89,6 +93,21 @@ describe('FileAnnotationStorage', () => {
       for (const status of STATUSES) {
         expect(existsSync(path.join(baseDir, status))).toBe(true);
       }
+    });
+
+    it('should migrate legacy annotation directories into .pinflow storage on initialize', async () => {
+      const legacyQueuedDir = path.join(legacyBaseDir, 'queued');
+      mkdirSync(legacyQueuedDir, { recursive: true });
+      writeFileSync(
+        path.join(legacyQueuedDir, 'legacy01.json'),
+        JSON.stringify(createAnnotation({ id: 'legacy01' }), null, 2),
+      );
+
+      await storage.initialize(STATUSES);
+
+      expect(existsSync(path.join(baseDir, 'queued', 'legacy01.json'))).toBe(
+        true,
+      );
     });
   });
 

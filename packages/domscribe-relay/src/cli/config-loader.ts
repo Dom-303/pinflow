@@ -15,6 +15,9 @@ const CONFIG_FILENAMES = [
   PATHS.CONFIG_JSON_FILE,
   PATHS.CONFIG_JS_FILE,
   PATHS.CONFIG_FILE,
+  PATHS.LEGACY_CONFIG_JSON_FILE,
+  PATHS.LEGACY_CONFIG_JS_FILE,
+  PATHS.LEGACY_CONFIG_FILE,
 ] as const;
 
 /**
@@ -30,7 +33,7 @@ export function findConfigFile(dir: string): string | undefined {
 }
 
 /**
- * Read a `domscribe.config.json` and resolve the `appRoot` to an absolute path
+ * Read a PinFlow config file and resolve the `appRoot` to an absolute path
  * relative to the config file's directory.
  */
 export function loadAppRoot(configPath: string): string {

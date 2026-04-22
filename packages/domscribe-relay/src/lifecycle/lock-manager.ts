@@ -21,7 +21,7 @@ import { RELAY_VERSION } from '../version.js';
 import { z } from 'zod';
 
 /**
- * Structure of the relay lock file stored at .domscribe/relay.lock.
+ * Structure of the relay lock file stored at .pinflow/relay.lock.
  * Used for workspace isolation - each workspace has its own relay instance.
  */
 export const RelayLockSchema = z.object({
@@ -40,7 +40,9 @@ export type RelayLock = z.infer<typeof RelayLockSchema>;
 export class RelayLockManager {
   private readonly nonce?: string;
   private readonly domscribeDir: string;
+  private readonly legacyDomscribeDir: string;
   private readonly lockFilePath: string;
+  private readonly legacyLockFilePath: string;
 
   constructor(
     private readonly workspaceRoot: string,
@@ -48,8 +50,13 @@ export class RelayLockManager {
   ) {
     this.nonce = nonce;
     this.domscribeDir = path.join(workspaceRoot, PATHS.DOMSCRIBE_DIR);
+    this.legacyDomscribeDir = path.join(workspaceRoot, PATHS.LEGACY_DOMSCRIBE_DIR);
     this.lockFilePath = path.join(
       this.domscribeDir,
+      DEFAULT_CONFIG.RELAY_LOCK_FILE,
+    );
+    this.legacyLockFilePath = path.join(
+      this.legacyDomscribeDir,
       DEFAULT_CONFIG.RELAY_LOCK_FILE,
     );
   }
@@ -57,12 +64,13 @@ export class RelayLockManager {
   // --- Read operations (no nonce required) ---
 
   getLockData(): RelayLock | null {
-    if (!existsSync(this.lockFilePath)) {
+    const lockPath = this.resolveExistingLockFilePath();
+    if (!lockPath) {
       return null;
     }
 
     try {
-      const content = readFileSync(this.lockFilePath, 'utf-8');
+      const content = readFileSync(lockPath, 'utf-8');
       const result = RelayLockSchema.safeParse(JSON.parse(content));
       return result.success ? result.data : null;
     } catch {
@@ -71,18 +79,19 @@ export class RelayLockManager {
   }
 
   isLockFilePresent(): boolean {
-    return existsSync(this.lockFilePath);
+    return Boolean(this.resolveExistingLockFilePath());
   }
 
   getLockFilePath(): string {
-    return this.lockFilePath;
+    return this.resolveExistingLockFilePath() ?? this.lockFilePath;
   }
 
   // --- Stale lock file removal (no nonce required) ---
 
   removeLockFile(): void {
+    const lockPath = this.resolveExistingLockFilePath() ?? this.lockFilePath;
     try {
-      unlinkSync(this.lockFilePath);
+      unlinkSync(lockPath);
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
         throw error;
@@ -95,9 +104,10 @@ export class RelayLockManager {
   claim(): void {
     const nonce = this.requireNonce();
 
-    if (this.isLockFilePresent()) {
+    const existingLockPath = this.resolveExistingLockFilePath();
+    if (existingLockPath) {
       throw new Error(
-        `Lock file already exists at ${this.lockFilePath}. Another relay may be running.`,
+        `Lock file already exists at ${existingLockPath}. Another relay may be running.`,
       );
     }
 
@@ -110,7 +120,7 @@ export class RelayLockManager {
       status: 'claiming',
     };
 
-    // Ensure .domscribe directory exists
+    // Ensure primary PinFlow artifact directory exists
     if (!existsSync(this.domscribeDir)) {
       mkdirSync(this.domscribeDir, { recursive: true });
     }
@@ -168,6 +178,16 @@ export class RelayLockManager {
       throw new Error('Nonce is required for write operations');
     }
     return this.nonce;
+  }
+
+  private resolveExistingLockFilePath(): string | null {
+    if (existsSync(this.lockFilePath)) {
+      return this.lockFilePath;
+    }
+    if (existsSync(this.legacyLockFilePath)) {
+      return this.legacyLockFilePath;
+    }
+    return null;
   }
 
   /**

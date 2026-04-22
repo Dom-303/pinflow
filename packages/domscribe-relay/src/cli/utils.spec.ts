@@ -20,7 +20,7 @@ describe('getWorkspaceRoot', () => {
     vi.clearAllMocks();
   });
 
-  it('should return cwd when .domscribe exists there', () => {
+  it('should return cwd when .pinflow exists there', () => {
     // Arrange
     vi.mocked(existsSync).mockReturnValue(true);
 
@@ -31,11 +31,11 @@ describe('getWorkspaceRoot', () => {
     expect(result).toBe(process.cwd());
   });
 
-  it('should resolve appRoot from config at cwd when .domscribe is absent', () => {
+  it('should resolve appRoot from config at cwd when workspace dir is absent', () => {
     // Arrange
     vi.mocked(existsSync).mockReturnValue(false);
     vi.mocked(findConfigFile).mockReturnValueOnce(
-      '/monorepo/domscribe.config.json',
+      '/monorepo/pinflow.config.json',
     );
     vi.mocked(loadAppRoot).mockReturnValueOnce('/monorepo/apps/web');
 
@@ -46,10 +46,10 @@ describe('getWorkspaceRoot', () => {
     expect(result).toBe('/monorepo/apps/web');
   });
 
-  it('should prefer .domscribe at cwd over config file', () => {
-    // Arrange — .domscribe exists at cwd
+  it('should prefer .pinflow at cwd over config file', () => {
+    // Arrange — .pinflow exists at cwd
     vi.mocked(existsSync).mockImplementation((p) =>
-      String(p).endsWith('.domscribe'),
+      String(p).endsWith('.pinflow'),
     );
 
     // Act
@@ -61,11 +61,11 @@ describe('getWorkspaceRoot', () => {
     expect(loadAppRoot).not.toHaveBeenCalled();
   });
 
-  it('should walk up and find .domscribe in parent directory', () => {
+  it('should walk up and find .pinflow in parent directory', () => {
     // Arrange
     vi.mocked(existsSync).mockImplementation((p) => {
       const str = String(p);
-      return str === '/.domscribe';
+      return str === '/.pinflow';
     });
     vi.mocked(findConfigFile).mockReturnValue(undefined);
     vi.mocked(statSync).mockReturnValue({
@@ -90,7 +90,7 @@ describe('getWorkspaceRoot', () => {
     vi.mocked(findConfigFile)
       .mockReturnValueOnce(undefined) // step 2: cwd
       .mockImplementation((dir) =>
-        dir === '/' ? '/domscribe.config.json' : undefined,
+        dir === '/' ? '/pinflow.config.json' : undefined,
       );
     vi.mocked(loadAppRoot).mockReturnValue('/apps/web');
 
@@ -101,7 +101,7 @@ describe('getWorkspaceRoot', () => {
     expect(result).toBe('/apps/web');
   });
 
-  it('should return undefined when no .domscribe or config is found', () => {
+  it('should return undefined when no workspace dir or config is found', () => {
     // Arrange
     vi.mocked(existsSync).mockReturnValue(false);
     vi.mocked(findConfigFile).mockReturnValue(undefined);
@@ -111,5 +111,15 @@ describe('getWorkspaceRoot', () => {
 
     // Assert
     expect(result).toBeUndefined();
+  });
+
+  it('should still detect a legacy .domscribe directory', () => {
+    vi.mocked(existsSync).mockImplementation((p) =>
+      String(p).endsWith('.domscribe'),
+    );
+
+    const result = getWorkspaceRoot();
+
+    expect(result).toBe(process.cwd());
   });
 });

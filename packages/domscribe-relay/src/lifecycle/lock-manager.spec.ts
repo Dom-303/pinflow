@@ -12,10 +12,12 @@ import { RelayLockManager, createLockManager } from './lock-manager.js';
 describe('RelayLockManager', () => {
   let tempDir: string;
   let domscribeDir: string;
+  let legacyDomscribeDir: string;
 
   beforeEach(() => {
     tempDir = mkdtempSync(path.join(tmpdir(), 'lock-manager-test-'));
-    domscribeDir = path.join(tempDir, '.domscribe');
+    domscribeDir = path.join(tempDir, '.pinflow');
+    legacyDomscribeDir = path.join(tempDir, '.domscribe');
     mkdirSync(domscribeDir, { recursive: true });
   });
 
@@ -157,8 +159,8 @@ describe('RelayLockManager', () => {
       expect(() => manager.claim()).toThrow('Lock file already exists');
     });
 
-    it('should create .domscribe directory if it does not exist', () => {
-      // Arrange — use a fresh temp dir without .domscribe
+    it('should create .pinflow directory if it does not exist', () => {
+      // Arrange — use a fresh temp dir without .pinflow
       const freshDir = mkdtempSync(path.join(tmpdir(), 'lock-no-ds-'));
       const manager = new RelayLockManager(freshDir, { nonce: 'n' });
 
@@ -166,7 +168,7 @@ describe('RelayLockManager', () => {
       manager.claim();
 
       // Assert
-      expect(existsSync(path.join(freshDir, '.domscribe'))).toBe(true);
+      expect(existsSync(path.join(freshDir, '.pinflow'))).toBe(true);
       expect(manager.isLockFilePresent()).toBe(true);
 
       // Cleanup
@@ -255,6 +257,33 @@ describe('RelayLockManager', () => {
       const manager = new RelayLockManager(tempDir, { nonce: 'my-nonce' });
 
       expect(() => manager.release()).not.toThrow();
+    });
+  });
+
+  describe('legacy fallback', () => {
+    it('should read a legacy lock file from .domscribe when .pinflow is absent', () => {
+      rmSync(domscribeDir, { recursive: true, force: true });
+      mkdirSync(legacyDomscribeDir, { recursive: true });
+      writeFileSync(
+        path.join(legacyDomscribeDir, 'relay.lock'),
+        JSON.stringify({
+          pid: 1234,
+          host: '127.0.0.1',
+          port: 9876,
+          startedAt: new Date().toISOString(),
+          workspaceRoot: tempDir,
+          version: '0.1.0',
+          nonce: 'legacy',
+          status: 'claimed',
+        }),
+      );
+
+      const manager = new RelayLockManager(tempDir);
+
+      expect(manager.isLockFilePresent()).toBe(true);
+      expect(manager.getLockFilePath()).toBe(
+        path.join(legacyDomscribeDir, 'relay.lock'),
+      );
     });
   });
 });

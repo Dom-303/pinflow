@@ -28,7 +28,7 @@ describe('DormantStatusTool', () => {
       // Assert
       const structured = result.structuredContent as Record<string, unknown>;
       expect(structured['guidance']).toEqual(expect.any(String));
-      expect(structured['guidance']).toContain('.domscribe');
+      expect(structured['guidance']).toContain('.pinflow');
     });
 
     it('should return actionable next steps for the agent', async () => {
@@ -77,7 +77,7 @@ describe('DormantStatusTool', () => {
     const structured = result.structuredContent as Record<string, unknown>;
 
     expect(structured['guidance']).toContain('PinFlow is not active');
-    expect(structured['guidance']).toContain('.domscribe');
+    expect(structured['guidance']).toContain('.pinflow');
     expect(structured['nextSteps']).toContain('PinFlow');
     expect(structured['nextSteps']).toContain('@domscribe');
   });

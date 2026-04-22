@@ -10,21 +10,21 @@ import { PATHS } from '@domscribe/core';
 import { findConfigFile, loadAppRoot } from './config-loader.js';
 
 /**
- * Locate the workspace root (the directory containing `.domscribe/`).
+ * Locate the workspace root (the directory containing PinFlow workspace artifacts).
  *
  * @remarks
  * Discovery chain:
- * 1. `.domscribe/` at cwd — single-repo fast path
- * 2. `domscribe.config.*` at cwd — monorepo: resolve appRoot from config
- * 3. Walk up for `.domscribe/` — nested working directory
- * 4. Walk up for `domscribe.config.*` — nested working directory in monorepo
+ * 1. `.pinflow/` or legacy `.domscribe/` at cwd — single-repo fast path
+ * 2. `pinflow.config.*` or legacy `domscribe.config.*` at cwd — monorepo
+ * 3. Walk up for workspace artifact dirs — nested working directory
+ * 4. Walk up for config files — nested working directory in monorepo
  * 5. Nothing found — returns `undefined` (dormant mode)
  */
 export function getWorkspaceRoot(): string | undefined {
   const cwd = process.cwd();
 
-  // 1. .domscribe at cwd (single-repo fast path)
-  if (existsSync(path.join(cwd, PATHS.DOMSCRIBE_DIR))) {
+  // 1. Primary or legacy workspace dir at cwd (single-repo fast path)
+  if (hasWorkspaceArtifacts(cwd)) {
     return cwd;
   }
 
@@ -34,15 +34,22 @@ export function getWorkspaceRoot(): string | undefined {
     return loadAppRoot(configAtCwd);
   }
 
-  // 3. Walk up for .domscribe
-  const fromDomscribe = walkUpToFindDomscribe(cwd);
-  if (fromDomscribe) return fromDomscribe;
+  // 3. Walk up for workspace artifact dir
+  const fromWorkspace = walkUpToFindWorkspaceArtifacts(cwd);
+  if (fromWorkspace) return fromWorkspace;
 
   // 4. Walk up for config file
   return walkUpToFindConfig(cwd);
 }
 
-function walkUpToFindDomscribe(startPath: string): string | undefined {
+function hasWorkspaceArtifacts(dir: string): boolean {
+  return (
+    existsSync(path.join(dir, PATHS.DOMSCRIBE_DIR)) ||
+    existsSync(path.join(dir, PATHS.LEGACY_DOMSCRIBE_DIR))
+  );
+}
+
+function walkUpToFindWorkspaceArtifacts(startPath: string): string | undefined {
   let dir = path.resolve(startPath);
 
   // Handle if startPath is a file
@@ -51,7 +58,7 @@ function walkUpToFindDomscribe(startPath: string): string | undefined {
   }
 
   while (true) {
-    if (existsSync(path.join(dir, PATHS.DOMSCRIBE_DIR))) {
+    if (hasWorkspaceArtifacts(dir)) {
       return dir;
     }
 

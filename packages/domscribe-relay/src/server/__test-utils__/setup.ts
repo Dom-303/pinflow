@@ -74,6 +74,7 @@ export async function createTestServer(
   const manifestReader = new ManifestReader(tempDir);
   const annotationStorage = new FileAnnotationStorage(
     path.join(tempDir, PATHS.ANNOTATIONS_DIR),
+    { legacyBaseDir: path.join(tempDir, PATHS.LEGACY_ANNOTATIONS_DIR) },
   );
   const annotationService = new AnnotationService(annotationStorage);
 

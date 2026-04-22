@@ -53,7 +53,7 @@ describe('runMonorepoStep', () => {
       // Assert
       expect(result.appRoot).toBe('/monorepo/apps/web');
       expect(writeFileSync).toHaveBeenCalledWith(
-        '/monorepo/domscribe.config.json',
+        '/monorepo/pinflow.config.json',
         expect.stringContaining('"appRoot": "apps/web"'),
         'utf-8',
       );
@@ -82,7 +82,7 @@ describe('runMonorepoStep', () => {
     it('should reuse existing config when --force is not set', async () => {
       // Arrange
       vi.mocked(findConfigFile).mockReturnValue(
-        '/monorepo/domscribe.config.json',
+        '/monorepo/pinflow.config.json',
       );
       vi.mocked(loadAppRoot).mockReturnValue('/monorepo/apps/web');
 
@@ -98,7 +98,7 @@ describe('runMonorepoStep', () => {
     it('should prompt when --force is set despite existing config', async () => {
       // Arrange
       vi.mocked(findConfigFile).mockReturnValue(
-        '/monorepo/domscribe.config.json',
+        '/monorepo/pinflow.config.json',
       );
       vi.mocked(clack.confirm).mockResolvedValue(false);
       const options: InitOptions = { ...baseOptions, force: true };
@@ -140,7 +140,7 @@ describe('runMonorepoStep', () => {
       // Assert
       expect(result.appRoot).toBe('/monorepo/apps/web');
       expect(writeFileSync).toHaveBeenCalledWith(
-        '/monorepo/domscribe.config.json',
+        '/monorepo/pinflow.config.json',
         expect.stringContaining('"appRoot": "apps/web"'),
         'utf-8',
       );

@@ -41,7 +41,7 @@ describe('ManifestReader', () => {
   });
 
   const writeManifest = (entries: ManifestEntry[]): void => {
-    const manifestDir = path.join(testDir, '.domscribe');
+    const manifestDir = path.join(testDir, '.pinflow');
     mkdirSync(manifestDir, { recursive: true });
     const manifestPath = path.join(manifestDir, 'manifest.jsonl');
     const content = entries.map((e) => JSON.stringify(e)).join('\n');
@@ -96,7 +96,7 @@ describe('ManifestReader', () => {
     });
 
     it('skips malformed lines', () => {
-      const manifestDir = path.join(testDir, '.domscribe');
+      const manifestDir = path.join(testDir, '.pinflow');
       mkdirSync(manifestDir, { recursive: true });
       const manifestPath = path.join(manifestDir, 'manifest.jsonl');
       writeFileSync(
@@ -109,6 +109,22 @@ describe('ManifestReader', () => {
 
       const stats = reader.getStats();
       expect(stats.entryCount).toBe(2);
+    });
+
+    it('loads entries from legacy .domscribe manifest when .pinflow is absent', () => {
+      const entries = [createTestEntry('legacy01')];
+      const manifestDir = path.join(testDir, '.domscribe');
+      mkdirSync(manifestDir, { recursive: true });
+      writeFileSync(
+        path.join(manifestDir, 'manifest.jsonl'),
+        entries.map((e) => JSON.stringify(e)).join('\n'),
+      );
+
+      reader = new ManifestReader(testDir);
+      reader.initialize();
+
+      expect(reader.getStats().entryCount).toBe(1);
+      expect(reader.resolve('legacy01').success).toBe(true);
     });
   });
 

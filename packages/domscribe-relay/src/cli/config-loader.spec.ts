@@ -15,14 +15,14 @@ describe('findConfigFile', () => {
   it('should return JSON config path when it exists', () => {
     // Arrange
     vi.mocked(existsSync).mockImplementation(
-      (p) => String(p) === '/project/domscribe.config.json',
+      (p) => String(p) === '/project/pinflow.config.json',
     );
 
     // Act
     const result = findConfigFile('/project');
 
     // Assert
-    expect(result).toBe('/project/domscribe.config.json');
+    expect(result).toBe('/project/pinflow.config.json');
   });
 
   it('should prefer JSON over JS and TS', () => {
@@ -33,20 +33,30 @@ describe('findConfigFile', () => {
     const result = findConfigFile('/project');
 
     // Assert
-    expect(result).toBe('/project/domscribe.config.json');
+    expect(result).toBe('/project/pinflow.config.json');
   });
 
   it('should fall back to JS when JSON does not exist', () => {
     // Arrange
     vi.mocked(existsSync).mockImplementation(
-      (p) => String(p) === '/project/domscribe.config.js',
+      (p) => String(p) === '/project/pinflow.config.js',
     );
 
     // Act
     const result = findConfigFile('/project');
 
     // Assert
-    expect(result).toBe('/project/domscribe.config.js');
+    expect(result).toBe('/project/pinflow.config.js');
+  });
+
+  it('should fall back to legacy domscribe config when pinflow config does not exist', () => {
+    vi.mocked(existsSync).mockImplementation(
+      (p) => String(p) === '/project/domscribe.config.json',
+    );
+
+    const result = findConfigFile('/project');
+
+    expect(result).toBe('/project/domscribe.config.json');
   });
 
   it('should return undefined when no config file exists', () => {
@@ -73,7 +83,7 @@ describe('loadAppRoot', () => {
     );
 
     // Act
-    const result = loadAppRoot('/monorepo/domscribe.config.json');
+    const result = loadAppRoot('/monorepo/pinflow.config.json');
 
     // Assert
     expect(result).toBe('/monorepo/apps/web');
@@ -86,7 +96,7 @@ describe('loadAppRoot', () => {
     );
 
     // Act
-    const result = loadAppRoot('/monorepo/config/domscribe.config.json');
+    const result = loadAppRoot('/monorepo/config/pinflow.config.json');
 
     // Assert
     expect(result).toBe('/monorepo/frontend');
@@ -97,7 +107,7 @@ describe('loadAppRoot', () => {
     vi.mocked(readFileSync).mockReturnValue(JSON.stringify({}));
 
     // Act & Assert
-    expect(() => loadAppRoot('/project/domscribe.config.json')).toThrow();
+    expect(() => loadAppRoot('/project/pinflow.config.json')).toThrow();
   });
 
   it('should throw on invalid JSON', () => {
@@ -105,6 +115,6 @@ describe('loadAppRoot', () => {
     vi.mocked(readFileSync).mockReturnValue('not json');
 
     // Act & Assert
-    expect(() => loadAppRoot('/project/domscribe.config.json')).toThrow();
+    expect(() => loadAppRoot('/project/pinflow.config.json')).toThrow();
   });
 });

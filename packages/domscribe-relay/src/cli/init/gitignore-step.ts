@@ -1,5 +1,5 @@
 /**
- * Ensure `.domscribe` is listed in the project's `.gitignore`.
+ * Ensure `.pinflow` is listed in the project's `.gitignore`.
  * @module @domscribe/relay/cli/init/gitignore-step
  */
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -10,13 +10,13 @@ import * as clack from '@clack/prompts';
 import type { InitOptions } from './types.js';
 
 const GITIGNORE = '.gitignore';
-const ENTRY = '.domscribe';
+const ENTRY = '.pinflow';
 
 /**
- * Check whether a gitignore file already contains a `.domscribe` entry.
+ * Check whether a gitignore file already contains a `.pinflow` entry.
  *
  * @remarks
- * Matches `.domscribe` or `.domscribe/` as a standalone line,
+ * Matches `.pinflow` or `.pinflow/` as a standalone line,
  * ignoring leading whitespace and trailing slashes.
  */
 function hasEntry(content: string): boolean {
@@ -26,7 +26,7 @@ function hasEntry(content: string): boolean {
 }
 
 /**
- * Ensure `.domscribe` is present in the project's `.gitignore`.
+ * Ensure `.pinflow` is present in the project's `.gitignore`.
  *
  * - If the file doesn't exist, creates it with the entry.
  * - If the file exists but lacks the entry, appends it.
@@ -56,7 +56,7 @@ export function runGitignoreStep(options: InitOptions, cwd: string): void {
     return;
   }
 
-  const block = `\n# PinFlow compatibility artifacts\n${ENTRY}\n`;
+  const block = `\n# PinFlow artifacts\n${ENTRY}\n`;
 
   if (fileExists) {
     const separator = existing.endsWith('\n') ? '' : '\n';

@@ -464,7 +464,7 @@ describe('ManifestWriter', () => {
 
       // Assert
       expect(mockReadFile).toHaveBeenCalledWith(
-        expect.stringContaining('.domscribe/manifest.jsonl'),
+        expect.stringContaining('.pinflow/manifest.jsonl'),
         'utf-8',
       );
     });

@@ -89,7 +89,7 @@ export const DEFAULT_CONFIG = {
   RELAY_SHUTDOWN_TIMEOUT_MS: 500,
   /** Maximum time to wait for relay shutdown in milliseconds */
   RELAY_SHUTDOWN_WAIT_MS: 5000,
-  /** Lock file name (stored in .domscribe directory) */
+  /** Lock file name (stored in the product artifact directory) */
   RELAY_LOCK_FILE: 'relay.lock',
 } as const;
 
@@ -97,31 +97,47 @@ export const DEFAULT_CONFIG = {
  * File and directory paths
  */
 export const PATHS = {
-  // Root directory for Domscribe data
-  DOMSCRIBE_DIR: '.domscribe',
+  // Root directory for PinFlow data
+  DOMSCRIBE_DIR: '.pinflow',
+  LEGACY_DOMSCRIBE_DIR: '.domscribe',
 
   // Subdirectories
-  ANNOTATIONS_DIR: '.domscribe/annotations',
-  ANNOTATIONS_QUEUED: '.domscribe/annotations/queued',
-  ANNOTATIONS_PROCESSING: '.domscribe/annotations/processing',
-  ANNOTATIONS_PROCESSED: '.domscribe/annotations/processed',
-  ANNOTATIONS_FAILED: '.domscribe/annotations/failed',
-  ANNOTATIONS_ARCHIVED: '.domscribe/annotations/archived',
+  ANNOTATIONS_DIR: '.pinflow/annotations',
+  ANNOTATIONS_QUEUED: '.pinflow/annotations/queued',
+  ANNOTATIONS_PROCESSING: '.pinflow/annotations/processing',
+  ANNOTATIONS_PROCESSED: '.pinflow/annotations/processed',
+  ANNOTATIONS_FAILED: '.pinflow/annotations/failed',
+  ANNOTATIONS_ARCHIVED: '.pinflow/annotations/archived',
+  LEGACY_ANNOTATIONS_DIR: '.domscribe/annotations',
+  LEGACY_ANNOTATIONS_QUEUED: '.domscribe/annotations/queued',
+  LEGACY_ANNOTATIONS_PROCESSING: '.domscribe/annotations/processing',
+  LEGACY_ANNOTATIONS_PROCESSED: '.domscribe/annotations/processed',
+  LEGACY_ANNOTATIONS_FAILED: '.domscribe/annotations/failed',
+  LEGACY_ANNOTATIONS_ARCHIVED: '.domscribe/annotations/archived',
 
   // Manifest files
-  MANIFEST_FILE: '.domscribe/manifest.jsonl',
-  MANIFEST_INDEX: '.domscribe/manifest.index.json',
-  MANIFEST_SNAPSHOTS: '.domscribe/manifest.snapshots',
+  MANIFEST_FILE: '.pinflow/manifest.jsonl',
+  MANIFEST_INDEX: '.pinflow/manifest.index.json',
+  MANIFEST_SNAPSHOTS: '.pinflow/manifest.snapshots',
+  LEGACY_MANIFEST_FILE: '.domscribe/manifest.jsonl',
+  LEGACY_MANIFEST_INDEX: '.domscribe/manifest.index.json',
+  LEGACY_MANIFEST_SNAPSHOTS: '.domscribe/manifest.snapshots',
 
   // Cache directories
-  TRANSFORM_CACHE: '.domscribe/transform-cache',
-  SESSIONS: '.domscribe/sessions',
-  AGENT_INSTRUCTIONS: '.domscribe/agent-instructions',
+  TRANSFORM_CACHE: '.pinflow/transform-cache',
+  SESSIONS: '.pinflow/sessions',
+  AGENT_INSTRUCTIONS: '.pinflow/agent-instructions',
+  LEGACY_TRANSFORM_CACHE: '.domscribe/transform-cache',
+  LEGACY_SESSIONS: '.domscribe/sessions',
+  LEGACY_AGENT_INSTRUCTIONS: '.domscribe/agent-instructions',
 
   // Config files
-  CONFIG_JSON_FILE: 'domscribe.config.json',
-  CONFIG_FILE: 'domscribe.config.ts',
-  CONFIG_JS_FILE: 'domscribe.config.js',
+  CONFIG_JSON_FILE: 'pinflow.config.json',
+  CONFIG_FILE: 'pinflow.config.ts',
+  CONFIG_JS_FILE: 'pinflow.config.js',
+  LEGACY_CONFIG_JSON_FILE: 'domscribe.config.json',
+  LEGACY_CONFIG_FILE: 'domscribe.config.ts',
+  LEGACY_CONFIG_JS_FILE: 'domscribe.config.js',
   VALIDATION_RECIPE: 'domscribe.validation.yaml',
 } as const;
 

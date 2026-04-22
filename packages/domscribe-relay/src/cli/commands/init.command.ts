@@ -18,7 +18,7 @@ interface InitCommandOptions {
 }
 
 export const InitCommand = new Command('init')
-  .description('Initialize Domscribe and configure your coding agent')
+  .description('Initialize PinFlow and configure your coding agent')
   .option('-f, --force', 'Overwrite existing configuration', false)
   .option('--dry-run', 'Show what would be done without making changes', false)
   .option('--agent <name>', `Coding agent (${AGENT_IDS.join(', ')})`)
@@ -32,7 +32,7 @@ export const InitCommand = new Command('init')
     try {
       if (options.agent && !AGENT_IDS.includes(options.agent as never)) {
         console.error(
-          `[domscribe-cli] Invalid agent: ${options.agent}. Valid options: ${AGENT_IDS.join(', ')}`,
+          `[pinflow-cli] Invalid agent: ${options.agent}. Valid options: ${AGENT_IDS.join(', ')}`,
         );
         process.exit(1);
       }
@@ -42,14 +42,14 @@ export const InitCommand = new Command('init')
         !FRAMEWORK_IDS.includes(options.framework as never)
       ) {
         console.error(
-          `[domscribe-cli] Invalid framework: ${options.framework}. Valid options: ${FRAMEWORK_IDS.join(', ')}`,
+          `[pinflow-cli] Invalid framework: ${options.framework}. Valid options: ${FRAMEWORK_IDS.join(', ')}`,
         );
         process.exit(1);
       }
 
       if (options.pm && !PACKAGE_MANAGER_IDS.includes(options.pm as never)) {
         console.error(
-          `[domscribe-cli] Invalid package manager: ${options.pm}. Valid options: ${PACKAGE_MANAGER_IDS.join(', ')}`,
+          `[pinflow-cli] Invalid package manager: ${options.pm}. Valid options: ${PACKAGE_MANAGER_IDS.join(', ')}`,
         );
         process.exit(1);
       }
@@ -65,7 +65,7 @@ export const InitCommand = new Command('init')
 
       await runInitWizard(initOptions);
     } catch (error) {
-      console.error(`[domscribe-cli] Init failed: ${error}`);
+      console.error(`[pinflow-cli] Init failed: ${error}`);
       process.exit(1);
     }
   });

@@ -9,7 +9,7 @@ interface McpCommandOptions {
 }
 
 export const McpCommand = new Command('mcp')
-  .description('Start MCP adapter for agent integration (stdio transport)')
+  .description('Start the PinFlow MCP adapter for agent integration (stdio transport)')
   .option(
     '--body-limit <bytes>',
     'Max request body size in bytes (default: 10MB)',
@@ -19,14 +19,14 @@ export const McpCommand = new Command('mcp')
     try {
       await mcp(options);
     } catch (error) {
-      console.error(`[domscribe-cli] Failed to start MCP adapter: ${error}`);
+      console.error(`[pinflow-cli] Failed to start MCP adapter: ${error}`);
       process.exit(1);
     }
   });
 
 function setupShutdownHandlers(adapter: McpAdapter): void {
   const shutdown = async (signal: string): Promise<void> => {
-    console.error(`\n[domscribe-cli] Received ${signal}, shutting down MCP...`);
+    console.error(`\n[pinflow-cli] Received ${signal}, shutting down MCP...`);
     await adapter.close();
     process.exit(0);
   };
@@ -41,9 +41,7 @@ async function mcp(options: McpCommandOptions) {
 
   if (!workspaceRoot) {
     if (debug) {
-      console.error(
-        '[domscribe-cli] No workspace found, starting in dormant mode',
-      );
+      console.error('[pinflow-cli] No workspace found, starting in dormant mode');
     }
 
     const adapter = createMcpAdapter({
@@ -67,7 +65,7 @@ async function mcp(options: McpCommandOptions) {
   );
 
   console.error(
-    `[domscribe-cli] Starting MCP adapter (relay at http://${relayHost}:${relayPort})`,
+    `[pinflow-cli] Starting MCP adapter (relay at http://${relayHost}:${relayPort})`,
   );
 
   const adapter = createMcpAdapter({

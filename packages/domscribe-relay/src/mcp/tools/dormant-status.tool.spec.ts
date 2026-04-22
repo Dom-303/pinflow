@@ -66,5 +66,19 @@ describe('DormantStatusTool', () => {
     const tool = new DormantStatusTool('/tmp/test');
 
     expect(tool.name).toBe(MCP_TOOLS.STATUS);
+    expect(tool.description).toContain('PinFlow workspace status');
+    expect(tool.description).toContain('PinFlow is not active');
+  });
+
+  it('should use PinFlow wording while preserving compatibility guidance', async () => {
+    const tool = new DormantStatusTool('/tmp/test');
+
+    const result: CallToolResult = await tool.toolCallback({});
+    const structured = result.structuredContent as Record<string, unknown>;
+
+    expect(structured['guidance']).toContain('PinFlow is not active');
+    expect(structured['guidance']).toContain('.domscribe');
+    expect(structured['nextSteps']).toContain('PinFlow');
+    expect(structured['nextSteps']).toContain('@domscribe');
   });
 });

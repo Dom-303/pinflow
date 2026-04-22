@@ -56,7 +56,7 @@ export function runGitignoreStep(options: InitOptions, cwd: string): void {
     return;
   }
 
-  const block = `\n# Domscribe artifacts\n${ENTRY}\n`;
+  const block = `\n# PinFlow compatibility artifacts\n${ENTRY}\n`;
 
   if (fileExists) {
     const separator = existing.endsWith('\n') ? '' : '\n';

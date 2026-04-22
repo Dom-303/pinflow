@@ -36,7 +36,7 @@ describe('runGitignoreStep', () => {
     // Assert
     expect(writeFileSync).toHaveBeenCalledWith(
       '/project/.gitignore',
-      '# Domscribe artifacts\n.domscribe\n',
+      '# PinFlow compatibility artifacts\n.domscribe\n',
       'utf-8',
     );
     expect(clack.log.success).toHaveBeenCalledWith(
@@ -54,7 +54,7 @@ describe('runGitignoreStep', () => {
     // Assert
     expect(writeFileSync).toHaveBeenCalledWith(
       '/project/.gitignore',
-      'node_modules\ndist\n\n# Domscribe artifacts\n.domscribe\n',
+      'node_modules\ndist\n\n# PinFlow compatibility artifacts\n.domscribe\n',
       'utf-8',
     );
     expect(clack.log.success).toHaveBeenCalledWith(
@@ -72,7 +72,7 @@ describe('runGitignoreStep', () => {
     // Assert
     expect(writeFileSync).toHaveBeenCalledWith(
       '/project/.gitignore',
-      'node_modules\n\n# Domscribe artifacts\n.domscribe\n',
+      'node_modules\n\n# PinFlow compatibility artifacts\n.domscribe\n',
       'utf-8',
     );
   });

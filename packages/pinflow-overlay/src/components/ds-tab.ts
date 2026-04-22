@@ -34,25 +34,25 @@ export class DsTab extends LitElement {
       :host {
         display: block;
         position: absolute;
-        right: 0;
+        right: -18px;
         /* top is set dynamically via inline style */
         transform: translateY(-50%);
+        z-index: 3;
       }
 
       .tab {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 64px;
-        height: 64px;
-        padding: 8px;
+        width: 72px;
+        height: 72px;
+        padding: 10px;
         background: var(--ds-shell-surface-strong);
         border: 1px solid var(--ds-shell-border-soft);
         border-radius: 22px;
         box-shadow: var(--ds-panel-shadow);
         cursor: pointer;
         touch-action: none; /* prevent scroll while dragging */
-        transform: translateX(18px);
         transition:
           transform var(--ds-transition-fast),
           box-shadow var(--ds-transition-fast),
@@ -70,7 +70,7 @@ export class DsTab extends LitElement {
       }
 
       .tab:hover {
-        transform: translateX(10px);
+        transform: translateX(-6px);
         box-shadow: var(--ds-shadow-xl);
       }
 

@@ -28,7 +28,9 @@ describe('pinflow visible preview branding', () => {
 
     expect(navigation).toContain('PinFlow Demo');
     expect(navigation).toContain('pinflow-icon-light.png');
-    expect(navigation).toContain('Children Manipulation');
+    expect(navigation).toContain('Home');
+    expect(navigation).toContain('Children-Komposition');
+    expect(navigation).toContain('Laufzeit & Rendering');
     expect(app).toContain('Klicke auf das halb sichtbare PinFlow-Logo');
     expect(app).toContain('pinflow-stacked-light.png');
     expect(app).not.toContain('codeToUiImage');

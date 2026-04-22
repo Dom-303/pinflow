@@ -149,9 +149,9 @@ code {
 
 .sidebar-logo {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  gap: 0.9rem;
+  gap: 0.85rem;
   text-decoration: none;
 }
 
@@ -159,39 +159,43 @@ code {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 3rem;
-  height: 3rem;
-  border-radius: 16px;
+  width: 2.7rem;
+  height: 2.7rem;
+  border-radius: 14px;
   background:
     radial-gradient(circle at top, rgba(255, 255, 255, 0.9), transparent 70%),
     linear-gradient(180deg, rgba(255, 252, 247, 0.94), rgba(242, 234, 224, 0.92));
   border: 1px solid rgba(115, 95, 78, 0.14);
   box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
 }
 
 .sidebar-logo-icon {
-  width: 1.8rem;
-  height: 1.8rem;
+  width: 1.58rem;
+  height: 1.58rem;
   display: block;
 }
 
 .sidebar-brand-copy {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.16rem;
+  min-width: 0;
 }
 
 .sidebar-logo-text {
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-weight: 800;
   color: var(--color-text-primary);
   letter-spacing: -0.03em;
+  line-height: 1.1;
 }
 
 .sidebar-logo-subtext {
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   color: var(--color-text-tertiary);
-  line-height: 1.35;
+  line-height: 1.3;
+  max-width: 12rem;
 }
 
 .sidebar-nav {

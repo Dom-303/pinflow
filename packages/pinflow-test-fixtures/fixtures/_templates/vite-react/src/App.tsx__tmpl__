@@ -32,7 +32,7 @@ function HomeIntro() {
           />
         </div>
         <div className="preview-home-hero-copy">
-          <span className="preview-kicker">Startseite</span>
+          <span className="preview-kicker">Home</span>
           <h1 className="page-title">PinFlow</h1>
           <p className="page-description">
             Visuelle Arbeitsoberflaeche fuer Feedback, UI-Auswahl und

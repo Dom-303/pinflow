@@ -265,3 +265,67 @@ Phase C should proceed in two levels:
    - source-level exported API names
 
 At the current maturity level, PinFlow should execute `Phase C.1` first and treat `Phase C.2` as conditional.
+
+## Current Posture After The Latest Audit
+
+At this point, the remaining `domscribe` surfaces split cleanly into three groups:
+
+### 1. Keep intentionally for now
+
+These are still active compatibility contracts or core workspace mechanics:
+
+- `@domscribe/*` package scopes
+- `domscribe` / `domscribe-mcp` compatibility binaries
+- MCP tool names such as `domscribe.query.bySource`
+- `.domscribe/` artifacts and `domscribe.config.json`
+- repo package directories and Nx project names like `packages/domscribe-*`
+- TypeScript path aliases, project references, and build output paths
+
+### 2. Reasonable to migrate later, but only as a deliberate compatibility release
+
+These are the places where a true 100% PinFlow rename would eventually land if the product keeps stabilizing:
+
+- package scopes from `@domscribe/*` to a future `@pinflow/*`
+- source-level API exports such as `withDomscribe`, `DomscribeWebpackPlugin`, and `domscribe()`
+- persistent artifact/config names such as `.domscribe/` and `domscribe.config.json`
+- MCP server key and tool namespace
+- CLI package identity `domscribe`
+
+These should move only with:
+
+- aliases or dual-entry compatibility
+- migration notes and install-path guidance
+- verification across fixtures and preview installs
+
+### 3. Mostly exhausted visible cleanup
+
+The remaining visible `Domscribe` references are now mostly:
+
+- historical provenance, which should stay
+- planning/spec documents that describe the migration itself
+- technical examples that must still show the current compatibility API honestly
+
+That means the repo is now close to the practical end of `Phase C.1`.
+
+## Recommendation On A Full 100% Rename
+
+A full 100% rename can make sense later, but it is not automatically the cleanest move right now.
+
+Why not yet:
+
+- it would turn a naming cleanup into a real compatibility migration
+- it would touch install commands, published package identities, MCP setup, fixture wiring, and persistent local artifact paths
+- it would create more regression surface than product value at the current maturity level
+
+Why it may make sense later:
+
+- if PinFlow continues as the long-term standalone product
+- if you want a contributor-facing repo with no hybrid mental model left
+- if you are willing to ship aliases, migration docs, and a compatibility window
+
+So the best engineering answer is:
+
+- `yes` to a full rename as a later product-hardening step
+- `no` to doing it blindly right now just for cosmetic cleanliness
+
+The codebase is now at the point where a deep rename should be treated like a versioned migration, not like a documentation sweep.

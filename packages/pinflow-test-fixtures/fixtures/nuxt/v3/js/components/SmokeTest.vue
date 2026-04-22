@@ -15,7 +15,7 @@
 import { ref, onMounted } from 'vue';
 import CaptureIcon from './CaptureIcon.vue';
 // Load smoke test utilities (exposes domscribe.* to console)
-import '../domscribe-smoke-test';
+import '../pinflow-smoke-test';
 
 // Counter state - these represent the component's "props" and "state"
 // that we expect to capture via the runtime

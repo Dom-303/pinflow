@@ -1,7 +1,7 @@
 /**
  * PinFlow Preview Smoke Test - Console utilities for testing runtime context capture
  *
- * In Nuxt, the main runtime initialization is handled by the legacy domscribe.client.ts compatibility plugin.
+ * In Nuxt, the main runtime initialization is handled by the pinflow.client.ts plugin.
  * This file is imported by app.vue to ensure the smoke test utilities are loaded.
  */
 

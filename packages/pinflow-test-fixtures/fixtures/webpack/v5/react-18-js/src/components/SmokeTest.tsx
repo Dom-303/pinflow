@@ -16,7 +16,7 @@ import { useState } from 'react';
 import { CaptureStrategy } from '@pinflow/react';
 import { CaptureIcon } from './CaptureIcon';
 // Load smoke test utilities (exposes domscribe.* to console)
-import '../domscribe-smoke-test';
+import '../pinflow-smoke-test';
 
 const strategies = [
   { key: CaptureStrategy.FIBER, label: 'Fiber Strategy' },

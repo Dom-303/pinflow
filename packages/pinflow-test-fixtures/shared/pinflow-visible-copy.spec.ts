@@ -15,7 +15,7 @@ function readFixture(relativePath: string): string {
 
 describe('pinflow visible fixture copy', () => {
   it('brands the canonical preview smoke-test globals and logs as PinFlow', () => {
-    const smokeTest = readFixture('vite/v5/react-18-ts/src/domscribe-smoke-test.ts');
+    const smokeTest = readFixture('vite/v5/react-18-ts/src/pinflow-smoke-test.ts');
 
     expect(smokeTest).toContain('const pinflowUtils = {');
     expect(smokeTest).toContain(
@@ -44,8 +44,8 @@ describe('pinflow visible fixture copy', () => {
   });
 
   it('brands the Nuxt smoke utilities as PinFlow-first with a legacy alias', () => {
-    const plugin = readFixture('nuxt/v3/ts/plugins/domscribe.client.ts');
-    const smokeModule = readFixture('nuxt/v3/ts/domscribe-smoke-test.ts');
+    const plugin = readFixture('nuxt/v3/ts/plugins/pinflow.client.ts');
+    const smokeModule = readFixture('nuxt/v3/ts/pinflow-smoke-test.ts');
 
     expect(plugin).toContain('const pinflowUtils = {');
     expect(plugin).toContain(

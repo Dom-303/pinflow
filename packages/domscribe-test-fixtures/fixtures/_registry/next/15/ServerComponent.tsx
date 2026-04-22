@@ -48,7 +48,7 @@ export function ServerComponent() {
       <div className="info-box">
         <p>
           Server Components have no client-side Fiber — props/state live on the
-          server. Domscribe captures them at build time via manifest data.
+          server. PinFlow captures them at build time via manifest data.
         </p>
       </div>
     </div>

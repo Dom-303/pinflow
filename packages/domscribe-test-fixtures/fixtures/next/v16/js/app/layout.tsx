@@ -3,7 +3,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'PinFlow Preview - Next.js 16',
-  description: 'Test fixture for Domscribe transform validation',
+  description: 'Test fixture for PinFlow transform validation',
 };
 
 export default function RootLayout({

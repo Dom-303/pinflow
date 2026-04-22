@@ -21,13 +21,13 @@ export default defineNuxtPlugin(() => {
     async captureElement(element: HTMLElement) {
       const runtime = RuntimeManager.getInstance();
       const context = await runtime.captureContextForElement(element);
-      console.log('[domscribe] Captured:', context);
+      console.log('[pinflow-preview] Captured:', context);
       return context;
     },
     async captureSelector(selector: string) {
       const el = document.querySelector(selector) as HTMLElement | null;
       if (!el) {
-        console.error(`[domscribe] No element found for: ${selector}`);
+        console.error(`[pinflow-preview] No element found for: ${selector}`);
         return null;
       }
       return domscribeUtils.captureElement(el);
@@ -35,7 +35,7 @@ export default defineNuxtPlugin(() => {
     listTracked() {
       const runtime = RuntimeManager.getInstance();
       const ids = runtime.getAllEntryIds();
-      console.log(`[domscribe] Tracked elements: ${ids.length}`);
+      console.log(`[pinflow-preview] Tracked elements: ${ids.length}`);
       return ids;
     },
     status() {
@@ -49,5 +49,5 @@ export default defineNuxtPlugin(() => {
   };
 
   (window as unknown as Record<string, unknown>).domscribe = domscribeUtils;
-  console.log('[domscribe] Nuxt plugin loaded. Smoke test utilities available.');
+  console.log('[pinflow-preview] Nuxt plugin loaded. Smoke test utilities available.');
 });

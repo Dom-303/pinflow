@@ -9,11 +9,11 @@
 import { CaptureIcon } from './CaptureIcon';
 
 export const metadata = {
-  title: 'Domscribe Test Fixture',
-  description: 'Next.js test fixture for Domscribe transform validation',
+  title: 'PinFlow Test Fixture',
+  description: 'Next.js test fixture for PinFlow transform validation',
   openGraph: {
-    title: 'Domscribe Test Fixture',
-    description: 'Testing Domscribe transforms in Next.js',
+    title: 'PinFlow Test Fixture',
+    description: 'Testing PinFlow transforms in Next.js',
     type: 'website',
   },
 };
@@ -48,7 +48,7 @@ export function Metadata() {
         <div className="info-box">
           <p>
             In Next.js, metadata is exported as a static object or generated
-            dynamically via <code>generateMetadata()</code>. Domscribe captures
+            dynamically via <code>generateMetadata()</code>. PinFlow captures
             these at build time.
           </p>
         </div>

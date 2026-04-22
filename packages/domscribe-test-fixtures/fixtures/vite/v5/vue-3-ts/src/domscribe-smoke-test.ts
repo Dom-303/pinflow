@@ -29,8 +29,8 @@ async function ensureRuntimeInitialized(): Promise<RuntimeManager> {
 
     runtimeInitialized = true;
 
-    console.log('[domscribe] Runtime initialized');
-    console.log('[domscribe] Adapter:', adapter.name, adapter.version);
+    console.log('[pinflow-preview] Runtime initialized');
+    console.log('[pinflow-preview] Adapter:', adapter.name, adapter.version);
   }
 
   return runtime;
@@ -42,15 +42,15 @@ async function ensureRuntimeInitialized(): Promise<RuntimeManager> {
  */
 async function captureElement(element: HTMLElement): Promise<void> {
   if (!(element instanceof HTMLElement)) {
-    console.error('[domscribe] Error: Please provide an HTMLElement');
+    console.error('[pinflow-preview] Error: Please provide an HTMLElement');
     return;
   }
 
   const runtime = await ensureRuntimeInitialized();
   const context = await runtime.captureContextForElement(element);
 
-  console.log(`[domscribe] Captured context for element:`, element);
-  console.log('[domscribe] Context:', context);
+  console.log(`[pinflow-preview] Captured context for element:`, element);
+  console.log('[pinflow-preview] Context:', context);
 
   if (context) {
     console.table({
@@ -65,10 +65,10 @@ async function captureElement(element: HTMLElement): Promise<void> {
     });
 
     if (context.componentProps) {
-      console.log('[domscribe] Props:', context.componentProps);
+      console.log('[pinflow-preview] Props:', context.componentProps);
     }
     if (context.componentState) {
-      console.log('[domscribe] State:', context.componentState);
+      console.log('[pinflow-preview] State:', context.componentState);
     }
   }
 }
@@ -80,7 +80,7 @@ async function captureSelector(selector: string): Promise<void> {
   const element = document.querySelector(selector) as HTMLElement | null;
 
   if (!element) {
-    console.error(`[domscribe] No element found for selector: ${selector}`);
+    console.error(`[pinflow-preview] No element found for selector: ${selector}`);
     return;
   }
 
@@ -94,7 +94,7 @@ async function listTracked(): Promise<void> {
   const runtime = await ensureRuntimeInitialized();
   const ids = runtime.getAllEntryIds();
 
-  console.log(`[domscribe] Tracked elements: ${ids.length}`);
+  console.log(`[pinflow-preview] Tracked elements: ${ids.length}`);
   if (ids.length > 0) {
     console.table(
       ids.map((id) => ({
@@ -111,7 +111,7 @@ async function listTracked(): Promise<void> {
 async function status(): Promise<void> {
   const runtime = await ensureRuntimeInitialized();
 
-  console.log('[domscribe] Status:');
+  console.log('[pinflow-preview] Status:');
   console.table({
     Initialized: runtime.isReady(),
     'Tracked Elements': runtime.getTrackedCount(),
@@ -125,17 +125,17 @@ async function status(): Promise<void> {
  */
 async function testAllStrategies(element: HTMLElement): Promise<void> {
   if (!(element instanceof HTMLElement)) {
-    console.error('[domscribe] Error: Please provide an HTMLElement');
+    console.error('[pinflow-preview] Error: Please provide an HTMLElement');
     return;
   }
 
-  console.log('[domscribe] Testing all strategies on element:', element);
+  console.log('[pinflow-preview] Testing all strategies on element:', element);
   console.log('='.repeat(60));
 
   const runtime = await ensureRuntimeInitialized();
   const context = await runtime.captureContextForElement(element);
 
-  console.log(`[domscribe] result:`, {
+  console.log(`[pinflow-preview] result:`, {
     hasProps: !!context?.componentProps,
     hasState: !!context?.componentState,
     props: context?.componentProps,
@@ -143,7 +143,7 @@ async function testAllStrategies(element: HTMLElement): Promise<void> {
   });
 
   console.log('\n' + '='.repeat(60));
-  console.log('[domscribe] All strategies tested');
+  console.log('[pinflow-preview] All strategies tested');
 }
 
 // Expose utilities globally
@@ -157,7 +157,7 @@ const domscribeUtils = {
 
 (window as unknown as Record<string, unknown>).domscribe = domscribeUtils;
 
-console.log('[domscribe] Vue smoke test utilities loaded. Available commands:');
+console.log('[pinflow-preview] Vue smoke test utilities loaded. Available commands:');
 console.log(
   '  domscribe.captureElement(element) - Capture context for element',
 );

@@ -1,5 +1,5 @@
 /**
- * Domscribe Smoke Test - Console utilities for testing runtime context capture
+ * PinFlow Preview Smoke Test - Console utilities for testing runtime context capture
  *
  * Usage in browser console:
  *   domscribe.captureElement(element)      - Capture context for element (current strategy)
@@ -58,11 +58,11 @@ async function initializeWithStrategy(
     currentStrategy = strategy;
     runtimeInitialized = true;
 
-    console.log('[domscribe] Runtime initialized');
-    console.log('[domscribe] Strategy:', strategy);
-    console.log('[domscribe] Adapter:', adapter.name, adapter.version);
-    console.log('[domscribe] Active strategy:', adapter.getActiveStrategy());
-    console.log('[domscribe] Has DevTools:', adapter.hasDevToolsAccess());
+    console.log('[pinflow-preview] Runtime initialized');
+    console.log('[pinflow-preview] Strategy:', strategy);
+    console.log('[pinflow-preview] Adapter:', adapter.name, adapter.version);
+    console.log('[pinflow-preview] Active strategy:', adapter.getActiveStrategy());
+    console.log('[pinflow-preview] Has DevTools:', adapter.hasDevToolsAccess());
   }
 
   return runtime;
@@ -74,7 +74,7 @@ async function ensureRuntimeInitialized(): Promise<RuntimeManager> {
 
 async function captureElement(element: HTMLElement): Promise<void> {
   if (!(element instanceof HTMLElement)) {
-    console.error('[domscribe] Error: Please provide an HTMLElement');
+    console.error('[pinflow-preview] Error: Please provide an HTMLElement');
     return;
   }
 
@@ -82,10 +82,10 @@ async function captureElement(element: HTMLElement): Promise<void> {
   const context = await runtime.captureContextForElement(element);
 
   console.log(
-    `[domscribe] Captured context for element (${currentStrategy}):`,
+    `[pinflow-preview] Captured context for element (${currentStrategy}):`,
     element,
   );
-  console.log('[domscribe] Context:', context);
+  console.log('[pinflow-preview] Context:', context);
 }
 
 /**
@@ -131,7 +131,7 @@ async function captureElementData(element: HTMLElement): Promise<{
 async function captureSelector(selector: string): Promise<void> {
   const element = document.querySelector(selector) as HTMLElement | null;
   if (!element) {
-    console.error(`[domscribe] No element found for selector: ${selector}`);
+    console.error(`[pinflow-preview] No element found for selector: ${selector}`);
     return;
   }
   await captureElement(element);
@@ -143,25 +143,25 @@ async function setStrategy(
   const strategy = getStrategyFromString(strategyName);
   if (!strategy) {
     console.error(
-      `[domscribe] Invalid strategy: ${strategyName}. Use 'fiber', 'devtools', or 'best-effort'`,
+      `[pinflow-preview] Invalid strategy: ${strategyName}. Use 'fiber', 'devtools', or 'best-effort'`,
     );
     return;
   }
   await initializeWithStrategy(strategy);
-  console.log(`[domscribe] Strategy changed to: ${strategy}`);
+  console.log(`[pinflow-preview] Strategy changed to: ${strategy}`);
 }
 
 async function listTracked(): Promise<void> {
   const runtime = await ensureRuntimeInitialized();
   const ids = runtime.getAllEntryIds();
-  console.log(`[domscribe] Tracked elements: ${ids.length}`);
+  console.log(`[pinflow-preview] Tracked elements: ${ids.length}`);
 }
 
 async function status(): Promise<void> {
   const runtime = await ensureRuntimeInitialized();
   const adapter = adapters.get(currentStrategy);
 
-  console.log('[domscribe] Status:');
+  console.log('[pinflow-preview] Status:');
   console.table({
     Initialized: runtime.isReady(),
     'Current Strategy': currentStrategy,
@@ -186,5 +186,5 @@ const domscribeUtils = {
 
 if (typeof window !== 'undefined') {
   (window as unknown as Record<string, unknown>).domscribe = domscribeUtils;
-  console.log('[domscribe] Smoke test utilities loaded.');
+  console.log('[pinflow-preview] Smoke test utilities loaded.');
 }

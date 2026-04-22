@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Domscribe CLI
+ * PinFlow CLI
  *
  * Commands:
  *   serve   - Start the relay server (foreground or daemon)

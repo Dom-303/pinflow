@@ -1,5 +1,5 @@
 /**
- * React-aware Domscribe webpack plugin
+ * React-aware PinFlow webpack plugin
  * @module @pinflow/react/webpack/webpack-plugin
  */
 import type { Compiler, WebpackPluginInstance } from 'webpack';
@@ -79,8 +79,6 @@ export class PinFlowWebpackPlugin implements WebpackPluginInstance {
     new DefinePlugin({
       __PINFLOW_RUNTIME_OPTIONS__: runtimeOptions,
       __PINFLOW_ADAPTER_OPTIONS__: adapterOptions,
-      __DOMSCRIBE_RUNTIME_OPTIONS__: runtimeOptions,
-      __DOMSCRIBE_ADAPTER_OPTIONS__: adapterOptions,
     }).apply(compiler);
     this.addAdapterEntry(compiler);
     this.basePlugin.apply(compiler);

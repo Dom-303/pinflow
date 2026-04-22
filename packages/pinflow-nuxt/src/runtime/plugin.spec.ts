@@ -64,9 +64,6 @@ describe('runtime/plugin', () => {
     delete (globalThis as unknown as Record<string, unknown>)[
       '__PINFLOW_OVERLAY_OPTIONS__'
     ];
-    delete (globalThis as unknown as Record<string, unknown>)[
-      '__DOMSCRIBE_OVERLAY_OPTIONS__'
-    ];
   });
 
   it('should register a plugin function via defineNuxtPlugin', () => {
@@ -94,17 +91,7 @@ describe('runtime/plugin', () => {
     expect(mockInitOverlay).toHaveBeenCalled();
   });
 
-  it('should still initialize overlay from the legacy __DOMSCRIBE_OVERLAY_OPTIONS__ fallback', async () => {
-    (globalThis as unknown as Record<string, unknown>)[
-      '__DOMSCRIBE_OVERLAY_OPTIONS__'
-    ] = { initialMode: 'expanded' };
-
-    await getPluginFn()();
-
-    expect(mockInitOverlay).toHaveBeenCalled();
-  });
-
-  it('should not initialize overlay when neither PinFlow nor legacy overlay options are set', async () => {
+  it('should not initialize overlay when no PinFlow overlay options are set', async () => {
     await getPluginFn()();
 
     expect(mockInitOverlay).not.toHaveBeenCalled();

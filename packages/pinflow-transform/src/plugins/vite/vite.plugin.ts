@@ -1,5 +1,5 @@
 /**
- * Vite plugin for Domscribe transform
+ * Vite plugin for PinFlow transform
  *
  * Injects `data-ds` attributes into JSX/TSX/Vue files during dev server mode.
  * Manages manifest writing, relay auto-start, and overlay HTML injection.
@@ -55,14 +55,10 @@ function buildVitePreamble(opts: {
 
   if (opts.relayPort !== undefined) {
     parts.push(`window.__PINFLOW_RELAY_PORT__=${opts.relayPort}`);
-    parts.push(`window.__DOMSCRIBE_RELAY_PORT__=${opts.relayPort}`);
   }
   if (opts.relayHost !== undefined) {
     parts.push(
       `window.__PINFLOW_RELAY_HOST__=${JSON.stringify(opts.relayHost)}`,
-    );
-    parts.push(
-      `window.__DOMSCRIBE_RELAY_HOST__=${JSON.stringify(opts.relayHost)}`,
     );
   }
 
@@ -73,9 +69,6 @@ function buildVitePreamble(opts: {
     };
     parts.push(
       `window.__PINFLOW_OVERLAY_OPTIONS__=${JSON.stringify(overlayOptionsObj)}`,
-    );
-    parts.push(
-      `window.__DOMSCRIBE_OVERLAY_OPTIONS__=${JSON.stringify(overlayOptionsObj)}`,
     );
   }
 
@@ -90,7 +83,7 @@ function buildVitePreamble(opts: {
 }
 
 /**
- * Create the Domscribe Vite plugin.
+ * Create the PinFlow Vite plugin.
  *
  * @param options - Plugin configuration (file filters, debug, relay, overlay)
  * @returns Vite plugin instance (enforce: 'pre', apply: 'serve')
@@ -408,7 +401,7 @@ export function pinflow(options: VitePluginOptions = {}): Plugin {
       if (relayPort && relayHost) {
         tags.push({
           tag: 'script',
-          children: `window.__PINFLOW_RELAY_PORT__ = ${relayPort}; window.__PINFLOW_RELAY_HOST__ = "${relayHost}"; window.__DOMSCRIBE_RELAY_PORT__ = ${relayPort}; window.__DOMSCRIBE_RELAY_HOST__ = "${relayHost}";`,
+      children: `window.__PINFLOW_RELAY_PORT__ = ${relayPort}; window.__PINFLOW_RELAY_HOST__ = "${relayHost}";`,
           injectTo: 'head-prepend',
         });
       }
@@ -423,7 +416,7 @@ export function pinflow(options: VitePluginOptions = {}): Plugin {
 
         tags.push({
           tag: 'script',
-          children: `window.__PINFLOW_OVERLAY_OPTIONS__ = ${JSON.stringify(overlayOptionsObj)}; window.__DOMSCRIBE_OVERLAY_OPTIONS__ = ${JSON.stringify(overlayOptionsObj)};`,
+          children: `window.__PINFLOW_OVERLAY_OPTIONS__ = ${JSON.stringify(overlayOptionsObj)};`,
           injectTo: 'head-prepend',
         });
 

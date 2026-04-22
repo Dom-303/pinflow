@@ -24,10 +24,7 @@ if (typeof window !== 'undefined') {
 
   // Initialize overlay if configured (globals set by loader preamble)
   const win = globalThis as Record<string, unknown>;
-  if (
-    win['__PINFLOW_OVERLAY_OPTIONS__'] ||
-    win['__DOMSCRIBE_OVERLAY_OPTIONS__']
-  ) {
+  if (win['__PINFLOW_OVERLAY_OPTIONS__']) {
     import('@pinflow/overlay')
       .then(({ initOverlay }) => {
         initOverlay();

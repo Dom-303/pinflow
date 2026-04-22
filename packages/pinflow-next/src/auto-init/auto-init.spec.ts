@@ -28,9 +28,6 @@ describe('auto-init', () => {
     delete (globalThis as Record<string, unknown>)[
       '__PINFLOW_OVERLAY_OPTIONS__'
     ];
-    delete (globalThis as Record<string, unknown>)[
-      '__DOMSCRIBE_OVERLAY_OPTIONS__'
-    ];
   });
 
   it('should initialize runtime and react adapter', async () => {
@@ -55,18 +52,7 @@ describe('auto-init', () => {
     expect(mockInitOverlay).toHaveBeenCalled();
   });
 
-  it('should still initialize overlay from the legacy __DOMSCRIBE_OVERLAY_OPTIONS__ fallback', async () => {
-    (globalThis as Record<string, unknown>)['__DOMSCRIBE_OVERLAY_OPTIONS__'] = {
-      initialMode: 'collapsed',
-    };
-
-    await import('./index.js');
-    await vi.dynamicImportSettled();
-
-    expect(mockInitOverlay).toHaveBeenCalled();
-  });
-
-  it('should not initialize overlay when neither PinFlow nor legacy overlay options are set', async () => {
+  it('should not initialize overlay when no PinFlow overlay options are set', async () => {
     await import('./index.js');
     await vi.dynamicImportSettled();
 

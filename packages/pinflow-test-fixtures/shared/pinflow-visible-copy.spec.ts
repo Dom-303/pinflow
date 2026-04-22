@@ -21,9 +21,6 @@ describe('pinflow visible fixture copy', () => {
     expect(smokeTest).toContain(
       '(window as unknown as Record<string, unknown>).pinflow = pinflowUtils;',
     );
-    expect(smokeTest).toContain(
-      '(window as unknown as Record<string, unknown>).domscribe = pinflowUtils;',
-    );
     expect(smokeTest).toContain('[pinflow-preview] Runtime initialized');
     expect(smokeTest).toContain(
       '[pinflow-preview] Smoke test utilities loaded. Available commands:',
@@ -43,16 +40,13 @@ describe('pinflow visible fixture copy', () => {
     expect(metadata).toContain('PinFlow captures');
   });
 
-  it('brands the Nuxt smoke utilities as PinFlow-first with a legacy alias', () => {
+  it('brands the Nuxt smoke utilities as PinFlow-only in the browser helper surface', () => {
     const plugin = readFixture('nuxt/v3/ts/plugins/pinflow.client.ts');
     const smokeModule = readFixture('nuxt/v3/ts/pinflow-smoke-test.ts');
 
     expect(plugin).toContain('const pinflowUtils = {');
     expect(plugin).toContain(
       '(window as unknown as Record<string, unknown>).pinflow = pinflowUtils;',
-    );
-    expect(plugin).toContain(
-      '(window as unknown as Record<string, unknown>).domscribe = pinflowUtils;',
     );
     expect(smokeModule).toContain(
       'Available commands: pinflow.captureElement(el), pinflow.captureSelector(sel), pinflow.listTracked(), pinflow.status()',

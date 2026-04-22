@@ -745,9 +745,9 @@ describe('PinFlowWebpackPlugin', () => {
       callback(data, cb);
 
       // Assert
-      expect(data.html).toContain('window.__DOMSCRIBE_RELAY_PORT__ = 3042');
+      expect(data.html).toContain('window.__PINFLOW_RELAY_PORT__ = 3042');
       expect(data.html).toContain(
-        'window.__DOMSCRIBE_RELAY_HOST__ = "127.0.0.1"',
+        'window.__PINFLOW_RELAY_HOST__ = "127.0.0.1"',
       );
       expect(cb).toHaveBeenCalledWith(null, data);
     });
@@ -763,7 +763,7 @@ describe('PinFlowWebpackPlugin', () => {
       callback(data, cb);
 
       // Assert
-      expect(data.html).toContain('window.__DOMSCRIBE_OVERLAY_OPTIONS__');
+      expect(data.html).toContain('window.__PINFLOW_OVERLAY_OPTIONS__');
     });
 
     it('should not inject overlay script tag in body (overlay loaded via EntryPlugin)', async () => {
@@ -780,7 +780,7 @@ describe('PinFlowWebpackPlugin', () => {
       // Assert - overlay is loaded via webpack EntryPlugin, not a script tag
       expect(data.html).not.toContain('@pinflow/overlay');
       // But overlay options should still be in head
-      expect(data.html).toContain('__DOMSCRIBE_OVERLAY_OPTIONS__');
+      expect(data.html).toContain('__PINFLOW_OVERLAY_OPTIONS__');
     });
 
     it('should not inject anything when relay is not running', async () => {
@@ -812,7 +812,7 @@ describe('PinFlowWebpackPlugin', () => {
       callback(data, cb);
 
       // Assert
-      expect(data.html).not.toContain('__DOMSCRIBE_RELAY_PORT__');
+      expect(data.html).not.toContain('__PINFLOW_RELAY_PORT__');
       expect(data.html).not.toContain('@pinflow/overlay');
       expect(cb).toHaveBeenCalledWith(null, data);
     });
@@ -828,8 +828,8 @@ describe('PinFlowWebpackPlugin', () => {
       callback(data, cb);
 
       // Assert - relay globals present, overlay not
-      expect(data.html).toContain('__DOMSCRIBE_RELAY_PORT__');
-      expect(data.html).not.toContain('__DOMSCRIBE_OVERLAY_OPTIONS__');
+      expect(data.html).toContain('__PINFLOW_RELAY_PORT__');
+      expect(data.html).not.toContain('__PINFLOW_OVERLAY_OPTIONS__');
       expect(data.html).not.toContain('@pinflow/overlay');
     });
 
@@ -863,7 +863,7 @@ describe('PinFlowWebpackPlugin', () => {
 
       // Assert - relay script appears after <head> but before existing content
       const headTagEnd = data.html.indexOf('<head>') + '<head>'.length;
-      const relayPortIdx = data.html.indexOf('__DOMSCRIBE_RELAY_PORT__');
+      const relayPortIdx = data.html.indexOf('__PINFLOW_RELAY_PORT__');
       const metaIdx = data.html.indexOf('<meta charset');
       expect(relayPortIdx).toBeGreaterThan(headTagEnd);
       expect(relayPortIdx).toBeLessThan(metaIdx);
@@ -881,7 +881,7 @@ describe('PinFlowWebpackPlugin', () => {
       callback(data, cb);
 
       // Assert - no <head> to match, no </head> either (uppercase), so no injection
-      expect(data.html).not.toContain('__DOMSCRIBE_RELAY_PORT__');
+      expect(data.html).not.toContain('__PINFLOW_RELAY_PORT__');
       expect(cb).toHaveBeenCalledWith(null, data);
     });
   });

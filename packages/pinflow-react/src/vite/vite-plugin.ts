@@ -98,7 +98,7 @@ export function pinflow(options?: DomscribeReactPluginOptions): Plugin {
         `// Init overlay if configured (SSR fallback — transformIndexHtml may not fire).`,
         `// Uses bare specifier so Vite resolves to the same pre-bundled module instance`,
         `// that RuntimeManager uses, ensuring singleton sharing.`,
-        `if (typeof window !== 'undefined' && (window.__PINFLOW_OVERLAY_OPTIONS__ || window.__DOMSCRIBE_OVERLAY_OPTIONS__)) {`,
+        `if (typeof window !== 'undefined' && window.__PINFLOW_OVERLAY_OPTIONS__) {`,
         `  import('@pinflow/overlay').then(m => m.initOverlay()).catch(() => {});`,
         `}`,
       ].join('\n');

@@ -1,5 +1,5 @@
 /**
- * Webpack plugin for Domscribe transform
+ * Webpack plugin for PinFlow transform
  *
  * Coordinates transform lifecycle via webpack hooks (beforeCompile, compilation,
  * done, shutdown). Uses a separate webpack loader for per-file transforms.
@@ -235,7 +235,7 @@ export class PinFlowWebpackPlugin {
    */
   getRelayScriptTag(): string {
     if (this.relayPort && this.relayHost) {
-      return `<script>window.__DOMSCRIBE_RELAY_PORT__ = ${this.relayPort}; window.__DOMSCRIBE_RELAY_HOST__ = "${this.relayHost}";</script>`;
+      return `<script>window.__PINFLOW_RELAY_PORT__ = ${this.relayPort}; window.__PINFLOW_RELAY_HOST__ = "${this.relayHost}";</script>`;
     }
     return '';
   }
@@ -274,8 +274,8 @@ export class PinFlowWebpackPlugin {
     // (e.g. `const P = hasKey ? dynamic(...) : Fragment`).
     headTags.push(
       `<script>` +
-        `if(!window.__DOMSCRIBE_CONSOLE_PATCHED__){` +
-        `window.__DOMSCRIBE_CONSOLE_PATCHED__=true;` +
+        `if(!window.__PINFLOW_CONSOLE_PATCHED__){` +
+        `window.__PINFLOW_CONSOLE_PATCHED__=true;` +
         `var _ce=console.error;` +
         `console.error=function(){` +
         `if(typeof arguments[0]==='string'){var _s=Array.prototype.join.call(arguments,' ');if(_s.indexOf('data-ds')!==-1&&_s.indexOf('React.Fragment')!==-1)return}` +
@@ -298,7 +298,7 @@ export class PinFlowWebpackPlugin {
       };
 
       headTags.push(
-        `<script>window.__DOMSCRIBE_OVERLAY_OPTIONS__ = ${JSON.stringify(overlayOptionsObj)};</script>`,
+        `<script>window.__PINFLOW_OVERLAY_OPTIONS__ = ${JSON.stringify(overlayOptionsObj)};</script>`,
       );
 
       // Overlay is loaded via EntryPlugin (addOverlayEntry) — no script tag needed.

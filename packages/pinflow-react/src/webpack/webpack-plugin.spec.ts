@@ -173,19 +173,6 @@ describe('PinFlowWebpackPlugin (react)', () => {
           hookNameResolvers: undefined,
           debug: false,
         }),
-        __DOMSCRIBE_RUNTIME_OPTIONS__: JSON.stringify({
-          phase: undefined,
-          debug: false,
-          redactPII: undefined,
-          blockSelectors: undefined,
-        }),
-        __DOMSCRIBE_ADAPTER_OPTIONS__: JSON.stringify({
-          strategy: undefined,
-          maxTreeDepth: undefined,
-          includeWrappers: undefined,
-          hookNameResolvers: undefined,
-          debug: false,
-        }),
       });
       expect(mockDefinePluginApply).toHaveBeenCalledWith(compiler);
     });

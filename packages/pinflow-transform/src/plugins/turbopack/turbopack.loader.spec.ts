@@ -434,8 +434,8 @@ describe('Turbopack Loader', () => {
 
       // Assert — preamble sets relay globals
       const outputCode = asyncCallback.mock.calls[0][1] as string;
-      expect(outputCode).toContain('__DOMSCRIBE_RELAY_PORT__=4400');
-      expect(outputCode).toContain('__DOMSCRIBE_RELAY_HOST__="127.0.0.1"');
+      expect(outputCode).toContain('__PINFLOW_RELAY_PORT__=4400');
+      expect(outputCode).toContain('__PINFLOW_RELAY_HOST__="127.0.0.1"');
     });
 
     it('should inject client globals after use client directive', async () => {
@@ -455,9 +455,9 @@ describe('Turbopack Loader', () => {
 
       // Assert — 'use client' must come before the preamble
       const outputCode = asyncCallback.mock.calls[0][1] as string;
-      expect(outputCode).toContain('__DOMSCRIBE_RELAY_PORT__');
+      expect(outputCode).toContain('__PINFLOW_RELAY_PORT__');
       const directiveIndex = outputCode.indexOf("'use client'");
-      const preambleIndex = outputCode.indexOf('__DOMSCRIBE_RELAY_PORT__');
+      const preambleIndex = outputCode.indexOf('__PINFLOW_RELAY_PORT__');
       expect(directiveIndex).toBeLessThan(preambleIndex);
       // The directive should be at the very start
       expect(directiveIndex).toBe(0);
@@ -484,7 +484,7 @@ describe('Turbopack Loader', () => {
       // Assert — comments + directive must come before the preamble
       const outputCode = asyncCallback.mock.calls[0][1] as string;
       const directiveIndex = outputCode.indexOf('"use client"');
-      const preambleIndex = outputCode.indexOf('__DOMSCRIBE_RELAY_PORT__');
+      const preambleIndex = outputCode.indexOf('__PINFLOW_RELAY_PORT__');
       expect(directiveIndex).toBeLessThan(preambleIndex);
       // Comments should be preserved before the directive
       expect(outputCode.indexOf('biome-ignore-all')).toBeLessThan(
@@ -508,9 +508,9 @@ describe('Turbopack Loader', () => {
 
       // Assert — 'use server' must come before the preamble
       const outputCode = asyncCallback.mock.calls[0][1] as string;
-      expect(outputCode).toContain('__DOMSCRIBE_RELAY_PORT__');
+      expect(outputCode).toContain('__PINFLOW_RELAY_PORT__');
       const directiveIndex = outputCode.indexOf('"use server"');
-      const preambleIndex = outputCode.indexOf('__DOMSCRIBE_RELAY_PORT__');
+      const preambleIndex = outputCode.indexOf('__PINFLOW_RELAY_PORT__');
       expect(directiveIndex).toBeLessThan(preambleIndex);
       expect(directiveIndex).toBe(0);
     });
@@ -546,8 +546,8 @@ describe('Turbopack Loader', () => {
       // Assert — both files have preamble
       const output1 = callback1.mock.calls[0][1] as string;
       const output2 = callback2.mock.calls[0][1] as string;
-      expect(output1).toContain('__DOMSCRIBE_RELAY_PORT__');
-      expect(output2).toContain('__DOMSCRIBE_RELAY_PORT__');
+      expect(output1).toContain('__PINFLOW_RELAY_PORT__');
+      expect(output2).toContain('__PINFLOW_RELAY_PORT__');
     });
 
     it('should inject auto-init import with dedup guard', async () => {
@@ -566,7 +566,7 @@ describe('Turbopack Loader', () => {
 
       // Assert
       const outputCode = asyncCallback.mock.calls[0][1] as string;
-      expect(outputCode).toContain('__DOMSCRIBE_AUTO_INIT__');
+      expect(outputCode).toContain('__PINFLOW_AUTO_INIT__');
       expect(outputCode).toContain(
         "import('@pinflow/next/auto-init').catch(function(){})",
       );
@@ -614,7 +614,7 @@ describe('Turbopack Loader', () => {
 
       // Assert
       const outputCode = asyncCallback.mock.calls[0][1] as string;
-      expect(outputCode).toContain('__DOMSCRIBE_OVERLAY_OPTIONS__');
+      expect(outputCode).toContain('__PINFLOW_OVERLAY_OPTIONS__');
       expect(outputCode).toContain('"initialMode":"expanded"');
     });
 

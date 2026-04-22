@@ -138,7 +138,7 @@ async function doInit(
 /**
  * Build a JS preamble that sets relay + overlay globals on `window`.
  * Injected once into the first transformed file so the client-side
- * provider (DomscribeDevProvider) can discover relay/overlay config
+ * provider can discover relay/overlay config
  * without relying on NEXT_PUBLIC_* env vars.
  *
  * Also:
@@ -146,7 +146,7 @@ async function doInit(
  *   "Invalid prop `data-ds` supplied to `React.Fragment`" warning
  * - Triggers auto-initialization of runtime + overlay via
  *   `import('@pinflow/next/auto-init')`, guarded by a
- *   `__DOMSCRIBE_AUTO_INIT__` flag to run only once per page load
+ *   `__PINFLOW_AUTO_INIT__` flag to run only once per page load
  */
 /**
  * Compute the import specifier for the auto-init module.
@@ -183,8 +183,8 @@ function buildClientGlobalsPreamble(
 
   // Suppress React Fragment prop warning for data-ds (once per page load).
   parts.push(
-    `if(!window.__DOMSCRIBE_CONSOLE_PATCHED__){` +
-      `window.__DOMSCRIBE_CONSOLE_PATCHED__=true;` +
+    `if(!window.__PINFLOW_CONSOLE_PATCHED__){` +
+      `window.__PINFLOW_CONSOLE_PATCHED__=true;` +
       `var _ce=console.error;` +
       `console.error=function(){` +
       `if(typeof arguments[0]==='string'){var _s=Array.prototype.join.call(arguments,' ');if(_s.indexOf('data-ds')!==-1&&_s.indexOf('React.Fragment')!==-1)return}` +
@@ -193,11 +193,11 @@ function buildClientGlobalsPreamble(
   );
 
   if (initResult.relayPort !== undefined) {
-    parts.push(`window.__DOMSCRIBE_RELAY_PORT__=${initResult.relayPort}`);
+    parts.push(`window.__PINFLOW_RELAY_PORT__=${initResult.relayPort}`);
   }
   if (initResult.relayHost !== undefined) {
     parts.push(
-      `window.__DOMSCRIBE_RELAY_HOST__=${JSON.stringify(initResult.relayHost)}`,
+      `window.__PINFLOW_RELAY_HOST__=${JSON.stringify(initResult.relayHost)}`,
     );
   }
 
@@ -205,7 +205,7 @@ function buildClientGlobalsPreamble(
   if (overlay !== undefined && overlay !== false) {
     const overlayOptions = typeof overlay === 'object' ? overlay : {};
     parts.push(
-      `window.__DOMSCRIBE_OVERLAY_OPTIONS__=${JSON.stringify(overlayOptions)}`,
+      `window.__PINFLOW_OVERLAY_OPTIONS__=${JSON.stringify(overlayOptions)}`,
     );
   }
 
@@ -216,8 +216,8 @@ function buildClientGlobalsPreamble(
 
   return (
     `if(typeof window!=='undefined'){${parts.join(';')};` +
-    `if(!window.__DOMSCRIBE_AUTO_INIT__){` +
-    `window.__DOMSCRIBE_AUTO_INIT__=true;` +
+    `if(!window.__PINFLOW_AUTO_INIT__){` +
+    `window.__PINFLOW_AUTO_INIT__=true;` +
     `import('${autoInitSpecifier}').catch(function(){})` +
     `}}\n`
   );
@@ -226,7 +226,7 @@ function buildClientGlobalsPreamble(
 /**
  * Self-initializing Turbopack loader.
  *
- * Unlike the webpack loader (which relies on DomscribeWebpackPlugin for lifecycle),
+ * Unlike the webpack loader (which relies on PinFlowWebpackPlugin for lifecycle),
  * this loader handles its own initialization, relay auto-start, and cleanup.
  * Turbopack has no plugin system — the loader is the only code that runs.
  *

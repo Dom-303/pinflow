@@ -5,8 +5,7 @@
  * Used by the webpack plugin which adds this as an entry point.
  *
  * When used with the webpack plugin, `__PINFLOW_RUNTIME_OPTIONS__` and
- * `__PINFLOW_ADAPTER_OPTIONS__` are injected via DefinePlugin. Falls back
- * to legacy `__DOMSCRIBE_*` globals for compatibility.
+ * `__PINFLOW_ADAPTER_OPTIONS__` are injected via DefinePlugin.
  * to empty objects when not defined (e.g. direct import without the plugin).
  *
  * @module @pinflow/vue/auto-init
@@ -20,25 +19,15 @@ declare const __PINFLOW_RUNTIME_OPTIONS__:
 declare const __PINFLOW_ADAPTER_OPTIONS__:
   | Record<string, unknown>
   | undefined;
-declare const __DOMSCRIBE_RUNTIME_OPTIONS__:
-  | Record<string, unknown>
-  | undefined;
-declare const __DOMSCRIBE_ADAPTER_OPTIONS__:
-  | Record<string, unknown>
-  | undefined;
 
 try {
   const runtimeOpts =
     typeof __PINFLOW_RUNTIME_OPTIONS__ !== 'undefined'
       ? __PINFLOW_RUNTIME_OPTIONS__
-      : typeof __DOMSCRIBE_RUNTIME_OPTIONS__ !== 'undefined'
-      ? __DOMSCRIBE_RUNTIME_OPTIONS__
       : {};
   const adapterOpts =
     typeof __PINFLOW_ADAPTER_OPTIONS__ !== 'undefined'
       ? __PINFLOW_ADAPTER_OPTIONS__
-      : typeof __DOMSCRIBE_ADAPTER_OPTIONS__ !== 'undefined'
-      ? __DOMSCRIBE_ADAPTER_OPTIONS__
       : {};
 
   RuntimeManager.getInstance().initialize({

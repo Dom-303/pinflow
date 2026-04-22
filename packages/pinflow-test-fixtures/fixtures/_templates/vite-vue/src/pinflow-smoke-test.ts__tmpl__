@@ -156,7 +156,6 @@ const pinflowUtils = {
 };
 
 (window as unknown as Record<string, unknown>).pinflow = pinflowUtils;
-(window as unknown as Record<string, unknown>).domscribe = pinflowUtils;
 
 console.log('[pinflow-preview] Vue smoke test utilities loaded. Available commands:');
 console.log(

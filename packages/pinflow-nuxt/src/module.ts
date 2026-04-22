@@ -85,14 +85,10 @@ export const pinflowModule = defineNuxtModule<PinFlowNuxtOptions>({
     const parts: string[] = [];
     if (relayPort !== undefined) {
       parts.push(`window.__PINFLOW_RELAY_PORT__=${relayPort}`);
-      parts.push(`window.__DOMSCRIBE_RELAY_PORT__=${relayPort}`);
     }
     if (relayHost !== undefined) {
       parts.push(
         `window.__PINFLOW_RELAY_HOST__=${JSON.stringify(relayHost)}`,
-      );
-      parts.push(
-        `window.__DOMSCRIBE_RELAY_HOST__=${JSON.stringify(relayHost)}`,
       );
     }
     if (effectiveOptions.overlay !== false) {
@@ -102,9 +98,6 @@ export const pinflowModule = defineNuxtModule<PinFlowNuxtOptions>({
           : {};
       parts.push(
         `window.__PINFLOW_OVERLAY_OPTIONS__=${JSON.stringify(overlayOptions)}`,
-      );
-      parts.push(
-        `window.__DOMSCRIBE_OVERLAY_OPTIONS__=${JSON.stringify(overlayOptions)}`,
       );
     }
 

@@ -154,16 +154,6 @@ describe('PinFlowWebpackPlugin (vue)', () => {
           maxTreeDepth: undefined,
           debug: false,
         }),
-        __DOMSCRIBE_RUNTIME_OPTIONS__: JSON.stringify({
-          phase: undefined,
-          debug: false,
-          redactPII: undefined,
-          blockSelectors: undefined,
-        }),
-        __DOMSCRIBE_ADAPTER_OPTIONS__: JSON.stringify({
-          maxTreeDepth: undefined,
-          debug: false,
-        }),
       });
       expect(mockDefinePluginApply).toHaveBeenCalledWith(compiler);
     });

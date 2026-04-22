@@ -2,7 +2,7 @@
  * Tests for overlay initialization dev-mode guard
  *
  * Verifies that the overlay refuses to initialize when no active
- * Domscribe dev session is detected (window.__DOMSCRIBE_RELAY_PORT__ not set).
+ * PinFlow dev session is detected.
  *
  * @vitest-environment happy-dom
  */

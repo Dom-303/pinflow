@@ -186,6 +186,5 @@ const pinflowUtils = {
 
 if (typeof window !== 'undefined') {
   (window as unknown as Record<string, unknown>).pinflow = pinflowUtils;
-  (window as unknown as Record<string, unknown>).domscribe = pinflowUtils;
   console.log('[pinflow-preview] Smoke test utilities loaded.');
 }

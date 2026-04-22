@@ -5,7 +5,7 @@
  * and the server route handlers. Do NOT import anything from server/,
  * services/, or any Node-only dependency here.
  *
- * @module @domscribe/relay/schema
+ * @module @pinflow/relay/schema
  */
 import { z } from 'zod';
 import {
@@ -21,7 +21,7 @@ import {
   SourcePositionSchema,
   AnnotationStatusSchema,
   AnnotationSummarySchema,
-} from '@domscribe/core';
+} from '@pinflow/core';
 
 /* =============================
  * Annotation - Create

@@ -19,8 +19,8 @@ import {
   DomscribeErrorCode,
   PATHS,
   type ManifestEntry,
-} from '@domscribe/core';
-import { ManifestReader } from '@domscribe/manifest';
+} from '@pinflow/core';
+import { ManifestReader } from '@pinflow/manifest';
 import { QueryBySourceRoute } from './query-by-source.route.js';
 import { registerRoute } from '../route.interface.js';
 import type { WSServer } from '../../ws-server.js';

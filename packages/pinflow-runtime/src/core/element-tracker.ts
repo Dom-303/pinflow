@@ -9,7 +9,7 @@
  * - Weak references to prevent memory leaks
  * - Automatic cleanup when elements are removed
  *
- * @module @domscribe/runtime/core/element-tracker
+ * @module @pinflow/runtime/core/element-tracker
  */
 
 import type { FrameworkAdapter } from '../adapters/adapter.interface.js';
@@ -20,7 +20,7 @@ import {
   hasDsId,
 } from '../utils/dom-utils.js';
 import { ElementTrackingError } from '../errors/index.js';
-import { ManifestEntryId } from '@domscribe/core';
+import { ManifestEntryId } from '@pinflow/core';
 
 /**
  * Options for ElementTracker

@@ -8,10 +8,10 @@
  * Element-based captureContext bypasses the transport and calls
  * RuntimeManager directly (same-context only).
  *
- * @module @domscribe/runtime/bridge/bridge-dispatch
+ * @module @pinflow/runtime/bridge/bridge-dispatch
  */
 
-import type { ManifestEntryId, RuntimeContext } from '@domscribe/core';
+import type { ManifestEntryId, RuntimeContext } from '@pinflow/core';
 import type { ElementInfo } from '../core/types.js';
 import type { IRuntimeTransport } from './transport.interface.js';
 import { DirectTransport } from './direct-transport.js';

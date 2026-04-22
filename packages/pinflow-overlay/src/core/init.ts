@@ -21,10 +21,10 @@ let initialized = false;
  * @example
  * ```ts
  * // Auto-initialization via build plugin (reads window.__DOMSCRIBE_OVERLAY_OPTIONS__)
- * import('@domscribe/overlay').then(m => m.initOverlay());
+ * import('@pinflow/overlay').then(m => m.initOverlay());
  *
  * // Manual initialization with options
- * import { initOverlay } from '@domscribe/overlay';
+ * import { initOverlay } from '@pinflow/overlay';
  * initOverlay({ initialMode: 'expanded', debug: true });
  * ```
  */

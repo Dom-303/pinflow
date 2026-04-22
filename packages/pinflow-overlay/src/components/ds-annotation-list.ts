@@ -7,8 +7,8 @@
 
 import { LitElement, html, css, nothing } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
-import type { Annotation, AnnotationStatus } from '@domscribe/core';
-import { AnnotationStatusEnum } from '@domscribe/core';
+import type { Annotation, AnnotationStatus } from '@pinflow/core';
+import { AnnotationStatusEnum } from '@pinflow/core';
 import { StoreController } from '../core/store-controller.js';
 import { themeStyles, utilityStyles } from '../styles/theme.js';
 

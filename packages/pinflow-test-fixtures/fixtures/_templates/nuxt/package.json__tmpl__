@@ -1,5 +1,5 @@
 {
-  "name": "@domscribe/fixture-nuxt-v<%= frameworkVersion %>-<%= language %>",
+  "name": "@pinflow/fixture-nuxt-v<%= frameworkVersion %>-<%= language %>",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -14,7 +14,7 @@
     "vue": "^3.0.0",
   },
   "devDependencies": {
-    "@domscribe/nuxt": "*",
+    "@pinflow/nuxt": "*",
     "typescript": "^5.5.0"
   }
 }

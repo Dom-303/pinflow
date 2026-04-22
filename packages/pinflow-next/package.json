@@ -1,5 +1,5 @@
 {
-  "name": "@domscribe/next",
+  "name": "@pinflow/next",
   "version": "0.6.0-pinflow.0",
   "description": "Next.js integration for PinFlow",
   "type": "module",
@@ -12,9 +12,10 @@
     "./noop/overlay": "./noop/overlay.js"
   },
   "dependencies": {
-    "@domscribe/transform": "workspace:*",
-    "@domscribe/runtime": "workspace:*",
-    "@domscribe/react": "workspace:*"
+    "@pinflow/overlay": "workspace:*",
+    "@pinflow/transform": "workspace:*",
+    "@pinflow/runtime": "workspace:*",
+    "@pinflow/react": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^18.2.0",

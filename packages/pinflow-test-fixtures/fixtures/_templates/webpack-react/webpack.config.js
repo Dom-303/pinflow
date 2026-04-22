@@ -1,8 +1,8 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const {
-  DomscribeWebpackPlugin,
-} = require('@domscribe/react/webpack');
+  PinFlowWebpackPlugin,
+} = require('@pinflow/react/webpack');
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -25,7 +25,7 @@ module.exports = {
         enforce: 'pre',
         use: [
           {
-            loader: '@domscribe/transform/webpack-loader',
+            loader: '@pinflow/transform/webpack-loader',
             options: {
               enabled: isDevelopment,
             },
@@ -47,7 +47,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './public/index.html',
     }),
-    new DomscribeWebpackPlugin({
+    new PinFlowWebpackPlugin({
       enabled: isDevelopment,
       debug: false,
       overlay: true,

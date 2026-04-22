@@ -1,7 +1,7 @@
 /**
  * MCP status tool for dormant mode — when no workspace is detected.
  * Returns diagnostic info without requiring a relay connection.
- * @module @domscribe/relay/mcp/tools/dormant-status-tool
+ * @module @pinflow/relay/mcp/tools/dormant-status-tool
  */
 import { z } from 'zod';
 import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';

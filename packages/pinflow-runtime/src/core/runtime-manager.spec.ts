@@ -12,7 +12,7 @@ import { describe, it, expect, beforeEach, afterEach, vi, Mock } from 'vitest';
 import { RuntimeManager } from './runtime-manager.js';
 import type { RuntimeOptions, ElementInfo } from './types.js';
 import type { FrameworkAdapter } from '../adapters/adapter.interface.js';
-import type { RuntimeContext } from '@domscribe/core';
+import type { RuntimeContext } from '@pinflow/core';
 import type { CaptureOptions } from '../capture/types.js';
 
 // ============================================================================

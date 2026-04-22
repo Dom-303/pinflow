@@ -4,7 +4,7 @@
  * Models the JSX node types produced by acorn-jsx that are not
  * part of the standard acorn type definitions.
  *
- * @module @domscribe/transform/parsers/acorn/types
+ * @module @pinflow/transform/parsers/acorn/types
  */
 import type {
   Node as AcornNode,

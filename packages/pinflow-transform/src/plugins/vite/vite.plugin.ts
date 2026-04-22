@@ -4,7 +4,7 @@
  * Injects `data-ds` attributes into JSX/TSX/Vue files during dev server mode.
  * Manages manifest writing, relay auto-start, and overlay HTML injection.
  *
- * @module @domscribe/transform/plugins/vite/vite-plugin
+ * @module @pinflow/transform/plugins/vite/vite-plugin
  */
 import {
   createFilter,
@@ -13,7 +13,7 @@ import {
   type HtmlTagDescriptor,
 } from 'vite';
 import { SourceMapConsumer } from 'source-map';
-import { ManifestWriter } from '@domscribe/manifest';
+import { ManifestWriter } from '@pinflow/manifest';
 import { TransformStats } from '../../core/stats.js';
 import { FileTimings } from '../../core/types.js';
 import { VitePluginOptions, OverlayPluginOptions } from './types.js';
@@ -21,7 +21,7 @@ import {
   InjectorRegistry,
   isInjectorFileExtension,
 } from '../../core/injector.registry.js';
-import { RelayControl } from '@domscribe/relay';
+import { RelayControl } from '@pinflow/relay';
 
 /**
  * Build a JS preamble that sets relay + overlay globals on `window`.
@@ -425,7 +425,7 @@ export function domscribe(options: VitePluginOptions = {}): Plugin {
         tags.push({
           tag: 'script',
           attrs: { type: 'module' },
-          children: `import('/node_modules/@domscribe/overlay/index.js').then(m => m.initOverlay()).catch(e => console.warn('[domscribe] Failed to load overlay:', e.message));`,
+          children: `import('/node_modules/@pinflow/overlay/index.js').then(m => m.initOverlay()).catch(e => console.warn('[domscribe] Failed to load overlay:', e.message));`,
           injectTo: 'body',
         });
       }

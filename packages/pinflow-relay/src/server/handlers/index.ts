@@ -1,6 +1,6 @@
 /**
  * HTTP handlers for Domscribe Relay
- * @module @domscribe/relay/server/handlers
+ * @module @pinflow/relay/server/handlers
  */
 export { registerManifestHandlers } from './manifest-handler.js';
 export { registerAnnotationHandlers } from './annotation-handler.js';

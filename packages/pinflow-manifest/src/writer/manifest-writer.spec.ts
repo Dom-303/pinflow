@@ -10,7 +10,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { ManifestWriter } from './manifest-writer.js';
-import type { ManifestEntry } from '@domscribe/core';
+import type { ManifestEntry } from '@pinflow/core';
 import type { IWriter } from '../batch-writer/types.js';
 import type { ManifestWriterStats } from './types.js';
 

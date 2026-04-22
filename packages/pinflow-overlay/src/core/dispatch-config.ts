@@ -1,4 +1,4 @@
-import type { Annotation } from '@domscribe/core';
+import type { Annotation } from '@pinflow/core';
 
 export type DispatchChannel = 'codex' | 'claude' | 'queue_only';
 export type DispatchMode = 'manual' | 'immediate' | 'threshold';

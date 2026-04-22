@@ -21,9 +21,9 @@ import {
   PATHS,
   type ManifestEntry,
   type Annotation,
-} from '@domscribe/core';
+} from '@pinflow/core';
 import { RELAY_VERSION } from '../../version.js';
-import { ManifestReader } from '@domscribe/manifest';
+import { ManifestReader } from '@pinflow/manifest';
 import { AnnotationService } from '../services/annotation-service.js';
 import { FileAnnotationStorage } from '../services/storage/index.js';
 import {

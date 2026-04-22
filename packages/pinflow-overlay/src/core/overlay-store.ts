@@ -10,8 +10,8 @@ import type {
   AnnotationContext,
   RuntimeContext,
   ManifestEntry,
-} from '@domscribe/core';
-import { InteractionModeEnum, InteractionTypeEnum } from '@domscribe/core';
+} from '@pinflow/core';
+import { InteractionModeEnum, InteractionTypeEnum } from '@pinflow/core';
 import type {
   OverlayState,
   OverlayMode,
@@ -33,7 +33,7 @@ import type {
   DispatchSessionOverrides,
   EffectiveDispatchConfig,
 } from './dispatch-config.js';
-import { BridgeDispatch } from '@domscribe/runtime';
+import { BridgeDispatch } from '@pinflow/runtime';
 import { RelayService } from '../services/relay-service.js';
 
 /**

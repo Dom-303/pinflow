@@ -4,7 +4,7 @@
  * Handles name resolution with wrapper detection (HOC, memo, forwardRef),
  * fallback strategies, and display name formatting.
  *
- * @module @domscribe/react/component/component-name-resolver
+ * @module @pinflow/react/component/component-name-resolver
  */
 
 import type { ExtendedReactFiber } from '../fiber/types.js';

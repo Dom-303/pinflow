@@ -8,7 +8,7 @@ import {
 import {
   AnnotationStatusSchema,
   AnnotationSummarySchema,
-} from '@domscribe/core';
+} from '@pinflow/core';
 import { RelayHttpClient } from '../../client/relay-http-client.js';
 
 const AnnotationsListToolInputSchema = z.object({

@@ -3,7 +3,7 @@
  *
  * Useful for unit tests where disk I/O is unnecessary.
  */
-import type { Annotation, AnnotationStatus } from '@domscribe/core';
+import type { Annotation, AnnotationStatus } from '@pinflow/core';
 import type { AnnotationStorageProvider } from './annotation-storage.js';
 
 export class InMemoryAnnotationStorage implements AnnotationStorageProvider {

@@ -43,12 +43,16 @@ const registryPort = Number.isNaN(parsedRegistryPort)
   : parsedRegistryPort;
 const registryUrl =
   process.env['REGISTRY_URL'] ?? `http://127.0.0.1:${registryPort}`;
+const forceReinstall =
+  process.env['FORCE_REINSTALL'] === '1' ||
+  process.env['FORCE_REINSTALL'] === 'true';
 
 const outcome = installFixture(fixture.path, {
   workspaceRoot: resolve(__dirname, '../../..'),
   registryUrl,
   registryPort,
   log,
+  force: forceReinstall,
 });
 
 if (outcome.action === 'failed') {

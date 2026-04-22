@@ -1,12 +1,12 @@
 /**
- * @domscribe/react - React framework adapter for Domscribe
+ * @pinflow/react - React framework adapter for Domscribe
  *
  * Provides runtime context capture for React applications, including:
  * - Props and state extraction
  * - Component name resolution
  * - Fiber tree traversal
  *
- * @module @domscribe/react
+ * @module @pinflow/react
  */
 
 // ============================================================================

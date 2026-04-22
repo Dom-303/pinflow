@@ -22,8 +22,8 @@ import {
   AnnotationStatusEnum,
   InteractionModeEnum,
   InteractionTypeEnum,
-} from '@domscribe/core';
-import { ManifestReader } from '@domscribe/manifest';
+} from '@pinflow/core';
+import { ManifestReader } from '@pinflow/manifest';
 import { AnnotationService } from './services/annotation-service.js';
 import { FileAnnotationStorage } from './services/storage/index.js';
 import {

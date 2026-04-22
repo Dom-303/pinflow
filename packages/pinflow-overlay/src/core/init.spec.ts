@@ -35,7 +35,7 @@ const {
 }));
 
 // Mock transitive dependency to prevent Vite import analysis errors
-vi.mock('@domscribe/relay/client', () => ({
+vi.mock('@pinflow/relay/client', () => ({
   RelayHttpClient: vi.fn(),
   RelayWSClient: vi.fn(),
 }));

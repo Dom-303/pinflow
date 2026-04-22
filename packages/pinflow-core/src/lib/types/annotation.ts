@@ -1,7 +1,7 @@
 /**
  * Canonical Annotation data model for Domscribe.
  * Represents a structured record of a user interaction with captured context.
- * @module @domscribe/core/types/annotation
+ * @module @pinflow/core/types/annotation
  */
 import { ManifestEntryIdSchema, ManifestEntrySchema } from './manifest.js';
 import { z } from 'zod';

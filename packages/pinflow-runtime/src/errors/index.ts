@@ -1,9 +1,9 @@
 /**
  * Runtime-specific error classes
- * @module @domscribe/runtime/errors
+ * @module @pinflow/runtime/errors
  */
 
-import { DomscribeError, DomscribeErrorCode } from '@domscribe/core';
+import { DomscribeError, DomscribeErrorCode } from '@pinflow/core';
 
 /**
  * Base error for runtime-related issues

@@ -1,6 +1,6 @@
 /**
  * Route interface and registration helpers for relay HTTP routes
- * @module @domscribe/relay/server/routes/route-interface
+ * @module @pinflow/relay/server/routes/route-interface
  */
 import type {
   FastifyInstance,

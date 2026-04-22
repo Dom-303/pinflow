@@ -1,11 +1,11 @@
 /**
  * CLI utility functions
- * @module @domscribe/relay/cli/utils
+ * @module @pinflow/relay/cli/utils
  */
 import { existsSync, statSync } from 'node:fs';
 import path from 'node:path';
 
-import { PATHS } from '@domscribe/core';
+import { PATHS } from '@pinflow/core';
 
 import { findConfigFile, loadAppRoot } from './config-loader.js';
 

@@ -4,7 +4,7 @@
  * NOT exported from the package.
  *
  * @internal
- * @module @domscribe/vue/internals/types
+ * @module @pinflow/vue/internals/types
  */
 
 /**
@@ -217,4 +217,4 @@ export interface ComponentResolutionResult {
 }
 
 // Re-export Nullable from core for local consumers
-export type { Nullable } from '@domscribe/core';
+export type { Nullable } from '@pinflow/core';

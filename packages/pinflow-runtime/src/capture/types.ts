@@ -1,6 +1,6 @@
 /**
  * Capture-specific types for runtime context collection
- * @module @domscribe/runtime/capture/types
+ * @module @pinflow/runtime/capture/types
  */
 
 /**

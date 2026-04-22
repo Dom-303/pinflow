@@ -1,6 +1,6 @@
 /**
  * React component type definitions
- * @module @domscribe/react/component/types
+ * @module @pinflow/react/component/types
  */
 
 import type { ComponentCategory } from '../fiber/types.js';

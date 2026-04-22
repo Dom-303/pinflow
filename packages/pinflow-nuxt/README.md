@@ -1,11 +1,11 @@
-# @domscribe/nuxt
+# @pinflow/nuxt
 
 Nuxt module for PinFlow.
 
 ## Install
 
 ```bash
-npm install @domscribe/nuxt
+npm install @pinflow/nuxt
 ```
 
 ## Note

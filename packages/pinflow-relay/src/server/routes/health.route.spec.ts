@@ -7,7 +7,7 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import {
   InteractionModeEnum,
   InteractionTypeEnum,
-} from '@domscribe/core';
+} from '@pinflow/core';
 import {
   createTestServer,
   cleanupTestServer,

@@ -10,7 +10,7 @@ import {
   DomscribeError,
   DomscribeErrorCode,
   HTTP_STATUS,
-} from '@domscribe/core';
+} from '@pinflow/core';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { RelayErrorResponse, RelayErrorResponseSchema } from '../../types.js';
 import path from 'path';

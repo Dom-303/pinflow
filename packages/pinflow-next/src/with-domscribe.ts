@@ -2,7 +2,7 @@
  * Next.js config wrapper that injects Domscribe transforms for both
  * Turbopack and Webpack bundler paths.
  *
- * @module @domscribe/next/with-domscribe
+ * @module @pinflow/next/with-domscribe
  */
 import { createRequire } from 'node:module';
 import type {
@@ -44,13 +44,13 @@ const DEFAULT_EXCLUDE = /node_modules|\.test\.|\.spec\./i;
  * loader, so it works regardless of bundler choice (Next.js 15 webpack,
  * Next.js 16+ Turbopack).
  *
- * In production, injects resolve aliases that replace @domscribe/overlay
+ * In production, injects resolve aliases that replace @pinflow/overlay
  * with a no-op stub as a safety net against accidental imports.
  *
  * @example
  * ```js
  * // next.config.js
- * import { withDomscribe } from '@domscribe/next';
+ * import { withDomscribe } from '@pinflow/next';
  *
  * export default withDomscribe({
  *   debug: true,
@@ -86,9 +86,9 @@ export function withDomscribe(
  */
 function resolveNoopOverlay(): string {
   try {
-    return esmRequire.resolve('@domscribe/next/noop/overlay');
+    return esmRequire.resolve('@pinflow/next/noop/overlay');
   } catch {
-    return '@domscribe/next/noop/overlay';
+    return '@pinflow/next/noop/overlay';
   }
 }
 
@@ -97,23 +97,23 @@ function resolveNoopOverlay(): string {
  *
  * The turbopack loader injects a dynamic `import()` of the auto-init module
  * into every transformed file. In pnpm monorepos the file may belong to a
- * workspace package that doesn't directly depend on `@domscribe/next`, so a
+ * workspace package that doesn't directly depend on `@pinflow/next`, so a
  * bare specifier won't resolve. The loader uses this absolute path to compute
  * a file-relative import for each transformed file, bypassing package-manager
  * module resolution entirely.
  */
 function resolveAutoInitPath(): string {
   try {
-    return esmRequire.resolve('@domscribe/next/auto-init');
+    return esmRequire.resolve('@pinflow/next/auto-init');
   } catch {
-    return '@domscribe/next/auto-init';
+    return '@pinflow/next/auto-init';
   }
 }
 
 /**
- * Replace @domscribe/overlay with a no-op stub in production builds.
+ * Replace @pinflow/overlay with a no-op stub in production builds.
  *
- * Safety net: if any code path accidentally imports @domscribe/overlay
+ * Safety net: if any code path accidentally imports @pinflow/overlay
  * in production, this alias ensures the bundle gets a tiny stub instead
  * of the full overlay package.
  */
@@ -129,14 +129,14 @@ function applyProductionAliases(nextConfig: NextConfig): NextConfig {
       ...((turbopack ?? {}) as Record<string, unknown>),
       resolveAlias: {
         ...((turbopack?.resolveAlias ?? {}) as Record<string, string>),
-        '@domscribe/overlay': noopOverlay,
+        '@pinflow/overlay': noopOverlay,
       },
     },
 
     webpack: (config: WebpackConfig, context: WebpackConfigContext) => {
       config.resolve ??= {};
       config.resolve.alias ??= {};
-      config.resolve.alias['@domscribe/overlay'] = noopOverlay;
+      config.resolve.alias['@pinflow/overlay'] = noopOverlay;
 
       return existingWebpack ? existingWebpack(config, context) : config;
     },
@@ -186,10 +186,10 @@ function buildTurbopackConfig(
   let turbopackLoaderPath: string;
   try {
     turbopackLoaderPath = esmRequire.resolve(
-      '@domscribe/transform/turbopack-loader',
+      '@pinflow/transform/turbopack-loader',
     );
   } catch {
-    turbopackLoaderPath = '@domscribe/transform/turbopack-loader';
+    turbopackLoaderPath = '@pinflow/transform/turbopack-loader';
   }
 
   const loaderOptions: Record<string, JSONValue> = {
@@ -276,9 +276,9 @@ function buildWebpackFn(
 
   let loaderPath: string;
   try {
-    loaderPath = esmRequire.resolve('@domscribe/transform/turbopack-loader');
+    loaderPath = esmRequire.resolve('@pinflow/transform/turbopack-loader');
   } catch {
-    loaderPath = '@domscribe/transform/turbopack-loader';
+    loaderPath = '@pinflow/transform/turbopack-loader';
   }
 
   const loaderOptions: Record<string, JSONValue> = {

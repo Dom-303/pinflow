@@ -1,11 +1,11 @@
-# @domscribe/vue
+# @pinflow/vue
 
 Vue 3 adapter for PinFlow — VNode resolution, Composition + Options API support, and bundler plugins.
 
 ## Install
 
 ```bash
-npm install -D @domscribe/vue
+npm install -D @pinflow/vue
 ```
 
 ## Vite
@@ -13,7 +13,7 @@ npm install -D @domscribe/vue
 ```ts
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
-import { pinflow } from '@domscribe/vue/vite';
+import { pinflow } from '@pinflow/vue/vite';
 
 export default defineConfig({
   plugins: [vue(), pinflow()],
@@ -23,10 +23,10 @@ export default defineConfig({
 ## Webpack
 
 ```js
-const { PinFlowWebpackPlugin } = require('@domscribe/vue/webpack');
+const { PinFlowWebpackPlugin } = require('@pinflow/vue/webpack');
 
 // Add to plugins array + add webpack loader rule
-// (see @domscribe/transform README for full webpack config)
+// (see @pinflow/transform README for full webpack config)
 ```
 
 ## Plugin Options
@@ -57,7 +57,7 @@ interface DomscribeVuePluginOptions {
 | `phase`          | `1 \| 2`                   | `1`         | Feature phase gate (Phase 1: props/state, Phase 2: events/perf)                                        |
 | `redactPII`      | `boolean`                  | `true`      | Redact sensitive values in captured data                                                               |
 | `blockSelectors` | `string[]`                 | `[]`        | CSS selectors to exclude from capture                                                                  |
-| `serialization`  | `SerializationConstraints` | `undefined` | Serialization bounds (maxDepth, maxArrayLength, maxTotalBytes, etc.) — see `@domscribe/runtime` README |
+| `serialization`  | `SerializationConstraints` | `undefined` | Serialization bounds (maxDepth, maxArrayLength, maxTotalBytes, etc.) — see `@pinflow/runtime` README |
 
 ### Capture Options
 
@@ -67,9 +67,9 @@ interface DomscribeVuePluginOptions {
 
 ## Subpath Exports
 
-- `@domscribe/vue/vite` — Vite plugin with Vue adapter
-- `@domscribe/vue/webpack` — Webpack plugin with Vue adapter
-- `@domscribe/vue/auto-init` — Auto-initialization module
+- `@pinflow/vue/vite` — Vite plugin with Vue adapter
+- `@pinflow/vue/webpack` — Webpack plugin with Vue adapter
+- `@pinflow/vue/auto-init` — Auto-initialization module
 
 ---
 

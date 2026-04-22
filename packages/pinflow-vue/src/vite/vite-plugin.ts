@@ -1,9 +1,9 @@
 /**
  * Vue-aware Domscribe Vite plugin
- * @module @domscribe/vue/vite/vite-plugin
+ * @module @pinflow/vue/vite/vite-plugin
  */
 import type { Plugin, IndexHtmlTransformResult, HtmlTagDescriptor } from 'vite';
-import { domscribe as baseDomscribe } from '@domscribe/transform/plugins/vite';
+import { domscribe as baseDomscribe } from '@pinflow/transform/plugins/vite';
 import type { DomscribeVuePluginOptions } from './types.js';
 
 /**
@@ -11,14 +11,14 @@ import type { DomscribeVuePluginOptions } from './types.js';
  *
  * When the browser fetches this path, Vite's dev server routes it through
  * the plugin pipeline (resolveId → load → transform). The transform step
- * rewrites bare specifiers (`@domscribe/runtime`, `@domscribe/vue`) to
+ * rewrites bare specifiers (`@pinflow/runtime`, `@pinflow/vue`) to
  * pre-bundled paths — the same ones the overlay resolves to internally —
  * so RuntimeManager shares a single singleton across all consumers.
  *
  * Direct `/node_modules/` paths bypass pre-bundling and create separate
  * module instances with separate singletons, which breaks runtime capture.
  */
-const INIT_MODULE_PATH = '/@domscribe/vue-init.js';
+const INIT_MODULE_PATH = '/@pinflow/vue-init.js';
 
 /**
  * Domscribe Vite plugin for Vue projects.
@@ -28,13 +28,13 @@ const INIT_MODULE_PATH = '/@domscribe/vue-init.js';
  *
  * @remarks
  * For framework-agnostic usage (no runtime capture), import `domscribe`
- * from `@domscribe/transform/plugins/vite` directly.
+ * from `@pinflow/transform/plugins/vite` directly.
  *
  * Usage:
  * ```ts
  * // vite.config.ts
  * import vue from '@vitejs/plugin-vue'
- * import { domscribe } from '@domscribe/vue/vite'
+ * import { domscribe } from '@pinflow/vue/vite'
  *
  * export default defineConfig({
  *   plugins: [vue(), domscribe({ overlay: true })]
@@ -67,8 +67,8 @@ export function domscribe(options?: DomscribeVuePluginOptions): Plugin {
       // Bare specifiers here get rewritten by Vite's transform pipeline
       // to pre-bundled paths, matching what the overlay resolves internally
       return [
-        `import { RuntimeManager } from '@domscribe/runtime';`,
-        `import { createVueAdapter } from '@domscribe/vue';`,
+        `import { RuntimeManager } from '@pinflow/runtime';`,
+        `import { createVueAdapter } from '@pinflow/vue';`,
         ``,
         `RuntimeManager.getInstance().initialize({`,
         `  phase: ${rt.phase ?? 1},`,

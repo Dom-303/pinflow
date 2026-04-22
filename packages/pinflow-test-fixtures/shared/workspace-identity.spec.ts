@@ -19,6 +19,7 @@ describe('workspace identity', () => {
     ).toEqual({
       productSlug: 'pinflow',
       version: '0.6.0-pinflow.0',
+      workspaceFingerprint: 'workspace',
     });
   });
 
@@ -27,7 +28,8 @@ describe('workspace identity', () => {
       buildInstallStampValue({
         productSlug: 'pinflow',
         version: '0.6.0-pinflow.0',
+        workspaceFingerprint: 'abc123',
       }),
-    ).toBe('pinflow@0.6.0-pinflow.0');
+    ).toBe('pinflow@0.6.0-pinflow.0#abc123');
   });
 });

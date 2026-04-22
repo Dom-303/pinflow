@@ -1,10 +1,10 @@
 /**
- * Configuration options for the @domscribe/nuxt module.
+ * Configuration options for the @pinflow/nuxt module.
  *
  * These options are passed through to the underlying Vite/Webpack transform plugins
  * and control overlay, relay, and debug behavior.
  *
- * @module @domscribe/nuxt/types
+ * @module @pinflow/nuxt/types
  */
 export interface DomscribeNuxtOptions {
   /**
@@ -66,7 +66,7 @@ export interface DomscribeNuxtOptions {
   /**
    * Overlay UI configuration.
    * Set to true for default options, or provide configuration.
-   * Requires @domscribe/overlay package to be installed.
+   * Requires @pinflow/overlay package to be installed.
    *
    * @default false
    */

@@ -1,5 +1,5 @@
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
-import { AnnotationStatusEnum } from '@domscribe/core';
+import { AnnotationStatusEnum } from '@pinflow/core';
 import { AnnotationsListTool } from './annotation-list.tool.js';
 import { createMockRelayClient } from '../__test-utils__/mock-relay-client.js';
 import { MCP_TOOLS } from './tool.defs.js';

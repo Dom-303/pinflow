@@ -24,7 +24,7 @@ describe('pinflow cli aliases', () => {
       domscribe: './bin/domscribe.js',
       pinflow: './bin/pinflow.js',
     });
-    expect(aliasSource).toContain("import { program } from '@domscribe/relay/program';");
+    expect(aliasSource).toContain("import { program } from '@pinflow/relay/program';");
     expect(aliasSource).toContain('program.parse();');
     expect(compatibilitySource).toContain(
       'Compatibility CLI alias for the PinFlow package identity.',
@@ -47,7 +47,7 @@ describe('pinflow cli aliases', () => {
       'domscribe-mcp': './bin/domscribe-mcp.js',
       'pinflow-mcp': './bin/pinflow-mcp.js',
     });
-    expect(aliasSource).toContain("import { program } from '@domscribe/relay/program';");
+    expect(aliasSource).toContain("import { program } from '@pinflow/relay/program';");
     expect(aliasSource).toContain(
       "program.parse(['npx', 'pinflow', 'mcp', ...process.argv.slice(2)]);",
     );

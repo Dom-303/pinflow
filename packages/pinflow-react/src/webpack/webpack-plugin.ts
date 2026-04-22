@@ -1,12 +1,12 @@
 /**
  * React-aware Domscribe webpack plugin
- * @module @domscribe/react/webpack/webpack-plugin
+ * @module @pinflow/react/webpack/webpack-plugin
  */
 import type { Compiler, WebpackPluginInstance } from 'webpack';
 import {
   DomscribeWebpackPlugin as BaseDomscribeWebpackPlugin,
   type WebpackPluginOptions,
-} from '@domscribe/transform/plugins/webpack';
+} from '@pinflow/transform/plugins/webpack';
 import type {
   DomscribeRuntimeOptions,
   DomscribeReactCaptureOptions,
@@ -28,18 +28,18 @@ export interface DomscribeReactWebpackPluginOptions extends WebpackPluginOptions
 /**
  * Domscribe webpack plugin for React projects.
  *
- * Creates the base transform plugin internally and adds `@domscribe/react/auto-init`
+ * Creates the base transform plugin internally and adds `@pinflow/react/auto-init`
  * as a webpack entry so that RuntimeManager + ReactAdapter are initialized
  * automatically — no entrypoint changes needed.
  *
  * @remarks
  * For framework-agnostic usage (no runtime capture), import `DomscribeWebpackPlugin`
- * from `@domscribe/transform/plugins/webpack` directly.
+ * from `@pinflow/transform/plugins/webpack` directly.
  *
  * Usage:
  * ```ts
  * // webpack.config.ts
- * import { DomscribeWebpackPlugin } from '@domscribe/react/webpack'
+ * import { DomscribeWebpackPlugin } from '@pinflow/react/webpack'
  *
  * export default {
  *   plugins: [new DomscribeWebpackPlugin({ overlay: true })]
@@ -86,7 +86,7 @@ export class DomscribeWebpackPlugin implements WebpackPluginInstance {
     if (typeof entry === 'object' && !Array.isArray(entry)) {
       const firstKey = Object.keys(entry)[0];
       if (firstKey && entry[firstKey]?.import) {
-        entry[firstKey].import.push('@domscribe/react/auto-init');
+        entry[firstKey].import.push('@pinflow/react/auto-init');
       }
     }
   }

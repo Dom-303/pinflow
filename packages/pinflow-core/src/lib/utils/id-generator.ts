@@ -1,7 +1,7 @@
 /**
  * Utility functions for generating and validating Domscribe identifiers.
  * Uses nanoid with a custom alphabet for unique 8-character base IDs.
- * @module @domscribe/core/utils/id-generator
+ * @module @pinflow/core/utils/id-generator
  */
 
 import { customAlphabet } from 'nanoid';

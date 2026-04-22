@@ -3,7 +3,7 @@
  * NOT exported from the package.
  *
  * @internal
- * @module @domscribe/vue/internals/constants
+ * @module @pinflow/vue/internals/constants
  */
 
 /**

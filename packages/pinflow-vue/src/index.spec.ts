@@ -16,7 +16,7 @@ vi.mock('./internals/state-extractor.js', () => ({
 
 const exports = await import('./index.js');
 
-describe('@domscribe/vue public API', () => {
+describe('@pinflow/vue public API', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
   });

@@ -1,6 +1,6 @@
 /**
  * Package manager detection from lockfiles.
- * @module @domscribe/relay/cli/init/detect-package-manager
+ * @module @pinflow/relay/cli/init/detect-package-manager
  */
 import { existsSync } from 'node:fs';
 import path from 'node:path';

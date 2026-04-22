@@ -1,6 +1,6 @@
 /**
  * Type guard functions for React structures
- * @module @domscribe/react/utils/type-guards
+ * @module @pinflow/react/utils/type-guards
  */
 
 import type { ExtendedReactFiber } from '../fiber/types.js';

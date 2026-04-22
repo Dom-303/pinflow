@@ -1,7 +1,7 @@
 /**
  * Safe serialization utilities for runtime data
  * Handles circular references, special values, and depth limits
- * @module @domscribe/runtime/utils/serialization
+ * @module @pinflow/runtime/utils/serialization
  */
 
 import { SerializationError } from '../errors/index.js';

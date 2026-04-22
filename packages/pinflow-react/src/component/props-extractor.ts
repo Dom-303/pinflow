@@ -3,7 +3,7 @@
  *
  * Handles safe extraction of component props with filtering of internal React props.
  *
- * @module @domscribe/react/component/props-extractor
+ * @module @pinflow/react/component/props-extractor
  */
 
 import type { ExtendedReactFiber } from '../fiber/types.js';

@@ -1,6 +1,6 @@
 /**
  * Domscribe project configuration schema.
- * @module @domscribe/core/types/config
+ * @module @pinflow/core/types/config
  */
 import { z } from 'zod';
 

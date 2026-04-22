@@ -1,11 +1,11 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { domscribe } from '@domscribe/react/vite';
+import { pinflow } from '@pinflow/react/vite';
 
 export default defineConfig({
   plugins: [
     react(),
-    domscribe({
+    pinflow({
       debug: false,
       overlay: true,
     }),

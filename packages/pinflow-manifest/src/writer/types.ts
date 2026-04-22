@@ -1,6 +1,6 @@
 /**
  * Types for the ManifestWriter
- * @module @domscribe/manifest/writer/types
+ * @module @pinflow/manifest/writer/types
  */
 import { BatchWriterOptions, WriterStats } from '../batch-writer/types.js';
 

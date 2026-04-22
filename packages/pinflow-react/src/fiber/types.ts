@@ -1,6 +1,6 @@
 /**
  * React Fiber type definitions
- * @module @domscribe/react/fiber/types
+ * @module @pinflow/react/fiber/types
  */
 
 /**
@@ -45,7 +45,7 @@ export enum ComponentCategory {
  * Extended React Fiber node with comprehensive type information
  *
  * Based on React's internal Fiber structure but enhanced for our needs.
- * This extends the basic ReactFiber from @domscribe/runtime/devtools/types.
+ * This extends the basic ReactFiber from @pinflow/runtime/devtools/types.
  */
 export interface ExtendedReactFiber {
   /**

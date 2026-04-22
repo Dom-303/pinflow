@@ -6,10 +6,10 @@
  *
  * All methods currently return safe fallback values (null / false / 0).
  *
- * @module @domscribe/runtime/bridge/event-transport
+ * @module @pinflow/runtime/bridge/event-transport
  */
 
-import type { ManifestEntryId, RuntimeContext } from '@domscribe/core';
+import type { ManifestEntryId, RuntimeContext } from '@pinflow/core';
 import type { ElementInfo } from '../core/types.js';
 import type { IRuntimeTransport } from './transport.interface.js';
 

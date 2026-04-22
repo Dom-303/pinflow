@@ -2,11 +2,11 @@
  * Client-only Nuxt plugin that initializes RuntimeManager with VueAdapter
  * and optionally starts the overlay if configured by the module.
  *
- * @module @domscribe/nuxt/runtime/plugin
+ * @module @pinflow/nuxt/runtime/plugin
  */
 import { defineNuxtPlugin } from '#imports';
-import { RuntimeManager } from '@domscribe/runtime';
-import { createVueAdapter } from '@domscribe/vue';
+import { RuntimeManager } from '@pinflow/runtime';
+import { createVueAdapter } from '@pinflow/vue';
 
 export default defineNuxtPlugin(async () => {
   RuntimeManager.getInstance().initialize({
@@ -16,7 +16,7 @@ export default defineNuxtPlugin(async () => {
   // Initialize overlay if options were injected by the module's head script
   if (window.__DOMSCRIBE_OVERLAY_OPTIONS__) {
     try {
-      const { initOverlay } = await import('@domscribe/overlay');
+      const { initOverlay } = await import('@pinflow/overlay');
       await initOverlay();
     } catch (e) {
       console.warn(

@@ -7,7 +7,7 @@
 
 import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
-import type { Annotation } from '@domscribe/core';
+import type { Annotation } from '@pinflow/core';
 import { themeStyles, utilityStyles } from '../styles/theme.js';
 import { OverlayStore } from '../core/overlay-store.js';
 import { RelayService } from '../services/relay-service.js';

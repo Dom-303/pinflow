@@ -4,7 +4,7 @@
  * Provides utilities for traversing the React Fiber tree structure,
  * finding specific nodes, and analyzing relationships between fibers.
  *
- * @module @domscribe/react/fiber/fiber-walker
+ * @module @pinflow/react/fiber/fiber-walker
  */
 
 import type { ExtendedReactFiber, FiberWalkOptions } from './types.js';

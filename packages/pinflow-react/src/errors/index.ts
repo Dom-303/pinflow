@@ -1,9 +1,9 @@
 /**
  * React adapter-specific error classes
- * @module @domscribe/react/errors
+ * @module @pinflow/react/errors
  */
 
-import { DomscribeError, DomscribeErrorCode } from '@domscribe/core';
+import { DomscribeError, DomscribeErrorCode } from '@pinflow/core';
 
 /**
  * Error thrown when accessing React Fiber fails

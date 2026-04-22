@@ -1,8 +1,8 @@
 /**
  * Types for the core injector and transform metrics
- * @module @domscribe/transform/core/types
+ * @module @pinflow/transform/core/types
  */
-import { ManifestEntry } from '@domscribe/core';
+import { ManifestEntry } from '@pinflow/core';
 import MagicString from 'magic-string';
 import { SourceMapConsumer } from 'source-map';
 

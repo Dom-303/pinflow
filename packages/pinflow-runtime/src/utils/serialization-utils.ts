@@ -1,6 +1,6 @@
 /**
  * Shared types and helpers for the serialization module
- * @module @domscribe/runtime/utils/serialization-utils
+ * @module @pinflow/runtime/utils/serialization-utils
  */
 
 import type { SerializationConstraints } from '../capture/types.js';

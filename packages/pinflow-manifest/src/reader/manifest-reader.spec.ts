@@ -13,7 +13,7 @@ import {
 import path from 'path';
 import { tmpdir } from 'os';
 import { ManifestReader } from './manifest-reader.js';
-import type { ManifestEntry } from '@domscribe/core';
+import type { ManifestEntry } from '@pinflow/core';
 
 vi.mock('fs', async (importOriginal) => {
   const actual = await importOriginal<typeof import('fs')>();

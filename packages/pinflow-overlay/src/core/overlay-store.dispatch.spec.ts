@@ -3,11 +3,11 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { Annotation } from '@domscribe/core';
+import type { Annotation } from '@pinflow/core';
 import { OverlayStore } from './overlay-store.js';
 import type { DispatchBatch } from './types.js';
 
-vi.mock('@domscribe/runtime', () => ({
+vi.mock('@pinflow/runtime', () => ({
   BridgeDispatch: {
     getInstance: () => ({
       captureContext: vi.fn(),

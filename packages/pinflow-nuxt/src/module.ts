@@ -4,7 +4,7 @@
  * Orchestrates relay startup, head-script globals injection, Vite/Webpack
  * transform registration, and client-only runtime plugin installation.
  *
- * @module @domscribe/nuxt/module
+ * @module @pinflow/nuxt/module
  */
 import {
   addPlugin,
@@ -13,17 +13,17 @@ import {
   defineNuxtModule,
   extendWebpackConfig,
 } from '@nuxt/kit';
-import { domscribe } from '@domscribe/transform/plugins/vite';
-import { DomscribeWebpackPlugin } from '@domscribe/transform/plugins/webpack';
+import { domscribe } from '@pinflow/transform/plugins/vite';
+import { DomscribeWebpackPlugin } from '@pinflow/transform/plugins/webpack';
 import type { DomscribeNuxtOptions } from './types.js';
 
 /**
- * The Nuxt module. Use as the default export of @domscribe/nuxt or
+ * The Nuxt module. Use as the default export of @pinflow/nuxt or
  * add to `modules` in nuxt.config with the `domscribe` config key.
  */
 export const domscribeModule = defineNuxtModule<DomscribeNuxtOptions>({
   meta: {
-    name: '@domscribe/nuxt',
+    name: '@pinflow/nuxt',
     configKey: 'domscribe',
   },
   defaults: {
@@ -50,7 +50,7 @@ export const domscribeModule = defineNuxtModule<DomscribeNuxtOptions>({
 
     if (options.relay?.autoStart !== false) {
       try {
-        const { RelayControl } = await import('@domscribe/relay');
+        const { RelayControl } = await import('@pinflow/relay');
         const relayControl = new RelayControl(nuxt.options.rootDir);
         const result = await relayControl.ensureRunning({
           port: options.relay?.port,
@@ -137,7 +137,7 @@ export const domscribeModule = defineNuxtModule<DomscribeNuxtOptions>({
           enforce: 'pre' as const,
           use: [
             {
-              loader: '@domscribe/transform/plugins/webpack/loader',
+              loader: '@pinflow/transform/plugins/webpack/loader',
               options: { debug },
             },
           ],

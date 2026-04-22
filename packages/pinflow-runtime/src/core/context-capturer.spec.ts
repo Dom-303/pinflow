@@ -13,7 +13,7 @@ import {
   type ContextCapturerOptions,
 } from './context-capturer.js';
 import type { FrameworkAdapter } from '../adapters/adapter.interface.js';
-import type { RuntimeContext } from '@domscribe/core';
+import type { RuntimeContext } from '@pinflow/core';
 import type { CaptureOptions } from '../capture/types.js';
 import { ContextCaptureError } from '../errors/index.js';
 
@@ -37,8 +37,8 @@ vi.mock('../utils/serialization.js', () => ({
   serializeValue: (...args: unknown[]) => mockSerializeValue(...args),
 }));
 
-vi.mock('@domscribe/core', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@domscribe/core')>();
+vi.mock('@pinflow/core', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@pinflow/core')>();
   return {
     ...actual,
     redactPII: (...args: unknown[]) => mockRedactPII(...args),

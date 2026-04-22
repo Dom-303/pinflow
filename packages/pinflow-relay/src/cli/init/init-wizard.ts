@@ -1,6 +1,6 @@
 /**
  * Init wizard orchestrator.
- * @module @domscribe/relay/cli/init/init-wizard
+ * @module @pinflow/relay/cli/init/init-wizard
  */
 import * as clack from '@clack/prompts';
 

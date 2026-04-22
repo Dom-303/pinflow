@@ -10,7 +10,7 @@
  * - Eager ID cache persistence after every transform (workers are ephemeral)
  * - Client globals preamble injected into every file (server/client share one loader instance)
  *
- * @module @domscribe/transform/plugins/turbopack/turbopack-loader
+ * @module @pinflow/transform/plugins/turbopack/turbopack-loader
  */
 import type { LoaderContext } from 'webpack';
 import type { SourceMap } from 'magic-string';
@@ -20,10 +20,10 @@ import {
   InjectorRegistry,
   isInjectorFileExtension,
 } from '../../core/injector.registry.js';
-import { ManifestWriter } from '@domscribe/manifest';
+import { ManifestWriter } from '@pinflow/manifest';
 import { TransformStats } from '../../core/stats.js';
-import { RelayControl } from '@domscribe/relay';
-import { PATHS } from '@domscribe/core';
+import { RelayControl } from '@pinflow/relay';
+import { PATHS } from '@pinflow/core';
 import { FileTimings } from '../../core/types.js';
 import path from 'path';
 
@@ -44,7 +44,7 @@ let cleanupRegistered = false;
 
 /**
  * Returns the relay host/port after initialization completes.
- * Call this from meta-framework wrappers (e.g. @domscribe/next) to get relay info.
+ * Call this from meta-framework wrappers (e.g. @pinflow/next) to get relay info.
  */
 export function getInitResult(): TurbopackInitResult {
   return initResult;
@@ -145,7 +145,7 @@ async function doInit(
  * - Installs a one-time console.error filter that suppresses React's
  *   "Invalid prop `data-ds` supplied to `React.Fragment`" warning
  * - Triggers auto-initialization of runtime + overlay via
- *   `import('@domscribe/next/auto-init')`, guarded by a
+ *   `import('@pinflow/next/auto-init')`, guarded by a
  *   `__DOMSCRIBE_AUTO_INIT__` flag to run only once per page load
  */
 /**
@@ -155,7 +155,7 @@ async function doInit(
  * meta-framework wrapper), returns a relative path from the source file
  * to the auto-init module. This bypasses bare-specifier resolution, which
  * fails in pnpm monorepos when the transformed file belongs to a workspace
- * package that doesn't directly depend on `@domscribe/next`.
+ * package that doesn't directly depend on `@pinflow/next`.
  *
  * Falls back to the bare specifier when `autoInitPath` is not provided.
  */
@@ -164,7 +164,7 @@ function resolveAutoInitSpecifier(
   sourceFile: string,
 ): string {
   if (!autoInitPath) {
-    return '@domscribe/next/auto-init';
+    return '@pinflow/next/auto-init';
   }
 
   const relPath = path

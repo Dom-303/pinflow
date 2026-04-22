@@ -3,10 +3,10 @@
  *
  * Coordinates props and state capturers to assemble a complete RuntimeContext object.
  *
- * @module @domscribe/runtime/core/context-capturer
+ * @module @pinflow/runtime/core/context-capturer
  */
 
-import type { RuntimeContext } from '@domscribe/core';
+import type { RuntimeContext } from '@pinflow/core';
 import type { FrameworkAdapter } from '../adapters/adapter.interface.js';
 import type {
   CaptureOptions,

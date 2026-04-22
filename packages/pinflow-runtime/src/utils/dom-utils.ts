@@ -1,9 +1,9 @@
 /**
  * DOM utility functions for element traversal and querying
- * @module @domscribe/runtime/utils/dom-utils
+ * @module @pinflow/runtime/utils/dom-utils
  */
 
-import { ManifestEntryId, PATTERNS } from '@domscribe/core';
+import { ManifestEntryId, PATTERNS } from '@pinflow/core';
 
 /**
  * Get element by Domscribe element ID (data-ds attribute)

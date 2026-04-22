@@ -3,7 +3,7 @@ import {
   DomscribeError,
   DomscribeErrorCode,
   HTTP_STATUS,
-} from '@domscribe/core';
+} from '@pinflow/core';
 import {
   FastifyInstance,
   FastifyReply,

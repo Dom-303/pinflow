@@ -1,6 +1,6 @@
 /**
  * No-op framework adapter (fallback)
- * @module @domscribe/runtime/adapters/noop-adapter
+ * @module @pinflow/runtime/adapters/noop-adapter
  */
 
 import type { FrameworkAdapter } from './adapter.interface.js';

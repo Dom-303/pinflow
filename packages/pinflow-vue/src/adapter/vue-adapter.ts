@@ -6,10 +6,10 @@
  * for component resolution — Vue does not expose a DevTools-based
  * DOM-to-component API.
  *
- * @module @domscribe/vue/adapter/vue-adapter
+ * @module @pinflow/vue/adapter/vue-adapter
  */
 
-import type { ComponentTreeNode, SerializationHints } from '@domscribe/runtime';
+import type { ComponentTreeNode, SerializationHints } from '@pinflow/runtime';
 import type {
   VueAdapterOptions,
   VueAdapterState,

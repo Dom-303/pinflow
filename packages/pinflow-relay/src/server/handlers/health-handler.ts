@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import type { ManifestReader } from '@domscribe/manifest';
+import type { ManifestReader } from '@pinflow/manifest';
 import type { AnnotationService } from '../services/index.js';
 import { HealthRoute } from '../routes/health.route.js';
 import { registerRoute } from '../routes/route.interface.js';

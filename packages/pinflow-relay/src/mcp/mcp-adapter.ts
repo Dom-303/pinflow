@@ -1,7 +1,7 @@
 /**
  * MCP (Model Context Protocol) adapter for PinFlow.
  * Provides a stdio-based MCP server that proxies requests to the HTTP relay.
- * @module @domscribe/relay/mcp/mcp-adapter
+ * @module @pinflow/relay/mcp/mcp-adapter
  */
 import { z } from 'zod';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';

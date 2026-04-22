@@ -9,7 +9,7 @@
  * template block content, not the full SFC. This parser calculates absolute
  * positions for correct injection.
  *
- * @module @domscribe/transform/parsers/vue/vue-sfc-parser
+ * @module @pinflow/transform/parsers/vue/vue-sfc-parser
  */
 
 import { ParserInterface } from '../parser.interface.js';

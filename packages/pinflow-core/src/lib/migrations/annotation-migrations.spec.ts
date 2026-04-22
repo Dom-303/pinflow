@@ -1,6 +1,6 @@
 /**
  * Unit tests for annotation schema migration utilities
- * @module @domscribe/core/migrations/annotation-migrations.spec
+ * @module @pinflow/core/migrations/annotation-migrations.spec
  */
 
 import { describe, it, expect } from 'vitest';

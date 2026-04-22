@@ -1,7 +1,7 @@
 /**
  * Leaf process utilities for relay lifecycle management.
  * Zero internal dependencies — other lifecycle modules depend on this.
- * @module @domscribe/relay/lifecycle/process
+ * @module @pinflow/relay/lifecycle/process
  */
 
 /**

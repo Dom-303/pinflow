@@ -1,11 +1,11 @@
-# @domscribe/next
+# @pinflow/next
 
 Next.js integration for PinFlow.
 
 ## Install
 
 ```bash
-npm install @domscribe/next
+npm install @pinflow/next
 ```
 
 ## Note

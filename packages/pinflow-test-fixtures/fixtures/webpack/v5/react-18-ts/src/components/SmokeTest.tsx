@@ -13,7 +13,7 @@
  */
 
 import { useState } from 'react';
-import { CaptureStrategy } from '@domscribe/react';
+import { CaptureStrategy } from '@pinflow/react';
 import { CaptureIcon } from './CaptureIcon';
 // Load smoke test utilities (exposes domscribe.* to console)
 import '../domscribe-smoke-test';

@@ -1,11 +1,11 @@
-# @domscribe/react
+# @pinflow/react
 
 React adapter for PinFlow — fiber walking, props/state extraction, and bundler plugins.
 
 ## Install
 
 ```bash
-npm install -D @domscribe/react
+npm install -D @pinflow/react
 ```
 
 ## Vite
@@ -13,7 +13,7 @@ npm install -D @domscribe/react
 ```ts
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { pinflow } from '@domscribe/react/vite';
+import { pinflow } from '@pinflow/react/vite';
 
 export default defineConfig({
   plugins: [react(), pinflow()],
@@ -23,10 +23,10 @@ export default defineConfig({
 ## Webpack
 
 ```js
-const { PinFlowWebpackPlugin } = require('@domscribe/react/webpack');
+const { PinFlowWebpackPlugin } = require('@pinflow/react/webpack');
 
 // Add to plugins array + add webpack loader rule
-// (see @domscribe/transform README for full webpack config)
+// (see @pinflow/transform README for full webpack config)
 ```
 
 ## Plugin Options
@@ -57,7 +57,7 @@ interface DomscribeReactPluginOptions {
 | `phase`          | `1 \| 2`                   | `1`         | Feature phase gate (Phase 1: props/state, Phase 2: events/perf)                                        |
 | `redactPII`      | `boolean`                  | `true`      | Redact sensitive values in captured data                                                               |
 | `blockSelectors` | `string[]`                 | `[]`        | CSS selectors to exclude from capture                                                                  |
-| `serialization`  | `SerializationConstraints` | `undefined` | Serialization bounds (maxDepth, maxArrayLength, maxTotalBytes, etc.) — see `@domscribe/runtime` README |
+| `serialization`  | `SerializationConstraints` | `undefined` | Serialization bounds (maxDepth, maxArrayLength, maxTotalBytes, etc.) — see `@pinflow/runtime` README |
 
 ### Capture Options
 
@@ -81,9 +81,9 @@ Hooks use semantic names based on their inferred type: `state_0`, `ref_0`, `memo
 
 ## Subpath Exports
 
-- `@domscribe/react/vite` — Vite plugin with React adapter
-- `@domscribe/react/webpack` — Webpack plugin with React adapter
-- `@domscribe/react/auto-init` — Auto-initialization module
+- `@pinflow/react/vite` — Vite plugin with React adapter
+- `@pinflow/react/webpack` — Webpack plugin with React adapter
+- `@pinflow/react/auto-init` — Auto-initialization module
 
 ---
 

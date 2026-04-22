@@ -1,12 +1,12 @@
 /**
  * Monorepo detection and config file creation step.
- * @module @domscribe/relay/cli/init/monorepo-step
+ * @module @pinflow/relay/cli/init/monorepo-step
  */
 import { existsSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
 import * as clack from '@clack/prompts';
-import { PATHS } from '@domscribe/core';
+import { PATHS } from '@pinflow/core';
 
 import { findConfigFile, loadAppRoot } from '../config-loader.js';
 import type { InitOptions } from './types.js';

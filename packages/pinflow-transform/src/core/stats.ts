@@ -5,10 +5,10 @@
  * timing breakdown and percentiles for consistent comparison across
  * Vite and Webpack implementations.
  *
- * @module @domscribe/transform/core/stats
+ * @module @pinflow/transform/core/stats
  */
 
-import type { ManifestWriterStats } from '@domscribe/manifest';
+import type { ManifestWriterStats } from '@pinflow/manifest';
 import type { FileMetrics, AggregateMetrics } from './types.js';
 import path from 'path';
 

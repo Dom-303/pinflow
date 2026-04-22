@@ -1,10 +1,10 @@
 /**
  * MCP tool definitions, base class, and shared helpers
- * @module @domscribe/relay/mcp/tools/tool-defs
+ * @module @pinflow/relay/mcp/tools/tool-defs
  */
 import { z } from 'zod';
 import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
-import { DomscribeError, DomscribeErrorCode } from '@domscribe/core';
+import { DomscribeError, DomscribeErrorCode } from '@pinflow/core';
 
 /**
  * Available MCP tool names

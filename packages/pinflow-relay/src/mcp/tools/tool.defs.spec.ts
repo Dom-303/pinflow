@@ -1,4 +1,4 @@
-import { DomscribeError, DomscribeErrorCode } from '@domscribe/core';
+import { DomscribeError, DomscribeErrorCode } from '@pinflow/core';
 import { mcpErrorResult, MCP_TOOLS } from './tool.defs.js';
 import { getResultText } from '../__test-utils__/mock-relay-client.js';
 

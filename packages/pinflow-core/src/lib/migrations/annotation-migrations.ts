@@ -6,7 +6,7 @@
  * applied until it reaches ANNOTATION_SCHEMA_VERSION.  The next write
  * persists the migrated version so the migration only runs once per file.
  *
- * @module @domscribe/core/migrations/annotation-migrations
+ * @module @pinflow/core/migrations/annotation-migrations
  */
 import {
   ANNOTATION_SCHEMA_VERSION,

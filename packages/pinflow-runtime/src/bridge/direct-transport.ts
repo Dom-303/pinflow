@@ -3,10 +3,10 @@
  *
  * Used when the caller (overlay) runs in the same JS context as the runtime.
  *
- * @module @domscribe/runtime/bridge/direct-transport
+ * @module @pinflow/runtime/bridge/direct-transport
  */
 
-import type { ManifestEntryId, RuntimeContext } from '@domscribe/core';
+import type { ManifestEntryId, RuntimeContext } from '@pinflow/core';
 import type { ElementInfo } from '../core/types.js';
 import type { IRuntimeTransport } from './transport.interface.js';
 import { RuntimeManager } from '../core/runtime-manager.js';

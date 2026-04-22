@@ -12,7 +12,7 @@
  * - Reduces fs operations by ~50x vs individual writes
  */
 
-import type { ManifestEntry } from '@domscribe/core';
+import type { ManifestEntry } from '@pinflow/core';
 import { IWriter, BatchWriterOptions, WriterStats } from './types.js';
 import { appendFileSync } from 'fs';
 

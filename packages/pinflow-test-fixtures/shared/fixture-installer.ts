@@ -1,7 +1,7 @@
 /**
  * Fixture Installer
  *
- * Installs a single fixture's @domscribe dependencies from the local
+ * Installs a single fixture's PinFlow dependencies from the local
  * Verdaccio registry. Called by scripts/install-fixture.ts with a
  * FIXTURE_ID env var — orchestration across fixtures is handled by Nx.
  *
@@ -36,6 +36,9 @@ export interface InstallOptions {
 
   /** Optional log function. Defaults to `console.log`. */
   log?: (message: string) => void;
+
+  /** Force a reinstall even when the freshness stamp matches. */
+  force?: boolean;
 }
 
 /** Per-fixture outcome. */
@@ -51,7 +54,8 @@ export interface FixtureOutcome {
 // ---------------------------------------------------------------------------
 
 const STAMP_FILENAME = getInstallStampFilename();
-const DOMSCRIBE_SCOPE = '@domscribe';
+const PINFLOW_SCOPE = '@pinflow';
+const LEGACY_SCOPE = '@domscribe';
 
 // ---------------------------------------------------------------------------
 // Version & Staleness
@@ -105,7 +109,8 @@ function buildNpmrc(
   authToken: string,
 ): string {
   const lines = [
-    `${DOMSCRIBE_SCOPE}:registry=${registryUrl}/`,
+    `${PINFLOW_SCOPE}:registry=${registryUrl}/`,
+    `${LEGACY_SCOPE}:registry=${registryUrl}/`,
     'registry=https://registry.npmjs.org/',
   ];
   if (authToken) {
@@ -126,7 +131,7 @@ function ensureNpmrc(
   authToken: string,
 ): boolean {
   const npmrcPath = join(fixturePath, '.npmrc');
-  const marker = `${DOMSCRIBE_SCOPE}:registry=${registryUrl}`;
+  const marker = `${PINFLOW_SCOPE}:registry=${registryUrl}`;
 
   const existing = existsSync(npmrcPath)
     ? readFileSync(npmrcPath, 'utf-8')
@@ -147,8 +152,9 @@ function ensureNpmrc(
  *
  * 1. **package-lock.json** — locks exact versions; npm install is a no-op
  *    even when Verdaccio has newer packages.
- * 2. **node_modules/@domscribe** — forces a fresh fetch of the scope
- *    rather than reusing cached copies.
+ * 2. **node_modules/@pinflow** and **node_modules/@domscribe** — force a
+ *    fresh fetch of the canonical and legacy scopes rather than reusing
+ *    cached copies.
  */
 function purgeStaleArtifacts(fixturePath: string): void {
   const lockPath = join(fixturePath, 'package-lock.json');
@@ -156,9 +162,11 @@ function purgeStaleArtifacts(fixturePath: string): void {
     rmSync(lockPath);
   }
 
-  const scopeDir = join(fixturePath, 'node_modules', DOMSCRIBE_SCOPE);
-  if (existsSync(scopeDir)) {
-    rmSync(scopeDir, { recursive: true });
+  for (const scope of [PINFLOW_SCOPE, LEGACY_SCOPE]) {
+    const scopeDir = join(fixturePath, 'node_modules', scope);
+    if (existsSync(scopeDir)) {
+      rmSync(scopeDir, { recursive: true });
+    }
   }
 }
 
@@ -187,11 +195,11 @@ function runNpmInstall(fixturePath: string): void {
 // ---------------------------------------------------------------------------
 
 /**
- * Install a single fixture's @domscribe packages from the local registry.
+ * Install a single fixture's PinFlow packages from the local registry.
  *
  * 1. Ensure .npmrc points at the local Verdaccio registry
  * 2. Skip if the stamp file matches the current workspace identity
- * 3. Purge the lockfile and @domscribe scope from node_modules
+ * 3. Purge the lockfile and PinFlow scopes from node_modules
  * 4. Run npm install
  * 5. Write the stamp file on success
  */
@@ -204,6 +212,7 @@ export function installFixture(
     registryUrl,
     registryPort,
     log = console.log,
+    force = false,
   } = options;
 
   const identity = readWorkspaceIdentity(workspaceRoot);
@@ -212,7 +221,7 @@ export function installFixture(
   const authToken = readAuthToken(workspaceRoot, registryPort);
   ensureNpmrc(fixtureDir, registryUrl, registryPort, authToken);
 
-  if (isCurrent(fixtureDir, stampValue)) {
+  if (!force && isCurrent(fixtureDir, stampValue)) {
     log(`Skipped (${stampValue} already installed)`);
     return { action: 'skipped' };
   }

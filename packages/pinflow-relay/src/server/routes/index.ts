@@ -1,6 +1,6 @@
 /**
  * Route barrel exports
- * @module @domscribe/relay/server/routes
+ * @module @pinflow/relay/server/routes
  */
 
 /** Annotation routes */

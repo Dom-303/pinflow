@@ -15,13 +15,13 @@ import type {
   InteractionMode,
   ManifestEntry,
   ManifestEntryId,
-} from '@domscribe/core';
+} from '@pinflow/core';
 import {
   ANNOTATION_SCHEMA_VERSION,
   AnnotationStatusEnum,
   generateAnnotationId,
   WS_EVENTS,
-} from '@domscribe/core';
+} from '@pinflow/core';
 import type { AnnotationStorageProvider } from './storage/annotation-storage.js';
 
 /**

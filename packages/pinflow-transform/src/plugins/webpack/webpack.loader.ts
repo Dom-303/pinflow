@@ -5,7 +5,7 @@
  * source code. Requires DomscribeWebpackPlugin to be registered for lifecycle
  * management (InjectorRegistry and ManifestWriter initialization).
  *
- * @module @domscribe/transform/plugins/webpack/webpack-loader
+ * @module @pinflow/transform/plugins/webpack/webpack-loader
  */
 import type { LoaderContext } from 'webpack';
 import { FileTimings } from '../../core/types.js';
@@ -16,9 +16,9 @@ import {
   InjectorRegistry,
   isInjectorFileExtension,
 } from '../../core/injector.registry.js';
-import { ManifestWriter } from '@domscribe/manifest';
+import { ManifestWriter } from '@pinflow/manifest';
 import { TransformStats } from '../../core/stats.js';
-import { PATHS } from '@domscribe/core';
+import { PATHS } from '@pinflow/core';
 import path from 'path';
 
 export default function domscribeLoader(

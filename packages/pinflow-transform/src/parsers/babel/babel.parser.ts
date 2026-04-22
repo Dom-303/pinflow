@@ -9,7 +9,7 @@
  * Performance: ~2-4ms per typical component (50-100 lines)
  * Bundle size: ~500KB (@babel/parser + @babel/types)
  *
- * @module @domscribe/transform/parsers/babel/babel-parser
+ * @module @pinflow/transform/parsers/babel/babel-parser
  */
 
 import { parse, ParserPlugin } from '@babel/parser';

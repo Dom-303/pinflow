@@ -1,6 +1,6 @@
 /**
  * PII redaction utilities for privacy protection
- * @module @domscribe/core/privacy/redaction
+ * @module @pinflow/core/privacy/redaction
  */
 
 import { PII_PATTERNS, SENSITIVE_FIELD_NAMES } from './patterns.js';

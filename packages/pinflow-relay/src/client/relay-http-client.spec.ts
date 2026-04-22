@@ -1,4 +1,4 @@
-import { AnnotationStatusEnum, DomscribeErrorCode } from '@domscribe/core';
+import { AnnotationStatusEnum, DomscribeErrorCode } from '@pinflow/core';
 import { RelayHttpClient, RelayError } from './relay-http-client.js';
 
 describe('RelayHttpClient', () => {

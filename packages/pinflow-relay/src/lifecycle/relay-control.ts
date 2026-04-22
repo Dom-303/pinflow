@@ -2,11 +2,11 @@
  * Consolidated relay lifecycle facade.
  * Composes lock-file, health-check, spawn, and process primitives.
  * Used by build plugins, CLI commands, and MCP.
- * @module @domscribe/relay/lifecycle/relay-control
+ * @module @pinflow/relay/lifecycle/relay-control
  */
 import path from 'node:path';
 import { spawn, type ChildProcess } from 'node:child_process';
-import { DEFAULT_CONFIG } from '@domscribe/core';
+import { DEFAULT_CONFIG } from '@pinflow/core';
 import { isProcessRunning, sleep } from './process.js';
 
 import { RelayHttpClient } from '../client/relay-http-client.js';

@@ -1,5 +1,5 @@
 {
-  "name": "@domscribe/core",
+  "name": "@pinflow/core",
   "version": "0.6.0-pinflow.0",
   "description": "Shared types, schemas, and utilities for PinFlow",
   "type": "module",

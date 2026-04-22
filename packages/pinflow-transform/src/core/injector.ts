@@ -12,12 +12,12 @@
  * - Preserve React keys (hydration-safe)
  * - Avoid duplicate injection
  *
- * @module @domscribe/transform/core/injector
+ * @module @pinflow/transform/core/injector
  */
 import MagicString from 'magic-string';
 import type { ParserInterface } from '../parsers/parser.interface.js';
 import { SourceLocation } from '../parsers/types.js';
-import { PATHS, type ManifestEntry } from '@domscribe/core';
+import { PATHS, type ManifestEntry } from '@pinflow/core';
 import {
   InjectParams,
   InjectorOptions,
@@ -25,7 +25,7 @@ import {
   InjectorMetrics,
 } from './types.js';
 import { SourceMapConsumer } from 'source-map';
-import { IDStabilizer, type IDGenerator } from '@domscribe/manifest';
+import { IDStabilizer, type IDGenerator } from '@pinflow/manifest';
 import path from 'path';
 
 export class DomscribeInjector<TParseResult = unknown, TElement = unknown> {

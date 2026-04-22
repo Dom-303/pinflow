@@ -18,7 +18,7 @@ import {
   AnnotationStatusEnum,
   type Annotation,
   type AnnotationStatus,
-} from '@domscribe/core';
+} from '@pinflow/core';
 import { FileAnnotationStorage } from './file-annotation-storage.js';
 
 const STATUSES: readonly AnnotationStatus[] = [

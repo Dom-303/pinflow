@@ -1,12 +1,12 @@
 /**
  * StateCapturer - Captures component state (Phase 1 feature)
- * @module @domscribe/runtime/capture/state-capturer
+ * @module @pinflow/runtime/capture/state-capturer
  */
 
 import type { FrameworkAdapter } from '../adapters/adapter.interface.js';
 import type { CaptureResult, StateCaptureOptions } from './types.js';
 import { serializeValue } from '../utils/serialization.js';
-import { isRecord, redactPII, redactSensitiveFields } from '@domscribe/core';
+import { isRecord, redactPII, redactSensitiveFields } from '@pinflow/core';
 import { ContextCaptureError } from '../errors/index.js';
 
 /**

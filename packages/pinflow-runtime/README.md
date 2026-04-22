@@ -1,32 +1,32 @@
-# @domscribe/runtime
+# @pinflow/runtime
 
 Browser-side context capture engine for PinFlow's current compatibility layer.
 
-`@domscribe/runtime` runs in the browser during development and captures component props, state, and DOM context when a developer clicks an element. It is framework-agnostic at its core — framework-specific behavior is provided by adapters.
+`@pinflow/runtime` runs in the browser during development and captures component props, state, and DOM context when a developer clicks an element. It is framework-agnostic at its core — framework-specific behavior is provided by adapters.
 
 ## Install
 
 ```bash
-npm install @domscribe/runtime
+npm install @pinflow/runtime
 ```
 
 ## Framework Support
 
 | Framework     | Adapter            | Capture Strategy                                 |
 | ------------- | ------------------ | ------------------------------------------------ |
-| React 18-19   | `@domscribe/react` | Fiber walking, DevTools hook, BestEffort         |
-| Vue 3         | `@domscribe/vue`   | VNode inspection, Composition + Options API      |
-| Next.js 15-16 | `@domscribe/next`  | React adapter + `withDomscribe()` config wrapper |
-| Nuxt 3+       | `@domscribe/nuxt`  | Vue adapter + auto-configured Nuxt module        |
+| React 18-19   | `@pinflow/react` | Fiber walking, DevTools hook, BestEffort         |
+| Vue 3         | `@pinflow/vue`   | VNode inspection, Composition + Options API      |
+| Next.js 15-16 | `@pinflow/next`  | React adapter + `withPinFlow()` config wrapper   |
+| Nuxt 3+       | `@pinflow/nuxt`  | Vue adapter + auto-configured Nuxt module        |
 
-For most projects you will install a framework adapter rather than `@domscribe/runtime` directly. The adapter declares `@domscribe/runtime` as a peer dependency and handles initialization.
+For most projects you will install a framework adapter rather than `@pinflow/runtime` directly. The adapter declares `@pinflow/runtime` as a peer dependency and handles initialization.
 
 ## RuntimeManager
 
 `RuntimeManager` is a singleton that manages the active adapter and provides the capture API to the overlay and other internal consumers.
 
 ```ts
-import { RuntimeManager } from '@domscribe/runtime';
+import { RuntimeManager } from '@pinflow/runtime';
 
 const runtime = RuntimeManager.getInstance();
 await runtime.initialize({

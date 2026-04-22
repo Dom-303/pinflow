@@ -1,8 +1,8 @@
 /**
  * Shared server types for relay HTTP responses
- * @module @domscribe/relay/server/types
+ * @module @pinflow/relay/server/types
  */
-import { DomscribeErrorCode, ProblemDetailsSchema } from '@domscribe/core';
+import { DomscribeErrorCode, ProblemDetailsSchema } from '@pinflow/core';
 import { z } from 'zod';
 
 export const RelayErrorResponseSchema = z.object({

@@ -1,9 +1,9 @@
 /**
  * React adapter type definitions
- * @module @domscribe/react/adapter/types
+ * @module @pinflow/react/adapter/types
  */
 
-import type { FrameworkAdapter } from '@domscribe/runtime';
+import type { FrameworkAdapter } from '@pinflow/runtime';
 
 /**
  * React DevTools global hook shape (window.__REACT_DEVTOOLS_GLOBAL_HOOK__)

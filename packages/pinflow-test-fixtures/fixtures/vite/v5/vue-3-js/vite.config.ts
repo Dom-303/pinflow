@@ -1,11 +1,11 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
-import { domscribe } from '@domscribe/vue/vite';
+import { pinflow } from '@pinflow/vue/vite';
 
 export default defineConfig({
   plugins: [
     vue(),
-    domscribe({
+    pinflow({
       debug: false,
       overlay: true,
     }),

@@ -64,7 +64,7 @@ const mockManifestWriter = {
 
 const mockWriterGetInstance = vi.fn(() => mockManifestWriter);
 
-vi.mock('@domscribe/manifest', () => ({
+vi.mock('@pinflow/manifest', () => ({
   ManifestWriter: {
     getInstance: (...args: Parameters<typeof mockWriterGetInstance>) =>
       mockWriterGetInstance(...args),
@@ -116,13 +116,13 @@ const mockRelayControl = {
   ensureRunning: vi.fn().mockResolvedValue({ host: '127.0.0.1', port: 4400 }),
 };
 
-vi.mock('@domscribe/relay', () => ({
+vi.mock('@pinflow/relay', () => ({
   RelayControl: class MockRelayControl {
     ensureRunning = mockRelayControl.ensureRunning;
   },
 }));
 
-vi.mock('@domscribe/core', () => ({
+vi.mock('@pinflow/core', () => ({
   PATHS: {
     TRANSFORM_CACHE: '.domscribe/cache',
   },
@@ -568,16 +568,16 @@ describe('Turbopack Loader', () => {
       const outputCode = asyncCallback.mock.calls[0][1] as string;
       expect(outputCode).toContain('__DOMSCRIBE_AUTO_INIT__');
       expect(outputCode).toContain(
-        "import('@domscribe/next/auto-init').catch(function(){})",
+        "import('@pinflow/next/auto-init').catch(function(){})",
       );
     });
 
     it('should use relative path from autoInitPath when provided', async () => {
       // Arrange — source file at /test/packages/ui/Button.tsx,
-      // auto-init at /test/node_modules/@domscribe/next/auto-init/index.js
+      // auto-init at /test/node_modules/@pinflow/next/auto-init/index.js
       const source = 'export function Button() { return <button/>; }';
       const context = createLoaderContext('/test/packages/ui/Button.tsx', {
-        autoInitPath: '/test/node_modules/@domscribe/next/auto-init/index.js',
+        autoInitPath: '/test/node_modules/@pinflow/next/auto-init/index.js',
       });
       const asyncCallback = vi.fn();
       context.async = vi.fn(() => asyncCallback);
@@ -592,7 +592,7 @@ describe('Turbopack Loader', () => {
       // Assert — relative path from packages/ui/ to node_modules/
       const outputCode = asyncCallback.mock.calls[0][1] as string;
       expect(outputCode).toContain(
-        "import('../../node_modules/@domscribe/next/auto-init/index.js').catch(function(){})",
+        "import('../../node_modules/@pinflow/next/auto-init/index.js').catch(function(){})",
       );
     });
 

@@ -1,6 +1,6 @@
 /**
- * @domscribe/overlay - Framework-agnostic overlay UI for pixel-to-code workflows
- * @module @domscribe/overlay
+ * @pinflow/overlay - Framework-agnostic overlay UI for pixel-to-code workflows
+ * @module @pinflow/overlay
  */
 
 // ============================================================================

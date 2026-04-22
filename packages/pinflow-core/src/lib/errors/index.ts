@@ -1,7 +1,7 @@
 /**
  * Error types and error handling utilities for Domscribe.
  * Follows RFC 7807 (Problem Details for HTTP APIs) format.
- * @module @domscribe/core/errors
+ * @module @pinflow/core/errors
  */
 
 import { z } from 'zod';

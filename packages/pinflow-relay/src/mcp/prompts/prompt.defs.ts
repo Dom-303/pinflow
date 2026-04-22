@@ -1,6 +1,6 @@
 /**
  * MCP prompt definitions and base interface
- * @module @domscribe/relay/mcp/prompts/prompt-defs
+ * @module @pinflow/relay/mcp/prompts/prompt-defs
  */
 import { z } from 'zod';
 

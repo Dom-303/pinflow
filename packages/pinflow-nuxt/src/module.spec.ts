@@ -75,15 +75,15 @@ vi.mock('@nuxt/kit', () => ({
   },
 }));
 
-vi.mock('@domscribe/transform/plugins/vite', () => ({
+vi.mock('@pinflow/transform/plugins/vite', () => ({
   domscribe: (opts: unknown) => mockDomscribeVitePlugin(opts),
 }));
 
-vi.mock('@domscribe/transform/plugins/webpack', () => ({
+vi.mock('@pinflow/transform/plugins/webpack', () => ({
   DomscribeWebpackPlugin: MockDomscribeWebpackPlugin,
 }));
 
-vi.mock('@domscribe/relay', () => ({
+vi.mock('@pinflow/relay', () => ({
   RelayControl: MockRelayControl,
 }));
 
@@ -134,8 +134,8 @@ describe('domscribeModule', () => {
   });
 
   describe('meta', () => {
-    it('should set module name to @domscribe/nuxt', () => {
-      expect(getModuleDefinition().meta.name).toBe('@domscribe/nuxt');
+    it('should set module name to @pinflow/nuxt', () => {
+      expect(getModuleDefinition().meta.name).toBe('@pinflow/nuxt');
     });
 
     it('should set config key to domscribe', () => {
@@ -411,7 +411,7 @@ describe('domscribeModule', () => {
 
         const use = rule['use'] as Array<Record<string, unknown>>;
         expect(use[0]['loader']).toBe(
-          '@domscribe/transform/plugins/webpack/loader',
+          '@pinflow/transform/plugins/webpack/loader',
         );
         expect(use[0]['options']).toEqual({ debug: true });
       });

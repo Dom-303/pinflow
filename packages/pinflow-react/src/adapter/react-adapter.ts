@@ -7,10 +7,10 @@
  * - Fiber: Direct Fiber tree access (fast, but uses React internal API)
  * - Best-effort: Try multiple strategies in order of reliability
  *
- * @module @domscribe/react/adapter/react-adapter
+ * @module @pinflow/react/adapter/react-adapter
  */
 
-import type { ComponentTreeNode, SerializationHints } from '@domscribe/runtime';
+import type { ComponentTreeNode, SerializationHints } from '@pinflow/runtime';
 import type { ExtendedReactFiber } from '../fiber/types.js';
 import type {
   ReactAdapterOptions,

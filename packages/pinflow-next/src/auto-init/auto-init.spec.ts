@@ -6,15 +6,15 @@ const mockGetInstance = vi.fn(() => ({ initialize: mockInitialize }));
 const mockCreateReactAdapter = vi.fn(() => ({ name: 'react-adapter' }));
 const mockInitOverlay = vi.fn();
 
-vi.mock('@domscribe/runtime', () => ({
+vi.mock('@pinflow/runtime', () => ({
   RuntimeManager: { getInstance: mockGetInstance },
 }));
 
-vi.mock('@domscribe/react', () => ({
+vi.mock('@pinflow/react', () => ({
   createReactAdapter: mockCreateReactAdapter,
 }));
 
-vi.mock('@domscribe/overlay', () => ({
+vi.mock('@pinflow/overlay', () => ({
   initOverlay: mockInitOverlay,
 }));
 

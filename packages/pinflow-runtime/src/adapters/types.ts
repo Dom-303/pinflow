@@ -1,6 +1,6 @@
 /**
  * Adapter-specific types
- * @module @domscribe/runtime/adapters/types
+ * @module @pinflow/runtime/adapters/types
  */
 
 /**
@@ -39,4 +39,4 @@ export interface ComponentTreeNode {
 }
 
 // Re-export Nullable from core for local consumers
-export type { Nullable } from '@domscribe/core';
+export type { Nullable } from '@pinflow/core';

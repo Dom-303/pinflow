@@ -1,6 +1,6 @@
 /**
  * Configuration types for the Babel parser
- * @module @domscribe/transform/parsers/babel/types
+ * @module @pinflow/transform/parsers/babel/types
  */
 import { ParserPlugin } from '@babel/parser';
 

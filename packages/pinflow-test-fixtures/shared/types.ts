@@ -2,7 +2,7 @@
  * Shared types for test utilities
  */
 
-/** Source position in a file (mirrors @domscribe/core shape) */
+/** Source position in a file (mirrors @pinflow/core shape) */
 export interface SourcePosition {
   line: number | null;
   column: number | null;
@@ -12,7 +12,7 @@ export interface SourcePosition {
 /**
  * A single manifest entry mapping an element to its source location.
  * Defined locally so integration tests have zero compile-time dependency
- * on @domscribe/* packages (black-box testing contract).
+ * on @pinflow/* packages (black-box testing contract).
  */
 export interface ManifestEntry {
   id: string;
@@ -66,7 +66,7 @@ export interface BuildOptions {
   mode?: 'development' | 'production';
   /** Capture build statistics */
   captureStats?: boolean;
-  /** Disable Domscribe (for baseline comparison) */
+  /** Disable PinFlow (for baseline comparison) */
   disableDomscribe?: boolean;
 }
 

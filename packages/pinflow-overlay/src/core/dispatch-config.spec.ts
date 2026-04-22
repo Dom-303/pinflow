@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { Annotation } from '@domscribe/core';
+import type { Annotation } from '@pinflow/core';
 import {
   DEFAULT_DISPATCH_PROJECT_DEFAULTS,
   DEFAULT_DISPATCH_SESSION_STATE,

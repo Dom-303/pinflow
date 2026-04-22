@@ -1,6 +1,6 @@
 /**
  * Ensure `.pinflow` is listed in the project's `.gitignore`.
- * @module @domscribe/relay/cli/init/gitignore-step
+ * @module @pinflow/relay/cli/init/gitignore-step
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';

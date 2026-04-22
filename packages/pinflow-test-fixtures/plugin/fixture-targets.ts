@@ -59,7 +59,7 @@ export const createNodes: CreateNodesV2 = [
         join(fullPath, '..'),
       );
 
-      // Per-fixture install target — installs @domscribe packages from Verdaccio
+      // Per-fixture install target — installs PinFlow packages from Verdaccio
       targets[`install-fixture--${fixture.id}`] = {
         executor: 'nx:run-commands',
         options: {
@@ -67,7 +67,7 @@ export const createNodes: CreateNodesV2 = [
         },
         cache: false,
         metadata: {
-          description: `Install @domscribe packages for fixture ${fixture.id}`,
+          description: `Install PinFlow packages for fixture ${fixture.id}`,
         },
       };
 

@@ -1,6 +1,6 @@
 /**
  * Shared type guards for the privacy module
- * @module @domscribe/core/privacy/redaction-utils
+ * @module @pinflow/core/privacy/redaction-utils
  */
 
 /**

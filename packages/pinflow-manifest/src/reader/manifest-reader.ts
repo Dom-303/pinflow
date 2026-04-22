@@ -6,9 +6,9 @@
  */
 import { existsSync, readFileSync, watchFile, unwatchFile } from 'fs';
 import path from 'path';
-import { PATHS, type ManifestEntry } from '@domscribe/core';
+import { PATHS, type ManifestEntry } from '@pinflow/core';
 
-import { ManifestEntrySchema } from '@domscribe/core';
+import { ManifestEntrySchema } from '@pinflow/core';
 import { z } from 'zod';
 
 /**

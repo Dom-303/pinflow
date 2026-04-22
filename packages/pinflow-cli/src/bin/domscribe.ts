@@ -1,5 +1,5 @@
 #!/usr/bin/env node
 // Compatibility CLI alias for the PinFlow package identity.
-import { program } from '@domscribe/relay/program';
+import { program } from '@pinflow/relay/program';
 
 program.parse();

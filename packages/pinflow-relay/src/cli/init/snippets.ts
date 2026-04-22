@@ -1,6 +1,6 @@
 /**
  * Config snippets displayed to the user after framework selection.
- * @module @domscribe/relay/cli/init/snippets
+ * @module @pinflow/relay/cli/init/snippets
  */
 import type { FrameworkId } from './types.js';
 
@@ -10,25 +10,25 @@ import type { FrameworkId } from './types.js';
  */
 export const CONFIG_SNIPPETS: Record<FrameworkId, string> = {
   next: `import type { NextConfig } from 'next';
-import { withDomscribe } from '@domscribe/next';
+import { withDomscribe } from '@pinflow/next';
 
 const nextConfig: NextConfig = {};
 
 export default withDomscribe()(nextConfig);`,
 
   nuxt: `export default defineNuxtConfig({
-  modules: ['@domscribe/nuxt'],
+  modules: ['@pinflow/nuxt'],
 });`,
 
   'react-vite': `import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { domscribe } from '@domscribe/react/vite';
+import { domscribe } from '@pinflow/react/vite';
 
 export default defineConfig({
   plugins: [react(), domscribe()],
 });`,
 
-  'react-webpack': `const { DomscribeWebpackPlugin } = require('@domscribe/react/webpack');
+  'react-webpack': `const { DomscribeWebpackPlugin } = require('@pinflow/react/webpack');
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -41,7 +41,7 @@ module.exports = {
         enforce: 'pre',
         use: [
           {
-            loader: '@domscribe/transform/webpack-loader',
+            loader: '@pinflow/transform/webpack-loader',
             options: { enabled: isDevelopment },
           },
         ],
@@ -59,13 +59,13 @@ module.exports = {
 
   'vue-vite': `import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
-import { domscribe } from '@domscribe/vue/vite';
+import { domscribe } from '@pinflow/vue/vite';
 
 export default defineConfig({
   plugins: [vue(), domscribe()],
 });`,
 
-  'vue-webpack': `const { DomscribeWebpackPlugin } = require('@domscribe/vue/webpack');
+  'vue-webpack': `const { DomscribeWebpackPlugin } = require('@pinflow/vue/webpack');
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -78,7 +78,7 @@ module.exports = {
         enforce: 'pre',
         use: [
           {
-            loader: '@domscribe/transform/webpack-loader',
+            loader: '@pinflow/transform/webpack-loader',
             options: { enabled: isDevelopment },
           },
         ],
@@ -95,7 +95,7 @@ module.exports = {
 };`,
 
   'other-vite': `import { defineConfig } from 'vite';
-import { domscribe } from '@domscribe/transform/plugins/vite';
+import { domscribe } from '@pinflow/transform/plugins/vite';
 
 export default defineConfig({
   plugins: [domscribe()],
@@ -103,7 +103,7 @@ export default defineConfig({
 
   'other-webpack': `const {
   DomscribeWebpackPlugin,
-} = require('@domscribe/transform/plugins/webpack');
+} = require('@pinflow/transform/plugins/webpack');
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -116,7 +116,7 @@ module.exports = {
         enforce: 'pre',
         use: [
           {
-            loader: '@domscribe/transform/webpack-loader',
+            loader: '@pinflow/transform/webpack-loader',
             options: { enabled: isDevelopment },
           },
         ],

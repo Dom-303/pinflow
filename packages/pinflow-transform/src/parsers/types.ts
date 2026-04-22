@@ -1,8 +1,8 @@
 /**
  * Shared types for parser implementations
- * @module @domscribe/transform/parsers/types
+ * @module @pinflow/transform/parsers/types
  */
-import { SourcePosition } from '@domscribe/core';
+import { SourcePosition } from '@pinflow/core';
 
 /**
  * Configuration options for parsing

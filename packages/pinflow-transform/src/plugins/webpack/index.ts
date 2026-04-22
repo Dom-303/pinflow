@@ -1,6 +1,6 @@
 /**
  * Webpack plugin entry point
- * @module @domscribe/transform/plugins/webpack
+ * @module @pinflow/transform/plugins/webpack
  */
 export {
   DomscribeWebpackPlugin,

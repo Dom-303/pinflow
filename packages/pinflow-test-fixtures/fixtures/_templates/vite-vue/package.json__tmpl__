@@ -1,5 +1,5 @@
 {
-  "name": "@domscribe/fixture-<%= bundler %>-v<%= bundlerVersion %>-<%= framework %>-<%= frameworkVersion %>-<%= language %>",
+  "name": "@pinflow/fixture-<%= bundler %>-v<%= bundlerVersion %>-<%= framework %>-<%= frameworkVersion %>-<%= language %>",
   "private": true,
   "version": "0.0.1",
   "type": "module",
@@ -12,7 +12,7 @@
     "vue": "^<%= frameworkVersion %>.0.0",
   },
   "devDependencies": {
-    "@domscribe/vue": "*",
+    "@pinflow/vue": "*",
     "@vitejs/plugin-vue": "^5.0.0",
     "typescript": "^5.5.0",
     "vite": "^<%= bundlerVersion %>.0.0",

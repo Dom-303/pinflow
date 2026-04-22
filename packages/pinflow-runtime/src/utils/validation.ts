@@ -1,9 +1,9 @@
 /**
  * Validation utilities for runtime data
- * @module @domscribe/runtime/utils/validation
+ * @module @pinflow/runtime/utils/validation
  */
 
-import { PATTERNS } from '@domscribe/core';
+import { PATTERNS } from '@pinflow/core';
 
 /**
  * Validate a Domscribe element ID

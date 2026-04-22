@@ -4,7 +4,7 @@
  * These types model the subset of Vue's template AST that we need
  * for element discovery and attribute injection.
  *
- * @module @domscribe/transform/parsers/vue/types
+ * @module @pinflow/transform/parsers/vue/types
  */
 
 /**

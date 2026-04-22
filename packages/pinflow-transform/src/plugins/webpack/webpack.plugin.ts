@@ -5,7 +5,7 @@
  * done, shutdown). Uses a separate webpack loader for per-file transforms.
  * Manages relay auto-start, overlay entry injection, and HtmlWebpackPlugin integration.
  *
- * @module @domscribe/transform/plugins/webpack/webpack-plugin
+ * @module @pinflow/transform/plugins/webpack/webpack-plugin
  */
 import type { Compiler, Compilation } from 'webpack';
 import {
@@ -13,10 +13,10 @@ import {
   type RelayPluginOptions,
   type OverlayPluginOptions,
 } from './types.js';
-import { ManifestWriter } from '@domscribe/manifest';
+import { ManifestWriter } from '@pinflow/manifest';
 import { InjectorRegistry } from '../../core/injector.registry.js';
 import { TransformStats } from '../../core/stats.js';
-import { RelayControl } from '@domscribe/relay';
+import { RelayControl } from '@pinflow/relay';
 
 /**
  * Required options after defaults are applied
@@ -126,7 +126,7 @@ export class DomscribeWebpackPlugin {
   }
 
   /**
-   * Append @domscribe/overlay/auto-init to the existing webpack entry.
+   * Append @pinflow/overlay/auto-init to the existing webpack entry.
    * Must share the same entry (not a separate named entry) to ensure
    * the overlay and app share one webpack runtime and module registry —
    * otherwise singletons like RuntimeManager would be duplicated.
@@ -140,7 +140,7 @@ export class DomscribeWebpackPlugin {
     if (typeof entry === 'object' && !Array.isArray(entry)) {
       const firstKey = Object.keys(entry)[0];
       if (firstKey && entry[firstKey]?.import) {
-        entry[firstKey].import.push('@domscribe/overlay/auto-init');
+        entry[firstKey].import.push('@pinflow/overlay/auto-init');
       }
     }
   }

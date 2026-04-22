@@ -5,7 +5,7 @@ import {
   MCP_TOOLS,
   mcpErrorResult,
 } from './tool.defs.js';
-import { AnnotationIdSchema, AnnotationSchema } from '@domscribe/core';
+import { AnnotationIdSchema, AnnotationSchema } from '@pinflow/core';
 import { RelayHttpClient } from '../../client/relay-http-client.js';
 
 const AnnotationGetToolInputSchema = z.object({

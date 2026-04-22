@@ -8,8 +8,8 @@
  *   domscribe.status()                     - Show runtime status
  */
 
-import { RuntimeManager } from '@domscribe/runtime';
-import { createVueAdapter } from '@domscribe/vue';
+import { RuntimeManager } from '@pinflow/runtime';
+import { createVueAdapter } from '@pinflow/vue';
 
 // Track adapters per strategy
 const adapter = createVueAdapter({

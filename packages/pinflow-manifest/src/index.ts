@@ -1,5 +1,5 @@
 /**
- * @domscribe/manifest - Manifest management for Domscribe
+ * @pinflow/manifest - Manifest management for Domscribe
  *
  * Provides centralized manifest operations:
  * - Batch writing to JSONL format
@@ -8,7 +8,7 @@
  *
  * @example
  * ```typescript
- * import { ManifestWriter, ManifestReader } from '@domscribe/manifest';
+ * import { ManifestWriter, ManifestReader } from '@pinflow/manifest';
  *
  * // Writer (for transforms)
  * const writer = ManifestWriter.getInstance('/workspace');

@@ -8,9 +8,9 @@
  * `__DOMSCRIBE_ADAPTER_OPTIONS__` are injected via DefinePlugin. Falls back
  * to empty objects when not defined (e.g. direct import without the plugin).
  *
- * @module @domscribe/vue/auto-init
+ * @module @pinflow/vue/auto-init
  */
-import { RuntimeManager } from '@domscribe/runtime';
+import { RuntimeManager } from '@pinflow/runtime';
 import { createVueAdapter } from './adapter/vue-adapter.js';
 
 declare const __DOMSCRIBE_RUNTIME_OPTIONS__:

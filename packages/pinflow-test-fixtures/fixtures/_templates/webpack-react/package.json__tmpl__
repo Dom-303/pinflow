@@ -1,5 +1,5 @@
 {
-  "name": "@domscribe/fixture-<%= bundler %>-v<%= bundlerVersion %>-<%= framework %>-<%= frameworkVersion %>-<%= language %>",
+  "name": "@pinflow/fixture-<%= bundler %>-v<%= bundlerVersion %>-<%= framework %>-<%= frameworkVersion %>-<%= language %>",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -14,7 +14,7 @@
     "style-loader": "^4.0.0"
   },
   "devDependencies": {
-    "@domscribe/react": "*",
+    "@pinflow/react": "*",
     "@types/react": "^<%= frameworkVersion %>.0.0",
     "@types/react-dom": "^<%= frameworkVersion %>.0.0",
     "html-webpack-plugin": "^5.6.3",

@@ -1,10 +1,10 @@
 /**
  * ID Stabilizer types for HMR-stable element ID generation
- * @module @domscribe/manifest/id-stabilizer/types
+ * @module @pinflow/manifest/id-stabilizer/types
  */
 
 import { z } from 'zod';
-import type { SourcePosition } from '@domscribe/core';
+import type { SourcePosition } from '@pinflow/core';
 
 /**
  * Interface for element ID generators

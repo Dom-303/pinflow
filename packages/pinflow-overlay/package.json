@@ -1,5 +1,5 @@
 {
-  "name": "@domscribe/overlay",
+  "name": "@pinflow/overlay",
   "version": "0.6.0-pinflow.0",
   "type": "module",
   "main": "src/index.ts",
@@ -11,9 +11,9 @@
   },
   "description": "Framework-agnostic overlay UI for PinFlow visual change workflows",
   "dependencies": {
-    "@domscribe/core": "workspace:*",
-    "@domscribe/runtime": "workspace:*",
-    "@domscribe/relay": "workspace:*",
+    "@pinflow/core": "workspace:*",
+    "@pinflow/runtime": "workspace:*",
+    "@pinflow/relay": "workspace:*",
     "lit": "^3.1.0"
   },
   "devDependencies": {

@@ -3,8 +3,8 @@ import {
   DomscribeError,
   DomscribeErrorCode,
   HTTP_STATUS,
-} from '@domscribe/core';
-import { ManifestReader } from '@domscribe/manifest';
+} from '@pinflow/core';
+import { ManifestReader } from '@pinflow/manifest';
 import {
   FastifyInstance,
   FastifyReply,

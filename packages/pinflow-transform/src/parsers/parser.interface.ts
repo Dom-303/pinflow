@@ -5,7 +5,7 @@
  * allowing the core injector to work with different parsers (Acorn, Babel, etc.)
  * without being coupled to any specific implementation.
  *
- * @module @domscribe/transform/parsers/parser-interface
+ * @module @pinflow/transform/parsers/parser-interface
  */
 import { ParseParams, SourceLocation } from './types.js';
 

@@ -1,6 +1,6 @@
 /**
  * Types for manifest compaction
- * @module @domscribe/manifest/compactor/types
+ * @module @pinflow/manifest/compactor/types
  */
 
 export interface CompactionOptions {

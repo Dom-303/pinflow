@@ -2,7 +2,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import type { Plugin, IndexHtmlTransformResult, HtmlTagDescriptor } from 'vite';
 
-vi.mock('@domscribe/transform/plugins/vite', () => ({
+vi.mock('@pinflow/transform/plugins/vite', () => ({
   domscribe: vi.fn(
     (options?: Record<string, unknown>): Plugin => ({
       name: 'vite-plugin-domscribe-transform',
@@ -34,9 +34,9 @@ describe('domscribe (vue/vite)', () => {
       const plugin = domscribe();
       const resolveId = plugin.resolveId as (id: string) => string | null;
 
-      const result = resolveId.call({}, '/@domscribe/vue-init.js');
+      const result = resolveId.call({}, '/@pinflow/vue-init.js');
 
-      expect(result).toBe('/@domscribe/vue-init.js');
+      expect(result).toBe('/@pinflow/vue-init.js');
     });
 
     it('should return null for unrelated IDs', () => {
@@ -54,10 +54,10 @@ describe('domscribe (vue/vite)', () => {
       const plugin = domscribe();
       const load = plugin.load as (id: string) => string | null;
 
-      const result = load.call({}, '/@domscribe/vue-init.js');
+      const result = load.call({}, '/@pinflow/vue-init.js');
 
-      expect(result).toContain(`from '@domscribe/runtime'`);
-      expect(result).toContain(`from '@domscribe/vue'`);
+      expect(result).toContain(`from '@pinflow/runtime'`);
+      expect(result).toContain(`from '@pinflow/vue'`);
       expect(result).toContain('RuntimeManager');
       expect(result).toContain('createVueAdapter');
     });
@@ -66,7 +66,7 @@ describe('domscribe (vue/vite)', () => {
       const plugin = domscribe();
       const load = plugin.load as (id: string) => string | null;
 
-      const result = load.call({}, '/@domscribe/vue-init.js');
+      const result = load.call({}, '/@pinflow/vue-init.js');
 
       expect(result).toContain('phase: 1');
       expect(result).toContain('debug: false');
@@ -81,7 +81,7 @@ describe('domscribe (vue/vite)', () => {
       });
       const load = plugin.load as (id: string) => string | null;
 
-      const result = load.call({}, '/@domscribe/vue-init.js');
+      const result = load.call({}, '/@pinflow/vue-init.js');
 
       expect(result).toContain('phase: 2');
       expect(result).toContain('redactPII: false');
@@ -94,7 +94,7 @@ describe('domscribe (vue/vite)', () => {
       });
       const load = plugin.load as (id: string) => string | null;
 
-      const result = load.call({}, '/@domscribe/vue-init.js');
+      const result = load.call({}, '/@pinflow/vue-init.js');
 
       expect(result).toContain('maxTreeDepth: 25');
     });
@@ -103,7 +103,7 @@ describe('domscribe (vue/vite)', () => {
       const plugin = domscribe({ debug: true });
       const load = plugin.load as (id: string) => string | null;
 
-      const result = load.call({}, '/@domscribe/vue-init.js');
+      const result = load.call({}, '/@pinflow/vue-init.js');
 
       // debug appears in both initialize() and createVueAdapter()
       const debugMatches = result.match(/debug: true/g);
@@ -136,7 +136,7 @@ describe('domscribe (vue/vite)', () => {
       expect(runtimeTag).toBeDefined();
       expect(runtimeTag?.injectTo).toBe('body');
       expect(runtimeTag?.children).toContain(
-        `import('/@domscribe/vue-init.js');`,
+        `import('/@pinflow/vue-init.js');`,
       );
     });
 

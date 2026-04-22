@@ -18,7 +18,7 @@ import {
   MockInstance,
 } from 'vitest';
 import { BatchWriter } from './batch-writer.js';
-import type { ManifestEntry } from '@domscribe/core';
+import type { ManifestEntry } from '@pinflow/core';
 import type { WriterStats } from './types.js';
 
 // Mock all external dependencies

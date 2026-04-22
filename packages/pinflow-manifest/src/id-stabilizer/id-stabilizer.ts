@@ -26,7 +26,7 @@ import {
 import { existsSync } from 'fs';
 import path, { join } from 'path';
 import xxhash from 'xxhash-wasm';
-import { SourcePosition } from '@domscribe/core';
+import { SourcePosition } from '@pinflow/core';
 import {
   SerializedIDCacheSchema,
   type IDGenerator,

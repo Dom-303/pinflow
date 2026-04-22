@@ -1,6 +1,6 @@
 /**
- * @domscribe/core - Core types, utilities, and constants for Domscribe
- * @module @domscribe/core
+ * @pinflow/core - Core types, utilities, and constants for Domscribe
+ * @module @pinflow/core
  */
 
 // Export all types

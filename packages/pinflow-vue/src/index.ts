@@ -1,5 +1,5 @@
 /**
- * @domscribe/vue - Vue framework adapter for Domscribe
+ * @pinflow/vue - Vue framework adapter for Domscribe
  *
  * Provides runtime context capture for Vue 3 applications, including:
  * - Props and state extraction
@@ -7,7 +7,7 @@
  * - Vue DevTools integration
  * - Composition API and Options API support
  *
- * @module @domscribe/vue
+ * @module @pinflow/vue
  */
 
 // ============================================================================

@@ -1,5 +1,5 @@
 {
-  "name": "@domscribe/vue",
+  "name": "@pinflow/vue",
   "version": "0.6.0-pinflow.0",
   "description": "Vue adapter for PinFlow",
   "type": "module",
@@ -13,9 +13,9 @@
     "./auto-init": "./auto-init.js"
   },
   "dependencies": {
-    "@domscribe/core": "workspace:*",
-    "@domscribe/runtime": "workspace:*",
-    "@domscribe/transform": "workspace:*"
+    "@pinflow/core": "workspace:*",
+    "@pinflow/runtime": "workspace:*",
+    "@pinflow/transform": "workspace:*"
   },
   "devDependencies": {
     "@types/webpack": "^5.28.5",

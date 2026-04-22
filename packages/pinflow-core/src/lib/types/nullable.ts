@@ -1,6 +1,6 @@
 /**
  * Nullable type utility
- * @module @domscribe/core/types/nullable
+ * @module @pinflow/core/types/nullable
  */
 
 /**

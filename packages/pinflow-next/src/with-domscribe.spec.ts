@@ -97,7 +97,7 @@ describe('withDomscribe', () => {
       // Production path sets up resolve aliases instead of loader rules
       const turbopack = result.turbopack as Record<string, unknown>;
       const resolveAlias = turbopack['resolveAlias'] as Record<string, string>;
-      expect(resolveAlias['@domscribe/overlay']).toContain('noop/overlay');
+      expect(resolveAlias['@pinflow/overlay']).toContain('noop/overlay');
     });
 
     it('should apply dev transforms when DOMSCRIBE_FORCE_TRANSFORM is set in production', () => {
@@ -119,15 +119,15 @@ describe('withDomscribe', () => {
       vi.stubEnv('NODE_ENV', 'production');
     });
 
-    it('should alias @domscribe/overlay in turbopack config', () => {
+    it('should alias @pinflow/overlay in turbopack config', () => {
       const result = withDomscribe()({});
 
       const turbopack = result.turbopack as Record<string, unknown>;
       const resolveAlias = turbopack['resolveAlias'] as Record<string, string>;
-      expect(resolveAlias['@domscribe/overlay']).toContain('noop/overlay');
+      expect(resolveAlias['@pinflow/overlay']).toContain('noop/overlay');
     });
 
-    it('should alias @domscribe/overlay in webpack config', () => {
+    it('should alias @pinflow/overlay in webpack config', () => {
       const result = withDomscribe()({});
       const webpackFn = result.webpack as (
         config: WebpackConfig,
@@ -137,7 +137,7 @@ describe('withDomscribe', () => {
 
       const modified = webpackFn(config, createMockWebpackContext());
 
-      expect(modified.resolve?.alias?.['@domscribe/overlay']).toContain(
+      expect(modified.resolve?.alias?.['@pinflow/overlay']).toContain(
         'noop/overlay',
       );
     });
@@ -152,7 +152,7 @@ describe('withDomscribe', () => {
 
       const modified = webpackFn(config, createMockWebpackContext());
 
-      expect(modified.resolve?.alias?.['@domscribe/overlay']).toContain(
+      expect(modified.resolve?.alias?.['@pinflow/overlay']).toContain(
         'noop/overlay',
       );
     });
@@ -167,7 +167,7 @@ describe('withDomscribe', () => {
       const turbopack = result.turbopack as Record<string, unknown>;
       const resolveAlias = turbopack['resolveAlias'] as Record<string, string>;
       expect(resolveAlias['existing']).toBe('value');
-      expect(resolveAlias['@domscribe/overlay']).toBeDefined();
+      expect(resolveAlias['@pinflow/overlay']).toBeDefined();
     });
 
     it('should chain existing webpack function', () => {
@@ -242,7 +242,7 @@ describe('withDomscribe', () => {
         expect(options['relay']).toEqual({ port: 4400 });
         expect(options['overlay']).toBe(true);
         expect(options['autoInitPath']).toBe(
-          '/resolved/@domscribe/next/auto-init',
+          '/resolved/@pinflow/next/auto-init',
         );
       });
 
@@ -335,7 +335,7 @@ describe('withDomscribe', () => {
           enabled: true,
           relay: { port: 5000, host: '0.0.0.0', bodyLimit: 5242880 },
           overlay: { initialMode: 'expanded', debug: true },
-          autoInitPath: '/resolved/@domscribe/next/auto-init',
+          autoInitPath: '/resolved/@pinflow/next/auto-init',
         });
       });
 

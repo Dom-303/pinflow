@@ -1,5 +1,5 @@
 {
-  "name": "@domscribe/runtime",
+  "name": "@pinflow/runtime",
   "version": "0.6.0-pinflow.0",
   "description": "Browser-side runtime context capture for PinFlow",
   "type": "module",
@@ -8,7 +8,7 @@
     "access": "restricted"
   },
   "dependencies": {
-    "@domscribe/core": "workspace:*"
+    "@pinflow/core": "workspace:*"
   },
   "devDependencies": {
     "happy-dom": "^12.0.0"

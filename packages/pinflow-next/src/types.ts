@@ -1,10 +1,10 @@
 /**
- * Configuration options for the @domscribe/next integration.
+ * Configuration options for the @pinflow/next integration.
  *
  * These options are passed through to the underlying Turbopack/Webpack transform plugins
  * and control overlay, relay, and debug behavior.
  *
- * @module @domscribe/next/types
+ * @module @pinflow/next/types
  */
 export interface DomscribeNextOptions {
   /**
@@ -74,7 +74,7 @@ export interface DomscribeNextOptions {
   /**
    * Overlay UI configuration.
    * Set to true for default options, or provide configuration.
-   * Requires @domscribe/overlay package to be installed.
+   * Requires @pinflow/overlay package to be installed.
    *
    * @default false
    */

@@ -1,6 +1,6 @@
 /**
  * Types for the webpack plugin and loader
- * @module @domscribe/transform/plugins/webpack/types
+ * @module @pinflow/transform/plugins/webpack/types
  */
 import type { RelayPluginOptions, OverlayPluginOptions } from '../types.js';
 
@@ -53,7 +53,7 @@ export interface WebpackPluginOptions {
   /**
    * Overlay UI configuration.
    * Set to true for default options, or provide configuration.
-   * Requires @domscribe/overlay package to be installed.
+   * Requires @pinflow/overlay package to be installed.
    *
    * @default true
    */

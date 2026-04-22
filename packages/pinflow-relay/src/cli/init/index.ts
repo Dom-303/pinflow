@@ -1,6 +1,6 @@
 /**
  * Init wizard public API.
- * @module @domscribe/relay/cli/init
+ * @module @pinflow/relay/cli/init
  */
 export { runInitWizard } from './init-wizard.js';
 export type { InitOptions } from './types.js';

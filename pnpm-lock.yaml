@@ -107,7 +107,7 @@ importers:
 
   packages/pinflow-cli:
     dependencies:
-      '@domscribe/relay':
+      '@pinflow/relay':
         specifier: workspace:*
         version: link:../pinflow-relay
 
@@ -122,7 +122,7 @@ importers:
 
   packages/pinflow-manifest:
     dependencies:
-      '@domscribe/core':
+      '@pinflow/core':
         specifier: workspace:*
         version: link:../pinflow-core
       xxhash-wasm:
@@ -134,19 +134,22 @@ importers:
 
   packages/pinflow-mcp:
     dependencies:
-      '@domscribe/relay':
+      '@pinflow/relay':
         specifier: workspace:*
         version: link:../pinflow-relay
 
   packages/pinflow-next:
     dependencies:
-      '@domscribe/react':
+      '@pinflow/overlay':
+        specifier: workspace:*
+        version: link:../pinflow-overlay
+      '@pinflow/react':
         specifier: workspace:*
         version: link:../pinflow-react
-      '@domscribe/runtime':
+      '@pinflow/runtime':
         specifier: workspace:*
         version: link:../pinflow-runtime
-      '@domscribe/transform':
+      '@pinflow/transform':
         specifier: workspace:*
         version: link:../pinflow-transform
     devDependencies:
@@ -165,16 +168,19 @@ importers:
 
   packages/pinflow-nuxt:
     dependencies:
-      '@domscribe/relay':
+      '@pinflow/overlay':
+        specifier: workspace:*
+        version: link:../pinflow-overlay
+      '@pinflow/relay':
         specifier: workspace:*
         version: link:../pinflow-relay
-      '@domscribe/runtime':
+      '@pinflow/runtime':
         specifier: workspace:*
         version: link:../pinflow-runtime
-      '@domscribe/transform':
+      '@pinflow/transform':
         specifier: workspace:*
         version: link:../pinflow-transform
-      '@domscribe/vue':
+      '@pinflow/vue':
         specifier: workspace:*
         version: link:../pinflow-vue
       nuxt:
@@ -190,13 +196,13 @@ importers:
 
   packages/pinflow-overlay:
     dependencies:
-      '@domscribe/core':
+      '@pinflow/core':
         specifier: workspace:*
         version: link:../pinflow-core
-      '@domscribe/relay':
+      '@pinflow/relay':
         specifier: workspace:*
         version: link:../pinflow-relay
-      '@domscribe/runtime':
+      '@pinflow/runtime':
         specifier: workspace:*
         version: link:../pinflow-runtime
       lit:
@@ -209,13 +215,16 @@ importers:
 
   packages/pinflow-react:
     dependencies:
-      '@domscribe/core':
+      '@pinflow/core':
         specifier: workspace:*
         version: link:../pinflow-core
-      '@domscribe/runtime':
+      '@pinflow/overlay':
+        specifier: workspace:*
+        version: link:../pinflow-overlay
+      '@pinflow/runtime':
         specifier: workspace:*
         version: link:../pinflow-runtime
-      '@domscribe/transform':
+      '@pinflow/transform':
         specifier: workspace:*
         version: link:../pinflow-transform
       vite:
@@ -243,12 +252,6 @@ importers:
       '@clack/prompts':
         specifier: ^1.1.0
         version: 1.1.0
-      '@domscribe/core':
-        specifier: workspace:*
-        version: link:../pinflow-core
-      '@domscribe/manifest':
-        specifier: workspace:*
-        version: link:../pinflow-manifest
       '@fastify/cors':
         specifier: ^10.0.0
         version: 10.1.0
@@ -258,6 +261,12 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: ^1.0.0
         version: 1.25.1(hono@4.11.3)(zod@4.3.6)
+      '@pinflow/core':
+        specifier: workspace:*
+        version: link:../pinflow-core
+      '@pinflow/manifest':
+        specifier: workspace:*
+        version: link:../pinflow-manifest
       cli-highlight:
         specifier: ^2.1.11
         version: 2.1.11
@@ -292,7 +301,7 @@ importers:
 
   packages/pinflow-runtime:
     dependencies:
-      '@domscribe/core':
+      '@pinflow/core':
         specifier: workspace:*
         version: link:../pinflow-core
     devDependencies:
@@ -302,22 +311,22 @@ importers:
 
   packages/pinflow-test-fixtures:
     devDependencies:
-      '@domscribe/next':
+      '@pinflow/next':
         specifier: workspace:*
         version: link:../pinflow-next
-      '@domscribe/nuxt':
+      '@pinflow/nuxt':
         specifier: workspace:*
         version: link:../pinflow-nuxt
-      '@domscribe/react':
+      '@pinflow/react':
         specifier: workspace:*
         version: link:../pinflow-react
-      '@domscribe/runtime':
+      '@pinflow/runtime':
         specifier: workspace:*
         version: link:../pinflow-runtime
-      '@domscribe/transform':
+      '@pinflow/transform':
         specifier: workspace:*
         version: link:../pinflow-transform
-      '@domscribe/vue':
+      '@pinflow/vue':
         specifier: workspace:*
         version: link:../pinflow-vue
       '@playwright/test':
@@ -338,16 +347,16 @@ importers:
       '@babel/types':
         specifier: ^7.28.4
         version: 7.29.0
-      '@domscribe/core':
+      '@pinflow/core':
         specifier: workspace:*
         version: link:../pinflow-core
-      '@domscribe/manifest':
+      '@pinflow/manifest':
         specifier: workspace:*
         version: link:../pinflow-manifest
-      '@domscribe/overlay':
+      '@pinflow/overlay':
         specifier: workspace:*
         version: link:../pinflow-overlay
-      '@domscribe/relay':
+      '@pinflow/relay':
         specifier: workspace:*
         version: link:../pinflow-relay
       acorn:
@@ -384,13 +393,13 @@ importers:
 
   packages/pinflow-vue:
     dependencies:
-      '@domscribe/core':
+      '@pinflow/core':
         specifier: workspace:*
         version: link:../pinflow-core
-      '@domscribe/runtime':
+      '@pinflow/runtime':
         specifier: workspace:*
         version: link:../pinflow-runtime
-      '@domscribe/transform':
+      '@pinflow/transform':
         specifier: workspace:*
         version: link:../pinflow-transform
       vite:

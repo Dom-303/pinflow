@@ -10,7 +10,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { IDStabilizer } from './id-stabilizer.js';
-import type { SourcePosition } from '@domscribe/core';
+import type { SourcePosition } from '@pinflow/core';
 import type { IDCacheStats, SerializedIDCache, FileIdentity } from './types.js';
 
 // Mock all external dependencies

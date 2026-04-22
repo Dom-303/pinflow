@@ -6,7 +6,7 @@ import type {
   RuntimeContext,
   ManifestEntry,
   Annotation,
-} from '@domscribe/core';
+} from '@pinflow/core';
 import type {
   DispatchProjectDefaults,
   DispatchSessionState,

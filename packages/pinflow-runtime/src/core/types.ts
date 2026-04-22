@@ -1,9 +1,9 @@
 /**
- * Core runtime types for @domscribe/runtime
- * @module @domscribe/runtime/core/types
+ * Core runtime types for @pinflow/runtime
+ * @module @pinflow/runtime/core/types
  */
 
-import type { ManifestEntryId, RuntimeContext } from '@domscribe/core';
+import type { ManifestEntryId, RuntimeContext } from '@pinflow/core';
 import type { FrameworkAdapter } from '../adapters/adapter.interface.js';
 import type { SerializationConstraints } from '../capture/types.js';
 
@@ -70,7 +70,7 @@ export interface ElementInfo {
 /**
  * Cross-context bridge interface for communicating with RuntimeManager.
  *
- * @deprecated Use `IRuntimeTransport` from `@domscribe/runtime/bridge` instead.
+ * @deprecated Use `IRuntimeTransport` from `@pinflow/runtime/bridge` instead.
  * This interface is kept for backward compatibility and will be removed in a future version.
  */
 export interface IRuntimeBridge {

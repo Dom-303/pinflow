@@ -4,7 +4,7 @@ import type { Compiler } from 'webpack';
 
 const mockBaseApply = vi.fn();
 
-vi.mock('@domscribe/transform/plugins/webpack', () => ({
+vi.mock('@pinflow/transform/plugins/webpack', () => ({
   DomscribeWebpackPlugin: class {
     apply = mockBaseApply;
   },
@@ -49,7 +49,7 @@ describe('DomscribeWebpackPlugin (vue)', () => {
     plugin.apply(compiler);
 
     expect(compiler.options.entry).toEqual({
-      main: { import: ['./src/index.ts', '@domscribe/vue/auto-init'] },
+      main: { import: ['./src/index.ts', '@pinflow/vue/auto-init'] },
     });
   });
 
@@ -65,7 +65,7 @@ describe('DomscribeWebpackPlugin (vue)', () => {
   it('should add entry before calling base plugin', () => {
     mockBaseApply.mockImplementation((c: Compiler) => {
       const entry = c.options.entry as Record<string, { import: string[] }>;
-      expect(entry.main.import).toContain('@domscribe/vue/auto-init');
+      expect(entry.main.import).toContain('@pinflow/vue/auto-init');
     });
     const plugin = new DomscribeWebpackPlugin();
     const compiler = createMockCompiler();
@@ -121,8 +121,8 @@ describe('DomscribeWebpackPlugin (vue)', () => {
       string,
       { import: string[] }
     >;
-    expect(entry.main.import).toContain('@domscribe/vue/auto-init');
-    expect(entry.vendor.import).not.toContain('@domscribe/vue/auto-init');
+    expect(entry.main.import).toContain('@pinflow/vue/auto-init');
+    expect(entry.vendor.import).not.toContain('@pinflow/vue/auto-init');
   });
 
   describe('DefinePlugin injection', () => {

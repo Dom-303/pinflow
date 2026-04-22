@@ -3,7 +3,7 @@
  *
  * Provides HTTP APIs for manifest resolution and annotation management.
  *
- * @module @domscribe/relay/server/http-server
+ * @module @pinflow/relay/server/http-server
  */
 import Fastify, { type FastifyInstance, type FastifyError } from 'fastify';
 import cors from '@fastify/cors';
@@ -12,9 +12,9 @@ import {
   DEFAULT_CONFIG,
   DomscribeErrorCode,
   PATHS,
-} from '@domscribe/core';
+} from '@pinflow/core';
 import path from 'path';
-import { ManifestReader } from '@domscribe/manifest';
+import { ManifestReader } from '@pinflow/manifest';
 import { AnnotationService, FileAnnotationStorage } from './services/index.js';
 import {
   registerManifestHandlers,

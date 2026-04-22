@@ -130,7 +130,7 @@ describe('runFrameworkStep', () => {
       expect(clack.select).not.toHaveBeenCalled();
       expect(spawn).toHaveBeenCalledWith(
         'pnpm',
-        ['add', '-D', '@domscribe/nuxt'],
+        ['add', '-D', '@pinflow/nuxt'],
         expect.objectContaining({ cwd: '/project' }),
       );
     });
@@ -149,7 +149,7 @@ describe('runFrameworkStep', () => {
       // Assert
       expect(spawn).toHaveBeenCalledWith(
         'npm',
-        ['install', '-D', '@domscribe/next'],
+        ['install', '-D', '@pinflow/next'],
         expect.objectContaining({ cwd: '/project' }),
       );
     });
@@ -166,7 +166,7 @@ describe('runFrameworkStep', () => {
       // Assert
       expect(spawn).toHaveBeenCalledWith(
         'pnpm',
-        ['add', '-D', '@domscribe/react'],
+        ['add', '-D', '@pinflow/react'],
         expect.objectContaining({ cwd: '/project' }),
       );
     });
@@ -244,7 +244,7 @@ describe('runFrameworkStep', () => {
       // Assert
       expect(spawn).not.toHaveBeenCalled();
       expect(clack.log.info).toHaveBeenCalledWith(
-        expect.stringContaining('npm install -D @domscribe/nuxt'),
+        expect.stringContaining('npm install -D @pinflow/nuxt'),
       );
       expect(clack.log.warn).toHaveBeenCalledWith(
         expect.stringContaining('to complete setup'),

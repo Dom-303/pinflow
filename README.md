@@ -23,14 +23,14 @@
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/@domscribe/react"><img src="https://img.shields.io/badge/React-61DAFB?style=flat&logo=react&logoColor=black" alt="React" /></a>
-  <a href="https://www.npmjs.com/package/@domscribe/vue"><img src="https://img.shields.io/badge/Vue-4FC08D?style=flat&logo=vuedotjs&logoColor=white" alt="Vue" /></a>
-  <a href="https://www.npmjs.com/package/@domscribe/next"><img src="https://img.shields.io/badge/Next.js-000000?style=flat&logo=nextdotjs&logoColor=white" alt="Next.js" /></a>
-  <a href="https://www.npmjs.com/package/@domscribe/nuxt"><img src="https://img.shields.io/badge/Nuxt-00DC82?style=flat&logo=nuxt&logoColor=white" alt="Nuxt" /></a>
+  <a href="https://www.npmjs.com/package/@pinflow/react"><img src="https://img.shields.io/badge/React-61DAFB?style=flat&logo=react&logoColor=black" alt="React" /></a>
+  <a href="https://www.npmjs.com/package/@pinflow/vue"><img src="https://img.shields.io/badge/Vue-4FC08D?style=flat&logo=vuedotjs&logoColor=white" alt="Vue" /></a>
+  <a href="https://www.npmjs.com/package/@pinflow/next"><img src="https://img.shields.io/badge/Next.js-000000?style=flat&logo=nextdotjs&logoColor=white" alt="Next.js" /></a>
+  <a href="https://www.npmjs.com/package/@pinflow/nuxt"><img src="https://img.shields.io/badge/Nuxt-00DC82?style=flat&logo=nuxt&logoColor=white" alt="Nuxt" /></a>
   &nbsp;&nbsp;
-  <a href="https://www.npmjs.com/package/@domscribe/transform"><img src="https://img.shields.io/badge/Vite-646CFF?style=flat&logo=vite&logoColor=white" alt="Vite" /></a>
-  <a href="https://www.npmjs.com/package/@domscribe/transform"><img src="https://img.shields.io/badge/Webpack-8DD6F9?style=flat&logo=webpack&logoColor=black" alt="Webpack" /></a>
-  <a href="https://www.npmjs.com/package/@domscribe/transform"><img src="https://img.shields.io/badge/Turbopack-000000?style=flat&logo=turborepo&logoColor=white" alt="Turbopack" /></a>
+  <a href="https://www.npmjs.com/package/@pinflow/transform"><img src="https://img.shields.io/badge/Vite-646CFF?style=flat&logo=vite&logoColor=white" alt="Vite" /></a>
+  <a href="https://www.npmjs.com/package/@pinflow/transform"><img src="https://img.shields.io/badge/Webpack-8DD6F9?style=flat&logo=webpack&logoColor=black" alt="Webpack" /></a>
+  <a href="https://www.npmjs.com/package/@pinflow/transform"><img src="https://img.shields.io/badge/Turbopack-000000?style=flat&logo=turborepo&logoColor=white" alt="Turbopack" /></a>
 </p>
 
 <p align="center">
@@ -50,7 +50,7 @@
 PinFlow bridges both directions: click a DOM element to tell your agent what to change, or let your agent query any source location to see exactly what it looks like live in the browser. It grows out of the original [Domscribe](https://github.com/patchorbit/domscribe) source-mapped runtime foundation, but the active product surface here is `PinFlow`: visual review, queueing, dispatch, and agent-facing workflow polish for real projects. Build-time stable IDs, deep runtime context (props, state, DOM), framework-agnostic, any MCP-compatible agent. Zero production impact.
 
 > [!NOTE]
-> `PinFlow` is our productized adaptation of the original [Domscribe](https://github.com/patchorbit/domscribe) codebase. The visible product surface, workflow wording, plugin manifests, and UI evolve here, while the current technical compatibility layer intentionally still uses `domscribe` package names, commands, MCP keys, and artifact paths.
+> `PinFlow` is our productized adaptation of the original [Domscribe](https://github.com/patchorbit/domscribe) codebase. The visible product surface, workflow wording, plugin manifests, package scopes, and UI evolve here. Legacy `domscribe` commands, MCP names, and artifact paths remain only as transitional compatibility aliases during the migration window.
 
 ---
 
@@ -91,7 +91,7 @@ That's it. Start your dev server and you're ready to go.
 
 ### Code → UI: Let the agent see the browser
 
-Your agent calls `domscribe.query.bySource` with a file path and line number and gets back the live DOM snapshot, current props, component state, and rendered attributes — directly from the running browser. No human interaction needed.
+Your agent calls `pinflow.query.bySource` with a file path and line number and gets back the live DOM snapshot, current props, component state, and rendered attributes — directly from the running browser. No human interaction needed.
 
 <p align="center">
   <img src="./assets/code-to-ui.png" alt="Code → UI: Let the agent see the browser" width="900" />
@@ -99,7 +99,7 @@ Your agent calls `domscribe.query.bySource` with a file path and line number and
 
 > [!TIP]
 > Agents don't spontaneously query runtime state — prompt them explicitly:
-> _"Fix the button color — use PinFlow's runtime query tool (`domscribe.query.bySource`) to check what CSS classes it has before changing anything."_
+> _"Fix the button color — use PinFlow's runtime query tool (`pinflow.query.bySource`) to check what CSS classes it has before changing anything."_
 > Your dev server must be running with the target page open in the browser.
 
 ### UI → Code: Point and tell
@@ -135,12 +135,12 @@ PinFlow has two sides: **app-side** (bundler + framework plugins) and **agent-si
 ### App-Side — Add to Your Bundler
 
 <details>
-<summary><strong>Next.js (15 + 16)</strong> — <code>npm install -D @domscribe/next</code></summary>
+<summary><strong>Next.js (15 + 16)</strong> — <code>npm install -D @pinflow/next</code></summary>
 
 ```ts
 // next.config.ts
 import type { NextConfig } from 'next';
-import { withPinFlow } from '@domscribe/next';
+import { withPinFlow } from '@pinflow/next';
 
 const nextConfig: NextConfig = {};
 
@@ -150,19 +150,19 @@ export default withPinFlow()(nextConfig);
 </details>
 
 <details>
-<summary><strong>Nuxt 3+</strong> — <code>npm install -D @domscribe/nuxt</code></summary>
+<summary><strong>Nuxt 3+</strong> — <code>npm install -D @pinflow/nuxt</code></summary>
 
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  modules: ['@domscribe/nuxt'],
+  modules: ['@pinflow/nuxt'],
 });
 ```
 
 </details>
 
 <details>
-<summary><strong>React 18–19</strong> — <code>npm install -D @domscribe/react</code></summary>
+<summary><strong>React 18–19</strong> — <code>npm install -D @pinflow/react</code></summary>
 
 Vite plugin:
 
@@ -170,7 +170,7 @@ Vite plugin:
 // vite.config.ts
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { pinflow } from '@domscribe/react/vite';
+import { pinflow } from '@pinflow/react/vite';
 
 export default defineConfig({
   plugins: [react(), pinflow()],
@@ -181,7 +181,7 @@ Webpack plugin:
 
 ```js
 // webpack.config.js
-const { PinFlowWebpackPlugin } = require('@domscribe/react/webpack');
+const { PinFlowWebpackPlugin } = require('@pinflow/react/webpack');
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -194,7 +194,7 @@ module.exports = {
         enforce: 'pre',
         use: [
           {
-            loader: '@domscribe/transform/webpack-loader',
+            loader: '@pinflow/transform/webpack-loader',
             options: { enabled: isDevelopment },
           },
         ],
@@ -213,7 +213,7 @@ module.exports = {
 </details>
 
 <details>
-<summary><strong>Vue 3+</strong> — <code>npm install -D @domscribe/vue</code></summary>
+<summary><strong>Vue 3+</strong> — <code>npm install -D @pinflow/vue</code></summary>
 
 Vite plugin:
 
@@ -221,7 +221,7 @@ Vite plugin:
 // vite.config.ts
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
-import { pinflow } from '@domscribe/vue/vite';
+import { pinflow } from '@pinflow/vue/vite';
 
 export default defineConfig({
   plugins: [vue(), pinflow()],
@@ -232,7 +232,7 @@ Webpack plugin:
 
 ```js
 // webpack.config.js
-const { PinFlowWebpackPlugin } = require('@domscribe/vue/webpack');
+const { PinFlowWebpackPlugin } = require('@pinflow/vue/webpack');
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -245,7 +245,7 @@ module.exports = {
         enforce: 'pre',
         use: [
           {
-            loader: '@domscribe/transform/webpack-loader',
+            loader: '@pinflow/transform/webpack-loader',
             options: { enabled: isDevelopment },
           },
         ],
@@ -264,14 +264,14 @@ module.exports = {
 </details>
 
 <details>
-<summary><strong>Any framework</strong> — <code>npm install -D @domscribe/transform</code> (DOM→source mapping only, no runtime capture)</summary>
+<summary><strong>Any framework</strong> — <code>npm install -D @pinflow/transform</code> (DOM→source mapping only, no runtime capture)</summary>
 
 Vite plugin:
 
 ```ts
 // vite.config.ts
 import { defineConfig } from 'vite';
-import { pinflow } from '@domscribe/transform/plugins/vite';
+import { pinflow } from '@pinflow/transform/plugins/vite';
 
 export default defineConfig({
   plugins: [pinflow()],
@@ -284,7 +284,7 @@ Webpack plugin:
 // webpack.config.js
 const {
   PinFlowWebpackPlugin,
-} = require('@domscribe/transform/plugins/webpack');
+} = require('@pinflow/transform/plugins/webpack');
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -297,7 +297,7 @@ module.exports = {
         enforce: 'pre',
         use: [
           {
-            loader: '@domscribe/transform/webpack-loader',
+            loader: '@pinflow/transform/webpack-loader',
             options: { enabled: isDevelopment },
           },
         ],
@@ -317,7 +317,7 @@ module.exports = {
 
 > **Working examples:** See [`packages/pinflow-test-fixtures/fixtures/`](./packages/pinflow-test-fixtures/fixtures/) for the current compatibility fixtures across every supported framework and bundler combination.
 
-For plugin configuration options, see the current compatibility package docs in the [`@domscribe/transform` README](./packages/pinflow-transform/README.md).
+For plugin configuration options, see the current compatibility package docs in the [`@pinflow/transform` README](./packages/pinflow-transform/README.md).
 
 #### Monorepos
 
@@ -329,7 +329,7 @@ npx domscribe init --app-root apps/web
 
 Or run `npx domscribe init` and follow the prompts — the wizard asks if you're in a monorepo.
 
-This creates a `domscribe.config.json` at your repo root that tells PinFlow's current compatibility tooling where your app lives. CLI commands (`serve`, `stop`, `status`) and agent MCP connections automatically resolve the app root from this config — no extra flags needed.
+This creates a `pinflow.config.json` at your repo root that tells PinFlow where your app lives. Legacy `domscribe.config.json` files are still read during the migration window. CLI commands (`serve`, `stop`, `status`) and agent MCP connections automatically resolve the app root from this config — no extra flags needed.
 
 ### Agent-Side — Connect Your Coding Agent
 
@@ -427,7 +427,7 @@ No single competitor combines build-time stable IDs, deep runtime capture, bidir
 | `pinflow.annotation.search`         | Full-text search across annotation content                                              |
 | `pinflow.status`                    | Relay daemon health, manifest stats, queue counts                                       |
 
-See the compatibility package docs in the [`@domscribe/mcp` README](./packages/pinflow-mcp/README.md) for detailed tool schemas, response formats, and prompt definitions.
+See the compatibility package docs in the [`@pinflow/mcp` README](./packages/pinflow-mcp/README.md) for detailed tool schemas, response formats, and prompt definitions.
 
 ---
 
@@ -435,19 +435,19 @@ See the compatibility package docs in the [`@domscribe/mcp` README](./packages/p
 
 | Package                    | Description                                                                         |
 | -------------------------- | ----------------------------------------------------------------------------------- |
-| `@domscribe/core`          | Zod schemas, RFC 7807 error system, ID generation, PII redaction, constants         |
-| `@domscribe/manifest`      | Append-only JSONL manifest, IDStabilizer (xxhash64), BatchWriter, ManifestCompactor |
-| `@domscribe/relay`         | Fastify HTTP/WS server, MCP stdio adapter, annotation lifecycle                     |
-| `@domscribe/transform`     | Parser-agnostic AST injection (Acorn, Babel, VueSFC), bundler plugins               |
-| `@domscribe/runtime`       | Browser-side ElementTracker, ContextCapturer, BridgeDispatch                        |
-| `@domscribe/overlay`       | Lit web components (shadow DOM), element picker, annotation UI                      |
-| `@domscribe/react`         | React fiber walking, props/state extraction, Vite + Webpack plugins                 |
-| `@domscribe/vue`           | Vue 3 VNode resolution, Composition + Options API support, Vite + Webpack plugins   |
-| `@domscribe/next`          | `withPinFlow()` config wrapper for Next.js 15 + 16                                  |
-| `@domscribe/nuxt`          | Nuxt 3+ module with auto-relay and runtime plugin                                   |
+| `@pinflow/core`          | Zod schemas, RFC 7807 error system, ID generation, PII redaction, constants         |
+| `@pinflow/manifest`      | Append-only JSONL manifest, IDStabilizer (xxhash64), BatchWriter, ManifestCompactor |
+| `@pinflow/relay`         | Fastify HTTP/WS server, MCP stdio adapter, annotation lifecycle                     |
+| `@pinflow/transform`     | Parser-agnostic AST injection (Acorn, Babel, VueSFC), bundler plugins               |
+| `@pinflow/runtime`       | Browser-side ElementTracker, ContextCapturer, BridgeDispatch                        |
+| `@pinflow/overlay`       | Lit web components (shadow DOM), element picker, annotation UI                      |
+| `@pinflow/react`         | React fiber walking, props/state extraction, Vite + Webpack plugins                 |
+| `@pinflow/vue`           | Vue 3 VNode resolution, Composition + Options API support, Vite + Webpack plugins   |
+| `@pinflow/next`          | `withPinFlow()` config wrapper for Next.js 15 + 16                                  |
+| `@pinflow/nuxt`          | Nuxt 3+ module with auto-relay and runtime plugin                                   |
 | `domscribe`                | Compatibility CLI binary. Preferred product commands are `pinflow serve`, `status`, `stop`, `init`, `mcp` |
-| `@domscribe/mcp`           | Compatibility MCP package. Preferred product binary is `pinflow-mcp`                |
-| `@domscribe/test-fixtures` | Black-box integration + e2e suite (not published)                                   |
+| `@pinflow/mcp`           | Compatibility MCP package. Preferred product binary is `pinflow-mcp`                |
+| `@pinflow/test-fixtures`   | Black-box integration + e2e suite (not published)                                   |
 
 ---
 

@@ -1,6 +1,6 @@
 /**
  * Agent selection and installation step for the init wizard.
- * @module @domscribe/relay/cli/init/agent-step
+ * @module @pinflow/relay/cli/init/agent-step
  */
 import { execFileSync, spawnSync } from 'node:child_process';
 

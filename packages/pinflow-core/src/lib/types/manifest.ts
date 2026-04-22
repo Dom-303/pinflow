@@ -1,7 +1,7 @@
 /**
  * Canonical Manifest data model for Domscribe.
  * Represents the DOM→source mapping index for element resolution.
- * @module @domscribe/core/types/manifest
+ * @module @pinflow/core/types/manifest
  */
 
 import { z } from 'zod';

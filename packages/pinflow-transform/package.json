@@ -1,5 +1,5 @@
 {
-  "name": "@domscribe/transform",
+  "name": "@pinflow/transform",
   "version": "0.6.0-pinflow.0",
   "description": "AST injection of stable element IDs and bundler plugins for PinFlow",
   "type": "module",
@@ -50,10 +50,10 @@
   "dependencies": {
     "@babel/parser": "^7.28.4",
     "@babel/types": "^7.28.4",
-    "@domscribe/core": "workspace:*",
-    "@domscribe/manifest": "workspace:*",
-    "@domscribe/overlay": "workspace:*",
-    "@domscribe/relay": "workspace:*",
+    "@pinflow/core": "workspace:*",
+    "@pinflow/manifest": "workspace:*",
+    "@pinflow/overlay": "workspace:*",
+    "@pinflow/relay": "workspace:*",
     "acorn": "^8.15.0",
     "acorn-jsx": "^5.3.2",
     "acorn-walk": "^8.3.4",

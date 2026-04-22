@@ -5,10 +5,10 @@
  * Adds `runtime` and `capture` namespaces for configuring runtime behavior
  * and React adapter capture settings.
  *
- * @module @domscribe/react/vite/types
+ * @module @pinflow/react/vite/types
  */
 
-import type { DomscribeRuntimeOptions } from '@domscribe/runtime';
+import type { DomscribeRuntimeOptions } from '@pinflow/runtime';
 
 export type { DomscribeRuntimeOptions };
 

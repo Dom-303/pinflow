@@ -112,8 +112,8 @@ const mockManifestWriter = {
 
 const mockWriterGetInstance = vi.fn(() => mockManifestWriter);
 
-// Mock @domscribe/manifest
-vi.mock('@domscribe/manifest', () => ({
+// Mock @pinflow/manifest
+vi.mock('@pinflow/manifest', () => ({
   ManifestWriter: {
     getInstance: (...args: Parameters<typeof mockWriterGetInstance>) =>
       mockWriterGetInstance(...args),

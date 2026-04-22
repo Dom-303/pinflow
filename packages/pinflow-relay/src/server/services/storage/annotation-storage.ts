@@ -4,7 +4,7 @@
  * Decouples AnnotationService domain logic from the underlying storage
  * mechanism (filesystem, in-memory, database, etc.).
  */
-import type { Annotation, AnnotationStatus } from '@domscribe/core';
+import type { Annotation, AnnotationStatus } from '@pinflow/core';
 
 export interface AnnotationStorageProvider {
   /** Create status directories or equivalent storage structure. */

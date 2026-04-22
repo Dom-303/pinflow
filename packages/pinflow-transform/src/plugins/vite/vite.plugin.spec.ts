@@ -94,8 +94,8 @@ const mockSourceMapConsumerConstructor = vi.fn(
 
 const mockStatsGetInstance = vi.fn().mockReturnValue(mockStats);
 
-// Mock @domscribe/manifest
-vi.mock('@domscribe/manifest', () => ({
+// Mock @pinflow/manifest
+vi.mock('@pinflow/manifest', () => ({
   ManifestWriter: {
     getInstance: (...args: unknown[]) => mockWriterGetInstance(...args),
   },
@@ -143,7 +143,7 @@ const mockRelayControl = {
   }),
 };
 
-vi.mock('@domscribe/relay', () => ({
+vi.mock('@pinflow/relay', () => ({
   RelayControl: class {
     constructor() {
       return mockRelayControl;

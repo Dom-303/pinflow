@@ -1,6 +1,6 @@
 /**
  * Types for the Turbopack loader
- * @module @domscribe/transform/plugins/turbopack/types
+ * @module @pinflow/transform/plugins/turbopack/types
  */
 import type { RelayPluginOptions, OverlayPluginOptions } from '../types.js';
 
@@ -52,10 +52,10 @@ export interface TurbopackLoaderOptions {
    * transformed file may belong to a workspace package that doesn't directly
    * depend on the auto-init package.
    *
-   * Meta-framework wrappers (e.g. `withDomscribe` in `@domscribe/next`)
+   * Meta-framework wrappers (e.g. `withDomscribe` in `@pinflow/next`)
    * should resolve this via `require.resolve()` and pass it here.
    *
-   * Falls back to `@domscribe/next/auto-init` when omitted.
+   * Falls back to `@pinflow/next/auto-init` when omitted.
    */
   autoInitPath?: string;
 }

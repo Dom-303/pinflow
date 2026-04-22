@@ -1,6 +1,6 @@
 /**
- * @domscribe/runtime - Browser-side runtime context capture
- * @module @domscribe/runtime
+ * @pinflow/runtime - Browser-side runtime context capture
+ * @module @pinflow/runtime
  */
 
 // Main runtime manager

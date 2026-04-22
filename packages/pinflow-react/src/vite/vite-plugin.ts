@@ -1,9 +1,9 @@
 /**
  * React-aware Domscribe Vite plugin
- * @module @domscribe/react/vite/vite-plugin
+ * @module @pinflow/react/vite/vite-plugin
  */
 import type { Plugin, IndexHtmlTransformResult, HtmlTagDescriptor } from 'vite';
-import { domscribe as baseDomscribe } from '@domscribe/transform/plugins/vite';
+import { domscribe as baseDomscribe } from '@pinflow/transform/plugins/vite';
 import type { DomscribeReactPluginOptions } from './types.js';
 
 /**
@@ -11,14 +11,14 @@ import type { DomscribeReactPluginOptions } from './types.js';
  *
  * When the browser fetches this path, Vite's dev server routes it through
  * the plugin pipeline (resolveId → load → transform). The transform step
- * rewrites bare specifiers (`@domscribe/runtime`, `@domscribe/react`) to
+ * rewrites bare specifiers (`@pinflow/runtime`, `@pinflow/react`) to
  * pre-bundled paths — the same ones the overlay resolves to internally —
  * so RuntimeManager shares a single singleton across all consumers.
  *
  * Direct `/node_modules/` paths bypass pre-bundling and create separate
  * module instances with separate singletons, which breaks runtime capture.
  */
-const INIT_MODULE_PATH = '/@domscribe/react-init.js';
+const INIT_MODULE_PATH = '/@pinflow/react-init.js';
 
 /**
  * Domscribe Vite plugin for React projects.
@@ -28,13 +28,13 @@ const INIT_MODULE_PATH = '/@domscribe/react-init.js';
  *
  * @remarks
  * For framework-agnostic usage (no runtime capture), import `domscribe`
- * from `@domscribe/transform/plugins/vite` directly.
+ * from `@pinflow/transform/plugins/vite` directly.
  *
  * Usage:
  * ```ts
  * // vite.config.ts
  * import react from '@vitejs/plugin-react'
- * import { domscribe } from '@domscribe/react/vite'
+ * import { domscribe } from '@pinflow/react/vite'
  *
  * export default defineConfig({
  *   plugins: [react(), domscribe({ overlay: true })]
@@ -76,8 +76,8 @@ export function domscribe(options?: DomscribeReactPluginOptions): Plugin {
       // This module also handles overlay init as a fallback for SSR setups
       // where transformIndexHtml doesn't fire (e.g. React Router 7).
       return [
-        `import { RuntimeManager } from '@domscribe/runtime';`,
-        `import { createReactAdapter } from '@domscribe/react';`,
+        `import { RuntimeManager } from '@pinflow/runtime';`,
+        `import { createReactAdapter } from '@pinflow/react';`,
         ``,
         resolversLine,
         ``,
@@ -99,7 +99,7 @@ export function domscribe(options?: DomscribeReactPluginOptions): Plugin {
         `// Uses bare specifier so Vite resolves to the same pre-bundled module instance`,
         `// that RuntimeManager uses, ensuring singleton sharing.`,
         `if (typeof window !== 'undefined' && window.__DOMSCRIBE_OVERLAY_OPTIONS__) {`,
-        `  import('@domscribe/overlay').then(m => m.initOverlay()).catch(() => {});`,
+        `  import('@pinflow/overlay').then(m => m.initOverlay()).catch(() => {});`,
         `}`,
       ].join('\n');
     }
@@ -108,7 +108,7 @@ export function domscribe(options?: DomscribeReactPluginOptions): Plugin {
 
   // Wrap the base transform hook to inject a React runtime init preamble.
   // In SSR frameworks (e.g. React Router 7), transformIndexHtml may not fire,
-  // so we inject `import('/@domscribe/react-init.js')` into every transformed
+  // so we inject `import('/@pinflow/react-init.js')` into every transformed
   // file, guarded by a `__DOMSCRIBE_REACT_INIT__` flag to run only once.
   basePlugin.transform = async function (code, sourceFile) {
     const baseTransformFn =

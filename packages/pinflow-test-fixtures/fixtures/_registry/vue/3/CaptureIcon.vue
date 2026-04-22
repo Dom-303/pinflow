@@ -8,8 +8,8 @@
  * Each icon initializes the runtime with its own strategy. The RuntimeManager
  * is a singleton but will be re-initialized if the adapter/strategy changes.
  */
-import { createVueAdapter } from '@domscribe/vue';
-import { RuntimeManager } from '@domscribe/runtime';
+import { createVueAdapter } from '@pinflow/vue';
+import { RuntimeManager } from '@pinflow/runtime';
 
 const props = withDefaults(
   defineProps<{

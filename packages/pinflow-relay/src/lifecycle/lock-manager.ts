@@ -1,7 +1,7 @@
 /**
  * Lock file management for relay daemon.
  * Provides atomic read/write and stale detection for workspace isolation.
- * @module @domscribe/relay/lifecycle/lock-manager
+ * @module @pinflow/relay/lifecycle/lock-manager
  */
 
 import {
@@ -16,7 +16,7 @@ import {
   constants,
 } from 'node:fs';
 import path from 'node:path';
-import { DEFAULT_CONFIG, PATHS } from '@domscribe/core';
+import { DEFAULT_CONFIG, PATHS } from '@pinflow/core';
 import { RELAY_VERSION } from '../version.js';
 import { z } from 'zod';
 

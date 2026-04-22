@@ -6,7 +6,7 @@
  * classifies hooks by type and extracts only meaningful state — skipping
  * effect hooks and discarding memo dependency arrays.
  *
- * @module @domscribe/react/component/state-extractor
+ * @module @pinflow/react/component/state-extractor
  */
 
 import type { ExtendedReactFiber } from '../fiber/types.js';

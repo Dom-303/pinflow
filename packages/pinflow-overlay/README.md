@@ -1,16 +1,16 @@
-# @domscribe/overlay
+# @pinflow/overlay
 
 Lit web components for PinFlow's in-app overlay UI. Uses shadow DOM for CSS/JS isolation.
 
-`@domscribe/overlay` renders the element picker, annotation panel, and draggable tab inside the running app. It connects to the relay via WebSocket and queries the runtime for live component context. Because it uses shadow DOM, it does not interfere with the host application's styles or JavaScript.
+`@pinflow/overlay` renders the element picker, annotation panel, and draggable tab inside the running app. It connects to the relay via WebSocket and queries the runtime for live component context. Because it uses shadow DOM, it does not interfere with the host application's styles or JavaScript.
 
 ## Install
 
 ```bash
-npm install @domscribe/overlay
+npm install @pinflow/overlay
 ```
 
-This package is usually installed automatically by a framework adapter (`@domscribe/next`, `@domscribe/nuxt`) rather than added directly.
+This package is usually installed automatically by a framework adapter (`@pinflow/next`, `@pinflow/nuxt`) rather than added directly.
 
 ## Configuration
 

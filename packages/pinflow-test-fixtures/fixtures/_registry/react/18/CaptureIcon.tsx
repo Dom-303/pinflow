@@ -12,8 +12,8 @@ import {
   CaptureStrategy,
   createReactAdapter,
   ReactAdapter,
-} from '@domscribe/react';
-import { RuntimeManager } from '@domscribe/runtime';
+} from '@pinflow/react';
+import { RuntimeManager } from '@pinflow/runtime';
 
 interface CaptureIconProps {
   position?: 'top-right' | 'bottom-right';

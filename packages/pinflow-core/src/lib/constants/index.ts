@@ -1,6 +1,6 @@
 /**
  * Constants and configuration values for Domscribe.
- * @module @domscribe/core/constants
+ * @module @pinflow/core/constants
  */
 
 /**

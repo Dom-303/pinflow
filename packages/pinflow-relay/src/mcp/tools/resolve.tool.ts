@@ -5,7 +5,7 @@ import {
   MCP_TOOLS,
   mcpErrorResult,
 } from './tool.defs.js';
-import { SourcePositionSchema } from '@domscribe/core';
+import { SourcePositionSchema } from '@pinflow/core';
 import { RelayHttpClient } from '../../client/relay-http-client.js';
 
 const ResolveToolInputSchema = z.object({

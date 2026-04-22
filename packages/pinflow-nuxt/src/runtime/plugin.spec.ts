@@ -31,15 +31,15 @@ vi.mock('#imports', () => ({
   },
 }));
 
-vi.mock('@domscribe/runtime', () => ({
+vi.mock('@pinflow/runtime', () => ({
   RuntimeManager: { getInstance: mockGetInstance },
 }));
 
-vi.mock('@domscribe/vue', () => ({
+vi.mock('@pinflow/vue', () => ({
   createVueAdapter: mockCreateVueAdapter,
 }));
 
-vi.mock('@domscribe/overlay', () => ({
+vi.mock('@pinflow/overlay', () => ({
   initOverlay: mockInitOverlay,
 }));
 

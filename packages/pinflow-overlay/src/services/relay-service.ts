@@ -6,7 +6,7 @@
  */
 
 import { OverlayStore } from '../core/overlay-store.js';
-import { RelayHttpClient, RelayWSClient } from '@domscribe/relay/client';
+import { RelayHttpClient, RelayWSClient } from '@pinflow/relay/client';
 import type {
   Annotation,
   ManifestEntry,
@@ -15,9 +15,9 @@ import type {
   AnnotationContext,
   AnnotationStatus,
   AnnotationId,
-} from '@domscribe/core';
-import { AnnotationStatusEnum, WS_EVENTS } from '@domscribe/core';
-import { BridgeDispatch } from '@domscribe/runtime';
+} from '@pinflow/core';
+import { AnnotationStatusEnum, WS_EVENTS } from '@pinflow/core';
+import { BridgeDispatch } from '@pinflow/runtime';
 
 /**
  * Unified relay service

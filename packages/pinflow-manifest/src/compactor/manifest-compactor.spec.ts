@@ -8,7 +8,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ManifestCompactor } from './manifest-compactor.js';
-import type { ManifestEntry } from '@domscribe/core';
+import type { ManifestEntry } from '@pinflow/core';
 import type { CompactionResult } from './types.js';
 
 vi.mock('fs', () => ({

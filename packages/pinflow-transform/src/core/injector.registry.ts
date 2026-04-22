@@ -8,7 +8,7 @@
  * importing unnecessary parser dependencies (e.g. `vue/compiler-sfc` in
  * React-only projects).
  *
- * @module @domscribe/transform/core/injector-registry
+ * @module @pinflow/transform/core/injector-registry
  */
 import { createInjector, DomscribeInjector } from './injector.js';
 import { AcornParser } from '../parsers/acorn/acorn.parser.js';

@@ -8,7 +8,7 @@
  * Performance: ~1-2ms per typical component (50-100 lines)
  * Bundle size: ~100KB (acorn + acorn-jsx)
  *
- * @module @domscribe/transform/parsers/acorn/acorn-parser
+ * @module @pinflow/transform/parsers/acorn/acorn-parser
  */
 
 import type { Node as AcornNode } from 'acorn';

@@ -29,9 +29,9 @@ vi.mock('../utils/serialization.js', () => ({
   serializeValue: (...args: unknown[]) => mockSerializeValue(...args),
 }));
 
-// Mock isRecord from @domscribe/core
-vi.mock('@domscribe/core', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@domscribe/core')>();
+// Mock isRecord from @pinflow/core
+vi.mock('@pinflow/core', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@pinflow/core')>();
   return {
     ...actual,
     redactPII: (...args: unknown[]) => mockRedactPII(...args),

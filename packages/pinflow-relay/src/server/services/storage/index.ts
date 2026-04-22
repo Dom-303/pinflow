@@ -1,6 +1,6 @@
 /**
  * Storage provider exports
- * @module @domscribe/relay/server/services/storage
+ * @module @pinflow/relay/server/services/storage
  */
 export type { AnnotationStorageProvider } from './annotation-storage.js';
 export { FileAnnotationStorage } from './file-annotation-storage.js';

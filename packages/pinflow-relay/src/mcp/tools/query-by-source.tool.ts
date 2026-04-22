@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { SourcePositionSchema } from '@domscribe/core';
+import { SourcePositionSchema } from '@pinflow/core';
 import {
   McpToolDefinition,
   McpToolOutputSchema,

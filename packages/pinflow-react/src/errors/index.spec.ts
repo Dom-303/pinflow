@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { DomscribeError, DomscribeErrorCode } from '@domscribe/core';
+import { DomscribeError, DomscribeErrorCode } from '@pinflow/core';
 import {
   FiberAccessError,
   ComponentResolutionError,

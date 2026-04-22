@@ -4,7 +4,7 @@
  * Aggregates system status from manifest and annotations.
  */
 import type { FastifyInstance } from 'fastify';
-import type { ManifestReader } from '@domscribe/manifest';
+import type { ManifestReader } from '@pinflow/manifest';
 import type { AnnotationService } from '../services/index.js';
 import { StatusRoute } from '../routes/status.route.js';
 import { registerRoute } from '../routes/route.interface.js';

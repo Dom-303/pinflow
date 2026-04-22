@@ -1,11 +1,11 @@
 import type { NextConfig } from 'next';
-import { withDomscribe } from '@domscribe/next';
+import { withPinFlow } from '@pinflow/next';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
 };
 
-export default withDomscribe({
+export default withPinFlow({
   debug: false,
   overlay: true,
 })(nextConfig);

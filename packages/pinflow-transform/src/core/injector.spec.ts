@@ -16,8 +16,8 @@ import {
 } from './injector.registry.js';
 import type { ParserInterface } from '../parsers/parser.interface.js';
 import type { SourceLocation } from '../parsers/types.js';
-import type { ManifestEntry } from '@domscribe/core';
-import type { IDGenerator } from '@domscribe/manifest';
+import type { ManifestEntry } from '@pinflow/core';
+import type { IDGenerator } from '@pinflow/manifest';
 import { SourceMapConsumer } from 'source-map';
 
 // Types

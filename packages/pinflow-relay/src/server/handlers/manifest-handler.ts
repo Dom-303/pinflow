@@ -2,7 +2,7 @@
  * Manifest HTTP handlers for Domscribe Relay
  */
 import type { FastifyInstance } from 'fastify';
-import type { ManifestReader } from '@domscribe/manifest';
+import type { ManifestReader } from '@pinflow/manifest';
 import {
   ManifestResolveRoute,
   ManifestBatchResolveRoute,

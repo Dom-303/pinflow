@@ -1,6 +1,6 @@
 /**
  * Framework adapter interface for runtime context capture
- * @module @domscribe/runtime/adapters/adapter.interface
+ * @module @pinflow/runtime/adapters/adapter.interface
  */
 
 import type { ComponentTreeNode, Nullable } from './types.js';

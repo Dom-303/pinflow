@@ -3,7 +3,7 @@
  * NOT exported from the package.
  *
  * @internal
- * @module @domscribe/vue/internals/state-extractor
+ * @module @pinflow/vue/internals/state-extractor
  */
 
 import type { VueComponentInstance, Nullable } from './types.js';
@@ -19,7 +19,7 @@ import { StateExtractionError } from '../errors/index.js';
 /**
  * Unwrap Vue refs in a value tree.
  * This is Vue-specific domain logic — general serialization
- * is handled by @domscribe/runtime's serialization utilities.
+ * is handled by @pinflow/runtime's serialization utilities.
  * @internal
  */
 function unwrapRefs(value: unknown, depth = 0): unknown {

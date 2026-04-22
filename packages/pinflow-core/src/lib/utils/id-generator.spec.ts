@@ -1,6 +1,6 @@
 /**
  * Unit tests for ID generation utilities
- * @module @domscribe/core/utils/id-generator.spec
+ * @module @pinflow/core/utils/id-generator.spec
  */
 
 import { describe, it, expect } from 'vitest';

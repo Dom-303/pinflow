@@ -1,6 +1,6 @@
 /**
  * Relay package version, read from the nearest package.json at startup.
- * @module @domscribe/relay/version
+ * @module @pinflow/relay/version
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -16,7 +16,7 @@ function findPackageJson(): string {
     }
     const parent = path.dirname(dir);
     if (parent === dir) {
-      throw new Error('Could not find package.json for @domscribe/relay');
+      throw new Error('Could not find package.json for @pinflow/relay');
     }
     dir = parent;
   }

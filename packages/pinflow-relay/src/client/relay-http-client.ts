@@ -4,7 +4,7 @@
  * Used by the MCP adapter, CLI commands, and browser overlay to
  * communicate with the running relay server.
  *
- * @module @domscribe/relay/client/relay-http-client
+ * @module @pinflow/relay/client/relay-http-client
  */
 import {
   AnnotationContext,
@@ -16,7 +16,7 @@ import {
   DomscribeErrorCode,
   InteractionMode,
   ManifestEntryId,
-} from '@domscribe/core';
+} from '@pinflow/core';
 import {
   AnnotationCreateResponse,
   AnnotationCreateResponseSchema,

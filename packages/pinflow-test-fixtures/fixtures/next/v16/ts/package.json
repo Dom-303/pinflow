@@ -1,5 +1,5 @@
 {
-  "name": "@domscribe/fixture-next-v16-ts",
+  "name": "@pinflow/fixture-next-v16-ts",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -14,7 +14,7 @@
     "react-dom": "^18.0.0"
   },
   "devDependencies": {
-    "@domscribe/next": "*",
+    "@pinflow/next": "*",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "typescript": "^5.5.0"

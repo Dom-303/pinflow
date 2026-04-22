@@ -8,7 +8,7 @@
  */
 import { copyFileSync, existsSync, mkdirSync, readFileSync } from 'fs';
 import path, { dirname } from 'path';
-import { PATHS, type ManifestEntry, type ManifestIndex } from '@domscribe/core';
+import { PATHS, type ManifestEntry, type ManifestIndex } from '@pinflow/core';
 import { IWriter } from '../batch-writer/types.js';
 import { BatchWriter } from '../batch-writer/batch-writer.js';
 import { ManifestCompactor } from '../compactor/manifest-compactor.js';

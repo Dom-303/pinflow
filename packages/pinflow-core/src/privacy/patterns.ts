@@ -1,6 +1,6 @@
 /**
  * Patterns for detecting PII (Personally Identifiable Information)
- * @module @domscribe/core/privacy/patterns
+ * @module @pinflow/core/privacy/patterns
  */
 export const PII_PATTERNS = {
   // Email addresses

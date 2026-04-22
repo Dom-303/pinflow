@@ -1,6 +1,6 @@
 /**
  * Types and data definitions for the init wizard.
- * @module @domscribe/relay/cli/init/types
+ * @module @pinflow/relay/cli/init/types
  */
 
 /**
@@ -137,49 +137,49 @@ export const FRAMEWORKS: readonly FrameworkConfig[] = [
   {
     id: 'next',
     label: 'Next.js',
-    package: '@domscribe/next',
+    package: '@pinflow/next',
     configFile: 'next.config.ts',
   },
   {
     id: 'nuxt',
     label: 'Nuxt',
-    package: '@domscribe/nuxt',
+    package: '@pinflow/nuxt',
     configFile: 'nuxt.config.ts',
   },
   {
     id: 'react-vite',
     label: 'React + Vite',
-    package: '@domscribe/react',
+    package: '@pinflow/react',
     configFile: 'vite.config.ts',
   },
   {
     id: 'react-webpack',
     label: 'React + Webpack',
-    package: '@domscribe/react',
+    package: '@pinflow/react',
     configFile: 'webpack.config.js',
   },
   {
     id: 'vue-vite',
     label: 'Vue + Vite',
-    package: '@domscribe/vue',
+    package: '@pinflow/vue',
     configFile: 'vite.config.ts',
   },
   {
     id: 'vue-webpack',
     label: 'Vue + Webpack',
-    package: '@domscribe/vue',
+    package: '@pinflow/vue',
     configFile: 'webpack.config.js',
   },
   {
     id: 'other-vite',
     label: 'Other (Vite)',
-    package: '@domscribe/transform',
+    package: '@pinflow/transform',
     configFile: 'vite.config.ts',
   },
   {
     id: 'other-webpack',
     label: 'Other (Webpack)',
-    package: '@domscribe/transform',
+    package: '@pinflow/transform',
     configFile: 'webpack.config.js',
   },
 ] as const;

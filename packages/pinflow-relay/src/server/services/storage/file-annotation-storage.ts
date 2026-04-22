@@ -4,8 +4,8 @@
  * Stores annotations as JSON files organized by status:
  *   <baseDir>/{queued,processing,processed,failed,archived}/<id>.json
  */
-import type { Annotation, AnnotationStatus } from '@domscribe/core';
-import { migrateAnnotation } from '@domscribe/core';
+import type { Annotation, AnnotationStatus } from '@pinflow/core';
+import { migrateAnnotation } from '@pinflow/core';
 import {
   cpSync,
   existsSync,

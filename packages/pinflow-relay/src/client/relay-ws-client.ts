@@ -7,7 +7,7 @@
  * - Message broadcasting
  */
 
-import { API_PATHS, WS_EVENTS } from '@domscribe/core';
+import { API_PATHS, WS_EVENTS } from '@pinflow/core';
 import type { WSMessage } from '../schema.js';
 
 /**

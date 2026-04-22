@@ -9,12 +9,12 @@
  *   domscribe.status()                     - Show runtime status
  */
 
-import { RuntimeManager } from '@domscribe/runtime';
+import { RuntimeManager } from '@pinflow/runtime';
 import {
   CaptureStrategy,
   createReactAdapter,
   ReactAdapter,
-} from '@domscribe/react';
+} from '@pinflow/react';
 
 // Track adapters per strategy
 const adapters = new Map<CaptureStrategy, ReactAdapter>();

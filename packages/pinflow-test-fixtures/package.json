@@ -6,12 +6,12 @@
   "generators": "./generator/generators.json",
   "description": "Kitchen-sink test fixtures and integration tests for PinFlow compatibility",
   "devDependencies": {
-    "@domscribe/next": "workspace:*",
-    "@domscribe/nuxt": "workspace:*",
-    "@domscribe/react": "workspace:*",
-    "@domscribe/runtime": "workspace:*",
-    "@domscribe/transform": "workspace:*",
-    "@domscribe/vue": "workspace:*",
+    "@pinflow/next": "workspace:*",
+    "@pinflow/nuxt": "workspace:*",
+    "@pinflow/react": "workspace:*",
+    "@pinflow/runtime": "workspace:*",
+    "@pinflow/transform": "workspace:*",
+    "@pinflow/vue": "workspace:*",
     "@vitejs/plugin-react": "^4.7.0",
     "@vitejs/plugin-vue": "^5.0.0",
     "@playwright/test": "^1.49.0"

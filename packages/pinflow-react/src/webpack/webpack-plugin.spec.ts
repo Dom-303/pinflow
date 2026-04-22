@@ -3,7 +3,7 @@ import type { Compiler } from 'webpack';
 
 const mockBaseApply = vi.fn();
 
-vi.mock('@domscribe/transform/plugins/webpack', () => ({
+vi.mock('@pinflow/transform/plugins/webpack', () => ({
   DomscribeWebpackPlugin: class {
     apply = mockBaseApply;
   },
@@ -62,7 +62,7 @@ describe('DomscribeWebpackPlugin (react)', () => {
 
       plugin.apply(compiler);
 
-      expect(entry.main.import).toContain('@domscribe/react/auto-init');
+      expect(entry.main.import).toContain('@pinflow/react/auto-init');
     });
 
     it('should preserve existing entries', () => {
@@ -76,7 +76,7 @@ describe('DomscribeWebpackPlugin (react)', () => {
 
       expect(entry.main.import).toContain('./src/index.ts');
       expect(entry.main.import).toContain('./src/polyfills.ts');
-      expect(entry.main.import).toContain('@domscribe/react/auto-init');
+      expect(entry.main.import).toContain('@pinflow/react/auto-init');
     });
 
     it('should handle entry as non-object gracefully', () => {
@@ -136,8 +136,8 @@ describe('DomscribeWebpackPlugin (react)', () => {
 
       plugin.apply(compiler);
 
-      expect(entry.main.import).toContain('@domscribe/react/auto-init');
-      expect(entry.vendor.import).not.toContain('@domscribe/react/auto-init');
+      expect(entry.main.import).toContain('@pinflow/react/auto-init');
+      expect(entry.vendor.import).not.toContain('@pinflow/react/auto-init');
     });
   });
 

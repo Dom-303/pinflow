@@ -7,7 +7,7 @@ export default defineNuxtConfig({
       title: 'PinFlow Preview - Nuxt <%= frameworkVersion %>',
     },
   },
-  modules: ['@domscribe/nuxt'],
+  modules: ['@pinflow/nuxt'],
   domscribe: {
     debug: false,
     overlay: true,

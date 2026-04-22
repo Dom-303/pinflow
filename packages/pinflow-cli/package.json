@@ -12,7 +12,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@domscribe/relay": "workspace:*"
+    "@pinflow/relay": "workspace:*"
   },
   "engines": {
     "node": ">=20"

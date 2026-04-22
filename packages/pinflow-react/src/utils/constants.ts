@@ -1,6 +1,6 @@
 /**
  * React constants and magic numbers
- * @module @domscribe/react/utils/constants
+ * @module @pinflow/react/utils/constants
  */
 
 /**

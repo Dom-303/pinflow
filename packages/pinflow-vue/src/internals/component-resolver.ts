@@ -3,7 +3,7 @@
  * NOT exported from the package.
  *
  * @internal
- * @module @domscribe/vue/internals/component-resolver
+ * @module @pinflow/vue/internals/component-resolver
  */
 
 import type {

@@ -1,6 +1,6 @@
 /**
  * Vite plugin entry point
- * @module @domscribe/vue/vite
+ * @module @pinflow/vue/vite
  */
 export { domscribe, domscribe as pinflow } from './vite-plugin.js';
 export type {

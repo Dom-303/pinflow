@@ -1,6 +1,6 @@
 /**
  * Webpack plugin entry point
- * @module @domscribe/vue/webpack
+ * @module @pinflow/vue/webpack
  */
 export {
   DomscribeWebpackPlugin,

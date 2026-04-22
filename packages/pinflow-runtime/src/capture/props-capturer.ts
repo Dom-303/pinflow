@@ -1,12 +1,12 @@
 /**
  * PropsCapturer - Captures component props (Phase 1 feature)
- * @module @domscribe/runtime/capture/props-capturer
+ * @module @pinflow/runtime/capture/props-capturer
  */
 
 import type { FrameworkAdapter } from '../adapters/adapter.interface.js';
 import type { CaptureResult, PropsCaptureOptions } from './types.js';
 import { serializeValue } from '../utils/serialization.js';
-import { isRecord, redactPII, redactSensitiveFields } from '@domscribe/core';
+import { isRecord, redactPII, redactSensitiveFields } from '@pinflow/core';
 import { ContextCaptureError } from '../errors/index.js';
 
 /**

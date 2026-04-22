@@ -1,5 +1,5 @@
 {
-  "name": "@domscribe/react",
+  "name": "@pinflow/react",
   "version": "0.6.0-pinflow.0",
   "description": "React adapter for PinFlow",
   "type": "module",
@@ -36,9 +36,10 @@
     "./auto-init": "./auto-init.js"
   },
   "dependencies": {
-    "@domscribe/core": "workspace:*",
-    "@domscribe/runtime": "workspace:*",
-    "@domscribe/transform": "workspace:*"
+    "@pinflow/core": "workspace:*",
+    "@pinflow/overlay": "workspace:*",
+    "@pinflow/runtime": "workspace:*",
+    "@pinflow/transform": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^18.2.0",

@@ -7,10 +7,10 @@
  * - Framework adapter management
  * - Lifecycle management
  *
- * @module @domscribe/runtime/core/runtime-manager
+ * @module @pinflow/runtime/core/runtime-manager
  */
 
-import type { ManifestEntryId, RuntimeContext } from '@domscribe/core';
+import type { ManifestEntryId, RuntimeContext } from '@pinflow/core';
 import type { RuntimeOptions, ElementInfo } from './types.js';
 import type { CaptureOptions } from '../capture/types.js';
 import { ElementTracker } from './element-tracker.js';

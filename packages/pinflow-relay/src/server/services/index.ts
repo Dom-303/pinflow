@@ -1,6 +1,6 @@
 /**
  * Services for Domscribe Relay
- * @module @domscribe/relay/server/services
+ * @module @pinflow/relay/server/services
  */
 export { AnnotationService } from './annotation-service.js';
 export type {

@@ -1,16 +1,16 @@
-# @domscribe/manifest
+# @pinflow/manifest
 
 Append-only DOM-to-source manifest for PinFlow's current compatibility layer.
 
 ## Install
 
 ```bash
-npm install @domscribe/manifest
+npm install @pinflow/manifest
 ```
 
 ## Note
 
-Internal package used by `@domscribe/transform`. You probably don't need to install this directly.
+Internal package used by `@pinflow/transform`. You probably don't need to install this directly.
 
 ## Links
 

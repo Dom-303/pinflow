@@ -1,6 +1,6 @@
 /**
  * Types for the Vite plugin
- * @module @domscribe/transform/plugins/vite/types
+ * @module @pinflow/transform/plugins/vite/types
  */
 import type { RelayPluginOptions, OverlayPluginOptions } from '../types.js';
 
@@ -40,7 +40,7 @@ export interface VitePluginOptions {
   /**
    * Overlay UI configuration.
    * Set to true for default options, or provide configuration.
-   * Requires @domscribe/overlay package to be installed.
+   * Requires @pinflow/overlay package to be installed.
    *
    * @default true
    */

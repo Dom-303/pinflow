@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import type { Plugin, IndexHtmlTransformResult, HtmlTagDescriptor } from 'vite';
 
-vi.mock('@domscribe/transform/plugins/vite', () => ({
+vi.mock('@pinflow/transform/plugins/vite', () => ({
   domscribe: vi.fn(
     (options?: Record<string, unknown>): Plugin => ({
       name: 'vite-plugin-domscribe-transform',
@@ -33,9 +33,9 @@ describe('domscribe (react/vite)', () => {
       const plugin = domscribe();
       const resolveId = plugin.resolveId as (id: string) => string | null;
 
-      const result = resolveId.call({}, '/@domscribe/react-init.js');
+      const result = resolveId.call({}, '/@pinflow/react-init.js');
 
-      expect(result).toBe('/@domscribe/react-init.js');
+      expect(result).toBe('/@pinflow/react-init.js');
     });
 
     it('should return null for unrelated IDs', () => {
@@ -53,10 +53,10 @@ describe('domscribe (react/vite)', () => {
       const plugin = domscribe();
       const load = plugin.load as (id: string) => string | null;
 
-      const result = load.call({}, '/@domscribe/react-init.js');
+      const result = load.call({}, '/@pinflow/react-init.js');
 
-      expect(result).toContain(`from '@domscribe/runtime'`);
-      expect(result).toContain(`from '@domscribe/react'`);
+      expect(result).toContain(`from '@pinflow/runtime'`);
+      expect(result).toContain(`from '@pinflow/react'`);
       expect(result).toContain('RuntimeManager');
       expect(result).toContain('createReactAdapter');
     });
@@ -65,7 +65,7 @@ describe('domscribe (react/vite)', () => {
       const plugin = domscribe();
       const load = plugin.load as (id: string) => string | null;
 
-      const result = load.call({}, '/@domscribe/react-init.js');
+      const result = load.call({}, '/@pinflow/react-init.js');
 
       expect(result).toContain('phase: 1');
       expect(result).toContain('debug: false');
@@ -82,7 +82,7 @@ describe('domscribe (react/vite)', () => {
       });
       const load = plugin.load as (id: string) => string | null;
 
-      const result = load.call({}, '/@domscribe/react-init.js');
+      const result = load.call({}, '/@pinflow/react-init.js');
 
       expect(result).toContain('phase: 2');
       expect(result).toContain('redactPII: false');
@@ -99,7 +99,7 @@ describe('domscribe (react/vite)', () => {
       });
       const load = plugin.load as (id: string) => string | null;
 
-      const result = load.call({}, '/@domscribe/react-init.js');
+      const result = load.call({}, '/@pinflow/react-init.js');
 
       expect(result).toContain("strategy: 'fiber'");
       expect(result).toContain('maxTreeDepth: 25');
@@ -110,7 +110,7 @@ describe('domscribe (react/vite)', () => {
       const plugin = domscribe({ debug: true });
       const load = plugin.load as (id: string) => string | null;
 
-      const result = load.call({}, '/@domscribe/react-init.js');
+      const result = load.call({}, '/@pinflow/react-init.js');
 
       // debug appears in both initialize() and createReactAdapter()
       const debugMatches = result.match(/debug: true/g);
@@ -127,7 +127,7 @@ describe('domscribe (react/vite)', () => {
       });
       const load = plugin.load as (id: string) => string | null;
 
-      const result = load.call({}, '/@domscribe/react-init.js');
+      const result = load.call({}, '/@pinflow/react-init.js');
 
       expect(result).toContain('new Map(Object.entries(_r)');
       expect(result).toContain('"MyComponent"');
@@ -139,7 +139,7 @@ describe('domscribe (react/vite)', () => {
       const plugin = domscribe();
       const load = plugin.load as (id: string) => string | null;
 
-      const result = load.call({}, '/@domscribe/react-init.js');
+      const result = load.call({}, '/@pinflow/react-init.js');
 
       expect(result).toContain('const _resolvers = new Map();');
     });
@@ -170,7 +170,7 @@ describe('domscribe (react/vite)', () => {
       expect(runtimeTag).toBeDefined();
       expect(runtimeTag?.injectTo).toBe('body');
       expect(runtimeTag?.children).toContain(
-        `import('/@domscribe/react-init.js');`,
+        `import('/@pinflow/react-init.js');`,
       );
     });
 

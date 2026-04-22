@@ -1,6 +1,6 @@
 /**
  * Bridge module - Transport-based runtime communication
- * @module @domscribe/runtime/bridge
+ * @module @pinflow/runtime/bridge
  */
 
 export { BridgeDispatch } from './bridge-dispatch.js';

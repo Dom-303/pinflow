@@ -1,6 +1,6 @@
 /**
  * Shared plugin configuration types
- * @module @domscribe/transform/plugins/types
+ * @module @pinflow/transform/plugins/types
  */
 
 /**

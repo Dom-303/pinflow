@@ -3,7 +3,7 @@
  * NOT exported from the package.
  *
  * @internal
- * @module @domscribe/vue/internals/type-guards
+ * @module @pinflow/vue/internals/type-guards
  */
 
 import type {

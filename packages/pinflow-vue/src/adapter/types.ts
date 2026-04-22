@@ -1,9 +1,9 @@
 /**
  * Vue adapter type definitions
- * @module @domscribe/vue/adapter/types
+ * @module @pinflow/vue/adapter/types
  */
 
-import type { FrameworkAdapter } from '@domscribe/runtime';
+import type { FrameworkAdapter } from '@pinflow/runtime';
 
 /**
  * Configuration options for VueAdapter

@@ -1,5 +1,5 @@
 {
-  "name": "@domscribe/relay",
+  "name": "@pinflow/relay",
   "version": "0.6.0-pinflow.0",
   "description": "Local relay server and MCP adapter for PinFlow",
   "type": "module",
@@ -22,8 +22,8 @@
   },
   "dependencies": {
     "@clack/prompts": "^1.1.0",
-    "@domscribe/core": "workspace:*",
-    "@domscribe/manifest": "workspace:*",
+    "@pinflow/core": "workspace:*",
+    "@pinflow/manifest": "workspace:*",
     "@fastify/cors": "^10.0.0",
     "@fastify/websocket": "^11.0.0",
     "@modelcontextprotocol/sdk": "^1.0.0",

@@ -55,8 +55,8 @@ const mockStats = {
 
 const mockWriterGetInstance = vi.fn();
 
-// Mock @domscribe/manifest
-vi.mock('@domscribe/manifest', () => {
+// Mock @pinflow/manifest
+vi.mock('@pinflow/manifest', () => {
   return {
     ManifestWriter: {
       getInstance: (...args: unknown[]) => {
@@ -99,7 +99,7 @@ const mockRelayControl = {
   }),
 };
 
-vi.mock('@domscribe/relay', () => ({
+vi.mock('@pinflow/relay', () => ({
   RelayControl: class {
     constructor() {
       return mockRelayControl;
@@ -774,7 +774,7 @@ describe('DomscribeWebpackPlugin', () => {
       callback(data, cb);
 
       // Assert - overlay is loaded via webpack EntryPlugin, not a script tag
-      expect(data.html).not.toContain('@domscribe/overlay');
+      expect(data.html).not.toContain('@pinflow/overlay');
       // But overlay options should still be in head
       expect(data.html).toContain('__DOMSCRIBE_OVERLAY_OPTIONS__');
     });
@@ -809,7 +809,7 @@ describe('DomscribeWebpackPlugin', () => {
 
       // Assert
       expect(data.html).not.toContain('__DOMSCRIBE_RELAY_PORT__');
-      expect(data.html).not.toContain('@domscribe/overlay');
+      expect(data.html).not.toContain('@pinflow/overlay');
       expect(cb).toHaveBeenCalledWith(null, data);
     });
 
@@ -826,7 +826,7 @@ describe('DomscribeWebpackPlugin', () => {
       // Assert - relay globals present, overlay not
       expect(data.html).toContain('__DOMSCRIBE_RELAY_PORT__');
       expect(data.html).not.toContain('__DOMSCRIBE_OVERLAY_OPTIONS__');
-      expect(data.html).not.toContain('@domscribe/overlay');
+      expect(data.html).not.toContain('@pinflow/overlay');
     });
 
     it('should call callback even if injection throws', async () => {

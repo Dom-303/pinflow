@@ -1,11 +1,11 @@
 /**
  * Domscribe config file discovery and loading.
- * @module @domscribe/relay/cli/config-loader
+ * @module @pinflow/relay/cli/config-loader
  */
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 
-import { DomscribeConfigSchema, PATHS } from '@domscribe/core';
+import { DomscribeConfigSchema, PATHS } from '@pinflow/core';
 
 /**
  * Config filenames to scan, in priority order.

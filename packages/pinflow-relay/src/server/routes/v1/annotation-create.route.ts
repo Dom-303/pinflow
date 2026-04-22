@@ -9,9 +9,9 @@ import {
   DomscribeError,
   DomscribeErrorCode,
   HTTP_STATUS,
-} from '@domscribe/core';
+} from '@pinflow/core';
 import { AnnotationService } from '../../services/annotation-service.js';
-import { ManifestReader } from '@domscribe/manifest';
+import { ManifestReader } from '@pinflow/manifest';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { RelayErrorResponse, RelayErrorResponseSchema } from '../../types.js';
 import path from 'path';

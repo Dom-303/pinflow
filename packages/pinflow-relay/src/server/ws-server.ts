@@ -3,13 +3,13 @@
  *
  * Provides real-time updates to the overlay UI.
  *
- * @module @domscribe/relay/server/ws-server
+ * @module @pinflow/relay/server/ws-server
  */
 import type { FastifyInstance } from 'fastify';
 import websocket from '@fastify/websocket';
 import type { WebSocket } from 'ws';
-import { API_PATHS, WS_EVENTS } from '@domscribe/core';
-import type { ManifestReader } from '@domscribe/manifest';
+import { API_PATHS, WS_EVENTS } from '@pinflow/core';
+import type { ManifestReader } from '@pinflow/manifest';
 import type { AnnotationService } from './services/index.js';
 import crypto from 'crypto';
 import {

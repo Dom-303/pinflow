@@ -1,8 +1,8 @@
 /**
  * Types for the batch writer subsystem
- * @module @domscribe/manifest/batch-writer/types
+ * @module @pinflow/manifest/batch-writer/types
  */
-import type { ManifestEntry } from '@domscribe/core';
+import type { ManifestEntry } from '@pinflow/core';
 
 /**
  * Interface for manifest entry writers

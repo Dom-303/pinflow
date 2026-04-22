@@ -5,10 +5,10 @@
  * Adds `runtime` and `capture` namespaces for configuring runtime behavior
  * and Vue adapter capture settings.
  *
- * @module @domscribe/vue/vite/types
+ * @module @pinflow/vue/vite/types
  */
 
-import type { DomscribeRuntimeOptions } from '@domscribe/runtime';
+import type { DomscribeRuntimeOptions } from '@pinflow/runtime';
 
 export type { DomscribeRuntimeOptions };
 

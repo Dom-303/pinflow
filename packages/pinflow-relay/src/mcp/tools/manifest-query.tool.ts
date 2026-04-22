@@ -5,7 +5,7 @@ import {
   MCP_TOOLS,
   mcpErrorResult,
 } from './tool.defs.js';
-import { ManifestEntrySchema } from '@domscribe/core';
+import { ManifestEntrySchema } from '@pinflow/core';
 import { RelayHttpClient } from '../../client/relay-http-client.js';
 
 const ManifestQueryToolInputSchema = z.object({

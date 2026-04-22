@@ -8,7 +8,7 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { themeStyles } from '../styles/theme.js';
-import { BridgeDispatch } from '@domscribe/runtime';
+import { BridgeDispatch } from '@pinflow/runtime';
 
 /**
  * Tooltip component for element info

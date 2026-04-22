@@ -1,6 +1,6 @@
 /**
  * Unit tests for error types and utilities
- * @module @domscribe/core/errors.spec
+ * @module @pinflow/core/errors.spec
  */
 
 import { describe, it, expect } from 'vitest';

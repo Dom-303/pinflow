@@ -1,4 +1,4 @@
-import { WS_EVENTS } from '@domscribe/core';
+import { WS_EVENTS } from '@pinflow/core';
 import { RelayWSClient } from './relay-ws-client.js';
 
 // Track all created mock WebSocket instances

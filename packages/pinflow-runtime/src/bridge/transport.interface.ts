@@ -4,10 +4,10 @@
  * All parameters are serializable (ID-based) to support implementations
  * that communicate over postMessage, Chrome extension messaging, etc.
  *
- * @module @domscribe/runtime/bridge/transport-interface
+ * @module @pinflow/runtime/bridge/transport-interface
  */
 
-import type { ManifestEntryId, RuntimeContext } from '@domscribe/core';
+import type { ManifestEntryId, RuntimeContext } from '@pinflow/core';
 import type { ElementInfo } from '../core/types.js';
 
 export interface IRuntimeTransport {

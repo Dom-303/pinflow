@@ -7,7 +7,7 @@
  *
  * Uses atomic rewrite (write temp → rename) to avoid corruption.
  *
- * @module @domscribe/manifest/compactor/manifest-compactor
+ * @module @pinflow/manifest/compactor/manifest-compactor
  */
 import {
   existsSync,
@@ -17,7 +17,7 @@ import {
   unlinkSync,
 } from 'fs';
 import path from 'path';
-import type { ManifestEntry } from '@domscribe/core';
+import type { ManifestEntry } from '@pinflow/core';
 import type { CompactionOptions, CompactionResult } from './types.js';
 
 const DEFAULT_THRESHOLD = 500;

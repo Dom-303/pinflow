@@ -3,16 +3,16 @@
  *
  * This module replaces DomscribeDevProvider — it runs at module load time
  * instead of requiring a React component in the tree.  The turbopack loader
- * injects `import('@domscribe/next/auto-init').catch(function(){})` into
+ * injects `import('@pinflow/next/auto-init').catch(function(){})` into
  * every transformed file, guarded by a `__DOMSCRIBE_AUTO_INIT__` flag to
  * ensure it only executes once.
  *
- * @module @domscribe/next/auto-init
+ * @module @pinflow/next/auto-init
  */
 
 if (typeof window !== 'undefined') {
   // Initialize runtime + React adapter
-  Promise.all([import('@domscribe/runtime'), import('@domscribe/react')])
+  Promise.all([import('@pinflow/runtime'), import('@pinflow/react')])
     .then(([{ RuntimeManager }, { createReactAdapter }]) => {
       RuntimeManager.getInstance().initialize({
         adapter: createReactAdapter(),
@@ -25,7 +25,7 @@ if (typeof window !== 'undefined') {
   // Initialize overlay if configured (globals set by loader preamble)
   const win = globalThis as Record<string, unknown>;
   if (win['__DOMSCRIBE_OVERLAY_OPTIONS__']) {
-    import('@domscribe/overlay')
+    import('@pinflow/overlay')
       .then(({ initOverlay }) => {
         initOverlay();
       })

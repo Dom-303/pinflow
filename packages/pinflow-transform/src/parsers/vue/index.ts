@@ -1,6 +1,6 @@
 /**
  * Vue SFC parser exports
- * @module @domscribe/transform/parsers/vue
+ * @module @pinflow/transform/parsers/vue
  */
 
 export { VueSFCParser, createVueSFCParser } from './vue-sfc.parser.js';

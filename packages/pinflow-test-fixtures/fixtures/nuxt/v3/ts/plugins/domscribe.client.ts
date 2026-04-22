@@ -5,8 +5,8 @@
  * and exposes smoke test utilities to the console.
  */
 
-import { RuntimeManager } from '@domscribe/runtime';
-import { createVueAdapter } from '@domscribe/vue';
+import { RuntimeManager } from '@pinflow/runtime';
+import { createVueAdapter } from '@pinflow/vue';
 
 export default defineNuxtPlugin(() => {
   const adapter = createVueAdapter({ debug: true });

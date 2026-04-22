@@ -5,14 +5,19 @@
  * Verdaccio registry. Called by scripts/install-fixture.ts with a
  * FIXTURE_ID env var — orchestration across fixtures is handled by Nx.
  *
- * Staleness is tracked via a stamp file (.domscribe-install-stamp).
+ * Staleness is tracked via a PinFlow-specific stamp file.
  * A fixture is reinstalled only when its stamp doesn't match the
- * current workspace version.
+ * current workspace identity.
  */
 
 import { execSync } from 'child_process';
 import { existsSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import { join } from 'path';
+import {
+  buildInstallStampValue,
+  getInstallStampFilename,
+  readWorkspaceIdentity,
+} from './workspace-identity.js';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -45,19 +50,12 @@ export interface FixtureOutcome {
 // Constants
 // ---------------------------------------------------------------------------
 
-const STAMP_FILENAME = '.domscribe-install-stamp';
+const STAMP_FILENAME = getInstallStampFilename();
 const DOMSCRIBE_SCOPE = '@domscribe';
 
 // ---------------------------------------------------------------------------
 // Version & Staleness
 // ---------------------------------------------------------------------------
-
-/** Read the `version` field from the workspace root package.json. */
-export function readWorkspaceVersion(workspaceRoot: string): string {
-  const pkgPath = join(workspaceRoot, 'package.json');
-  const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
-  return pkg.version as string;
-}
 
 /** Read the stamp file in a fixture directory. Returns `undefined` if absent. */
 function readStamp(fixturePath: string): string | undefined {
@@ -71,13 +69,13 @@ function readStamp(fixturePath: string): string | undefined {
 }
 
 /** Write the stamp file after a successful install. */
-function writeStamp(fixturePath: string, version: string): void {
-  writeFileSync(join(fixturePath, STAMP_FILENAME), version);
+function writeStamp(fixturePath: string, stampValue: string): void {
+  writeFileSync(join(fixturePath, STAMP_FILENAME), stampValue);
 }
 
-/** True when the fixture's stamp matches the target version. */
-function isCurrent(fixturePath: string, version: string): boolean {
-  return readStamp(fixturePath) === version;
+/** True when the fixture's stamp matches the target workspace identity. */
+function isCurrent(fixturePath: string, stampValue: string): boolean {
+  return readStamp(fixturePath) === stampValue;
 }
 
 // ---------------------------------------------------------------------------
@@ -192,7 +190,7 @@ function runNpmInstall(fixturePath: string): void {
  * Install a single fixture's @domscribe packages from the local registry.
  *
  * 1. Ensure .npmrc points at the local Verdaccio registry
- * 2. Skip if the stamp file matches the current workspace version
+ * 2. Skip if the stamp file matches the current workspace identity
  * 3. Purge the lockfile and @domscribe scope from node_modules
  * 4. Run npm install
  * 5. Write the stamp file on success
@@ -208,22 +206,23 @@ export function installFixture(
     log = console.log,
   } = options;
 
-  const version = readWorkspaceVersion(workspaceRoot);
+  const identity = readWorkspaceIdentity(workspaceRoot);
+  const stampValue = buildInstallStampValue(identity);
 
   const authToken = readAuthToken(workspaceRoot, registryPort);
   ensureNpmrc(fixtureDir, registryUrl, registryPort, authToken);
 
-  if (isCurrent(fixtureDir, version)) {
-    log(`Skipped (v${version} already installed)`);
+  if (isCurrent(fixtureDir, stampValue)) {
+    log(`Skipped (${stampValue} already installed)`);
     return { action: 'skipped' };
   }
 
-  log(`Installing (workspace v${version})...`);
+  log(`Installing (${stampValue})...`);
 
   try {
     purgeStaleArtifacts(fixtureDir);
     runNpmInstall(fixtureDir);
-    writeStamp(fixtureDir, version);
+    writeStamp(fixtureDir, stampValue);
     return { action: 'installed' };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);

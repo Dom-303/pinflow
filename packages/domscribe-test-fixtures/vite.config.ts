@@ -18,8 +18,12 @@ export default defineConfig(() => {
       watch: false,
       globals: true,
       environment: 'node',
-      // Include integration tests and benchmarks
-      include: ['integration/**/*.{test,spec}.ts', 'integration/**/*.bench.ts'],
+      // Include integration tests, shared utility tests, and benchmarks
+      include: [
+        'integration/**/*.{test,spec}.ts',
+        'integration/**/*.bench.ts',
+        'shared/**/*.{test,spec}.ts',
+      ],
       reporters: ['default'],
       // Integration tests run against a single fixture (FIXTURE_ID env var).
       // Keep serial to avoid any shared state issues within a single process.

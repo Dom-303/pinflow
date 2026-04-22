@@ -224,6 +224,7 @@ The following visible Phase C.1 surfaces have already been moved to PinFlow word
 - package-level README intros and provenance text across the main published packages
 - root README wording around setup, compatibility guidance, and preferred PinFlow-facing operator language
 - secondary operator/spec surfaces such as `AGENTS.md`, `TECHNICAL_SPEC.md`, and the local PinFlow skill copy
+- custom adapter guidance and lightweight MCP example configs now prefer PinFlow-facing names where compatibility allows it
 
 This means the remaining Phase C work should keep prioritizing visible confusion over deep internal churn.
 

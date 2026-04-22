@@ -1,6 +1,6 @@
 # Building a Custom Framework Adapter
 
-Domscribe captures runtime context (component props, state, metadata) through framework adapters. We ship adapters for React and Vue, but the `FrameworkAdapter` interface lets you add support for any component-based framework — Svelte, Angular, Solid, Lit, or your own.
+PinFlow captures runtime context (component props, state, metadata) through framework adapters. We ship adapters for React and Vue, but the `FrameworkAdapter` interface lets you add support for any component-based framework — Svelte, Angular, Solid, Lit, or your own.
 
 ## The Interface
 
@@ -152,7 +152,7 @@ RuntimeManager.getInstance().initialize({
 
 ### Option B: Build a Vite/Webpack plugin wrapper
 
-Follow the pattern in `@domscribe/react/vite` or `@domscribe/vue/vite` — wrap the base `domscribe()` transform plugin and inject a script that auto-initializes your adapter:
+Follow the pattern in `@domscribe/react/vite` or `@domscribe/vue/vite` — wrap the current `domscribe()` compatibility plugin and inject a script that auto-initializes your adapter:
 
 ```ts
 // svelte-vite-plugin.ts

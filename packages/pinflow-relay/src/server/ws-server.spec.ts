@@ -16,7 +16,7 @@ import {
 import WebSocket from 'ws';
 import {
   HTTP_STATUS,
-  DomscribeErrorCode,
+  PinFlowErrorCode,
   PATHS,
   WS_EVENTS,
   AnnotationStatusEnum,
@@ -87,7 +87,7 @@ async function createTestWSServer(): Promise<WSTestServer> {
     const statusCode = error.statusCode ?? HTTP_STATUS.INTERNAL_SERVER_ERROR;
     reply.status(statusCode).send({
       error: error.message,
-      code: DomscribeErrorCode.DS_INTERNAL_ERROR,
+      code: PinFlowErrorCode.DS_INTERNAL_ERROR,
       statusCode,
     });
   });

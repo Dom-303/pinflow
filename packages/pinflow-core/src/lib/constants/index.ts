@@ -1,5 +1,5 @@
 /**
- * Constants and configuration values for Domscribe.
+ * Constants and configuration values for PinFlow.
  * @module @pinflow/core/constants
  */
 
@@ -138,7 +138,7 @@ export const PATHS = {
   LEGACY_CONFIG_JSON_FILE: 'domscribe.config.json',
   LEGACY_CONFIG_FILE: 'domscribe.config.ts',
   LEGACY_CONFIG_JS_FILE: 'domscribe.config.js',
-  VALIDATION_RECIPE: 'domscribe.validation.yaml',
+  VALIDATION_RECIPE: 'pinflow.validation.yaml',
 } as const;
 
 /**

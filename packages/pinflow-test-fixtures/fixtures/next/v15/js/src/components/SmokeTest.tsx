@@ -15,7 +15,7 @@
 import { useState } from 'react';
 import { CaptureStrategy } from '@pinflow/react';
 import { CaptureIcon } from './CaptureIcon';
-// Load smoke test utilities (exposes domscribe.* to console)
+// Load smoke test utilities (exposes pinflow.* to console)
 import '../pinflow-smoke-test';
 
 const strategies = [

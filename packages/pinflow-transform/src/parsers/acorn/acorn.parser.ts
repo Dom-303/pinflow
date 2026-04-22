@@ -138,7 +138,7 @@ export class AcornParser implements ParserInterface<
   getLocation(node: AcornJSXOpeningElement): SourceLocation | undefined {
     if (!node.loc) {
       console.warn(
-        `[domscribe-transform][acorn-parser] Could not find source location for ${this.getTagName(node)}`,
+        `[pinflow-transform][acorn-parser] Could not find source location for ${this.getTagName(node)}`,
       );
       return;
     }

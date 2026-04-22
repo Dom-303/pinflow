@@ -1,7 +1,7 @@
 import {
   API_PATHS,
-  DomscribeError,
-  DomscribeErrorCode,
+  PinFlowError,
+  PinFlowErrorCode,
   HTTP_STATUS,
   ManifestEntryId,
 } from '@pinflow/core';
@@ -77,14 +77,14 @@ export class ManifestBatchResolveRoute implements RelayRoute {
       if (!entryIds || !Array.isArray(entryIds)) {
         return reply.status(HTTP_STATUS.BAD_REQUEST).send({
           error: 'Missing required field: entryIds (array)',
-          code: DomscribeErrorCode.DS_INVALID_INPUT,
+          code: PinFlowErrorCode.DS_INVALID_INPUT,
         });
       }
 
       if (entryIds.length > 100) {
         return reply.status(HTTP_STATUS.BAD_REQUEST).send({
           error: 'Too many entry IDs. Maximum is 100.',
-          code: DomscribeErrorCode.DS_INVALID_INPUT,
+          code: PinFlowErrorCode.DS_INVALID_INPUT,
         });
       }
 
@@ -104,7 +104,7 @@ export class ManifestBatchResolveRoute implements RelayRoute {
         count: entryIds.length,
       });
     } catch (error: unknown) {
-      if (error instanceof DomscribeError) {
+      if (error instanceof PinFlowError) {
         return reply.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({
           ...error.toProblemDetails(),
           error: error.message,
@@ -114,7 +114,7 @@ export class ManifestBatchResolveRoute implements RelayRoute {
         error instanceof Error ? error.message : 'Unknown error';
       return reply.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({
         error: errorMessage,
-        code: DomscribeErrorCode.DS_INTERNAL_ERROR,
+        code: PinFlowErrorCode.DS_INTERNAL_ERROR,
       });
     }
   }

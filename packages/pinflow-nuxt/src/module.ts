@@ -20,8 +20,6 @@ import type { PinFlowNuxtOptions } from './types.js';
 /**
  * The Nuxt module. Use as the default export of @pinflow/nuxt or
  * add to `modules` in nuxt.config with the `pinflow` config key.
- *
- * Legacy `domscribe` config is still read as a fallback during the migration.
  */
 export const pinflowModule = defineNuxtModule<PinFlowNuxtOptions>({
   meta: {
@@ -34,18 +32,13 @@ export const pinflowModule = defineNuxtModule<PinFlowNuxtOptions>({
     relay: {},
   },
   async setup(options, nuxt) {
-    const effectiveOptions = mergeLegacyNuxtOptions(
-      options,
-      nuxt as typeof nuxt & { options: { domscribe?: PinFlowNuxtOptions } },
-    );
-
     // Only enable in development (unless force-transform is set for testing)
     if (!nuxt.options.dev && !process.env.DOMSCRIBE_FORCE_TRANSFORM) {
       return;
     }
 
     const { resolve } = createResolver(import.meta.url);
-    const debug = effectiveOptions.debug ?? false;
+    const debug = options.debug ?? false;
     const forceTransform = !!process.env.DOMSCRIBE_FORCE_TRANSFORM;
 
     // 1. Start relay to discover actual host/port.
@@ -55,14 +48,14 @@ export const pinflowModule = defineNuxtModule<PinFlowNuxtOptions>({
     let relayHost: string | undefined;
     let relayPort: number | undefined;
 
-    if (effectiveOptions.relay?.autoStart !== false) {
+    if (options.relay?.autoStart !== false) {
       try {
         const { RelayControl } = await import('@pinflow/relay');
         const relayControl = new RelayControl(nuxt.options.rootDir);
         const result = await relayControl.ensureRunning({
-          port: effectiveOptions.relay?.port,
-          host: effectiveOptions.relay?.host,
-          bodyLimit: effectiveOptions.relay?.bodyLimit,
+          port: options.relay?.port,
+          host: options.relay?.host,
+          bodyLimit: options.relay?.bodyLimit,
         });
         relayHost = result.host;
         relayPort = result.port;
@@ -91,10 +84,10 @@ export const pinflowModule = defineNuxtModule<PinFlowNuxtOptions>({
         `window.__PINFLOW_RELAY_HOST__=${JSON.stringify(relayHost)}`,
       );
     }
-    if (effectiveOptions.overlay !== false) {
+    if (options.overlay !== false) {
       const overlayOptions =
-        typeof effectiveOptions.overlay === 'object'
-          ? effectiveOptions.overlay
+        typeof options.overlay === 'object'
+          ? options.overlay
           : {};
       parts.push(
         `window.__PINFLOW_OVERLAY_OPTIONS__=${JSON.stringify(overlayOptions)}`,
@@ -121,9 +114,9 @@ export const pinflowModule = defineNuxtModule<PinFlowNuxtOptions>({
     addVitePlugin(
       () => {
         const plugin = pinflow({
-          ...effectiveOptions,
+          ...options,
           rootDir: nuxt.options.rootDir,
-          relay: { ...effectiveOptions.relay, autoStart: false },
+          relay: { ...options.relay, autoStart: false },
         });
         // The Vite plugin defaults to `apply: 'serve'` (dev-only). During
         // `nuxi build` Vite runs in build mode and skips serve-only plugins.
@@ -141,9 +134,9 @@ export const pinflowModule = defineNuxtModule<PinFlowNuxtOptions>({
       (config) => {
         // Add webpack loader for file transforms
         config.module?.rules?.push({
-          test: effectiveOptions.include ?? /\.(jsx|tsx|vue)$/i,
+          test: options.include ?? /\.(jsx|tsx|vue)$/i,
           exclude:
-            effectiveOptions.exclude ?? /node_modules|\.test\.|\.spec\./i,
+            options.exclude ?? /node_modules|\.test\.|\.spec\./i,
           enforce: 'pre' as const,
           use: [
             {
@@ -158,8 +151,8 @@ export const pinflowModule = defineNuxtModule<PinFlowNuxtOptions>({
         config.plugins?.push(
           new PinFlowWebpackPlugin({
             debug,
-            relay: { ...effectiveOptions.relay, autoStart: false },
-            overlay: effectiveOptions.overlay,
+            relay: { ...options.relay, autoStart: false },
+            overlay: options.overlay,
           }),
         );
       },
@@ -175,19 +168,3 @@ export const pinflowModule = defineNuxtModule<PinFlowNuxtOptions>({
 });
 
 export const domscribeModule = pinflowModule;
-
-function mergeLegacyNuxtOptions(
-  options: PinFlowNuxtOptions,
-  nuxt: { options: { domscribe?: PinFlowNuxtOptions } },
-): PinFlowNuxtOptions {
-  const legacy = nuxt.options.domscribe ?? {};
-
-  return {
-    ...legacy,
-    ...options,
-    relay: {
-      ...(legacy.relay ?? {}),
-      ...(options.relay ?? {}),
-    },
-  };
-}

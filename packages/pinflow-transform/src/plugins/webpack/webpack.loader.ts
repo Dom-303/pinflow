@@ -31,7 +31,7 @@ export default function domscribeLoader(
 
   transform(this, { source, sourceMap }, callback).catch((error) => {
     console.warn(
-      `[domscribe-transform][webpack-loader] Failed to transform ${this.resourcePath}:`,
+      `[pinflow-transform][webpack-loader] Failed to transform ${this.resourcePath}:`,
       error instanceof Error ? error.message : String(error),
     );
 
@@ -79,7 +79,7 @@ export async function transform(
   if (!injectorRegistry) {
     if (debug) {
       console.warn(
-        `[domscribe-transform][webpack-loader] No injector registry found for ${rootContext}, skipping transformation`,
+        `[pinflow-transform][webpack-loader] No injector registry found for ${rootContext}, skipping transformation`,
       );
     }
     return callback(null, source);
@@ -90,7 +90,7 @@ export async function transform(
   if (!fileExtension) {
     if (debug) {
       console.warn(
-        `[domscribe-transform][webpack-loader] No file extension found for ${sourceFile}, skipping transformation`,
+        `[pinflow-transform][webpack-loader] No file extension found for ${sourceFile}, skipping transformation`,
       );
     }
     return callback(null, source);
@@ -99,7 +99,7 @@ export async function transform(
   if (!isInjectorFileExtension(fileExtension)) {
     if (debug) {
       console.warn(
-        `[domscribe-transform][webpack-loader] Invalid file extension ${fileExtension} for ${sourceFile}, skipping transformation`,
+        `[pinflow-transform][webpack-loader] Invalid file extension ${fileExtension} for ${sourceFile}, skipping transformation`,
       );
     }
     return callback(null, source);
@@ -124,7 +124,7 @@ export async function transform(
     });
   } catch (error) {
     console.warn(
-      `[domscribe-transform][webpack-loader] Failed to transform ${sourceFile}:`,
+      `[pinflow-transform][webpack-loader] Failed to transform ${sourceFile}:`,
       error instanceof Error ? error.message : String(error),
     );
     return callback(null, source);
@@ -154,7 +154,7 @@ export async function transform(
   if (!map) {
     if (debug) {
       console.warn(
-        `[domscribe-transform][webpack-loader] No source map generated for ${sourceFile}, skipping transformation`,
+        `[pinflow-transform][webpack-loader] No source map generated for ${sourceFile}, skipping transformation`,
       );
     }
     return callback(null, source);
@@ -177,7 +177,7 @@ export async function transform(
   // Debug logging
   if (debug) {
     console.log(
-      `[domscribe-transform][webpack-loader] Transformed ${sourceFile}: ` +
+      `[pinflow-transform][webpack-loader] Transformed ${sourceFile}: ` +
         `${injectorMetrics.elementsInjected} elements in ${timings.totalTransformMs.toFixed(2)}ms ` +
         `(parse=${timings.parseMs.toFixed(2)}ms, traverse=${timings.traversalMs.toFixed(2)}ms, ` +
         `smConsumer=${timings.sourceMapConsumerMs.toFixed(2)}ms)`,

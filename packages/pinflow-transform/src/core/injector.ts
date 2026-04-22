@@ -61,7 +61,7 @@ export class PinFlowInjector<TParseResult = unknown, TElement = unknown> {
     if (this.initalized) {
       if (this.options.debug) {
         console.log(
-          `[domscribe-transform][injector] Injector already initialized. Skipping initialization.`,
+          `[pinflow-transform][injector] Injector already initialized. Skipping initialization.`,
         );
       }
       return;
@@ -139,7 +139,7 @@ export class PinFlowInjector<TParseResult = unknown, TElement = unknown> {
       if (!location) {
         if (this.options.debug) {
           console.warn(
-            `[domscribe-transform][injector] Could not get location for element in ${sourceFile}`,
+            `[pinflow-transform][injector] Could not get location for element in ${sourceFile}`,
           );
         }
         continue;
@@ -152,7 +152,7 @@ export class PinFlowInjector<TParseResult = unknown, TElement = unknown> {
       if (tagName.includes('Fragment')) {
         if (this.options.debug) {
           console.warn(
-            `[domscribe-transform][injector] Skipping Fragment element detected in ${sourceFile}: ${tagName}`,
+            `[pinflow-transform][injector] Skipping Fragment element detected in ${sourceFile}: ${tagName}`,
           );
         }
         continue;
@@ -236,7 +236,7 @@ export class PinFlowInjector<TParseResult = unknown, TElement = unknown> {
 
     if (this.options.debug) {
       console.log(
-        '[domscribe-transform][injector] Injector closed, cache saved',
+        '[pinflow-transform][injector] Injector closed, cache saved',
       );
     }
   }
@@ -272,7 +272,7 @@ export class PinFlowInjector<TParseResult = unknown, TElement = unknown> {
     if (originalStart?.line === null || originalStart?.column === null) {
       if (this.options.debug) {
         console.warn(
-          `[domscribe-transform][injector] Could not resolve original position for ${tagName}, using transpiled positions`,
+          `[pinflow-transform][injector] Could not resolve original position for ${tagName}, using transpiled positions`,
         );
       }
       return undefined;

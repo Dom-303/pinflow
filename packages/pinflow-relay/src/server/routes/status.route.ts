@@ -1,7 +1,7 @@
 import {
   API_PATHS,
-  DomscribeError,
-  DomscribeErrorCode,
+  PinFlowError,
+  PinFlowErrorCode,
   HTTP_STATUS,
 } from '@pinflow/core';
 import { ManifestReader } from '@pinflow/manifest';
@@ -78,7 +78,7 @@ export class StatusRoute implements RelayRoute {
         annotations: annotationCounts,
       });
     } catch (error: unknown) {
-      if (error instanceof DomscribeError) {
+      if (error instanceof PinFlowError) {
         return reply.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({
           ...error.toProblemDetails(),
           error: error.message,
@@ -88,7 +88,7 @@ export class StatusRoute implements RelayRoute {
         error instanceof Error ? error.message : 'Unknown error';
       return reply.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({
         error: errorMessage,
-        code: DomscribeErrorCode.DS_INTERNAL_ERROR,
+        code: PinFlowErrorCode.DS_INTERNAL_ERROR,
       });
     }
   }

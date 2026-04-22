@@ -16,6 +16,7 @@ function readFixture(relativePath: string): string {
 describe('pinflow visible fixture copy', () => {
   it('brands the canonical preview smoke-test globals and logs as PinFlow', () => {
     const smokeTest = readFixture('vite/v5/react-18-ts/src/pinflow-smoke-test.ts');
+    const smokeComponent = readFixture('vite/v5/react-18-ts/src/components/SmokeTest.tsx');
 
     expect(smokeTest).toContain('const pinflowUtils = {');
     expect(smokeTest).toContain(
@@ -28,6 +29,8 @@ describe('pinflow visible fixture copy', () => {
     expect(smokeTest).toContain(
       '  pinflow.captureElement(element) - Capture context for element',
     );
+    expect(smokeComponent).toContain('exposes pinflow.* to console');
+    expect(smokeComponent).not.toContain('exposes domscribe.* to console');
   });
 
   it('brands next fixture metadata as PinFlow', () => {
@@ -43,6 +46,7 @@ describe('pinflow visible fixture copy', () => {
   it('brands the Nuxt smoke utilities as PinFlow-only in the browser helper surface', () => {
     const plugin = readFixture('nuxt/v3/ts/plugins/pinflow.client.ts');
     const smokeModule = readFixture('nuxt/v3/ts/pinflow-smoke-test.ts');
+    const nuxtConfig = readFixture('nuxt/v3/ts/nuxt.config.ts');
 
     expect(plugin).toContain('const pinflowUtils = {');
     expect(plugin).toContain(
@@ -51,5 +55,7 @@ describe('pinflow visible fixture copy', () => {
     expect(smokeModule).toContain(
       'Available commands: pinflow.captureElement(el), pinflow.captureSelector(sel), pinflow.listTracked(), pinflow.status()',
     );
+    expect(nuxtConfig).toContain('pinflow: {');
+    expect(nuxtConfig).not.toContain('domscribe: {');
   });
 });

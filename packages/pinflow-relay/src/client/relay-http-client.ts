@@ -12,8 +12,8 @@ import {
   AnnotationInteraction,
   AnnotationStatus,
   API_PATHS,
-  DomscribeError,
-  DomscribeErrorCode,
+  PinFlowError,
+  PinFlowErrorCode,
   InteractionMode,
   ManifestEntryId,
 } from '@pinflow/core';
@@ -417,7 +417,7 @@ export class RelayHttpClient {
     } catch {
       // Unparseable response (proxy 502, HTML error page, etc.)
       return new RelayError({
-        code: DomscribeErrorCode.DS_RELAY_UNAVAILABLE,
+        code: PinFlowErrorCode.DS_RELAY_UNAVAILABLE,
         error: `Relay returned ${response.status}`,
         hint: 'Is the relay server running?',
       });
@@ -425,7 +425,7 @@ export class RelayHttpClient {
   }
 }
 
-export class RelayError extends DomscribeError {
+export class RelayError extends PinFlowError {
   public readonly hint?: string;
 
   constructor(response: RelayErrorResponse) {

@@ -60,7 +60,7 @@ export class VueSFCParser implements ParserInterface<
       this.compilerSfc = await import('vue/compiler-sfc');
     } catch {
       console.warn(
-        '[domscribe-transform][vue-parser] Vue compiler not found. Install vue >= 3.3.0 as a peer dependency.',
+        '[pinflow-transform][vue-parser] Vue compiler not found. Install vue >= 3.3.0 as a peer dependency.',
       );
     }
   }
@@ -228,7 +228,7 @@ export class VueSFCParser implements ParserInterface<
   getLocation(node: VueElementNode): SourceLocation | undefined {
     if (!node.loc) {
       console.warn(
-        `[domscribe-transform][vue-parser] Could not find source location for <${this.getTagName(node)}>`,
+        `[pinflow-transform][vue-parser] Could not find source location for <${this.getTagName(node)}>`,
       );
       return undefined;
     }
@@ -320,7 +320,7 @@ export class VueSFCParser implements ParserInterface<
 
     // Fallback: shouldn't reach here for valid Vue templates
     console.warn(
-      `[domscribe-transform][vue-parser] Could not find insert position for <${node.tag}>`,
+      `[pinflow-transform][vue-parser] Could not find insert position for <${node.tag}>`,
     );
     return baseOffset + node.tag.length + 1;
   }

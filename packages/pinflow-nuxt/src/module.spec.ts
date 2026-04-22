@@ -189,7 +189,7 @@ describe('pinflowModule', () => {
         expect(mockAddPlugin).toHaveBeenCalled();
       });
 
-      it('should merge legacy domscribe config during the rename window', async () => {
+      it('should ignore legacy domscribe config now that pinflow is canonical', async () => {
         const nuxt = createMockNuxt({
           domscribe: {
             debug: true,
@@ -209,9 +209,8 @@ describe('pinflowModule', () => {
 
         expect(mockPinFlowVitePlugin).toHaveBeenCalledWith(
           expect.objectContaining({
-            debug: true,
-            overlay: { initialMode: 'expanded' },
-            relay: { port: 3300, autoStart: false },
+            relay: { autoStart: false },
+            rootDir: '/test/project',
           }),
         );
       });

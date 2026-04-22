@@ -16,7 +16,7 @@ import {
 } from 'fastify-type-provider-zod';
 import {
   HTTP_STATUS,
-  DomscribeErrorCode,
+  PinFlowErrorCode,
   PATHS,
   type ManifestEntry,
 } from '@pinflow/core';
@@ -105,7 +105,7 @@ describe('POST /api/v1/manifest/resolve-by-source', () => {
       const statusCode = error.statusCode ?? HTTP_STATUS.INTERNAL_SERVER_ERROR;
       reply.status(statusCode).send({
         error: error.message,
-        code: DomscribeErrorCode.DS_INTERNAL_ERROR,
+        code: PinFlowErrorCode.DS_INTERNAL_ERROR,
         statusCode,
       });
     });

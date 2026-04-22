@@ -27,7 +27,7 @@ import { PATHS } from '@pinflow/core';
 import { FileTimings } from '../../core/types.js';
 import path from 'path';
 
-const LOG_PREFIX = '[domscribe-transform][turbopack-loader]';
+const LOG_PREFIX = '[pinflow-transform][turbopack-loader]';
 
 // Module-level state for lazy singleton initialization.
 //

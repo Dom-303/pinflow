@@ -1,4 +1,4 @@
-import { DomscribeError, DomscribeErrorCode } from '@pinflow/core';
+import { PinFlowError, PinFlowErrorCode } from '@pinflow/core';
 import { mcpErrorResult, MCP_TOOLS } from './tool.defs.js';
 import { getResultText } from '../__test-utils__/mock-relay-client.js';
 
@@ -22,10 +22,10 @@ describe('tool.defs', () => {
   });
 
   describe('mcpErrorResult', () => {
-    it('should convert DomscribeError to structured MCP error', () => {
+    it('should convert PinFlowError to structured MCP error', () => {
       // Arrange
-      const error = new DomscribeError({
-        code: DomscribeErrorCode.DS_VALIDATION_FAILED,
+      const error = new PinFlowError({
+        code: PinFlowErrorCode.DS_VALIDATION_FAILED,
         title: 'Validation failed',
         detail: 'Invalid entry ID',
         status: 400,
@@ -40,7 +40,7 @@ describe('tool.defs', () => {
       expect(result.content[0].type).toBe('text');
 
       const parsed = JSON.parse(getResultText(result));
-      expect(parsed.code).toBe(DomscribeErrorCode.DS_VALIDATION_FAILED);
+      expect(parsed.code).toBe(PinFlowErrorCode.DS_VALIDATION_FAILED);
       expect(parsed.title).toBe('Validation failed');
       expect(parsed.detail).toBe('Invalid entry ID');
       expect(parsed.status).toBe(400);
@@ -57,7 +57,7 @@ describe('tool.defs', () => {
       expect(result.isError).toBe(true);
 
       const parsed = JSON.parse(getResultText(result));
-      expect(parsed.code).toBe(DomscribeErrorCode.DS_INTERNAL_ERROR);
+      expect(parsed.code).toBe(PinFlowErrorCode.DS_INTERNAL_ERROR);
       expect(parsed.title).toBe('Something broke');
     });
 
@@ -69,7 +69,7 @@ describe('tool.defs', () => {
       expect(result.isError).toBe(true);
 
       const parsed = JSON.parse(getResultText(result));
-      expect(parsed.code).toBe(DomscribeErrorCode.DS_INTERNAL_ERROR);
+      expect(parsed.code).toBe(PinFlowErrorCode.DS_INTERNAL_ERROR);
       expect(parsed.title).toBe('Unknown error');
     });
   });

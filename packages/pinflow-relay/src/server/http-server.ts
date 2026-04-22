@@ -10,7 +10,7 @@ import cors from '@fastify/cors';
 import {
   HTTP_STATUS,
   DEFAULT_CONFIG,
-  DomscribeErrorCode,
+  PinFlowErrorCode,
   PATHS,
 } from '@pinflow/core';
 import path from 'path';
@@ -154,7 +154,7 @@ export async function createRelayServer(
     const statusCode = error.statusCode ?? HTTP_STATUS.INTERNAL_SERVER_ERROR;
     reply.status(statusCode).send({
       error: error.message,
-      code: DomscribeErrorCode.DS_INTERNAL_ERROR,
+      code: PinFlowErrorCode.DS_INTERNAL_ERROR,
       statusCode,
     });
   });
@@ -170,16 +170,16 @@ export async function createRelayServer(
 
       if (debug) {
         console.log(
-          `[domscribe-relay] Server started on http://${url.hostname}:${url.port}`,
+          `[pinflow-relay] Server started on http://${url.hostname}:${url.port}`,
         );
         console.log(
-          `[domscribe-relay] WebSocket: ws://${url.hostname}:${url.port}/ws`,
+          `[pinflow-relay] WebSocket: ws://${url.hostname}:${url.port}/ws`,
         );
         console.log(
-          `[domscribe-relay] Health: http://${url.hostname}:${url.port}/health`,
+          `[pinflow-relay] Health: http://${url.hostname}:${url.port}/health`,
         );
         console.log(
-          `[domscribe-relay] Status: http://${url.hostname}:${url.port}/status`,
+          `[pinflow-relay] Status: http://${url.hostname}:${url.port}/status`,
         );
       }
 

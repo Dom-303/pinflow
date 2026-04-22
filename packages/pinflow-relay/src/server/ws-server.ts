@@ -84,7 +84,7 @@ export async function createWSServer(
 
     if (debug) {
       console.log(
-        `[domscribe-relay][ws] Client connected (total: ${clients.size})`,
+        `[pinflow-relay][ws] Client connected (total: ${clients.size})`,
       );
     }
 
@@ -117,14 +117,14 @@ export async function createWSServer(
       clients.delete(socket);
       if (debug) {
         console.log(
-          `[domscribe-relay][ws] Client disconnected (total: ${clients.size})`,
+          `[pinflow-relay][ws] Client disconnected (total: ${clients.size})`,
         );
       }
     });
 
     socket.on('error', (error) => {
       if (debug) {
-        console.error('[domscribe-relay][ws] Socket error:', error);
+        console.error('[pinflow-relay][ws] Socket error:', error);
       }
       clients.delete(socket);
     });
@@ -173,7 +173,7 @@ export async function createWSServer(
 
     if (debug) {
       console.log(
-        `[domscribe-relay][ws] Broadcast ${event} to ${clients.size} clients`,
+        `[pinflow-relay][ws] Broadcast ${event} to ${clients.size} clients`,
       );
     }
   }

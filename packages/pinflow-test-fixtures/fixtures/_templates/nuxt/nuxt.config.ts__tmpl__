@@ -8,7 +8,7 @@ export default defineNuxtConfig({
     },
   },
   modules: ['@pinflow/nuxt'],
-  domscribe: {
+  pinflow: {
     debug: false,
     overlay: true,
   },

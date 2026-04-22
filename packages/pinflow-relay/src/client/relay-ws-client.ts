@@ -69,7 +69,7 @@ export class RelayWSClient {
     if (this.ws && this._state !== 'disconnected') {
       if (this.debug) {
         console.log(
-          '[domscribe-relay][ws-client] Already connected or connecting',
+          '[pinflow-relay][ws-client] Already connected or connecting',
         );
       }
       return;
@@ -79,7 +79,7 @@ export class RelayWSClient {
 
     if (this.debug) {
       console.log(
-        '[domscribe-relay][ws-client] Connecting to:',
+        '[pinflow-relay][ws-client] Connecting to:',
         this.url.toString(),
       );
     }
@@ -92,7 +92,7 @@ export class RelayWSClient {
         this.reconnectAttempts = 0;
 
         if (this.debug) {
-          console.log('[domscribe-relay][ws-client] Connected');
+          console.log('[pinflow-relay][ws-client] Connected');
         }
 
         this.handleMessage(WS_EVENTS.CONNECTED, {});
@@ -103,14 +103,14 @@ export class RelayWSClient {
           const message: WSMessage = JSON.parse(event.data);
 
           if (this.debug) {
-            console.log('[domscribe-relay][ws-client] Message:', message);
+            console.log('[pinflow-relay][ws-client] Message:', message);
           }
 
           this.handleMessage(message.event, message.data);
         } catch (error) {
           if (this.debug) {
             console.error(
-              '[domscribe-relay][ws-client] Failed to parse message:',
+              '[pinflow-relay][ws-client] Failed to parse message:',
               error,
             );
           }
@@ -123,7 +123,7 @@ export class RelayWSClient {
 
         if (this.debug) {
           console.log(
-            '[domscribe-relay][ws-client] Disconnected:',
+            '[pinflow-relay][ws-client] Disconnected:',
             event.code,
             event.reason,
           );
@@ -138,7 +138,7 @@ export class RelayWSClient {
 
       this.ws.onerror = (error) => {
         if (this.debug) {
-          console.error('[domscribe-relay][ws-client] Error:', error);
+          console.error('[pinflow-relay][ws-client] Error:', error);
         }
 
         this.handleMessage(WS_EVENTS.ERROR, error);
@@ -148,7 +148,7 @@ export class RelayWSClient {
       this._state = 'disconnected';
 
       if (this.debug) {
-        console.error('[domscribe-relay][ws-client] Connection failed:', error);
+        console.error('[pinflow-relay][ws-client] Connection failed:', error);
       }
 
       this.scheduleReconnect();
@@ -226,7 +226,7 @@ export class RelayWSClient {
         handler(data);
       } catch (error) {
         if (this.debug) {
-          console.error('[domscribe-relay][ws-client] Handler error:', error);
+          console.error('[pinflow-relay][ws-client] Handler error:', error);
         }
       }
     });
@@ -239,7 +239,7 @@ export class RelayWSClient {
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
       if (this.debug) {
         console.log(
-          '[domscribe-relay][ws-client] Max reconnect attempts reached',
+          '[pinflow-relay][ws-client] Max reconnect attempts reached',
         );
       }
       return;
@@ -250,7 +250,7 @@ export class RelayWSClient {
 
     if (this.debug) {
       console.log(
-        `[domscribe-relay][ws-client] Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts + 1}/${this.maxReconnectAttempts})`,
+        `[pinflow-relay][ws-client] Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts + 1}/${this.maxReconnectAttempts})`,
       );
     }
 

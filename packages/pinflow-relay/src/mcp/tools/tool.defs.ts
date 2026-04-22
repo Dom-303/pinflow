@@ -4,7 +4,7 @@
  */
 import { z } from 'zod';
 import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
-import { DomscribeError, DomscribeErrorCode } from '@pinflow/core';
+import { PinFlowError, PinFlowErrorCode } from '@pinflow/core';
 
 /**
  * Available MCP tool names
@@ -79,10 +79,10 @@ export const McpToolOutputSchema = z.object({
  */
 export function mcpErrorResult(error: unknown): CallToolResult {
   const problemDetails =
-    error instanceof DomscribeError
+    error instanceof PinFlowError
       ? error.toProblemDetails()
       : {
-          code: DomscribeErrorCode.DS_INTERNAL_ERROR,
+          code: PinFlowErrorCode.DS_INTERNAL_ERROR,
           title: error instanceof Error ? error.message : 'Unknown error',
         };
 

@@ -78,7 +78,7 @@ export class PinFlowWebpackPlugin {
     if (!this.options.enabled) {
       if (this.options.debug) {
         console.log(
-          '[domscribe-transform][webpack-plugin] Skipping (disabled for production)',
+          '[pinflow-transform][webpack-plugin] Skipping (disabled for production)',
         );
       }
       return;
@@ -162,7 +162,7 @@ export class PinFlowWebpackPlugin {
 
       if (this.options.debug) {
         console.log(
-          '[domscribe-transform][webpack-plugin] Webpack plugin initialized',
+          '[pinflow-transform][webpack-plugin] Webpack plugin initialized',
         );
       }
 
@@ -170,7 +170,7 @@ export class PinFlowWebpackPlugin {
       await this.initializeRelay(rootContext);
     } catch (error) {
       console.error(
-        '[domscribe-transform][webpack-plugin] Failed to initialize:',
+        '[pinflow-transform][webpack-plugin] Failed to initialize:',
         error instanceof Error ? error.message : String(error),
       );
     }
@@ -198,13 +198,13 @@ export class PinFlowWebpackPlugin {
 
       if (this.options.debug) {
         console.log(
-          `[domscribe-transform][webpack-plugin] Relay running at http://${assignedHost}:${assignedPort}`,
+          `[pinflow-transform][webpack-plugin] Relay running at http://${assignedHost}:${assignedPort}`,
         );
       }
     } catch (error) {
       // Never fail the build due to relay issues
       console.warn(
-        `[domscribe-transform][webpack-plugin] Relay check failed: ${error instanceof Error ? error.message : String(error)}`,
+        `[pinflow-transform][webpack-plugin] Relay check failed: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
   }
@@ -329,7 +329,7 @@ export class PinFlowWebpackPlugin {
             // Never break the build due to injection issues
             if (this.options.debug) {
               console.warn(
-                '[domscribe-transform][webpack-plugin] HTML injection failed:',
+                '[pinflow-transform][webpack-plugin] HTML injection failed:',
                 error instanceof Error ? error.message : String(error),
               );
             }
@@ -341,7 +341,7 @@ export class PinFlowWebpackPlugin {
         // html-webpack-plugin not installed — skip auto-injection
         if (this.options.debug) {
           console.log(
-            '[domscribe-transform][webpack-plugin] html-webpack-plugin not found, skipping auto-injection.',
+            '[pinflow-transform][webpack-plugin] html-webpack-plugin not found, skipping auto-injection.',
           );
         }
       });
@@ -377,7 +377,7 @@ export class PinFlowWebpackPlugin {
     }
 
     const writerStats = this.writer?.getStats() ?? null;
-    this.stats?.print('[domscribe-transform][webpack-plugin]', writerStats);
+    this.stats?.print('[pinflow-transform][webpack-plugin]', writerStats);
   }
 
   private shutdownHook() {
@@ -392,7 +392,7 @@ export class PinFlowWebpackPlugin {
       this.writer.close();
     } catch (error) {
       console.error(
-        '[domscribe-transform][webpack-plugin] Failed to close writer:',
+        '[pinflow-transform][webpack-plugin] Failed to close writer:',
         error instanceof Error ? error.message : String(error),
       );
     }

@@ -1,4 +1,4 @@
-import { AnnotationStatusEnum, DomscribeErrorCode } from '@pinflow/core';
+import { AnnotationStatusEnum, PinFlowErrorCode } from '@pinflow/core';
 import { RelayHttpClient, RelayError } from './relay-http-client.js';
 
 describe('RelayHttpClient', () => {
@@ -197,7 +197,7 @@ describe('RelayHttpClient', () => {
   describe('error handling', () => {
     it('should throw RelayError for structured error responses', async () => {
       mockError(404, {
-        code: DomscribeErrorCode.DS_ANNOTATION_NOTFOUND,
+        code: PinFlowErrorCode.DS_ANNOTATION_NOTFOUND,
         error: 'Not found',
         detail: 'Annotation not found',
       });
@@ -220,7 +220,7 @@ describe('RelayHttpClient', () => {
       } catch (error) {
         expect(error).toBeInstanceOf(RelayError);
         expect((error as RelayError).code).toBe(
-          DomscribeErrorCode.DS_RELAY_UNAVAILABLE,
+          PinFlowErrorCode.DS_RELAY_UNAVAILABLE,
         );
       }
     });
@@ -228,15 +228,15 @@ describe('RelayHttpClient', () => {
 });
 
 describe('RelayError', () => {
-  it('should extend DomscribeError with hint', () => {
+  it('should extend PinFlowError with hint', () => {
     const error = new RelayError({
-      code: DomscribeErrorCode.DS_RELAY_UNAVAILABLE,
+      code: PinFlowErrorCode.DS_RELAY_UNAVAILABLE,
       error: 'Unavailable',
       hint: 'Is the relay running?',
     });
 
     expect(error).toBeInstanceOf(Error);
     expect(error.hint).toBe('Is the relay running?');
-    expect(error.code).toBe(DomscribeErrorCode.DS_RELAY_UNAVAILABLE);
+    expect(error.code).toBe(PinFlowErrorCode.DS_RELAY_UNAVAILABLE);
   });
 });

@@ -130,7 +130,7 @@ export function pinflow(options: VitePluginOptions = {}): Plugin {
     }
 
     const writerStats = writer?.getStats() ?? null;
-    stats?.print('[domscribe-transform][vite-plugin]', writerStats);
+    stats?.print('[pinflow-transform][vite-plugin]', writerStats);
   }
 
   /**
@@ -188,7 +188,7 @@ export function pinflow(options: VitePluginOptions = {}): Plugin {
 
       if (debug) {
         console.log(
-          '[domscribe-transform][vite-plugin] Vite plugin initialized',
+          '[pinflow-transform][vite-plugin] Vite plugin initialized',
         );
       }
 
@@ -208,13 +208,13 @@ export function pinflow(options: VitePluginOptions = {}): Plugin {
 
           if (debug) {
             console.log(
-              `[domscribe-transform][vite-plugin] Relay running at http://${relayHost}:${relayPort}`,
+              `[pinflow-transform][vite-plugin] Relay running at http://${relayHost}:${relayPort}`,
             );
           }
         } catch (error) {
           // Never fail the build due to relay issues
           console.warn(
-            `[domscribe-transform][vite-plugin] Relay check failed: ${error instanceof Error ? error.message : String(error)}`,
+            `[pinflow-transform][vite-plugin] Relay check failed: ${error instanceof Error ? error.message : String(error)}`,
           );
         }
       }
@@ -260,7 +260,7 @@ export function pinflow(options: VitePluginOptions = {}): Plugin {
         if (!fileExtension) {
           if (debug) {
             console.warn(
-              `[domscribe-transform][vite-plugin] No file extension found for ${sourceFile}, skipping transformation`,
+              `[pinflow-transform][vite-plugin] No file extension found for ${sourceFile}, skipping transformation`,
             );
           }
           return null;
@@ -269,7 +269,7 @@ export function pinflow(options: VitePluginOptions = {}): Plugin {
         if (!isInjectorFileExtension(fileExtension)) {
           if (debug) {
             console.warn(
-              `[domscribe-transform][vite-plugin] Invalid file extension ${fileExtension} for ${sourceFile}, skipping transformation`,
+              `[pinflow-transform][vite-plugin] Invalid file extension ${fileExtension} for ${sourceFile}, skipping transformation`,
             );
           }
           return null;
@@ -318,7 +318,7 @@ export function pinflow(options: VitePluginOptions = {}): Plugin {
         // Debug logging
         if (debug) {
           console.log(
-            `[domscribe-transform][vite-plugin] Transformed ${sourceFile}: ` +
+            `[pinflow-transform][vite-plugin] Transformed ${sourceFile}: ` +
               `${injectorMetrics.elementsInjected} elements in ${timings.totalTransformMs.toFixed(2)}ms ` +
               `(parse=${timings.parseMs.toFixed(2)}ms, traverse=${timings.traversalMs.toFixed(2)}ms, ` +
               `smConsumer=${timings.sourceMapConsumerMs.toFixed(2)}ms)`,
@@ -349,7 +349,7 @@ export function pinflow(options: VitePluginOptions = {}): Plugin {
       } catch (error) {
         // Log error but don't break the build
         console.error(
-          `[domscribe-transform][vite-plugin] Failed to transform ${sourceFile}:`,
+          `[pinflow-transform][vite-plugin] Failed to transform ${sourceFile}:`,
           error instanceof Error ? error.message : String(error),
         );
 
@@ -370,7 +370,7 @@ export function pinflow(options: VitePluginOptions = {}): Plugin {
         writer.close();
       } catch (error) {
         console.error(
-          '[domscribe-transform][vite-plugin] Failed to close writer:',
+          '[pinflow-transform][vite-plugin] Failed to close writer:',
           error instanceof Error ? error.message : String(error),
         );
       }

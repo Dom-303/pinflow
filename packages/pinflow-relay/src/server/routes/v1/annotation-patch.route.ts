@@ -1,7 +1,7 @@
 import {
   API_PATHS,
-  DomscribeError,
-  DomscribeErrorCode,
+  PinFlowError,
+  PinFlowErrorCode,
   HTTP_STATUS,
 } from '@pinflow/core';
 import {
@@ -81,7 +81,7 @@ export class AnnotationPatchRoute implements RelayRoute {
       const annotation = await this.annotationService.patch(id, { context });
       return reply.status(HTTP_STATUS.OK).send({ annotation });
     } catch (error: unknown) {
-      if (error instanceof DomscribeError) {
+      if (error instanceof PinFlowError) {
         return reply.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({
           ...error.toProblemDetails(),
           error: error.message,
@@ -93,13 +93,13 @@ export class AnnotationPatchRoute implements RelayRoute {
       if (errorMessage.includes('not found')) {
         return reply.status(HTTP_STATUS.NOT_FOUND).send({
           error: errorMessage,
-          code: DomscribeErrorCode.DS_ANNOTATION_NOTFOUND,
+          code: PinFlowErrorCode.DS_ANNOTATION_NOTFOUND,
         });
       }
 
       return reply.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send({
         error: errorMessage,
-        code: DomscribeErrorCode.DS_INTERNAL_ERROR,
+        code: PinFlowErrorCode.DS_INTERNAL_ERROR,
       });
     }
   }

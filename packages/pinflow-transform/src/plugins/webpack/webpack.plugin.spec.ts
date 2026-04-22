@@ -503,7 +503,7 @@ describe('PinFlowWebpackPlugin', () => {
 
       // Assert
       expect(mockStats.print).toHaveBeenCalledWith(
-        '[domscribe-transform][webpack-plugin]',
+        '[pinflow-transform][webpack-plugin]',
         mockWriterStats,
       );
     });
@@ -575,7 +575,7 @@ describe('PinFlowWebpackPlugin', () => {
 
       // Assert - should pass null for writerStats since writer.getStats() returns null
       expect(mockStats.print).toHaveBeenCalledWith(
-        '[domscribe-transform][webpack-plugin]',
+        '[pinflow-transform][webpack-plugin]',
         null,
       );
     });

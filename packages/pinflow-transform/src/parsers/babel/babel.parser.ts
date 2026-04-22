@@ -152,7 +152,7 @@ export class BabelParser implements ParserInterface<Node, JSXOpeningElement> {
   getLocation(element: JSXOpeningElement): SourceLocation | undefined {
     if (!element.loc || element.start == null || element.end == null) {
       console.warn(
-        `[domscribe-transform][babel-parser] Could not find source location for ${this.getTagName(element)}`,
+        `[pinflow-transform][babel-parser] Could not find source location for ${this.getTagName(element)}`,
       );
       return;
     }
@@ -180,7 +180,7 @@ export class BabelParser implements ParserInterface<Node, JSXOpeningElement> {
   getInsertPosition(element: JSXOpeningElement): number {
     if (element.end == null) {
       console.warn(
-        `[domscribe-transform][babel-parser] Could not find end position for ${this.getTagName(element)}`,
+        `[pinflow-transform][babel-parser] Could not find end position for ${this.getTagName(element)}`,
       );
       return 0;
     }

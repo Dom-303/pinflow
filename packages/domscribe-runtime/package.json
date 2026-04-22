@@ -1,7 +1,7 @@
 {
   "name": "@domscribe/runtime",
   "version": "0.6.0-pinflow.0",
-  "description": "Browser-side runtime context capture for Domscribe",
+  "description": "Browser-side runtime context capture for PinFlow",
   "type": "module",
   "main": "src/index.ts",
   "publishConfig": {
@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/patchorbit/domscribe.git",
+    "url": "https://github.com/Dom-303/pinflow.git",
     "directory": "packages/domscribe-runtime"
   }
 }

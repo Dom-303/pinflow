@@ -2,9 +2,7 @@
   "name": "pinflow",
   "version": "0.6.0-pinflow.0",
   "author": {
-    "name": "Patch Orbit",
-    "email": "kaushik@patchorbit.com",
-    "url": "https://patchorbit.com"
+    "name": "Dom-303"
   },
   "description": "PinFlow is a visual UI-to-code workflow tool for marking running interfaces, queuing changes, and routing them into coding-agent workflows.",
   "license": "MIT",
@@ -68,8 +66,9 @@
     "!packages/domscribe-test-fixtures/fixtures/**"
   ],
   "keywords": [
+    "pinflow",
     "domscribe",
-    "patchorbit",
+    "pinflow-workflow",
     "pixel-to-code",
     "ui-to-code",
     "dom-annotation",
@@ -97,11 +96,11 @@
     "bundler-plugin",
     "ast-transform"
   ],
-  "repository": "github:patchorbit/domscribe",
+  "repository": "github:Dom-303/pinflow",
   "bugs": {
-    "url": "https://github.com/patchorbit/domscribe/issues"
+    "url": "https://github.com/Dom-303/pinflow/issues"
   },
-  "homepage": "https://github.com/patchorbit/domscribe#readme",
+  "homepage": "https://github.com/Dom-303/pinflow#readme",
   "nx": {
     "includedScripts": [],
     "targets": {

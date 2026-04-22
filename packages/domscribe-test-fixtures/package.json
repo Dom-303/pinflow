@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "generators": "./generator/generators.json",
-  "description": "Kitchen-sink test fixtures and integration tests for Domscribe",
+  "description": "Kitchen-sink test fixtures and integration tests for PinFlow compatibility",
   "devDependencies": {
     "@playwright/test": "^1.49.0"
   }

@@ -9,7 +9,7 @@
   "distExports": {
     "./auto-init": "./auto-init.js"
   },
-  "description": "Framework-agnostic overlay UI for Domscribe pixel-to-code workflows",
+  "description": "Framework-agnostic overlay UI for PinFlow visual change workflows",
   "dependencies": {
     "@domscribe/core": "workspace:*",
     "@domscribe/runtime": "workspace:*",
@@ -26,7 +26,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/patchorbit/domscribe.git",
+    "url": "https://github.com/Dom-303/pinflow.git",
     "directory": "packages/domscribe-overlay"
   }
 }

@@ -1,7 +1,7 @@
 {
   "name": "domscribe",
   "version": "0.6.0-pinflow.0",
-  "description": "CLI for Domscribe — pixel-to-code development tool",
+  "description": "CLI compatibility layer and local workflow entrypoint for PinFlow",
   "type": "module",
   "main": "src/bin/domscribe.ts",
   "distBin": {
@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/patchorbit/domscribe.git",
+    "url": "https://github.com/Dom-303/pinflow.git",
     "directory": "packages/domscribe-cli"
   }
 }

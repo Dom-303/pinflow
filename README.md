@@ -47,10 +47,10 @@
 
 **AI coding agents edit your source files blind — they can't see your running frontend, and your frontend can't tell them where to look.**
 
-PinFlow bridges both directions: click a DOM element to tell your agent what to change, or let your agent query any source location to see exactly what it looks like live in the browser. It is built on top of the original [Domscribe](https://github.com/patchorbit/domscribe) source-mapped runtime foundation. Build-time stable IDs, deep runtime context (props, state, DOM), framework-agnostic, any MCP-compatible agent. Zero production impact.
+PinFlow bridges both directions: click a DOM element to tell your agent what to change, or let your agent query any source location to see exactly what it looks like live in the browser. It grows out of the original [Domscribe](https://github.com/patchorbit/domscribe) source-mapped runtime foundation, but the active product surface here is `PinFlow`: visual review, queueing, dispatch, and agent-facing workflow polish for real projects. Build-time stable IDs, deep runtime context (props, state, DOM), framework-agnostic, any MCP-compatible agent. Zero production impact.
 
 > [!NOTE]
-> `PinFlow` is our productized adaptation of the original [Domscribe](https://github.com/patchorbit/domscribe) codebase. The visible product surface, workflow wording, and UI can evolve here, while the current technical compatibility layer intentionally still uses `domscribe` package names, commands, and artifact paths.
+> `PinFlow` is our productized adaptation of the original [Domscribe](https://github.com/patchorbit/domscribe) codebase. The visible product surface, workflow wording, plugin manifests, and UI evolve here, while the current technical compatibility layer intentionally still uses `domscribe` package names, commands, MCP keys, and artifact paths.
 
 ---
 
@@ -62,7 +62,7 @@ Use the canonical preview flow to refresh a dedicated PinFlow preview registry, 
 pnpm run pinflow:preview:vite-react
 ```
 
-This is the preferred path whenever you want to verify the current PinFlow UI instead of whatever older fixture artifacts may still be installed.
+This is the preferred path whenever you want to verify the current PinFlow UI instead of older fixture artifacts or stale compatibility packages.
 
 ---
 
@@ -327,7 +327,7 @@ This creates a `domscribe.config.json` at your repo root that tells all Domscrib
 
 ### Agent-Side — Connect Your Coding Agent
 
-PinFlow exposes 12 tools and 4 prompts via MCP. The visible product is `PinFlow`; the current technical MCP namespace remains `domscribe` for compatibility.
+PinFlow exposes 12 tools and 4 prompts via MCP. The visible product is `PinFlow`; the current technical MCP namespace remains `domscribe` for compatibility until the deeper namespace decision in a later migration phase.
 
 #### Claude Code
 

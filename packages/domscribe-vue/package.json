@@ -1,7 +1,7 @@
 {
   "name": "@domscribe/vue",
   "version": "0.6.0-pinflow.0",
-  "description": "Vue adapter for Domscribe",
+  "description": "Vue adapter for PinFlow",
   "type": "module",
   "main": "src/index.ts",
   "publishConfig": {
@@ -41,7 +41,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/patchorbit/domscribe.git",
+    "url": "https://github.com/Dom-303/pinflow.git",
     "directory": "packages/domscribe-vue"
   }
 }

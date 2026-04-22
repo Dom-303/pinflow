@@ -23,6 +23,8 @@ import {
 } from '../../core/injector.registry.js';
 import { RelayControl } from '@pinflow/relay';
 
+const OVERLAY_INIT_MODULE_PATH = '/@pinflow/overlay-init.js';
+
 /**
  * Build a JS preamble that sets relay + overlay globals on `window`.
  *
@@ -65,6 +67,7 @@ function buildVitePreamble(opts: {
   if (opts.overlayEnabled && opts.relayPort !== undefined) {
     const overlayOptionsObj = {
       initialMode: opts.overlayOptions.initialMode ?? 'collapsed',
+      initialTheme: opts.overlayOptions.initialTheme ?? 'light',
       debug: opts.overlayOptions.debug ?? opts.debug,
     };
     parts.push(
@@ -218,6 +221,25 @@ export function pinflow(options: VitePluginOptions = {}): Plugin {
           );
         }
       }
+    },
+
+    resolveId(id) {
+      if (id === OVERLAY_INIT_MODULE_PATH) {
+        return OVERLAY_INIT_MODULE_PATH;
+      }
+
+      return null;
+    },
+
+    load(id) {
+      if (id !== OVERLAY_INIT_MODULE_PATH) {
+        return null;
+      }
+
+      return [
+        `import { initOverlay } from '@pinflow/overlay';`,
+        `initOverlay().catch(e => console.warn('[pinflow] Failed to load overlay:', e.message));`,
+      ].join('\n');
     },
 
     async transform(code, sourceFile) {
@@ -411,6 +433,7 @@ export function pinflow(options: VitePluginOptions = {}): Plugin {
         // Build overlay options object
         const overlayOptionsObj = {
           initialMode: overlayOptions.initialMode ?? 'collapsed',
+          initialTheme: overlayOptions.initialTheme ?? 'light',
           debug: overlayOptions.debug ?? debug,
         };
 
@@ -425,7 +448,7 @@ export function pinflow(options: VitePluginOptions = {}): Plugin {
         tags.push({
           tag: 'script',
           attrs: { type: 'module' },
-          children: `import('@pinflow/overlay').then(m => m.initOverlay()).catch(e => console.warn('[pinflow] Failed to load overlay:', e.message));`,
+          children: `import('${OVERLAY_INIT_MODULE_PATH}');`,
           injectTo: 'body',
         });
       }

@@ -9,7 +9,7 @@ import { LitElement, html, css } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { StoreController } from '../core/store-controller.js';
 import { themeStyles, utilityStyles } from '../styles/theme.js';
-import { getThemeIconAsset } from './logo/index.js';
+import { getThemeIconAsset, getThemeWordmarkAsset } from './logo/index.js';
 
 /**
  * Sidebar header component
@@ -50,17 +50,30 @@ export class DsHeader extends LitElement {
 
       .brand {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         gap: var(--ds-space-sm);
       }
 
+      .brand-copy {
+        display: grid;
+        gap: 1px;
+      }
+
       .brand-logo {
-        width: 24px;
-        height: 24px;
+        width: 28px;
+        height: 28px;
         flex-shrink: 0;
         display: block;
         object-fit: contain;
-        border-radius: 7px;
+        border-radius: 8px;
+        margin-top: 2px;
+      }
+
+      .brand-wordmark {
+        width: 104px;
+        height: auto;
+        display: block;
+        object-fit: contain;
       }
 
       .brand-name {
@@ -68,6 +81,13 @@ export class DsHeader extends LitElement {
         font-weight: var(--ds-font-weight-semibold);
         letter-spacing: -0.03em;
         color: var(--ds-text-primary);
+      }
+
+      .brand-subtext {
+        font-size: var(--ds-font-size-xs);
+        color: var(--ds-text-tertiary);
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
       }
 
       .btn-icon {
@@ -112,7 +132,14 @@ export class DsHeader extends LitElement {
             src=${getThemeIconAsset(theme)}
             alt="PinFlow Logo"
           />
-          <span class="brand-name">PinFlow</span>
+          <div class="brand-copy">
+            <img
+              class="brand-wordmark"
+              src=${getThemeWordmarkAsset(theme)}
+              alt="PinFlow"
+            />
+            <span class="brand-subtext">Arbeitsbereich</span>
+          </div>
         </div>
 
         <button

@@ -8,7 +8,10 @@ export {
   type LogoVariant,
   lightIconAsset,
   darkIconAsset,
+  lightWordmarkAsset,
+  darkWordmarkAsset,
   getThemeIconAsset,
+  getThemeWordmarkAsset,
 } from './logo-svg.js';
 export {
   CURSOR_PATH,

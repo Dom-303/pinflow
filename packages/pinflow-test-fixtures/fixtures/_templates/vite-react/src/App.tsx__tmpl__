@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Navigation } from './Navigation';
+import codeToUiImage from '../../../../../../../assets/code-to-ui.png';
+import uiToCodeImage from '../../../../../../../assets/ui-to-code.png';
 <%- componentImports %>
 
 interface ComponentConfig {
@@ -30,13 +32,38 @@ export function App() {
       <main className="main-content">
         <div className="content-wrapper">
           <header className="page-header">
-            <div className="preview-kicker">Preview Canvas</div>
+            <div className="preview-kicker">Vorschau-Flaeche</div>
             <h1 className="page-title">{currentComponent.title}</h1>
             <p className="page-description">{currentComponent.description}</p>
             <div className="preview-callout">
-              <strong>Hinweis:</strong> Die eigentliche PinFlow-Arbeitsflaeche liegt rechts.
-              Diese linke Flaeche ist nur die Demo, damit du Auswahl, Mapping und
-              Kommentare an echten UI-Bausteinen testen kannst.
+              <strong>Hinweis:</strong> Die eigentliche PinFlow-Arbeitsflaeche
+              liegt rechts. Diese linke Flaeche ist nur die Demo, damit du
+              Auswahl, Mapping und Kommentare an echten UI-Bausteinen testen
+              kannst.
+            </div>
+            <div className="preview-hero-grid">
+              <article className="preview-hero-card">
+                <img
+                  className="preview-hero-image"
+                  src={uiToCodeImage}
+                  alt="UI zu Code Visual"
+                />
+                <div className="preview-hero-copy">
+                  <span className="preview-hero-eyebrow">UI zu Code</span>
+                  <strong>Markieren, beschreiben, direkt in Arbeit ueberfuehren.</strong>
+                </div>
+              </article>
+              <article className="preview-hero-card">
+                <img
+                  className="preview-hero-image"
+                  src={codeToUiImage}
+                  alt="Code zu UI Visual"
+                />
+                <div className="preview-hero-copy">
+                  <span className="preview-hero-eyebrow">Code zu UI</span>
+                  <strong>Rueckmeldung, Mapping und visuelle Kontrolle an einem Ort.</strong>
+                </div>
+              </article>
             </div>
           </header>
 

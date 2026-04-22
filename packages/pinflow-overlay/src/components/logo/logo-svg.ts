@@ -25,8 +25,22 @@ export const darkIconAsset = new URL(
   import.meta.url,
 ).href;
 
+export const lightWordmarkAsset = new URL(
+  './assets/pinflow-horizontal-light.png',
+  import.meta.url,
+).href;
+
+export const darkWordmarkAsset = new URL(
+  './assets/pinflow-horizontal-dark.png',
+  import.meta.url,
+).href;
+
 export function getThemeIconAsset(theme: 'light' | 'dark'): string {
   return theme === 'dark' ? darkIconAsset : lightIconAsset;
+}
+
+export function getThemeWordmarkAsset(theme: 'light' | 'dark'): string {
+  return theme === 'dark' ? darkWordmarkAsset : lightWordmarkAsset;
 }
 
 /**

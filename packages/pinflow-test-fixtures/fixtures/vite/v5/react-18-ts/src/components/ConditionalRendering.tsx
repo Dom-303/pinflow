@@ -19,39 +19,39 @@ export function ConditionalRendering() {
   return (
     <div className="conditional-rendering">
       <section>
-        <h4>Logical AND (&&) Rendering</h4>
+        <h4>Logisches UND (&&)</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <button onClick={() => setShowContent(!showContent)}>
-            Toggle Content (currently {showContent ? 'shown' : 'hidden'})
+            Inhalt umschalten (aktuell {showContent ? 'sichtbar' : 'verborgen'})
           </button>
-          {showContent && <div>Content shown via logical AND</div>}
+          {showContent && <div>Inhalt wird ueber logisches UND angezeigt</div>}
         </div>
       </section>
 
       <section>
-        <h4>Ternary Operator</h4>
+        <h4>Ternaerer Operator</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           {showContent ? (
-            <div>Content shown (ternary true)</div>
+            <div>Inhalt sichtbar (True-Zweig)</div>
           ) : (
-            <div>Content hidden (ternary false)</div>
+            <div>Inhalt verborgen (False-Zweig)</div>
           )}
         </div>
       </section>
 
       <section>
-        <h4>Mode-Based Rendering</h4>
+        <h4>Modusabhaengige Darstellung</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           {mode === 'light' ? (
-            <div className="light-mode">Light mode active</div>
+            <div className="light-mode">Light Mode aktiv</div>
           ) : (
-            <div className="dark-mode">Dark mode active</div>
+            <div className="dark-mode">Dark Mode aktiv</div>
           )}
           <button onClick={() => setMode(mode === 'light' ? 'dark' : 'light')}>
-            Toggle Mode (currently {mode})
+            Modus wechseln (aktuell {mode})
           </button>
         </div>
       </section>

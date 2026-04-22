@@ -17,7 +17,8 @@ describe('pinflow visible preview branding', () => {
   it('brands the canonical preview fixture as PinFlow in the document title', () => {
     const html = readFixture('index.html');
 
-    expect(html).toContain('<title>PinFlow Preview - React 18</title>');
+    expect(html).toContain('<html lang="de">');
+    expect(html).toContain('<title>PinFlow Vorschau - React 18</title>');
   });
 
   it('marks the left rail as demo space and explains that the workspace lives on the right', () => {
@@ -26,8 +27,13 @@ describe('pinflow visible preview branding', () => {
     const viteConfig = readFixture('vite.config.ts');
 
     expect(navigation).toContain('PinFlow Demo');
+    expect(navigation).toContain('pinflow-horizontal-light.png');
+    expect(navigation).toContain('Erweiterte Hooks');
     expect(app).toContain('Die eigentliche PinFlow-Arbeitsflaeche');
     expect(app).toContain('liegt rechts.');
+    expect(app).toContain('UI zu Code');
+    expect(app).toContain('Code zu UI');
     expect(viteConfig).toContain("initialMode: 'expanded'");
+    expect(viteConfig).toContain("initialTheme: 'light'");
   });
 });

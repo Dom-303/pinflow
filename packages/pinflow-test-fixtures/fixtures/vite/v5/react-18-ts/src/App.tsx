@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Navigation } from './Navigation';
+import codeToUiImage from '../../../../../../../assets/code-to-ui.png';
+import uiToCodeImage from '../../../../../../../assets/ui-to-code.png';
 import {
   AdvancedHooks,
   BasicElements,
@@ -40,164 +42,172 @@ interface ComponentConfig {
 const components: ComponentConfig[] = [
   {
     id: 'advanced-hooks',
-    title: 'Advanced Hooks',
-    description: 'Advanced Hooks test component.',
+    title: 'Erweiterte Hooks',
+    description: 'Demoflaeche fuer komplexere Hook-Muster und Interaktionen.',
     component: AdvancedHooks,
   },
   {
     id: 'basic-elements',
-    title: 'Basic Elements',
-    description: 'Basic Elements test component.',
+    title: 'Grundelemente',
+    description:
+      'Einfacher Vorschau-Baustein fuer Markierung, Mapping und Kommentare.',
     component: BasicElements,
   },
   {
     id: 'children-manipulation',
-    title: 'Children Manipulation',
-    description: 'Children Manipulation test component.',
+    title: 'Kinder-Elemente',
+    description: 'Beispiel fuer verschachtelte Child-Strukturen und Auswahlpfade.',
     component: ChildrenManipulation,
   },
   {
     id: 'compound-components',
-    title: 'Compound Components',
-    description: 'Compound Components test component.',
+    title: 'Verbundene Komponenten',
+    description: 'Testflaeche fuer gekoppelte UI-Bausteine mit geteiltem Zustand.',
     component: CompoundComponents,
   },
   {
     id: 'conditional-rendering',
-    title: 'Conditional Rendering',
-    description: 'Conditional Rendering test component.',
+    title: 'Bedingte Darstellung',
+    description:
+      'Ansicht fuer dynamische UI-Zustaende und unterschiedliche Renderpfade.',
     component: ConditionalRendering,
   },
   {
     id: 'context',
-    title: 'Context',
-    description: 'Context test component.',
+    title: 'Kontext',
+    description:
+      'Kontextbasierte Komponentenhierarchie fuer Source-Mapping und Auswahl.',
     component: Context,
   },
   {
     id: 'deeply-nested',
-    title: 'Deeply Nested',
-    description: 'Deeply Nested test component.',
+    title: 'Tief verschachtelt',
+    description: 'Komplexe Tiefe fuer den Picker und robuste Komponentenauflosung.',
     component: DeeplyNested,
   },
   {
     id: 'dynamic-content',
-    title: 'Dynamic Content',
-    description: 'Dynamic Content test component.',
+    title: 'Dynamische Inhalte',
+    description: 'Wechselnde Inhalte fuer Annotationen an lebendigen UI-Stellen.',
     component: DynamicContent,
   },
   {
     id: 'edge-cases',
-    title: 'Edge Cases',
-    description: 'Edge Cases test component.',
+    title: 'Sonderfaelle',
+    description: 'Sammelstelle fuer schwierige oder ungewohnliche UI-Randfaelle.',
     component: EdgeCases,
   },
   {
     id: 'error-boundaries',
-    title: 'Error Boundaries',
-    description: 'Error Boundaries test component.',
+    title: 'Fehlergrenzen',
+    description: 'Fehlerszenarien fuer robuste Overlay- und Mapping-Prufungen.',
     component: ErrorBoundaries,
   },
   {
     id: 'event-handlers',
-    title: 'Event Handlers',
-    description: 'Event Handlers test component.',
+    title: 'Ereignis-Handler',
+    description: 'Interaktive Teststrecke fuer Klicks, Fokus und Event-Delegation.',
     component: EventHandlers,
   },
   {
     id: 'fragments',
-    title: 'Fragments',
-    description: 'Fragments test component.',
+    title: 'Fragmente',
+    description: 'Mehrteilige React-Strukturen fuer die PinFlow-Auswahl.',
     component: Fragments,
   },
   {
     id: 'h-o-cs',
-    title: 'H O Cs',
-    description: 'H O Cs test component.',
+    title: 'HOCs',
+    description: 'Higher-Order-Component-Beispiele fuer Mapping und Komponentennamen.',
     component: HOCs,
   },
   {
     id: 'lazy-loading',
-    title: 'Lazy Loading',
-    description: 'Lazy Loading test component.',
+    title: 'Verzoegertes Laden',
+    description: 'Asynchrone Oberflaeche fuer Load-Zustaende und nachgeladene UI.',
     component: LazyLoading,
   },
   {
     id: 'lists',
-    title: 'Lists',
-    description: 'Lists test component.',
+    title: 'Listen',
+    description: 'Listenansichten fuer wiederholte Elemente und strukturierte Auswahl.',
     component: Lists,
   },
   {
     id: 'member-expressions',
-    title: 'Member Expressions',
-    description: 'Member Expressions test component.',
+    title: 'Member-Ausdruecke',
+    description:
+      'Beispiel fuer tiefer gebaute Komponentenreferenzen und Source-Zuordnung.',
     component: MemberExpressions,
   },
   {
     id: 'memo',
     title: 'Memo',
-    description: 'Memo test component.',
+    description: 'Memoisierte Komponentenflaeche fuer stabile Referenzen im Preview-Canvas.',
     component: Memo,
   },
   {
     id: 'portals',
-    title: 'Portals',
-    description: 'Portals test component.',
+    title: 'Portale',
+    description: 'Portale und Layer fuer Overlay, Fokus und z-index-nahe Pruefungen.',
     component: Portals,
   },
   {
     id: 'react18-features',
-    title: 'React18 Features',
-    description: 'React18 Features test component.',
+    title: 'React-18-Funktionen',
+    description: 'Aktuelle React-Features fuer moderne App-Flows in der Demo.',
     component: React18Features,
   },
   {
     id: 'ref-patterns',
-    title: 'Ref Patterns',
-    description: 'Ref Patterns test component.',
+    title: 'Ref-Muster',
+    description: 'Ref-basierte Komponentenstrukturen fuer Fokus und Elementzugriff.',
     component: RefPatterns,
   },
   {
     id: 'render-props',
     title: 'Render Props',
-    description: 'Render Props test component.',
+    description: 'Dynamisch erzeugte UI ueber Render Props fuer Preview und Mapping.',
     component: RenderProps,
   },
   {
     id: 's-s-r-hydration',
-    title: 'S S R Hydration',
-    description: 'S S R Hydration test component.',
+    title: 'SSR-Hydration',
+    description:
+      'Hydrationsfaelle fuer serverseitig gerenderte Komponenten und Overlay-Start.',
     component: SSRHydration,
   },
   {
     id: 's-v-g-elements',
-    title: 'S V G Elements',
-    description: 'S V G Elements test component.',
+    title: 'SVG-Elemente',
+    description:
+      'Vektorbasierte UI-Bausteine fuer komplexere Auswahl- und Tooltip-Flows.',
     component: SVGElements,
   },
   {
     id: 'self-closing',
-    title: 'Self Closing',
-    description: 'Self Closing test component.',
+    title: 'Selbstschliessend',
+    description:
+      'Kompakte Syntaxfaelle fuer Parser, Mapping und Komponentenauflosung.',
     component: SelfClosing,
   },
   {
     id: 'smoke-test',
-    title: 'Smoke Test',
-    description: 'Smoke Test test component.',
+    title: 'Smoke-Test',
+    description: 'Schneller Gesamtcheck fuer PinFlow-Verhalten in der Vorschau.',
     component: SmokeTest,
   },
   {
     id: 'styling',
     title: 'Styling',
-    description: 'Styling test component.',
+    description: 'Designnahe UI fuer Stilvarianten, Zustandsfarben und Oberflaechen.',
     component: Styling,
   },
   {
     id: 'type-script-features',
-    title: 'Type Script Features',
-    description: 'Type Script Features test component.',
+    title: 'TypeScript-Funktionen',
+    description:
+      'Typisierte Komponentenflaeche fuer robuste Source- und Runtime-Mappings.',
     component: TypeScriptFeatures,
   },
 ];
@@ -219,7 +229,7 @@ export function App() {
       <main className="main-content">
         <div className="content-wrapper">
           <header className="page-header">
-            <div className="preview-kicker">Preview Canvas</div>
+            <div className="preview-kicker">Vorschau-Flaeche</div>
             <h1 className="page-title">{currentComponent.title}</h1>
             <p className="page-description">{currentComponent.description}</p>
             <div className="preview-callout">
@@ -227,6 +237,30 @@ export function App() {
               liegt rechts. Diese linke Flaeche ist nur die Demo, damit du
               Auswahl, Mapping und Kommentare an echten UI-Bausteinen testen
               kannst.
+            </div>
+            <div className="preview-hero-grid">
+              <article className="preview-hero-card">
+                <img
+                  className="preview-hero-image"
+                  src={uiToCodeImage}
+                  alt="UI zu Code Visual"
+                />
+                <div className="preview-hero-copy">
+                  <span className="preview-hero-eyebrow">UI zu Code</span>
+                  <strong>Markieren, beschreiben, direkt in Arbeit ueberfuehren.</strong>
+                </div>
+              </article>
+              <article className="preview-hero-card">
+                <img
+                  className="preview-hero-image"
+                  src={codeToUiImage}
+                  alt="Code zu UI Visual"
+                />
+                <div className="preview-hero-copy">
+                  <span className="preview-hero-eyebrow">Code zu UI</span>
+                  <strong>Rueckmeldung, Mapping und visuelle Kontrolle an einem Ort.</strong>
+                </div>
+              </article>
             </div>
           </header>
 

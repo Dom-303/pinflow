@@ -66,13 +66,15 @@ function ReducerExample() {
 
   return (
     <div className="reducer-example">
-      <p>Count: {state.count}</p>
-      <p>History: {state.history.join(', ')}</p>
+      <p>Anzahl: {state.count}</p>
+      <p>Verlauf: {state.history.join(', ')}</p>
       <button onClick={() => dispatch({ type: 'increment' })}>+</button>
       <button onClick={() => dispatch({ type: 'decrement' })}>-</button>
-      <button onClick={() => dispatch({ type: 'reset' })}>Reset</button>
+      <button onClick={() => dispatch({ type: 'reset' })}>
+        Zuruecksetzen
+      </button>
       <button onClick={() => dispatch({ type: 'set', payload: 10 })}>
-        Set to 10
+        Auf 10 setzen
       </button>
     </div>
   );
@@ -118,12 +120,14 @@ function ImperativeHandleExample() {
   return (
     <div className="imperative-handle-example">
       <div className="form-group">
-        <FancyInput ref={inputRef} placeholder="Fancy input" />
+        <FancyInput ref={inputRef} placeholder="Besonderes Eingabefeld" />
         <div>
-          <button onClick={() => inputRef.current?.focus()}>Focus</button>
-          <button onClick={() => inputRef.current?.clear()}>Clear</button>
-          <button onClick={() => inputRef.current?.setValue('Hello!')}>
-            Set Value
+          <button onClick={() => inputRef.current?.focus()}>
+            Fokussieren
+          </button>
+          <button onClick={() => inputRef.current?.clear()}>Leeren</button>
+          <button onClick={() => inputRef.current?.setValue('Hallo!')}>
+            Wert setzen
           </button>
         </div>
       </div>
@@ -137,9 +141,9 @@ function useCounter(initial = 0) {
 
   const counter = (
     <div className="custom-hook-counter">
-      <button onClick={() => setCount(count + 1)}>Increment</button>
-      <button onClick={() => setCount(count - 1)}>Decrement</button>
-      <p>Count from custom hook: {count}</p>
+      <button onClick={() => setCount(count + 1)}>Erhoehen</button>
+      <button onClick={() => setCount(count - 1)}>Verringern</button>
+      <p>Anzahl aus Custom Hook: {count}</p>
     </div>
   );
 
@@ -154,21 +158,21 @@ function CustomHookExample() {
 
 // useLayoutEffect vs useEffect
 function LayoutEffectExample() {
-  const [layoutValue, setLayoutValue] = useState('Not measured');
-  const [effectValue, setEffectValue] = useState('Not measured');
+  const [layoutValue, setLayoutValue] = useState('Nicht gemessen');
+  const [effectValue, setEffectValue] = useState('Nicht gemessen');
   const divRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
     if (divRef.current) {
       const width = divRef.current.offsetWidth;
-      setLayoutValue(`Width: ${width}px (useLayoutEffect)`);
+      setLayoutValue(`Breite: ${width}px (useLayoutEffect)`);
     }
   }, []);
 
   useEffect(() => {
     if (divRef.current) {
       const width = divRef.current.offsetWidth;
-      setEffectValue(`Width: ${width}px (useEffect)`);
+      setEffectValue(`Breite: ${width}px (useEffect)`);
     }
   }, []);
 
@@ -179,7 +183,7 @@ function LayoutEffectExample() {
         className="demo-box demo-box-blue"
         style={{ width: '200px' }}
       >
-        Measured element
+        Gemessenes Element
       </div>
       <p>{layoutValue}</p>
       <p>{effectValue}</p>
@@ -207,7 +211,7 @@ export function AdvancedHooks() {
       </section>
 
       <section>
-        <h4>Custom Hook returning JSX</h4>
+        <h4>Custom Hook mit JSX-Rueckgabe</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <CustomHookExample />
@@ -215,7 +219,7 @@ export function AdvancedHooks() {
       </section>
 
       <section>
-        <h4>useLayoutEffect vs useEffect</h4>
+        <h4>useLayoutEffect im Vergleich zu useEffect</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <LayoutEffectExample />

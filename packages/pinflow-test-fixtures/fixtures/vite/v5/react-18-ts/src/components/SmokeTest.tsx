@@ -19,9 +19,9 @@ import { CaptureIcon } from './CaptureIcon';
 import '../pinflow-smoke-test';
 
 const strategies = [
-  { key: CaptureStrategy.FIBER, label: 'Fiber Strategy' },
-  { key: CaptureStrategy.DEVTOOLS, label: 'DevTools Strategy' },
-  { key: CaptureStrategy.BEST_EFFORT, label: 'Best Effort Strategy' },
+  { key: CaptureStrategy.FIBER, label: 'Fiber-Strategie' },
+  { key: CaptureStrategy.DEVTOOLS, label: 'DevTools-Strategie' },
+  { key: CaptureStrategy.BEST_EFFORT, label: 'Best-Effort-Strategie' },
 ];
 
 // Exported components for other tests
@@ -58,18 +58,18 @@ export function UserCard({ name, email, role }: UserCardProps) {
     <div className="smoke-test-user-card" data-testid="user-card">
       <h4>{name}</h4>
       <p>Email: {email}</p>
-      <p>Role: {role}</p>
+      <p>Rolle: {role}</p>
       <button onClick={() => setIsExpanded(!isExpanded)}>
-        {isExpanded ? 'Collapse' : 'Expand'}
+        {isExpanded ? 'Einklappen' : 'Ausklappen'}
       </button>
       {isExpanded && (
         <div className="details">
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Add notes..."
+            placeholder="Notizen hinzufuegen..."
           />
-          <p>Notes length: {notes.length}</p>
+          <p>Notizlaenge: {notes.length}</p>
         </div>
       )}
     </div>
@@ -80,7 +80,7 @@ export function UserCard({ name, email, role }: UserCardProps) {
 export function SmokeTest() {
   // Counter state - these represent the component's "props" and "state"
   // that we expect to capture via the runtime
-  const [counterLabel] = useState('Items');
+  const [counterLabel] = useState('Elemente');
   const [counterStep] = useState(5);
   const [counterCount, setCounterCount] = useState(10);
 
@@ -99,22 +99,22 @@ export function SmokeTest() {
     <div>
       {/* Instructions */}
       <section>
-        <h4>Testing Runtime Context Capture</h4>
+        <h4>Runtime-Kontextaufnahme testen</h4>
         <div className="demo-box demo-box-amber">
-          <h5>How to Test</h5>
+          <h5>So testest du es</h5>
           <ol>
-            <li>Open browser DevTools console (F12)</li>
-            <li>Click the crosshair icons on any widget below</li>
-            <li>Check console for captured context (props & state)</li>
+            <li>Browser-DevTools-Konsole oeffnen (F12)</li>
+            <li>Auf die Fadenkreuz-Icons bei den Widgets klicken</li>
+            <li>In der Konsole den erfassten Kontext pruefen</li>
             <li>
-              Try modifying state (increment counter, expand card) and capture
-              again
+              Zustand aendern, zum Beispiel Zaehler erhoehen oder Karte
+              ausklappen, und erneut pruefen
             </li>
           </ol>
           <p>
-            <strong>This simulates the Overlay picker flow:</strong> when you
-            click an element, we have the element reference and can capture its
-            context immediately.
+            <strong>Das simuliert den Overlay-Picker-Flow:</strong> Wenn du ein
+            Element anklickst, haben wir direkt die Referenz und koennen seinen
+            Kontext sofort erfassen.
           </p>
         </div>
       </section>
@@ -129,7 +129,7 @@ export function SmokeTest() {
               marginBottom: '1rem',
             }}
           >
-            Strategy: <code>{strategyInfo.key}</code>
+            Strategie: <code>{strategyInfo.key}</code>
           </p>
 
           <div
@@ -145,7 +145,7 @@ export function SmokeTest() {
               <CaptureIcon position="top-right" strategy={strategyInfo.key} />
 
               {/* Widget Content */}
-              <h5 style={{ marginTop: 0 }}>Counter Widget</h5>
+              <h5 style={{ marginTop: 0 }}>Zaehler-Widget</h5>
               <div className="demo-box">
                 <div
                   style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}
@@ -177,7 +177,7 @@ export function SmokeTest() {
               <CaptureIcon position="top-right" strategy={strategyInfo.key} />
 
               {/* Widget Content */}
-              <h5 style={{ marginTop: 0 }}>User Card Widget</h5>
+              <h5 style={{ marginTop: 0 }}>Nutzerkarten-Widget</h5>
               <div className="demo-box">
                 <p>
                   <strong>{userName}</strong>
@@ -192,14 +192,14 @@ export function SmokeTest() {
                   onClick={toggleExpanded}
                   style={{ marginTop: '0.5rem' }}
                 >
-                  {isExpanded ? 'Collapse' : 'Expand'}
+                  {isExpanded ? 'Einklappen' : 'Ausklappen'}
                 </button>
                 {isExpanded && (
                   <div style={{ marginTop: '1rem' }}>
                     <textarea
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
-                      placeholder="Add notes..."
+                      placeholder="Notizen hinzufuegen..."
                       style={{ width: '100%', minHeight: '60px' }}
                     />
                     <p
@@ -208,7 +208,7 @@ export function SmokeTest() {
                         color: 'var(--color-text-tertiary)',
                       }}
                     >
-                      Notes: {notes.length} chars
+                      Notizen: {notes.length} Zeichen
                     </p>
                   </div>
                 )}
@@ -229,7 +229,7 @@ export function SmokeTest() {
 
       {/* Strategy Comparison */}
       <section>
-        <h4>Capture Strategy Comparison</h4>
+        <h4>Vergleich der Capture-Strategien</h4>
         <div className="demo-box">
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>

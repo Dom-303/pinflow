@@ -49,6 +49,13 @@ export interface OverlayPluginOptions {
   initialMode?: 'collapsed' | 'expanded';
 
   /**
+   * Initial product theme for the overlay shell.
+   *
+   * @default 'light'
+   */
+  initialTheme?: 'light' | 'dark';
+
+  /**
    * Enable debug logging in the overlay
    *
    * @default false

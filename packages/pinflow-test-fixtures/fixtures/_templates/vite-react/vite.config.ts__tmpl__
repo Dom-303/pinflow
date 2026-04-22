@@ -9,6 +9,7 @@ export default defineConfig({
       debug: false,
       overlay: {
         initialMode: 'expanded',
+        initialTheme: 'light',
       },
     }),
   ],

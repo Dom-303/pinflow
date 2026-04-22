@@ -110,12 +110,16 @@ describe('Paper Glow UI contract', () => {
 
     await header.updateComplete;
 
-    const brand = header.shadowRoot.querySelector('.brand-name');
+    const brandWordmark = header.shadowRoot.querySelector(
+      '.brand-wordmark',
+    ) as HTMLImageElement | null;
     const closeButton = header.shadowRoot.querySelector(
       'button[aria-label="Seitenleiste schliessen"]',
     );
 
-    expect(brand?.textContent).toBe('PinFlow');
+    expect(brandWordmark).not.toBeNull();
+    expect(brandWordmark?.getAttribute('alt')).toBe('PinFlow');
+    expect(brandWordmark?.getAttribute('src')).toContain('pinflow-horizontal');
     expect(header.scrolled).toBe(false);
     expect(closeButton).not.toBeNull();
     expect(closeButton?.querySelector('svg path')).not.toBeNull();

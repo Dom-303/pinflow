@@ -43,16 +43,16 @@ export class DsTab extends LitElement {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 52px;
+        width: 58px;
         height: 52px;
-        padding: 6px;
+        padding: 7px;
         background: var(--ds-shell-surface-strong);
         border: 1px solid var(--ds-shell-border-soft);
         border-radius: 18px 0 0 18px;
         box-shadow: var(--ds-panel-shadow);
         cursor: pointer;
         touch-action: none; /* prevent scroll while dragging */
-        transform: translateX(10px);
+        transform: translateX(4px);
         transition:
           transform var(--ds-transition-fast),
           box-shadow var(--ds-transition-fast),
@@ -70,7 +70,7 @@ export class DsTab extends LitElement {
       }
 
       .tab:hover {
-        transform: translateX(4px);
+        transform: translateX(0);
         box-shadow: var(--ds-shadow-xl);
       }
 
@@ -170,8 +170,8 @@ export class DsTab extends LitElement {
       <button
         class="tab"
         @pointerdown=${this.onPointerDown}
-        title="PinFlow oeffnen (Strg+Umschalt+D)"
-        aria-label="PinFlow-Overlay oeffnen"
+        title="PinFlow-Arbeitsbereich oeffnen (Strg+Umschalt+D)"
+        aria-label="PinFlow-Arbeitsbereich oeffnen"
       >
         <img
           class="tab-icon"

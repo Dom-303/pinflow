@@ -3,6 +3,8 @@
  * Sidebar navigation for test fixture showcase
  */
 
+import pinflowWordmark from '../../../../../../../assets/pinflow-horizontal-light.png';
+
 export interface NavItem {
   id: string;
   label: string;
@@ -12,70 +14,78 @@ export interface NavItem {
 export const navItems: NavItem[] = [
   {
     id: 'advanced-hooks',
-    label: 'Advanced Hooks',
-    section: 'Advanced Patterns',
+    label: 'Erweiterte Hooks',
+    section: 'Erweiterte Muster',
   },
-  { id: 'basic-elements', label: 'Basic Elements', section: 'Core Patterns' },
+  { id: 'basic-elements', label: 'Grundelemente', section: 'Kernmuster' },
   {
     id: 'children-manipulation',
-    label: 'Children Manipulation',
-    section: 'Advanced Patterns',
+    label: 'Kinder-Elemente',
+    section: 'Erweiterte Muster',
   },
   {
     id: 'compound-components',
-    label: 'Compound Components',
-    section: 'Advanced Patterns',
+    label: 'Verbundene Komponenten',
+    section: 'Erweiterte Muster',
   },
   {
     id: 'conditional-rendering',
-    label: 'Conditional Rendering',
-    section: 'Core Patterns',
+    label: 'Bedingte Darstellung',
+    section: 'Kernmuster',
   },
-  { id: 'context', label: 'Context', section: 'Advanced Patterns' },
-  { id: 'deeply-nested', label: 'Deeply Nested', section: 'Core Patterns' },
-  { id: 'dynamic-content', label: 'Dynamic Content', section: 'Core Patterns' },
-  { id: 'edge-cases', label: 'Edge Cases', section: 'Core Patterns' },
+  { id: 'context', label: 'Kontext', section: 'Erweiterte Muster' },
+  { id: 'deeply-nested', label: 'Tief verschachtelt', section: 'Kernmuster' },
+  {
+    id: 'dynamic-content',
+    label: 'Dynamische Inhalte',
+    section: 'Kernmuster',
+  },
+  { id: 'edge-cases', label: 'Sonderfaelle', section: 'Kernmuster' },
   {
     id: 'error-boundaries',
-    label: 'Error Boundaries',
-    section: 'Advanced Patterns',
+    label: 'Fehlergrenzen',
+    section: 'Erweiterte Muster',
   },
-  { id: 'event-handlers', label: 'Event Handlers', section: 'Core Patterns' },
-  { id: 'fragments', label: 'Fragments', section: 'Core Patterns' },
-  { id: 'h-o-cs', label: 'H O Cs', section: 'Core Patterns' },
-  { id: 'lazy-loading', label: 'Lazy Loading', section: 'Advanced Patterns' },
-  { id: 'lists', label: 'Lists', section: 'Core Patterns' },
+  { id: 'event-handlers', label: 'Ereignis-Handler', section: 'Kernmuster' },
+  { id: 'fragments', label: 'Fragmente', section: 'Kernmuster' },
+  { id: 'h-o-cs', label: 'HOCs', section: 'Kernmuster' },
+  {
+    id: 'lazy-loading',
+    label: 'Verzoegertes Laden',
+    section: 'Erweiterte Muster',
+  },
+  { id: 'lists', label: 'Listen', section: 'Kernmuster' },
   {
     id: 'member-expressions',
-    label: 'Member Expressions',
-    section: 'Core Patterns',
+    label: 'Member-Ausdruecke',
+    section: 'Kernmuster',
   },
-  { id: 'memo', label: 'Memo', section: 'Core Patterns' },
-  { id: 'portals', label: 'Portals', section: 'Advanced Patterns' },
+  { id: 'memo', label: 'Memo', section: 'Kernmuster' },
+  { id: 'portals', label: 'Portale', section: 'Erweiterte Muster' },
   {
     id: 'react18-features',
-    label: 'React18 Features',
-    section: 'Advanced Patterns',
+    label: 'React-18-Funktionen',
+    section: 'Erweiterte Muster',
   },
-  { id: 'ref-patterns', label: 'Ref Patterns', section: 'Advanced Patterns' },
-  { id: 'render-props', label: 'Render Props', section: 'Core Patterns' },
+  { id: 'ref-patterns', label: 'Ref-Muster', section: 'Erweiterte Muster' },
+  { id: 'render-props', label: 'Render Props', section: 'Kernmuster' },
   {
     id: 's-s-r-hydration',
-    label: 'S S R Hydration',
-    section: 'Advanced Patterns',
+    label: 'SSR-Hydration',
+    section: 'Erweiterte Muster',
   },
   {
     id: 's-v-g-elements',
-    label: 'S V G Elements',
-    section: 'Advanced Patterns',
+    label: 'SVG-Elemente',
+    section: 'Erweiterte Muster',
   },
-  { id: 'self-closing', label: 'Self Closing', section: 'Core Patterns' },
-  { id: 'smoke-test', label: 'Smoke Test', section: 'Testing' },
-  { id: 'styling', label: 'Styling', section: 'Advanced Patterns' },
+  { id: 'self-closing', label: 'Selbstschliessend', section: 'Kernmuster' },
+  { id: 'smoke-test', label: 'Smoke-Test', section: 'Tests' },
+  { id: 'styling', label: 'Styling', section: 'Erweiterte Muster' },
   {
     id: 'type-script-features',
-    label: 'Type Script Features',
-    section: 'Core Patterns',
+    label: 'TypeScript-Funktionen',
+    section: 'Kernmuster',
   },
 ];
 
@@ -91,11 +101,15 @@ export function Navigation({ activeItem, onNavigate }: NavigationProps) {
     <div className="sidebar">
       <div className="sidebar-header">
         <div className="sidebar-logo">
-          <div className="sidebar-logo-icon">P</div>
+          <img
+            className="sidebar-logo-image"
+            src={pinflowWordmark}
+            alt="PinFlow"
+          />
           <div className="sidebar-brand-copy">
             <span className="sidebar-logo-text">PinFlow Demo</span>
             <span className="sidebar-logo-subtext">
-              Komponentenflaeche fuer die Live-Vorschau
+              Vorschauflaeche fuer Live-Mapping, Auswahl und Annotationen
             </span>
           </div>
         </div>

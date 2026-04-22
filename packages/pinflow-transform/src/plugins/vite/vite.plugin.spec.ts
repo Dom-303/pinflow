@@ -442,6 +442,60 @@ describe('pinflow Vite plugin', () => {
     });
   });
 
+  describe('overlay init module', () => {
+    it('should expose a virtual module for overlay init', () => {
+      const plugin = pinflow();
+      const resolveId = plugin.resolveId as (id: string) => string | null;
+      const load = plugin.load as (id: string) => string | null;
+
+      expect(resolveId('/@pinflow/overlay-init.js')).toBe(
+        '/@pinflow/overlay-init.js',
+      );
+      expect(load('/@pinflow/overlay-init.js')).toContain(
+        `from '@pinflow/overlay'`,
+      );
+      expect(load('/@pinflow/overlay-init.js')).toContain('initOverlay');
+    });
+
+    it('should inject the virtual overlay module and pass the configured theme', async () => {
+      mockRelayControl.ensureRunning.mockResolvedValueOnce({
+        running: true,
+        wasStarted: false,
+        port: 3131,
+        host: '127.0.0.1',
+      });
+
+      const plugin = await setupPlugin({
+        overlay: {
+          initialMode: 'expanded',
+          initialTheme: 'light',
+        },
+      });
+
+      const result = plugin.transformIndexHtml?.();
+      const tags =
+        result && typeof result === 'object' && 'tags' in result
+          ? result.tags
+          : [];
+
+      expect(tags).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            tag: 'script',
+            children: expect.stringContaining(
+              `"initialMode":"expanded","initialTheme":"light","debug":false`,
+            ),
+          }),
+          expect.objectContaining({
+            tag: 'script',
+            attrs: { type: 'module' },
+            children: `import('/@pinflow/overlay-init.js');`,
+          }),
+        ]),
+      );
+    });
+  });
+
   describe('transform hook - File Filtering', () => {
     it('should throw if buildStart not called (writer and injector not initialized)', async () => {
       // Arrange

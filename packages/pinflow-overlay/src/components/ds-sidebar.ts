@@ -79,6 +79,39 @@ export class DsSidebar extends LitElement {
         overflow: hidden;
       }
 
+      .workspace-grip {
+        position: absolute;
+        left: -18px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 9px;
+        border: 1px solid var(--ds-shell-border-soft);
+        border-radius: 18px 0 0 18px;
+        background: var(--ds-shell-surface-strong);
+        box-shadow: var(--ds-shadow-lg);
+        color: var(--ds-text-secondary);
+        cursor: pointer;
+        transition:
+          color var(--ds-transition-fast),
+          transform var(--ds-transition-fast),
+          box-shadow var(--ds-transition-fast);
+        z-index: 2;
+      }
+
+      .workspace-grip:hover {
+        color: var(--ds-text-primary);
+        transform: translateY(-50%) translateX(-2px);
+        box-shadow: var(--ds-shadow-xl);
+      }
+
+      .workspace-grip svg {
+        width: 14px;
+        height: 14px;
+      }
+
       .sidebar-content {
         display: flex;
         flex-direction: column;
@@ -220,12 +253,32 @@ export class DsSidebar extends LitElement {
     this.storeController.store.setTheme(theme);
   }
 
+  private handleCollapse() {
+    this.storeController.store.setMode('collapsed');
+  }
+
   override render() {
     const { selectedElement, annotations, relayConnected, theme } =
       this.storeController.state;
 
     return html`
       <div class="sidebar-content">
+        <button
+          class="workspace-grip"
+          @click=${this.handleCollapse}
+          title="PinFlow einklappen"
+          aria-label="PinFlow einklappen"
+        >
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M15 6l-6 6 6 6"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
         <ds-header ?scrolled=${this.isScrolled}></ds-header>
 
         <!-- Scrollable annotations area -->

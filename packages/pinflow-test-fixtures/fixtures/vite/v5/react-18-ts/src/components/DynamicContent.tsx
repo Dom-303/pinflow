@@ -18,7 +18,7 @@ export function DynamicContent() {
   useEffect(() => {
     // Simulate async data loading
     const timer = setTimeout(() => {
-      setItems(['Dynamic Item 1', 'Dynamic Item 2', 'Dynamic Item 3']);
+      setItems(['Dynamischer Eintrag 1', 'Dynamischer Eintrag 2', 'Dynamischer Eintrag 3']);
       setLoading(false);
     }, 100);
 
@@ -26,7 +26,7 @@ export function DynamicContent() {
   }, []);
 
   const addItem = () => {
-    setItems([...items, `Dynamic Item ${items.length + 1}`]);
+    setItems([...items, `Dynamischer Eintrag ${items.length + 1}`]);
   };
 
   const removeItem = (index: number) => {
@@ -36,55 +36,61 @@ export function DynamicContent() {
   return (
     <div className="dynamic-content">
       <section>
-        <h4>Counter with useState</h4>
+        <h4>Zaehler mit useState</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <div className="counter">
-            <p>Count: {count}</p>
+            <p>Anzahl: {count}</p>
             <div>
-              <button onClick={() => setCount(count + 1)}>Increment</button>
-              <button onClick={() => setCount(count - 1)}>Decrement</button>
-              <button onClick={() => setCount(0)}>Reset</button>
+              <button onClick={() => setCount(count + 1)}>Erhoehen</button>
+              <button onClick={() => setCount(count - 1)}>Verringern</button>
+              <button onClick={() => setCount(0)}>Zuruecksetzen</button>
             </div>
           </div>
         </div>
       </section>
 
       <section>
-        <h4>Dynamic List with useEffect</h4>
+        <h4>Dynamische Liste mit useEffect</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <div className="list-group">
             {loading ? (
-              <div>Loading...</div>
+              <div>Laedt...</div>
             ) : (
               <>
                 <ul>
                   {items.map((item, index) => (
                     <li key={index} className="list-item-with-button">
                       <span>{item}</span>
-                      <button onClick={() => removeItem(index)}>Remove</button>
+                      <button onClick={() => removeItem(index)}>Entfernen</button>
                     </li>
                   ))}
                 </ul>
               </>
             )}
           </div>
-          <button onClick={addItem}>Add Item</button>
+          <button onClick={addItem}>Eintrag hinzufuegen</button>
         </div>
       </section>
 
       <section>
-        <h4>Conditional Messages Based on State</h4>
+        <h4>Zustandsabhaengige Hinweise</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           {count > 5 && (
-            <div className="high-count-message">Count is greater than 5!</div>
+            <div className="high-count-message">
+              Die Anzahl ist groesser als 5!
+            </div>
           )}
           {count < 0 && (
-            <div className="negative-count-message">Count is negative!</div>
+            <div className="negative-count-message">
+              Die Anzahl ist negativ!
+            </div>
           )}
-          {count >= 0 && count <= 5 && <div>Count is between 0 and 5</div>}
+          {count >= 0 && count <= 5 && (
+            <div>Die Anzahl liegt zwischen 0 und 5</div>
+          )}
         </div>
       </section>
     </div>

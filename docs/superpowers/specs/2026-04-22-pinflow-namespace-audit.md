@@ -212,6 +212,18 @@ This is the safest high-value cleanup to run before any deep technical namespace
 
 ## What PinFlow Should Do Next
 
+## Progress Since This Audit Started
+
+The following visible Phase C.1 surfaces have already been moved to PinFlow wording without breaking the compatibility layer:
+
+- preview fixture titles, sidebar labels, and smoke-test labels
+- preferred CLI aliases: `pinflow` and `pinflow-mcp`
+- relay setup, relay runtime logs, and MCP guidance copy
+- relay README and visible CLI entrypoint wording
+- repo operator docs such as `CLAUDE.md`, `domscribe-power/POWER.md`, and `gemini-extension.json`
+
+This means the remaining Phase C work should keep prioritizing visible confusion over deep internal churn.
+
 ### Safe next step
 
 Run a targeted Phase C.1 pass for the highest-value visible surfaces only:

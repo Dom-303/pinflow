@@ -1,11 +1,12 @@
 ---
-name: 'domscribe'
-displayName: 'Domscribe'
+name: 'pinflow'
+displayName: 'PinFlow'
 author: 'Patch Orbit'
-description: 'Pixel-to-code bridge that maps running UI elements to exact source locations, capturing runtime context (props, state, DOM) for handoff to coding agents via MCP.'
+description: 'PinFlow is a pixel-to-code bridge, based on Domscribe, that maps running UI elements to exact source locations and captures runtime context (props, state, DOM) for handoff to coding agents via MCP.'
 keywords:
   [
     'domscribe',
+    'pinflow',
     'annotation',
     'pixel-to-code',
     'ui-to-code',
@@ -25,16 +26,16 @@ keywords:
   ]
 ---
 
-# Domscribe
+# PinFlow
 
-Domscribe bridges running UI and source code. It maps every rendered element to its exact source location and captures live runtime context (props, state, DOM). This works in two directions:
+PinFlow bridges running UI and source code. It is based on Domscribe and maps every rendered element to its exact source location while capturing live runtime context (props, state, DOM). This works in two directions:
 
-- **UI → Code**: User clicks an element in the browser, Domscribe captures it as an annotation with source location, runtime context, and user intent. You claim and implement it.
+- **UI → Code**: User clicks an element in the browser, PinFlow captures it as an annotation with source location, runtime context, and user intent. You claim and implement it.
 - **Code → UI**: You're editing a source file and want to know what an element looks like at runtime. Query by file and line to get live props, state, and DOM snapshot.
 
 ## Editing Components (Code → UI)
 
-**Why query runtime state?** Source code alone doesn't tell you what props a component actually received, whether a conditional branch rendered, what CSS classes were applied, or what text the user sees. `domscribe.query.bySource` gives you the live truth from the browser.
+**Why query runtime state?** Source code alone doesn't tell you what props a component actually received, whether a conditional branch rendered, what CSS classes were applied, or what text the user sees. The current PinFlow-compatible runtime query tool, `domscribe.query.bySource`, gives you the live truth from the browser.
 
 **When to query (these tasks benefit):**
 
@@ -71,6 +72,8 @@ Domscribe bridges running UI and source code. It maps every rendered element to 
 ## All Tools Reference
 
 ### Source Query (Code → UI)
+
+These tool names still use the current compatibility namespace.
 
 | Tool                       | Purpose                                                    |
 | -------------------------- | ---------------------------------------------------------- |

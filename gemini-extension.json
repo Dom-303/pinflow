@@ -1,13 +1,13 @@
 {
-  "name": "domscribe",
+  "name": "pinflow",
   "version": "0.5.2",
-  "description": "Domscribe is a pixel-to-code development tool that maps running UI elements to their exact source locations, capturing runtime context (props, state, DOM) for handoff to coding agents via MCP.",
+  "description": "PinFlow is a pixel-to-code development tool, based on Domscribe, that maps running UI elements to their exact source locations and captures runtime context (props, state, DOM) for handoff to coding agents via MCP.",
   "mcpServers": {
-    "domscribe": {
+    "pinflow": {
       "command": "npx",
       "args": [
         "-y",
-        "domscribe",
+        "pinflow",
         "mcp"
       ],
       "cwd": "${workspacePath}"

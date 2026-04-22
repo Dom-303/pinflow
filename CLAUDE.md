@@ -2,9 +2,9 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository. Detailed conventions, testing patterns, and architecture decisions are in `.claude/rules/`.
 
-## What is Domscribe?
+## What is PinFlow?
 
-Domscribe is a pixel-to-code development tool that lets developers click elements in running web apps, captures runtime context (props, state, events), and maps them to exact source locations for handoff to coding agents via MCP.
+PinFlow is a pixel-to-code development tool, based on Domscribe, that lets developers click elements in running web apps, capture runtime context (props, state, events), and map them to exact source locations for handoff to coding agents via MCP.
 
 ## How to Work on This Codebase
 
@@ -40,6 +40,7 @@ pnpm build:all
 pnpm build:affected
 
 # Single package operations
+# Note: Nx project names still use the current compatibility layer (`domscribe-*`)
 nx build domscribe-core
 nx test domscribe-core
 nx lint domscribe-core
@@ -68,6 +69,8 @@ npx verdaccio --config .verdaccio/config.yml --listen 4873
 ## Architecture
 
 ### Package Dependency Graph (bottom-up)
+
+The published package scopes below still use the current compatibility layer.
 
 ```
 @domscribe/core          — Shared types, schemas (zod), utilities, constants

@@ -258,6 +258,14 @@ Phase C should proceed in two levels:
    - CLI alias strategy design
    - maybe new preferred command names
 
+## Full Rename Status
+
+The repo is now entering full-rename planning. This audit remains the source of truth for:
+
+- what is still compatibility-only
+- what moves in the next migration wave
+- what is not yet safe to rename
+
 2. `Phase C.2` — deep namespace migration only if still justified
    - package scope
    - artifact directories

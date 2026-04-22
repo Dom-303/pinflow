@@ -57,3 +57,7 @@ Only do deeper renames when one of these becomes true after Phase A and Phase B 
 - PinFlow is clearly usable across many projects
 - The repo has a stable PinFlow preview and install posture
 - Future namespace decisions are deliberate rather than emotional
+
+## Full Rename Destination
+
+PinFlow is no longer targeting a permanent hybrid state. The long-term destination is a complete technical and product migration away from public `domscribe` naming, executed in controlled compatibility waves.

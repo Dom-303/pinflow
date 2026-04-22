@@ -77,3 +77,7 @@ That means:
 - the repo is smaller without losing important confidence
 - all retained tooling has a clear reason to exist
 - product-facing and internal surfaces both feel intentional
+
+## Post-Rename Cleanup
+
+Cleanup must now follow the full PinFlow rename waves. Deprecated `domscribe` aliases, paths, and docs should only be removed after the new PinFlow-native contracts are verified in real preview, fixture, and MCP flows.

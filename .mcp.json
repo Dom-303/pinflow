@@ -3,7 +3,7 @@
     "pinflow": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@domscribe/mcp"]
+      "args": ["-y", "@pinflow/mcp"]
     }
   }
 }

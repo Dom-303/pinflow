@@ -35,12 +35,14 @@ describe('pinflow cli aliases', () => {
     const pkg = JSON.parse(
       readRepoFile('packages/domscribe-mcp/package.json'),
     ) as {
+      name?: string;
       distBin?: Record<string, string>;
     };
     const aliasSource = readRepoFile(
       'packages/domscribe-mcp/src/bin/pinflow-mcp.ts',
     );
 
+    expect(pkg.name).toBe('@pinflow/mcp');
     expect(pkg.distBin).toMatchObject({
       'domscribe-mcp': './bin/domscribe-mcp.js',
       'pinflow-mcp': './bin/pinflow-mcp.js',

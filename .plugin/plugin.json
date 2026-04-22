@@ -30,12 +30,12 @@
   ],
   "skills": "./skills",
   "mcpServers": {
-    "domscribe": {
+    "pinflow": {
       "type": "stdio",
       "command": "npx",
       "args": [
         "-y",
-        "@domscribe/mcp"
+        "@pinflow/mcp"
       ]
     }
   }

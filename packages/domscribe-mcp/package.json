@@ -1,5 +1,5 @@
 {
-  "name": "@domscribe/mcp",
+  "name": "@pinflow/mcp",
   "version": "0.6.0-pinflow.0",
   "description": "MCP server compatibility layer for PinFlow runtime context workflows",
   "type": "module",

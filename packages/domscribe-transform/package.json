@@ -4,6 +4,39 @@
   "description": "AST injection of stable element IDs and bundler plugins for Domscribe",
   "type": "module",
   "main": "src/index.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./plugins/vite": {
+      "types": "./src/plugins/vite/index.ts",
+      "import": "./src/plugins/vite/index.ts",
+      "default": "./src/plugins/vite/index.ts"
+    },
+    "./plugins/webpack": {
+      "types": "./src/plugins/webpack/index.ts",
+      "import": "./src/plugins/webpack/index.ts",
+      "default": "./src/plugins/webpack/index.ts"
+    },
+    "./webpack-loader": {
+      "types": "./src/plugins/webpack/webpack.loader.ts",
+      "import": "./src/plugins/webpack/webpack.loader.ts",
+      "default": "./src/plugins/webpack/webpack.loader.ts"
+    },
+    "./plugins/turbopack": {
+      "types": "./src/plugins/turbopack/index.ts",
+      "import": "./src/plugins/turbopack/index.ts",
+      "default": "./src/plugins/turbopack/index.ts"
+    },
+    "./turbopack-loader": {
+      "types": "./src/plugins/turbopack/turbopack.loader.ts",
+      "import": "./src/plugins/turbopack/turbopack.loader.ts",
+      "default": "./src/plugins/turbopack/turbopack.loader.ts"
+    }
+  },
   "publishConfig": {
     "access": "restricted"
   },

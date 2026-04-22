@@ -1,18 +1,18 @@
 {
-  "name": "domscribe",
-  "version": "0.5.2",
+  "name": "pinflow",
+  "version": "0.6.0-pinflow.0",
   "author": {
     "name": "Patch Orbit",
     "email": "kaushik@patchorbit.com",
     "url": "https://patchorbit.com"
   },
-  "description": "Domscribe is a pixel-to-code development tool that maps running UI elements to their exact source locations, capturing runtime context (props, state, DOM) for handoff to coding agents via MCP.",
+  "description": "PinFlow is a visual UI-to-code workflow tool for marking running interfaces, queuing changes, and routing them into coding-agent workflows.",
   "license": "MIT",
   "scripts": {
     "sync-dist": "nx run-many -t sync-dist",
     "build:all": "nx run-many -t=lint,test,build --exclude domscribe-test-fixtures --output-style=stream",
     "build:affected": "nx affected -t lint,test,build --exclude domscribe-test-fixtures --output-style=stream",
-    "release:version:local": "nx release version prerelease --preid dev --git-commit=false --git-tag=false --stage-changes=false",
+    "release:version:local": "nx release version prerelease --preid pinflow --git-commit=false --git-tag=false --stage-changes=false",
     "release:publish:local": "nx run-many -t sync-dist && nx release publish --registry=http://localhost:4873",
     "release:local": "pnpm run build:all && pnpm run release:version:local && pnpm run release:publish:local",
     "release:local:affected": "pnpm run build:affected && pnpm run release:version:local && pnpm run release:publish:local",

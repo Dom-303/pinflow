@@ -1,6 +1,6 @@
 {
   "name": "pinflow",
-  "version": "0.5.2-codex.1",
+  "version": "0.6.0-pinflow.0",
   "description": "Codex plugin manifest for PinFlow, built on top of the Domscribe foundation.",
   "author": {
     "name": "Dom-303"

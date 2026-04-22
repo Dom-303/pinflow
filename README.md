@@ -99,7 +99,7 @@ Your agent calls `domscribe.query.bySource` with a file path and line number and
 
 > [!TIP]
 > Agents don't spontaneously query runtime state — prompt them explicitly:
-> _"Fix the button color — use domscribe to check what CSS classes it has before changing anything."_
+> _"Fix the button color — use PinFlow's runtime query tool (`domscribe.query.bySource`) to check what CSS classes it has before changing anything."_
 > Your dev server must be running with the target page open in the browser.
 
 ### UI → Code: Point and tell
@@ -315,9 +315,9 @@ module.exports = {
 
 </details>
 
-> **Working examples:** See [`packages/domscribe-test-fixtures/fixtures/`](./packages/domscribe-test-fixtures/fixtures/) for complete app setups across every supported framework and bundler combination.
+> **Working examples:** See [`packages/domscribe-test-fixtures/fixtures/`](./packages/domscribe-test-fixtures/fixtures/) for the current compatibility fixtures across every supported framework and bundler combination.
 
-For plugin configuration options, see the [`@domscribe/transform` README](./packages/domscribe-transform/README.md).
+For plugin configuration options, see the current compatibility package docs in the [`@domscribe/transform` README](./packages/domscribe-transform/README.md).
 
 #### Monorepos
 
@@ -329,7 +329,7 @@ npx domscribe init --app-root apps/web
 
 Or run `npx domscribe init` and follow the prompts — the wizard asks if you're in a monorepo.
 
-This creates a `domscribe.config.json` at your repo root that tells all Domscribe tools where your app lives. CLI commands (`serve`, `stop`, `status`) and agent MCP connections automatically resolve the app root from this config — no extra flags needed.
+This creates a `domscribe.config.json` at your repo root that tells PinFlow's current compatibility tooling where your app lives. CLI commands (`serve`, `stop`, `status`) and agent MCP connections automatically resolve the app root from this config — no extra flags needed.
 
 ### Agent-Side — Connect Your Coding Agent
 
@@ -427,7 +427,7 @@ No single competitor combines build-time stable IDs, deep runtime capture, bidir
 | `domscribe.annotation.search`       | Full-text search across annotation content                                              |
 | `domscribe.status`                  | Relay daemon health, manifest stats, queue counts                                       |
 
-See the [`@domscribe/mcp` README](./packages/domscribe-mcp/README.md) for detailed tool schemas, response formats, and prompt definitions.
+See the compatibility package docs in the [`@domscribe/mcp` README](./packages/domscribe-mcp/README.md) for detailed tool schemas, response formats, and prompt definitions.
 
 ---
 
@@ -445,8 +445,8 @@ See the [`@domscribe/mcp` README](./packages/domscribe-mcp/README.md) for detail
 | `@domscribe/vue`           | Vue 3 VNode resolution, Composition + Options API support, Vite + Webpack plugins   |
 | `@domscribe/next`          | `withDomscribe()` config wrapper for Next.js 15 + 16                                |
 | `@domscribe/nuxt`          | Nuxt 3+ module with auto-relay and runtime plugin                                   |
-| `domscribe`                | CLI binary (`domscribe serve`, `status`, `stop`, `init`, `mcp`)                     |
-| `@domscribe/mcp`           | Standalone MCP server binary (`domscribe-mcp`)                                      |
+| `domscribe`                | Compatibility CLI binary. Preferred product commands are `pinflow serve`, `status`, `stop`, `init`, `mcp` |
+| `@domscribe/mcp`           | Compatibility MCP package. Preferred product binary is `pinflow-mcp`                |
 | `@domscribe/test-fixtures` | Black-box integration + e2e suite (not published)                                   |
 
 ---

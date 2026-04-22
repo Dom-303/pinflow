@@ -72,6 +72,10 @@ This is the preferred path whenever you want to verify the current PinFlow UI in
 npx domscribe init
 ```
 
+Preferred installed CLI command: `pinflow`  
+Current no-install compatibility path: `npx domscribe init`  
+Compatibility alias: `domscribe`
+
 The setup wizard walks you through two steps:
 
 1. **Connect your coding agent** — select your agent (`Codex`, `Claude`, or another MCP-compatible setup) and the wizard installs the plugin automatically.
@@ -123,6 +127,8 @@ Click any element in the browser overlay, describe the change in plain English, 
 
 > [!NOTE]
 > `npx domscribe init` handles both steps below automatically. Use manual setup only if you need finer control.
+
+If you already installed the CLI package globally or through your toolchain, prefer `pinflow init`. The `domscribe` command remains available as a compatibility alias during the migration.
 
 PinFlow has two sides: **app-side** (bundler + framework plugins) and **agent-side** (MCP for your coding agent). Both are needed for the full workflow.
 
@@ -361,6 +367,10 @@ Then add this MCP config to your agent:
   }
 }
 ```
+
+Preferred installed MCP binary: `pinflow-mcp`  
+Current compatibility config keeps the MCP server key as `domscribe`  
+Compatibility package path remains `@domscribe/mcp` for now
 
 ---
 

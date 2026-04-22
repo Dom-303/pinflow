@@ -1,5 +1,5 @@
 /**
- * DomscribeInjector - Parser-agnostic JSX attribute injector
+ * PinFlowInjector - Parser-agnostic JSX attribute injector
  *
  * This is the core injection logic that works with any parser implementation
  * (Acorn, Babel, SWC, etc.) through the ParserInterface abstraction.
@@ -28,7 +28,7 @@ import { SourceMapConsumer } from 'source-map';
 import { IDStabilizer, type IDGenerator } from '@pinflow/manifest';
 import path from 'path';
 
-export class DomscribeInjector<TParseResult = unknown, TElement = unknown> {
+export class PinFlowInjector<TParseResult = unknown, TElement = unknown> {
   private readonly options: Required<InjectorOptions>;
   private isInitialized = false;
 
@@ -303,7 +303,7 @@ export class DomscribeInjector<TParseResult = unknown, TElement = unknown> {
 }
 
 /**
- * Factory function that creates a DomscribeInjector with an IDStabilizer
+ * Factory function that creates a PinFlowInjector with an IDStabilizer
  * singleton for the given workspace.
  *
  * @param parser - Parser implementation to use for AST generation
@@ -314,7 +314,7 @@ export function createInjector<TParseResult = unknown, TElement = unknown>(
   parser: ParserInterface<TParseResult, TElement>,
   workspaceRoot: string,
   options?: InjectorOptions,
-): DomscribeInjector<TParseResult, TElement> {
+): PinFlowInjector<TParseResult, TElement> {
   const cacheDir = path.join(workspaceRoot, PATHS.TRANSFORM_CACHE);
 
   // Use singleton to ensure all callers share the same in-memory cache
@@ -322,5 +322,7 @@ export function createInjector<TParseResult = unknown, TElement = unknown>(
     debug: options?.debug ?? false,
   });
 
-  return new DomscribeInjector(parser, idStabilizer, options);
+  return new PinFlowInjector(parser, idStabilizer, options);
 }
+
+export const DomscribeInjector = PinFlowInjector;

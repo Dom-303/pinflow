@@ -1,15 +1,15 @@
 /**
- * Tests for DomscribeInjector
+ * Tests for PinFlowInjector
  *
  * Tests the core injection logic that injects data-ds attributes on JSX elements.
- * This test suite focuses on testing the business logic of DomscribeInjector only,
+ * This test suite focuses on testing the business logic of PinFlowInjector only,
  * with all external dependencies mocked.
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import os from 'os';
 import path from 'path';
-import { DomscribeInjector, createInjector } from './injector.js';
+import { PinFlowInjector, createInjector, DomscribeInjector } from './injector.js';
 import {
   InjectorRegistry,
   isInjectorFileExtension,
@@ -136,8 +136,8 @@ async function createMockSourceMapConsumer(
   };
 }
 
-describe('DomscribeInjector', () => {
-  let injector: DomscribeInjector<MockElement, MockElement>;
+describe('PinFlowInjector', () => {
+  let injector: PinFlowInjector<MockElement, MockElement>;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -148,7 +148,7 @@ describe('DomscribeInjector', () => {
     mockIdGenerator.initialize = vi.fn().mockResolvedValue(undefined);
     setupParser([]);
 
-    injector = new DomscribeInjector(mockParser, mockIdGenerator);
+    injector = new PinFlowInjector(mockParser, mockIdGenerator);
   });
 
   afterEach(() => {
@@ -158,7 +158,7 @@ describe('DomscribeInjector', () => {
   describe('Constructor & Initialization', () => {
     it('should create injector with parser and IDGenerator', () => {
       // Arrange & Act
-      const testInjector = new DomscribeInjector(mockParser, mockIdGenerator);
+      const testInjector = new PinFlowInjector(mockParser, mockIdGenerator);
 
       // Assert
       expect(testInjector).toBeDefined();
@@ -167,7 +167,7 @@ describe('DomscribeInjector', () => {
 
     it('should create with default options', () => {
       // Arrange & Act
-      const testInjector = new DomscribeInjector(mockParser, mockIdGenerator);
+      const testInjector = new PinFlowInjector(mockParser, mockIdGenerator);
 
       // Assert
       expect(testInjector).toBeDefined();
@@ -175,7 +175,7 @@ describe('DomscribeInjector', () => {
 
     it('should create with custom debug option', () => {
       // Arrange & Act
-      const testInjector = new DomscribeInjector(mockParser, mockIdGenerator, {
+      const testInjector = new PinFlowInjector(mockParser, mockIdGenerator, {
         debug: true,
       });
 
@@ -193,7 +193,7 @@ describe('DomscribeInjector', () => {
 
     it('should initialize IDGenerator when initialize() is called', async () => {
       // Arrange
-      const testInjector = new DomscribeInjector(mockParser, mockIdGenerator);
+      const testInjector = new PinFlowInjector(mockParser, mockIdGenerator);
 
       // Act
       await testInjector.initialize();

@@ -1,7 +1,7 @@
 /**
  * Injector Performance Benchmark
  *
- * Measures per-file transform overhead by running the DomscribeInjector
+ * Measures per-file transform overhead by running the PinFlowInjector
  * directly on representative source files (.tsx, .vue).
  *
  * This is a unit benchmark of the transform layer, not an integration test.
@@ -79,7 +79,7 @@ interface TransformTimingResult {
 }
 
 /**
- * Run the DomscribeInjector on every source file and collect timing.
+ * Run the PinFlowInjector on every source file and collect timing.
  */
 async function measureTransformOverhead(
   sourceFiles: SourceFile[],

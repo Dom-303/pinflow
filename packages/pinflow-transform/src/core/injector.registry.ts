@@ -10,7 +10,7 @@
  *
  * @module @pinflow/transform/core/injector-registry
  */
-import { createInjector, DomscribeInjector } from './injector.js';
+import { createInjector, PinFlowInjector } from './injector.js';
 import { AcornParser } from '../parsers/acorn/acorn.parser.js';
 import { BabelParser } from '../parsers/babel/babel.parser.js';
 import { VueSFCParser } from '../parsers/vue/vue-sfc.parser.js';
@@ -24,9 +24,9 @@ import {
 import { VueSFCParseResult, VueElementNode } from '../parsers/vue/types.js';
 import path from 'path';
 
-export type JSXInjector = DomscribeInjector<AcornNode, AcornJSXOpeningElement>;
-export type TSXInjector = DomscribeInjector<BabelNode, BabelJSXOpeningElement>;
-export type VueInjector = DomscribeInjector<VueSFCParseResult, VueElementNode>;
+export type JSXInjector = PinFlowInjector<AcornNode, AcornJSXOpeningElement>;
+export type TSXInjector = PinFlowInjector<BabelNode, BabelJSXOpeningElement>;
+export type VueInjector = PinFlowInjector<VueSFCParseResult, VueElementNode>;
 
 export interface InjectorRegistryMap {
   jsx: JSXInjector;

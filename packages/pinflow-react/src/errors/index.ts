@@ -3,15 +3,15 @@
  * @module @pinflow/react/errors
  */
 
-import { DomscribeError, DomscribeErrorCode } from '@pinflow/core';
+import { PinFlowError, PinFlowErrorCode } from '@pinflow/core';
 
 /**
  * Error thrown when accessing React Fiber fails
  */
-export class FiberAccessError extends DomscribeError {
+export class FiberAccessError extends PinFlowError {
   constructor(message: string, cause?: Error) {
     super({
-      code: DomscribeErrorCode.DS_INTERNAL_ERROR,
+      code: PinFlowErrorCode.DS_INTERNAL_ERROR,
       title: `Fiber access failed: ${message}`,
       detail: cause?.message,
       status: 500,
@@ -23,10 +23,10 @@ export class FiberAccessError extends DomscribeError {
 /**
  * Error thrown when component resolution fails
  */
-export class ComponentResolutionError extends DomscribeError {
+export class ComponentResolutionError extends PinFlowError {
   constructor(message: string, cause?: Error) {
     super({
-      code: DomscribeErrorCode.DS_INTERNAL_ERROR,
+      code: PinFlowErrorCode.DS_INTERNAL_ERROR,
       title: `Component resolution failed: ${message}`,
       detail: cause?.message,
       status: 500,
@@ -38,10 +38,10 @@ export class ComponentResolutionError extends DomscribeError {
 /**
  * Error thrown when component name resolution fails
  */
-export class NameResolutionError extends DomscribeError {
+export class NameResolutionError extends PinFlowError {
   constructor(message: string, cause?: Error) {
     super({
-      code: DomscribeErrorCode.DS_INTERNAL_ERROR,
+      code: PinFlowErrorCode.DS_INTERNAL_ERROR,
       title: `Component name resolution failed: ${message}`,
       detail: cause?.message,
       status: 500,
@@ -53,10 +53,10 @@ export class NameResolutionError extends DomscribeError {
 /**
  * Error thrown when props extraction fails
  */
-export class PropsExtractionError extends DomscribeError {
+export class PropsExtractionError extends PinFlowError {
   constructor(message: string, cause?: Error) {
     super({
-      code: DomscribeErrorCode.DS_INTERNAL_ERROR,
+      code: PinFlowErrorCode.DS_INTERNAL_ERROR,
       title: `Props extraction failed: ${message}`,
       detail: cause?.message,
       status: 500,
@@ -68,10 +68,10 @@ export class PropsExtractionError extends DomscribeError {
 /**
  * Error thrown when state extraction fails
  */
-export class StateExtractionError extends DomscribeError {
+export class StateExtractionError extends PinFlowError {
   constructor(message: string, cause?: Error) {
     super({
-      code: DomscribeErrorCode.DS_INTERNAL_ERROR,
+      code: PinFlowErrorCode.DS_INTERNAL_ERROR,
       title: `State extraction failed: ${message}`,
       detail: cause?.message,
       status: 500,

@@ -1,5 +1,5 @@
 /**
- * Error types and error handling utilities for Domscribe.
+ * Error types and error handling utilities for PinFlow.
  * Follows RFC 7807 (Problem Details for HTTP APIs) format.
  * @module @pinflow/core/errors
  */
@@ -7,10 +7,10 @@
 import { z } from 'zod';
 
 /**
- * Domscribe error codes following the DS_* convention.
+ * PinFlow error codes following the DS_* convention.
  * These codes are used across the system for consistent error identification.
  */
-export enum DomscribeErrorCode {
+export enum PinFlowErrorCode {
   // Validation errors
   DS_VALIDATION_FAILED = 'DS_VALIDATION_FAILED',
 
@@ -57,8 +57,8 @@ export enum DomscribeErrorCode {
  */
 export const ProblemDetailsSchema = z.object({
   code: z
-    .enum(DomscribeErrorCode)
-    .describe('Error code from DomscribeErrorCode enum'),
+    .enum(PinFlowErrorCode)
+    .describe('Error code from PinFlowErrorCode enum'),
   title: z.string().describe('Short, human-readable summary of the problem'),
   detail: z
     .string()
@@ -78,10 +78,10 @@ export const ProblemDetailsSchema = z.object({
 export type ProblemDetails = z.infer<typeof ProblemDetailsSchema>;
 
 /**
- * Base class for all Domscribe errors
+ * Base class for all PinFlow errors
  */
-export class DomscribeError extends Error {
-  public readonly code: DomscribeErrorCode;
+export class PinFlowError extends Error {
+  public readonly code: PinFlowErrorCode;
   public readonly status?: number;
   public readonly detail?: string;
   public readonly instance?: string;
@@ -89,7 +89,7 @@ export class DomscribeError extends Error {
 
   constructor(problemDetails: ProblemDetails) {
     super(problemDetails.title);
-    this.name = 'DomscribeError';
+    this.name = 'PinFlowError';
     this.code = problemDetails.code;
     this.status = problemDetails.status;
     this.detail = problemDetails.detail;
@@ -98,7 +98,7 @@ export class DomscribeError extends Error {
 
     // Maintain proper stack trace for debugging
     if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, DomscribeError);
+      Error.captureStackTrace(this, PinFlowError);
     }
   }
 
@@ -130,3 +130,6 @@ export class DomscribeError extends Error {
     };
   }
 }
+
+export const DomscribeErrorCode = PinFlowErrorCode;
+export { PinFlowError as DomscribeError };

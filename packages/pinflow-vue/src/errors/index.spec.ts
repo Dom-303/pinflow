@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { DomscribeError } from '@pinflow/core';
+import { PinFlowError } from '@pinflow/core';
 import {
   VNodeAccessError,
   ComponentResolutionError,
@@ -9,10 +9,10 @@ import {
 
 describe('Vue error classes', () => {
   describe('VNodeAccessError', () => {
-    it('should extend DomscribeError', () => {
+    it('should extend PinFlowError', () => {
       const error = new VNodeAccessError('test message');
 
-      expect(error).toBeInstanceOf(DomscribeError);
+      expect(error).toBeInstanceOf(PinFlowError);
       expect(error).toBeInstanceOf(Error);
     });
 
@@ -38,10 +38,10 @@ describe('Vue error classes', () => {
   });
 
   describe('ComponentResolutionError', () => {
-    it('should extend DomscribeError', () => {
+    it('should extend PinFlowError', () => {
       const error = new ComponentResolutionError('test message');
 
-      expect(error).toBeInstanceOf(DomscribeError);
+      expect(error).toBeInstanceOf(PinFlowError);
     });
 
     it('should set name to ComponentResolutionError', () => {
@@ -52,10 +52,10 @@ describe('Vue error classes', () => {
   });
 
   describe('PropsExtractionError', () => {
-    it('should extend DomscribeError', () => {
+    it('should extend PinFlowError', () => {
       const error = new PropsExtractionError('test message');
 
-      expect(error).toBeInstanceOf(DomscribeError);
+      expect(error).toBeInstanceOf(PinFlowError);
     });
 
     it('should set name to PropsExtractionError', () => {
@@ -66,10 +66,10 @@ describe('Vue error classes', () => {
   });
 
   describe('StateExtractionError', () => {
-    it('should extend DomscribeError', () => {
+    it('should extend PinFlowError', () => {
       const error = new StateExtractionError('test message');
 
-      expect(error).toBeInstanceOf(DomscribeError);
+      expect(error).toBeInstanceOf(PinFlowError);
     });
 
     it('should set name to StateExtractionError', () => {

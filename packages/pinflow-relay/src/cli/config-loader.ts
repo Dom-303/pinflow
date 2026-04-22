@@ -5,7 +5,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 
-import { DomscribeConfigSchema, PATHS } from '@pinflow/core';
+import { PinFlowConfigSchema, PATHS } from '@pinflow/core';
 
 /**
  * Config filenames to scan, in priority order.
@@ -21,7 +21,7 @@ const CONFIG_FILENAMES = [
 ] as const;
 
 /**
- * Find a Domscribe config file in the given directory.
+ * Find a PinFlow config file in the given directory.
  * Returns the absolute path to the first match, or `undefined`.
  */
 export function findConfigFile(dir: string): string | undefined {
@@ -39,6 +39,6 @@ export function findConfigFile(dir: string): string | undefined {
 export function loadAppRoot(configPath: string): string {
   const raw = readFileSync(configPath, 'utf-8');
   const parsed = JSON.parse(raw) as unknown;
-  const config = DomscribeConfigSchema.parse(parsed);
+  const config = PinFlowConfigSchema.parse(parsed);
   return path.resolve(path.dirname(configPath), config.appRoot);
 }

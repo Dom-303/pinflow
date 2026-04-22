@@ -1,5 +1,5 @@
 /**
- * Domscribe project configuration schema.
+ * PinFlow project configuration schema.
  * @module @pinflow/core/types/config
  */
 import { z } from 'zod';
@@ -12,7 +12,7 @@ import { z } from 'zod';
  * but the frontend app lives in a subdirectory. The config file sits at
  * the repo root and points to the app root where `.pinflow/` is located.
  */
-export const DomscribeConfigSchema = z.object({
+export const PinFlowConfigSchema = z.object({
   appRoot: z
     .string()
     .describe(
@@ -20,4 +20,6 @@ export const DomscribeConfigSchema = z.object({
     ),
 });
 
-export type DomscribeConfig = z.infer<typeof DomscribeConfigSchema>;
+export type PinFlowConfig = z.infer<typeof PinFlowConfigSchema>;
+export const DomscribeConfigSchema = PinFlowConfigSchema;
+export type DomscribeConfig = PinFlowConfig;

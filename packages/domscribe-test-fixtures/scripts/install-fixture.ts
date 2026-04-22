@@ -18,7 +18,7 @@ import { installFixture } from '../shared/fixture-installer.ts';
 import { getFixtureById } from '../shared/fixture-registry.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const VERDACCIO_PORT = 4873;
+const DEFAULT_REGISTRY_PORT = 4873;
 
 const fixtureId = process.env['FIXTURE_ID'];
 if (!fixtureId) {
@@ -35,10 +35,19 @@ if (!fixture) {
 const log = (msg: string) =>
   console.log(`[install-fixture:${fixtureId}] ${msg}`);
 
+const parsedRegistryPort = Number(
+  process.env['REGISTRY_PORT'] ?? DEFAULT_REGISTRY_PORT,
+);
+const registryPort = Number.isNaN(parsedRegistryPort)
+  ? DEFAULT_REGISTRY_PORT
+  : parsedRegistryPort;
+const registryUrl =
+  process.env['REGISTRY_URL'] ?? `http://127.0.0.1:${registryPort}`;
+
 const outcome = installFixture(fixture.path, {
   workspaceRoot: resolve(__dirname, '../../..'),
-  registryUrl: `http://localhost:${VERDACCIO_PORT}`,
-  registryPort: VERDACCIO_PORT,
+  registryUrl,
+  registryPort,
   log,
 });
 

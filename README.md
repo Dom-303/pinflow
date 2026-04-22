@@ -54,6 +54,18 @@ PinFlow bridges both directions: click a DOM element to tell your agent what to 
 
 ---
 
+## Local Preview
+
+Use the canonical preview flow to refresh a dedicated PinFlow preview registry, reinstall the fixture against the current PinFlow build, and start the local Vite React preview from one place:
+
+```bash
+pnpm run pinflow:preview:vite-react
+```
+
+This is the preferred path whenever you want to verify the current PinFlow UI instead of whatever older fixture artifacts may still be installed.
+
+---
+
 ## Getting Started
 
 ```bash

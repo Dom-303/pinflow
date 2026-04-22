@@ -22,7 +22,10 @@
     "release:major": "nx release version major && pnpm run release:post-version",
     "registry:publish": "pnpm run build:all && pnpm run registry:publish:only",
     "registry:publish:only": "pnpm run release:version:local && pnpm run release:publish:local",
+    "registry:publish:current": "corepack pnpm exec tsx scripts/publish-current.ts",
     "registry:install": "npx tsx packages/domscribe-test-fixtures/scripts/install-fixture.ts",
+    "pinflow:preview": "corepack pnpm exec tsx scripts/pinflow-preview.ts",
+    "pinflow:preview:vite-react": "corepack pnpm exec tsx scripts/pinflow-preview.ts --fixture vite-v5-react-18-ts --port 4301",
     "pipeline:full": "pnpm run registry:publish && pnpm run registry:install && nx run-many -t integration,e2e -p domscribe-test-fixtures",
     "pipeline:integration": "nx integration domscribe-test-fixtures",
     "pipeline:e2e": "pnpm run registry:publish && pnpm run registry:install && nx e2e domscribe-test-fixtures"

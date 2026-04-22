@@ -8,6 +8,7 @@ out-tsc
 test-output
 test-results
 playwright-report
+.superpowers
 
 # dependencies
 node_modules
@@ -60,6 +61,7 @@ agent_docs/
 # Test fixture generated/build artifacts
 packages/domscribe-test-fixtures/fixtures/**/.npmrc
 packages/domscribe-test-fixtures/fixtures/**/.domscribe-install-stamp
+packages/domscribe-test-fixtures/fixtures/**/.pinflow-install-stamp
 packages/domscribe-test-fixtures/fixtures/**/package-lock.json
 packages/domscribe-test-fixtures/fixtures/**/*.local
 packages/domscribe-test-fixtures/fixtures/**/.next

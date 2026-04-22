@@ -352,34 +352,49 @@ git commit -m "fix: expose pinflow preview exports for local packages"
 ### Task 5: Create the canonical PinFlow preview refresh flow
 
 **Files:**
-- Create: `scripts/pinflow-preview.mjs`
+- Create: `scripts/publish-current.ts`
+- Create: `scripts/pinflow-preview.ts`
+- Modify: `packages/domscribe-test-fixtures/scripts/install-fixture.ts`
 - Modify: `package.json`
 - Modify: `README.md`
-- Test: `scripts/pinflow-preview.mjs`
+- Test: `packages/domscribe-test-fixtures/shared/pinflow-preview.spec.ts`
 
-- [ ] **Step 1: Write the failing preview contract as a shell script expectation**
+- [ ] **Step 1: Write the failing preview contract as a stable preview-plan expectation**
 
-Define the desired flow:
+Define the desired flow by running:
 
 ```bash
-node scripts/pinflow-preview.mjs --fixture vite-v5-react-18-ts --prepare-only
+corepack pnpm exec vitest run packages/domscribe-test-fixtures/shared/pinflow-preview.spec.ts --config packages/domscribe-test-fixtures/vite.config.ts
 ```
 
 Expected after implementation:
 
-- builds current packages
-- publishes the current PinFlow version line to the local registry
-- reinstalls the requested fixture
+- uses a dedicated PinFlow preview registry instead of the shared local registry
+- publishes the current PinFlow version line without bumping the repo version again
+- reinstalls the requested fixture against that preview registry
 - prints the exact dev command to run or starts it directly
 
-- [ ] **Step 2: Implement the orchestration script**
+- [ ] **Step 2: Add a current-version publish path that does not bump the repo on every preview**
 
-Create `scripts/pinflow-preview.mjs` with a sequence like:
+Create `scripts/publish-current.ts` and a matching package script so the canonical preview path can:
 
-```js
-run('corepack pnpm exec nx local-registry');
-run('corepack pnpm run registry:publish:only');
-run(`FIXTURE_ID=${fixtureId} corepack pnpm exec tsx packages/domscribe-test-fixtures/scripts/install-fixture.ts`);
+- run `build:all`
+- run `sync-dist`
+- publish the already-selected PinFlow version line to a caller-specified registry
+
+This replaces the old `registry:publish:only` posture inside the preview flow, because that command re-runs `release:version:local` and keeps mutating the repo version line.
+
+- [ ] **Step 3: Implement the orchestration script around a dedicated preview registry**
+
+Create `scripts/pinflow-preview.ts` with a sequence like:
+
+```ts
+ensureFreshPreviewRegistry({
+  port: 4874,
+  storageDir: 'tmp/pinflow-preview-registry/storage',
+});
+run(`corepack pnpm run registry:publish:current -- --registry http://127.0.0.1:4874`);
+run(`FIXTURE_ID=${fixtureId} REGISTRY_URL=http://127.0.0.1:4874 REGISTRY_PORT=4874 corepack pnpm exec tsx packages/domscribe-test-fixtures/scripts/install-fixture.ts`);
 run(`corepack pnpm dev --host 0.0.0.0 --port ${port}`, { cwd: fixtureDir });
 ```
 
@@ -389,26 +404,35 @@ Use argument parsing only for:
 - port
 - `--prepare-only`
 
-- [ ] **Step 3: Add package.json entrypoints**
+- [ ] **Step 4: Make fixture installation accept a caller-selected registry**
+
+In `packages/domscribe-test-fixtures/scripts/install-fixture.ts`:
+
+- allow `REGISTRY_URL`
+- allow `REGISTRY_PORT`
+- keep the old `4873` behavior as the default for non-preview flows
+
+- [ ] **Step 5: Add package.json entrypoints**
 
 In `package.json`, add scripts like:
 
 ```json
-"pinflow:preview": "node scripts/pinflow-preview.mjs",
-"pinflow:preview:vite-react": "node scripts/pinflow-preview.mjs --fixture vite-v5-react-18-ts --port 4301"
+"registry:publish:current": "corepack pnpm exec tsx scripts/publish-current.ts",
+"pinflow:preview": "corepack pnpm exec tsx scripts/pinflow-preview.ts",
+"pinflow:preview:vite-react": "corepack pnpm exec tsx scripts/pinflow-preview.ts --fixture vite-v5-react-18-ts --port 4301"
 ```
 
-- [ ] **Step 4: Document the canonical preview path**
+- [ ] **Step 6: Document the canonical preview path**
 
 In `README.md`, add a short section:
 
 ```md
 ## Local Preview
 
-Use `pnpm run pinflow:preview:vite-react` to build the current PinFlow packages, refresh the fixture install, and start the canonical local preview.
+Use `pnpm run pinflow:preview:vite-react` to refresh a dedicated PinFlow preview registry, reinstall the fixture against the current PinFlow build, and start the canonical local preview.
 ```
 
-- [ ] **Step 5: Verify the preview flow end-to-end**
+- [ ] **Step 7: Verify the preview flow end-to-end**
 
 Run:
 
@@ -422,10 +446,10 @@ Expected:
 - the preview host responds `200 OK`
 - the overlay shows current PinFlow branding rather than stale Domscribe UI
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 8: Commit**
 
 ```bash
-git add scripts/pinflow-preview.mjs package.json README.md
+git add scripts/publish-current.ts scripts/pinflow-preview.ts packages/domscribe-test-fixtures/scripts/install-fixture.ts package.json README.md packages/domscribe-test-fixtures/shared/pinflow-preview.spec.ts packages/domscribe-test-fixtures/shared/pinflow-preview.ts
 git commit -m "feat: add canonical pinflow preview flow"
 ```
 

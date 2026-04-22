@@ -1,6 +1,6 @@
 # @domscribe/vue
 
-Vue 3 adapter for Domscribe — VNode resolution, Composition + Options API support, and bundler plugins.
+Vue 3 adapter for PinFlow — VNode resolution, Composition + Options API support, and bundler plugins.
 
 ## Install
 
@@ -73,4 +73,4 @@ interface DomscribeVuePluginOptions {
 
 ---
 
-Part of the [Domscribe](https://github.com/patchorbit/domscribe) monorepo. License: MIT.
+Part of PinFlow, built on the original [Domscribe](https://github.com/patchorbit/domscribe) foundation. License: MIT.

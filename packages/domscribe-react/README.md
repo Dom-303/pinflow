@@ -1,6 +1,6 @@
 # @domscribe/react
 
-React adapter for Domscribe — fiber walking, props/state extraction, and bundler plugins.
+React adapter for PinFlow — fiber walking, props/state extraction, and bundler plugins.
 
 ## Install
 
@@ -87,4 +87,4 @@ Hooks use semantic names based on their inferred type: `state_0`, `ref_0`, `memo
 
 ---
 
-Part of the [Domscribe](https://github.com/patchorbit/domscribe) monorepo. License: MIT.
+Part of PinFlow, built on the original [Domscribe](https://github.com/patchorbit/domscribe) foundation. License: MIT.

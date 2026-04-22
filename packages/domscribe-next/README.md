@@ -1,6 +1,6 @@
 # @domscribe/next
 
-Next.js integration for Domscribe.
+Next.js integration for PinFlow.
 
 ## Install
 
@@ -14,7 +14,7 @@ Drop-in integration for Next.js 15+ projects.
 
 ## Links
 
-Part of [Domscribe](https://github.com/patchorbit/domscribe).
+Part of PinFlow, built on the original [Domscribe](https://github.com/patchorbit/domscribe) foundation.
 
 ## License
 

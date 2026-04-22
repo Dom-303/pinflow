@@ -1,6 +1,6 @@
 # @domscribe/transform
 
-AST injection of stable element IDs and bundler plugins for Domscribe.
+AST injection of stable element IDs and bundler plugins for PinFlow.
 
 ## Install
 
@@ -158,7 +158,7 @@ Returns the relay host and port detected during loader initialization. Available
 
 ## Links
 
-Part of [Domscribe](https://github.com/patchorbit/domscribe).
+Part of PinFlow, built on the original [Domscribe](https://github.com/patchorbit/domscribe) foundation.
 
 ## License
 

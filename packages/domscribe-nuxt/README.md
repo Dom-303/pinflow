@@ -1,6 +1,6 @@
 # @domscribe/nuxt
 
-Nuxt module for Domscribe.
+Nuxt module for PinFlow.
 
 ## Install
 
@@ -14,7 +14,7 @@ Drop-in Nuxt 3+ module.
 
 ## Links
 
-Part of [Domscribe](https://github.com/patchorbit/domscribe).
+Part of PinFlow, built on the original [Domscribe](https://github.com/patchorbit/domscribe) foundation.
 
 ## License
 

@@ -221,6 +221,7 @@ The following visible Phase C.1 surfaces have already been moved to PinFlow word
 - relay setup, relay runtime logs, and MCP guidance copy
 - relay README and visible CLI entrypoint wording
 - repo operator docs such as `CLAUDE.md`, `domscribe-power/POWER.md`, and `gemini-extension.json`
+- package-level README intros and provenance text across the main published packages
 
 This means the remaining Phase C work should keep prioritizing visible confusion over deep internal churn.
 

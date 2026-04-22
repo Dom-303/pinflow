@@ -1,6 +1,6 @@
 # @domscribe/manifest
 
-Append-only DOM-to-source manifest for Domscribe.
+Append-only DOM-to-source manifest for PinFlow's current compatibility layer.
 
 ## Install
 
@@ -14,7 +14,7 @@ Internal package used by `@domscribe/transform`. You probably don't need to inst
 
 ## Links
 
-Part of [Domscribe](https://github.com/patchorbit/domscribe).
+Part of PinFlow, built on the original [Domscribe](https://github.com/patchorbit/domscribe) foundation.
 
 ## License
 

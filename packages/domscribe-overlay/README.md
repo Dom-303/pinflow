@@ -1,6 +1,6 @@
 # @domscribe/overlay
 
-Lit web components for Domscribe's in-app overlay UI. Uses shadow DOM for CSS/JS isolation.
+Lit web components for PinFlow's in-app overlay UI. Uses shadow DOM for CSS/JS isolation.
 
 `@domscribe/overlay` renders the element picker, annotation panel, and draggable tab inside the running app. It connects to the relay via WebSocket and queries the runtime for live component context. Because it uses shadow DOM, it does not interfere with the host application's styles or JavaScript.
 
@@ -48,7 +48,7 @@ The overlay renders inside a shadow root to prevent CSS and JavaScript conflicts
 
 ## Links
 
-Part of [Domscribe](https://github.com/patchorbit/domscribe).
+Part of PinFlow, built on the original [Domscribe](https://github.com/patchorbit/domscribe) foundation.
 
 ## License
 

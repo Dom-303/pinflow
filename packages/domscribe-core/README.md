@@ -1,6 +1,6 @@
 # @domscribe/core
 
-Shared types, schemas, and utilities for Domscribe.
+Shared types, schemas, and utilities for PinFlow's current compatibility layer.
 
 ## Install
 
@@ -14,7 +14,7 @@ This is the foundational package -- you probably want a framework adapter instea
 
 ## Links
 
-Part of [Domscribe](https://github.com/patchorbit/domscribe).
+Part of PinFlow, built on the original [Domscribe](https://github.com/patchorbit/domscribe) foundation.
 
 ## License
 

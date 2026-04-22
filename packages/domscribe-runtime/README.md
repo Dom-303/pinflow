@@ -1,6 +1,6 @@
 # @domscribe/runtime
 
-Browser-side context capture engine for Domscribe.
+Browser-side context capture engine for PinFlow's current compatibility layer.
 
 `@domscribe/runtime` runs in the browser during development and captures component props, state, and DOM context when a developer clicks an element. It is framework-agnostic at its core — framework-specific behavior is provided by adapters.
 
@@ -101,7 +101,7 @@ See the [Custom Adapters Guide](./CUSTOM_ADAPTERS.md) for the full interface, a 
 
 ## Links
 
-Part of [Domscribe](https://github.com/patchorbit/domscribe).
+Part of PinFlow, built on the original [Domscribe](https://github.com/patchorbit/domscribe) foundation.
 
 ## License
 

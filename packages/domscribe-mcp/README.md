@@ -69,7 +69,7 @@ Resolve `data-ds` element IDs injected at build time back to their source locati
 
 ### Annotation Workflow
 
-Annotations are created when a developer clicks an element in the Domscribe overlay and enters intent. These tools drive the agent-side processing loop.
+Annotations are created when a developer clicks an element in the PinFlow overlay and enters intent. These tools drive the agent-side processing loop.
 
 | Tool                                | Description                                                                                     |
 | ----------------------------------- | ----------------------------------------------------------------------------------------------- |

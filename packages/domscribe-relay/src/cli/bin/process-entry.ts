@@ -16,7 +16,7 @@ async function main(): Promise<void> {
   const workspaceRoot = process.env.DS_WORKSPACE_ROOT;
 
   if (!workspaceRoot) {
-    console.error('[domscribe-relay] DS_WORKSPACE_ROOT not set');
+    console.error('[pinflow-relay] DS_WORKSPACE_ROOT not set');
     process.exit(1);
   }
 
@@ -53,7 +53,7 @@ async function main(): Promise<void> {
     const lockData = lockManager?.getLockData();
 
     if (!lockData) {
-      console.error('[domscribe-relay] Lock file not found, shutting down...');
+      console.error('[pinflow-relay] Lock file not found, shutting down...');
       shutdown(1);
       return;
     }
@@ -66,29 +66,25 @@ async function main(): Promise<void> {
     } = lockData;
 
     if (pid !== lockPid) {
-      console.error('[domscribe-relay] PID mismatch, shutting down...');
+      console.error('[pinflow-relay] PID mismatch, shutting down...');
       shutdown(1);
       return;
     }
 
     if (lockNonce !== nonce) {
-      console.error('[domscribe-relay] Nonce mismatch, shutting down...');
+      console.error('[pinflow-relay] Nonce mismatch, shutting down...');
       shutdown(1);
       return;
     }
 
     if (lockVersion !== RELAY_VERSION) {
-      console.error(
-        '[domscribe-relay] Relay version mismatch, shutting down...',
-      );
+      console.error('[pinflow-relay] Relay version mismatch, shutting down...');
       shutdown(1);
       return;
     }
 
     if (lockWorkspaceRoot !== workspaceRoot) {
-      console.error(
-        '[domscribe-relay] Workspace root mismatch, shutting down...',
-      );
+      console.error('[pinflow-relay] Workspace root mismatch, shutting down...');
       shutdown(1);
       return;
     }
@@ -103,14 +99,14 @@ async function main(): Promise<void> {
     shuttingDown = true;
 
     if (signal) {
-      console.log(`\n[domscribe-relay] Received ${signal}, shutting down...`);
+      console.log(`\n[pinflow-relay] Received ${signal}, shutting down...`);
     }
 
     await relayServer.stop();
     lockManager?.release();
     clearInterval(shutdownIntervalTimer);
 
-    console.log(`[domscribe-relay] Shutdown complete`);
+    console.log(`[pinflow-relay] Shutdown complete`);
     process.exit(exitCode);
   }
 
@@ -119,20 +115,20 @@ async function main(): Promise<void> {
 
   // Handle uncaught errors
   process.on('uncaughtException', (error) => {
-    console.error('[domscribe-relay] Uncaught exception:', error);
+    console.error('[pinflow-relay] Uncaught exception:', error);
     lockManager?.release();
     process.exit(1);
   });
 
   process.on('unhandledRejection', (reason) => {
-    console.error('[domscribe-relay] Unhandled rejection:', reason);
+    console.error('[pinflow-relay] Unhandled rejection:', reason);
     lockManager?.release();
     process.exit(1);
   });
 }
 
 main().catch((error) => {
-  console.error('[domscribe-relay] Fatal error:', error);
+  console.error('[pinflow-relay] Fatal error:', error);
   lockManager?.release();
   process.exit(1);
 });

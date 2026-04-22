@@ -7,8 +7,15 @@ vi.mock('@modelcontextprotocol/sdk/server/stdio.js', () => ({
 vi.mock('@modelcontextprotocol/sdk/server/mcp.js', () => {
   return {
     McpServer: class {
+      metadata: unknown;
+      capabilities: unknown;
       registeredTools = new Map<string, unknown>();
       registeredPrompts = new Map<string, unknown>();
+
+      constructor(metadata: unknown, options: unknown) {
+        this.metadata = metadata;
+        this.capabilities = options;
+      }
 
       registerTool(name: string, config: unknown, handler: unknown) {
         this.registeredTools.set(name, { config, handler });
@@ -41,6 +48,7 @@ function getServer(adapter: McpAdapter) {
   return (
     adapter as unknown as {
       server: {
+        metadata: { name: string; version: string };
         registeredTools: Map<string, unknown>;
         registeredPrompts: Map<string, unknown>;
       };
@@ -102,6 +110,17 @@ describe('McpAdapter', () => {
       expect(server.registeredPrompts.has('find_annotations')).toBe(true);
     });
 
+    it('should keep the compatibility MCP server identity', () => {
+      const adapter = new McpAdapter({
+        mode: 'active',
+        relayHost: 'localhost',
+        relayPort: 9876,
+      });
+
+      const server = getServer(adapter);
+      expect(server.metadata.name).toBe('domscribe');
+    });
+
     it('should start and connect transport', async () => {
       const adapter = new McpAdapter({
         mode: 'active',
@@ -122,6 +141,51 @@ describe('McpAdapter', () => {
 
       // Should not throw
       await adapter.close();
+    });
+
+    it('uses pinflow-preferring debug logs without changing tool names', async () => {
+      const consoleError = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => undefined);
+
+      const adapter = new McpAdapter({
+        mode: 'active',
+        relayHost: 'localhost',
+        relayPort: 9876,
+        debug: true,
+      });
+
+      const server = getServer(adapter);
+      const resolveTool = server.registeredTools.get('domscribe.resolve') as {
+        handler: (args: unknown) => Promise<unknown>;
+      };
+      const checkStatusPrompt = server.registeredPrompts.get(
+        'check_status',
+      ) as {
+        handler: (args: unknown) => unknown;
+      };
+
+      await adapter.start();
+      await resolveTool.handler({ entryId: 'ds_test' });
+      checkStatusPrompt.handler({});
+      await adapter.close();
+
+      expect(consoleError).toHaveBeenCalledWith(
+        '[pinflow-mcp] MCP server started',
+      );
+      expect(consoleError).toHaveBeenCalledWith(
+        '[pinflow-mcp] Tool call: domscribe.resolve',
+        { entryId: 'ds_test' },
+      );
+      expect(consoleError).toHaveBeenCalledWith(
+        '[pinflow-mcp] GetPrompt: check_status',
+        {},
+      );
+      expect(consoleError).toHaveBeenCalledWith(
+        '[pinflow-mcp] MCP server closed',
+      );
+
+      consoleError.mockRestore();
     });
   });
 

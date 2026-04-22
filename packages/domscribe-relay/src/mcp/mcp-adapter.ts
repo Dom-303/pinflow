@@ -1,5 +1,5 @@
 /**
- * MCP (Model Context Protocol) adapter for Domscribe.
+ * MCP (Model Context Protocol) adapter for PinFlow.
  * Provides a stdio-based MCP server that proxies requests to the HTTP relay.
  * @module @domscribe/relay/mcp/mcp-adapter
  */
@@ -124,7 +124,7 @@ export class McpAdapter {
         },
         async (args) => {
           if (this.debug) {
-            console.error(`[domscribe-mcp] Tool call: ${tool.name}`, args);
+            console.error(`[pinflow-mcp] Tool call: ${tool.name}`, args);
           }
           return tool.toolCallback(args);
         },
@@ -142,7 +142,7 @@ export class McpAdapter {
       },
       async (args) => {
         if (this.debug) {
-          console.error(`[domscribe-mcp] Tool call: ${tool.name}`, args);
+          console.error(`[pinflow-mcp] Tool call: ${tool.name}`, args);
         }
         return tool.toolCallback(args);
       },
@@ -166,7 +166,7 @@ export class McpAdapter {
         },
         (args: unknown) => {
           if (this.debug) {
-            console.error(`[domscribe-mcp] GetPrompt: ${prompt.name}`, args);
+            console.error(`[pinflow-mcp] GetPrompt: ${prompt.name}`, args);
           }
           return {
             description: prompt.description,
@@ -182,7 +182,7 @@ export class McpAdapter {
     await this.server.connect(transport);
 
     if (this.debug) {
-      console.error('[domscribe-mcp] MCP server started');
+      console.error('[pinflow-mcp] MCP server started');
     }
   }
 
@@ -190,7 +190,7 @@ export class McpAdapter {
     await this.server.close();
 
     if (this.debug) {
-      console.error('[domscribe-mcp] MCP server closed');
+      console.error('[pinflow-mcp] MCP server closed');
     }
   }
 }

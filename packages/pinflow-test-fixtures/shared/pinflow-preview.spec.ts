@@ -4,6 +4,8 @@ import {
   PINFLOW_PREVIEW_REGISTRY_PORT,
   PINFLOW_PREVIEW_REGISTRY_URL,
 } from './pinflow-preview.js';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 describe('pinflow preview plan', () => {
   it('builds the canonical vite react preview flow', () => {
@@ -30,5 +32,21 @@ describe('pinflow preview plan', () => {
 
     expect(plan.prepareOnly).toBe(true);
     expect(plan.steps).toHaveLength(2);
+  });
+
+  it('publishes fixture packages with runtime-safe root exports', () => {
+    const pkg = JSON.parse(
+      readFileSync(
+        resolve(
+          process.cwd(),
+          'packages/pinflow-test-fixtures/fixtures/vite/v5/react-18-ts/node_modules/@pinflow/react/package.json',
+        ),
+        'utf8',
+      ),
+    ) as {
+      exports?: Record<string, { import?: string }>;
+    };
+
+    expect(pkg.exports?.['.']?.import).toBe('./index.js');
   });
 });

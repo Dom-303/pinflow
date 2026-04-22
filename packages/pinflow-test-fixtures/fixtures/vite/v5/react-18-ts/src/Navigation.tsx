@@ -92,7 +92,12 @@ export function Navigation({ activeItem, onNavigate }: NavigationProps) {
       <div className="sidebar-header">
         <div className="sidebar-logo">
           <div className="sidebar-logo-icon">P</div>
-          <span className="sidebar-logo-text">PinFlow Workspace</span>
+          <div className="sidebar-brand-copy">
+            <span className="sidebar-logo-text">PinFlow Demo</span>
+            <span className="sidebar-logo-subtext">
+              Komponentenflaeche fuer die Live-Vorschau
+            </span>
+          </div>
         </div>
       </div>
 

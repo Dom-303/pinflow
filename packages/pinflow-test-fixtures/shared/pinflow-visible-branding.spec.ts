@@ -20,9 +20,14 @@ describe('pinflow visible preview branding', () => {
     expect(html).toContain('<title>PinFlow Preview - React 18</title>');
   });
 
-  it('brands the canonical preview sidebar as PinFlow Workspace', () => {
+  it('marks the left rail as demo space and explains that the workspace lives on the right', () => {
     const navigation = readFixture('src/Navigation.tsx');
+    const app = readFixture('src/App.tsx');
+    const viteConfig = readFixture('vite.config.ts');
 
-    expect(navigation).toContain('PinFlow Workspace');
+    expect(navigation).toContain('PinFlow Demo');
+    expect(app).toContain('Die eigentliche PinFlow-Arbeitsflaeche');
+    expect(app).toContain('liegt rechts.');
+    expect(viteConfig).toContain("initialMode: 'expanded'");
   });
 });

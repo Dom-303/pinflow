@@ -7,7 +7,9 @@ export default defineConfig({
     react(),
     pinflow({
       debug: false,
-      overlay: true,
+      overlay: {
+        initialMode: 'expanded',
+      },
     }),
   ],
   build: {

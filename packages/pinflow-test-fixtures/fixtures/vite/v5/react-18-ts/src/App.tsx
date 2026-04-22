@@ -219,8 +219,15 @@ export function App() {
       <main className="main-content">
         <div className="content-wrapper">
           <header className="page-header">
+            <div className="preview-kicker">Preview Canvas</div>
             <h1 className="page-title">{currentComponent.title}</h1>
             <p className="page-description">{currentComponent.description}</p>
+            <div className="preview-callout">
+              <strong>Hinweis:</strong> Die eigentliche PinFlow-Arbeitsflaeche
+              liegt rechts. Diese linke Flaeche ist nur die Demo, damit du
+              Auswahl, Mapping und Kommentare an echten UI-Bausteinen testen
+              kannst.
+            </div>
           </header>
 
           <div className="component-section">

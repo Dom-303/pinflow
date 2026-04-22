@@ -45,7 +45,7 @@ describe('AnnotationsProcessTool', () => {
         ...processResponse,
         nextStep:
           'Implement the change described in userIntent. ' +
-          'Then call domscribe.query.bySource with the same file and line to verify your changes in the live browser. ' +
+          'Then call the PinFlow source query tool with the same file and line to verify your changes in the live browser. ' +
           'Then call domscribe.annotation.respond with your summary, then domscribe.annotation.updateStatus with status "processed".',
       });
     });
@@ -87,5 +87,6 @@ describe('AnnotationsProcessTool', () => {
     const tool = new AnnotationsProcessTool(createMockRelayClient());
 
     expect(tool.name).toBe(MCP_TOOLS.ANNOTATION_PROCESS);
+    expect(tool.description).toContain('PinFlow');
   });
 });

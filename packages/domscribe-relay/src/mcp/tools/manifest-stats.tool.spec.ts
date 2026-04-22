@@ -71,5 +71,6 @@ describe('ManifestStatsTool', () => {
     const tool = new ManifestStatsTool(createMockRelayClient());
 
     expect(tool.name).toBe(MCP_TOOLS.MANIFEST_STATS);
+    expect(tool.description).toContain('PinFlow manifest');
   });
 });

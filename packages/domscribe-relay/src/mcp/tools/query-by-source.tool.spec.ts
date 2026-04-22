@@ -103,7 +103,7 @@ describe('QueryBySourceTool', () => {
         error: undefined,
         hint:
           'No manifest entry found for this source location. ' +
-          'Try domscribe.manifest.query with the file path to discover which lines have entries, ' +
+          'Try the PinFlow manifest query tool with the file path to discover which lines have entries, ' +
           'or use tolerance > 0 to widen the search.',
       });
     });
@@ -215,6 +215,7 @@ describe('QueryBySourceTool', () => {
     const tool = new QueryBySourceTool(createMockRelayClient());
 
     expect(tool.name).toBe(MCP_TOOLS.QUERY_BY_SOURCE);
+    expect(tool.description).toContain('PinFlow');
     expect(tool.description).toContain('source location');
     expect(tool.inputSchema).toBeDefined();
     expect(tool.outputSchema).toBeDefined();

@@ -13,7 +13,7 @@ const QueryBySourceToolInputSchema = z.object({
     .string()
     .describe(
       'Absolute file path as stored in the manifest (e.g. "/home/user/project/src/components/Button.tsx"). ' +
-        'Use domscribe.manifest.query to discover the exact paths the manifest uses.',
+        'Use the PinFlow manifest query tool to discover the exact paths the manifest uses.',
     ),
   line: z.number().int().positive().describe('Line number (1-indexed)'),
   column: z
@@ -79,7 +79,7 @@ export class QueryBySourceTool implements McpToolDefinition<
 > {
   name = MCP_TOOLS.QUERY_BY_SOURCE;
   description =
-    'Get live DOM snapshot, component props, and state for a source location (file + line). ' +
+    'Get live DOM snapshot, component props, and state for a PinFlow source location (file + line). ' +
     'Call this when fixing visual/styling bugs, debugging conditional rendering, tracing prop values, or verifying UI changes after editing. ' +
     "Skip for pure logic changes, new files, refactoring, or type fixes — runtime context won't help there. " +
     'If browserConnected is false, ask the user to open the page in their browser and retry. ' +
@@ -97,7 +97,7 @@ export class QueryBySourceTool implements McpToolDefinition<
     if (!result.found) {
       return (
         'No manifest entry found for this source location. ' +
-        'Try domscribe.manifest.query with the file path to discover which lines have entries, ' +
+        'Try the PinFlow manifest query tool with the file path to discover which lines have entries, ' +
         'or use tolerance > 0 to widen the search.'
       );
     }

@@ -33,7 +33,7 @@ export class ManifestStatsTool
 {
   name = MCP_TOOLS.MANIFEST_STATS;
   description =
-    'Get statistics about the Domscribe manifest including entry count, ' +
+    'Get statistics about the PinFlow manifest including entry count, ' +
     'number of files indexed, and cache hit rate. ' +
     'Use for debugging or getting an overview of instrumentation coverage.';
   inputSchema = ManifestStatsToolInputSchema;

@@ -16,7 +16,7 @@ type AnnotationsProcessToolInput = z.infer<
 /** Schema for element details in flattened format */
 const ProcessToolElementSchema = z.object({
   tagName: z.string().describe('HTML tag name'),
-  dataDs: z.string().optional().describe('Domscribe element ID if available'),
+  dataDs: z.string().optional().describe('PinFlow element ID if available'),
   selector: z.string().describe('CSS selector path'),
   attributes: z
     .record(z.string(), z.string())
@@ -79,7 +79,7 @@ export class AnnotationsProcessTool implements McpToolDefinition<
 > {
   name = MCP_TOOLS.ANNOTATION_PROCESS;
   description =
-    'Claim the next queued annotation for processing (atomic — no annotation ID needed). ' +
+    'Claim the next queued PinFlow annotation for processing (atomic — no annotation ID needed). ' +
     'This is the correct tool for picking up work. Do NOT use annotation.list to manually pick annotations. ' +
     'Returns the oldest queued annotation with full context including resolved source location. ' +
     'After implementing the change, call annotation.respond then annotation.updateStatus to complete the lifecycle.';
@@ -104,7 +104,7 @@ export class AnnotationsProcessTool implements McpToolDefinition<
         fullAnnotation: response.fullAnnotation,
         nextStep: response.found
           ? 'Implement the change described in userIntent. ' +
-            'Then call domscribe.query.bySource with the same file and line to verify your changes in the live browser. ' +
+            'Then call the PinFlow source query tool with the same file and line to verify your changes in the live browser. ' +
             'Then call domscribe.annotation.respond with your summary, then domscribe.annotation.updateStatus with status "processed".'
           : undefined,
       };

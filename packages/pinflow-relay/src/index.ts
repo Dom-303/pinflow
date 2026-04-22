@@ -1,5 +1,5 @@
 /**
- * @pinflow/relay - Local development relay server for Domscribe
+ * @pinflow/relay - Local development relay server for PinFlow
  * @module @pinflow/relay
  */
 // Relay Lifecycle exports

@@ -1,5 +1,5 @@
 /**
- * Annotation HTTP handlers for Domscribe Relay
+ * Annotation HTTP handlers for PinFlow Relay
  */
 import type { FastifyInstance } from 'fastify';
 import type { ManifestReader } from '@pinflow/manifest';

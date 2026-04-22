@@ -67,15 +67,13 @@ export function withPinFlow(
   return (nextConfig: NextConfig): NextConfig => {
     const enabled =
       process.env.NODE_ENV !== 'production' ||
-      !!process.env.DOMSCRIBE_FORCE_TRANSFORM;
+      !!process.env.PINFLOW_FORCE_TRANSFORM;
 
     return enabled
       ? applyDevTransforms(nextConfig, options)
       : applyProductionAliases(nextConfig);
   };
 }
-
-export const withDomscribe = withPinFlow;
 
 // ---------------------------------------------------------------------------
 // Production path — alias dev-only packages to no-op stubs

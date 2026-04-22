@@ -1,5 +1,5 @@
 /**
- * @pinflow/core - Core types, utilities, and constants for Domscribe
+ * @pinflow/core - Core types, utilities, and constants for PinFlow
  * @module @pinflow/core
  */
 

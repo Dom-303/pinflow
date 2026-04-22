@@ -34,7 +34,7 @@ export interface SerializationHints {
  * component instances. Each framework adapter (React, Vue, etc.) implements
  * this interface to expose component props, state, and metadata.
  *
- * Domscribe will invoke these methods to capture the runtime
+ * PinFlow will invoke these methods to capture the runtime
  * context of a component when users pick a DOM element.
  */
 export interface FrameworkAdapter {

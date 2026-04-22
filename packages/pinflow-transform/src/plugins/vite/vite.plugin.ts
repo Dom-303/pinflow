@@ -435,6 +435,5 @@ export function pinflow(options: VitePluginOptions = {}): Plugin {
   };
 }
 
-export const domscribe = pinflow;
 
-export default domscribe;
+export default pinflow;

@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Execute the full Domscribe-to-PinFlow migration in controlled waves until PinFlow becomes the complete technical and product identity of the repo.
+**Goal:** Execute the full PinFlow-to-PinFlow migration in controlled waves until PinFlow becomes the complete technical and product identity of the repo.
 
 **Architecture:** Treat the rename as a compatibility migration, not a cosmetic sweep. Move public contracts first, then runtime and persistent state, then repo internals, while preserving temporary aliases and verifying preview, fixtures, MCP, and workspace migration at every wave.
 
@@ -43,7 +43,7 @@ Add a new section to `docs/roadmaps/04-pinflow-platform-evolution.md`:
 ```md
 ## Full Rename Destination
 
-PinFlow is no longer targeting a permanent hybrid state. The long-term destination is a complete technical and product migration away from public `domscribe` naming, executed in controlled compatibility waves.
+PinFlow is no longer targeting a permanent hybrid state. The long-term destination is a complete technical and product migration away from public `pinflow` naming, executed in controlled compatibility waves.
 ```
 
 - [ ] **Step 2: Update the cleanup roadmap so it follows the full rename waves**
@@ -53,7 +53,7 @@ Add to `docs/roadmaps/05-pinflow-cleanup-plan.md`:
 ```md
 ## Post-Rename Cleanup
 
-Cleanup must now follow the full PinFlow rename waves. Deprecated `domscribe` aliases, paths, and docs should only be removed after the new PinFlow-native contracts are verified in real preview, fixture, and MCP flows.
+Cleanup must now follow the full PinFlow rename waves. Deprecated `pinflow` aliases, paths, and docs should only be removed after the new PinFlow-native contracts are verified in real preview, fixture, and MCP flows.
 ```
 
 - [ ] **Step 3: Add a migration-status section to the namespace audit**
@@ -94,11 +94,11 @@ git commit -m "docs: establish full pinflow rename baseline"
 **Files:**
 - Modify: `package.json`
 - Modify: `tsconfig.base.json`
-- Modify: `packages/domscribe-*/package.json`
+- Modify: `packages/pinflow-*/package.json`
 - Create: `packages/pinflow-compat/README.md`
 - Test: `tsconfig.base.json`
-- Test: `packages/domscribe-react/package.json`
-- Test: `packages/domscribe-transform/package.json`
+- Test: `packages/pinflow-react/package.json`
+- Test: `packages/pinflow-transform/package.json`
 
 - [ ] **Step 1: Write a failing scope verification check**
 
@@ -114,13 +114,13 @@ Expected:
 
 - [ ] **Step 2: Add parallel PinFlow path aliases to `tsconfig.base.json`**
 
-For each current `@domscribe/*` alias, add a matching `@pinflow/*` alias pointing to the same current source path. For example:
+For each current `@pinflow/*` alias, add a matching `@pinflow/*` alias pointing to the same current source path. For example:
 
 ```json
-"@pinflow/core": ["packages/domscribe-core/src/index.ts"],
-"@pinflow/core/*": ["packages/domscribe-core/src/*"],
-"@pinflow/react": ["packages/domscribe-react/src/index.ts"],
-"@pinflow/react/*": ["packages/domscribe-react/src/*"]
+"@pinflow/core": ["packages/pinflow-core/src/index.ts"],
+"@pinflow/core/*": ["packages/pinflow-core/src/*"],
+"@pinflow/react": ["packages/pinflow-react/src/index.ts"],
+"@pinflow/react/*": ["packages/pinflow-react/src/*"]
 ```
 
 - [ ] **Step 3: Add PinFlow package metadata aliases in package docs or release notes staging**
@@ -132,14 +132,14 @@ Create `packages/pinflow-compat/README.md` with:
 
 During the full rename migration, PinFlow-native package aliases map onto the current compatibility packages:
 
-- `@pinflow/core` -> `@domscribe/core`
-- `@pinflow/react` -> `@domscribe/react`
-- `@pinflow/vue` -> `@domscribe/vue`
-- `@pinflow/transform` -> `@domscribe/transform`
-- `@pinflow/runtime` -> `@domscribe/runtime`
-- `@pinflow/overlay` -> `@domscribe/overlay`
-- `@pinflow/relay` -> `@domscribe/relay`
-- `@pinflow/mcp` -> `@domscribe/mcp`
+- `@pinflow/core` -> `@pinflow/core`
+- `@pinflow/react` -> `@pinflow/react`
+- `@pinflow/vue` -> `@pinflow/vue`
+- `@pinflow/transform` -> `@pinflow/transform`
+- `@pinflow/runtime` -> `@pinflow/runtime`
+- `@pinflow/overlay` -> `@pinflow/overlay`
+- `@pinflow/relay` -> `@pinflow/relay`
+- `@pinflow/mcp` -> `@pinflow/mcp`
 ```
 
 - [ ] **Step 4: Verify the new alias layer exists**
@@ -164,10 +164,10 @@ git commit -m "feat: add pinflow package scope aliases"
 ### Task 3: Make PinFlow The Canonical CLI Package Identity
 
 **Files:**
-- Modify: `packages/domscribe-cli/package.json`
-- Modify: `packages/domscribe-cli/README.md`
-- Modify: `packages/domscribe-cli/src/bin/domscribe.ts`
-- Modify: `packages/domscribe-cli/src/bin/pinflow.ts`
+- Modify: `packages/pinflow-cli/package.json`
+- Modify: `packages/pinflow-cli/README.md`
+- Modify: `packages/pinflow-cli/src/bin/pinflow.ts`
+- Modify: `packages/pinflow-cli/src/bin/pinflow.ts`
 - Test: `packages/pinflow-test-fixtures/shared/pinflow-cli-aliases.spec.ts`
 
 - [ ] **Step 1: Write the failing CLI identity check**
@@ -175,16 +175,16 @@ git commit -m "feat: add pinflow package scope aliases"
 Run:
 
 ```bash
-node -e "const pkg=require('./packages/domscribe-cli/package.json'); if(pkg.name !== 'pinflow') process.exit(1)"
+node -e "const pkg=require('./packages/pinflow-cli/package.json'); if(pkg.name !== 'pinflow') process.exit(1)"
 ```
 
 Expected:
 
-- FAIL because the CLI package is still named `domscribe`
+- FAIL because the CLI package is still named `pinflow`
 
 - [ ] **Step 2: Rename the CLI package identity to PinFlow**
 
-In `packages/domscribe-cli/package.json`, change:
+In `packages/pinflow-cli/package.json`, change:
 
 ```json
 "name": "pinflow"
@@ -194,7 +194,7 @@ Keep compatibility bin output:
 
 ```json
 "distBin": {
-  "domscribe": "./bin/domscribe.js",
+  "pinflow": "./bin/pinflow.js",
   "pinflow": "./bin/pinflow.js"
 }
 ```
@@ -213,13 +213,13 @@ npm install -g pinflow
 Compatibility alias:
 
 ```bash
-domscribe
+pinflow
 ```
 ```
 
 - [ ] **Step 4: Keep the compatibility shim explicit in the old binary**
 
-In `packages/domscribe-cli/src/bin/domscribe.ts`, ensure the file remains a compatibility entry and add a top comment:
+In `packages/pinflow-cli/src/bin/pinflow.ts`, ensure the file remains a compatibility entry and add a top comment:
 
 ```ts
 // Compatibility CLI alias for the PinFlow package identity.
@@ -231,8 +231,8 @@ Run:
 
 ```bash
 corepack pnpm exec vitest run packages/pinflow-test-fixtures/shared/pinflow-cli-aliases.spec.ts --config packages/pinflow-test-fixtures/vite.config.ts
-corepack pnpm exec nx build domscribe-cli
-node -e "const pkg=require('./packages/domscribe-cli/package.json'); if(pkg.name !== 'pinflow') process.exit(1)"
+corepack pnpm exec nx build pinflow-cli
+node -e "const pkg=require('./packages/pinflow-cli/package.json'); if(pkg.name !== 'pinflow') process.exit(1)"
 ```
 
 Expected:
@@ -243,15 +243,15 @@ Expected:
 - [ ] **Step 6: Commit**
 
 ```bash
-git add packages/domscribe-cli/package.json packages/domscribe-cli/README.md packages/domscribe-cli/src/bin/domscribe.ts packages/domscribe-cli/src/bin/pinflow.ts
+git add packages/pinflow-cli/package.json packages/pinflow-cli/README.md packages/pinflow-cli/src/bin/pinflow.ts packages/pinflow-cli/src/bin/pinflow.ts
 git commit -m "feat: make pinflow the canonical cli package"
 ```
 
 ### Task 4: Make PinFlow The Canonical MCP Package Identity
 
 **Files:**
-- Modify: `packages/domscribe-mcp/package.json`
-- Modify: `packages/domscribe-mcp/README.md`
+- Modify: `packages/pinflow-mcp/package.json`
+- Modify: `packages/pinflow-mcp/README.md`
 - Modify: `.plugin/plugin.json`
 - Modify: `.claude-plugin/plugin.json`
 - Modify: `.codex-plugin/plugin.json`
@@ -263,16 +263,16 @@ git commit -m "feat: make pinflow the canonical cli package"
 Run:
 
 ```bash
-node -e "const pkg=require('./packages/domscribe-mcp/package.json'); if(pkg.name !== '@pinflow/mcp') process.exit(1)"
+node -e "const pkg=require('./packages/pinflow-mcp/package.json'); if(pkg.name !== '@pinflow/mcp') process.exit(1)"
 ```
 
 Expected:
 
-- FAIL because the MCP package still uses `@domscribe/mcp`
+- FAIL because the MCP package still uses `@pinflow/mcp`
 
 - [ ] **Step 2: Rename the MCP package identity**
 
-In `packages/domscribe-mcp/package.json`, change:
+In `packages/pinflow-mcp/package.json`, change:
 
 ```json
 "name": "@pinflow/mcp"
@@ -282,14 +282,14 @@ Keep binary compatibility:
 
 ```json
 "distBin": {
-  "domscribe-mcp": "./bin/domscribe-mcp.js",
+  "pinflow-mcp": "./bin/pinflow-mcp.js",
   "pinflow-mcp": "./bin/pinflow-mcp.js"
 }
 ```
 
 - [ ] **Step 3: Update plugin manifests and local MCP configs**
 
-Switch package-path references from `@domscribe/mcp` to `@pinflow/mcp`, and prefer `pinflow` as the MCP server key where config examples are PinFlow-owned.
+Switch package-path references from `@pinflow/mcp` to `@pinflow/mcp`, and prefer `pinflow` as the MCP server key where config examples are PinFlow-owned.
 
 Target example:
 
@@ -308,7 +308,7 @@ Target example:
 Add:
 
 ```md
-Compatibility note: `domscribe-mcp` remains as a temporary binary alias during the migration window.
+Compatibility note: `pinflow-mcp` remains as a temporary binary alias during the migration window.
 ```
 
 - [ ] **Step 5: Verify the MCP package path shift**
@@ -316,9 +316,9 @@ Compatibility note: `domscribe-mcp` remains as a temporary binary alias during t
 Run:
 
 ```bash
-node -e "const pkg=require('./packages/domscribe-mcp/package.json'); if(pkg.name !== '@pinflow/mcp') process.exit(1)"
+node -e "const pkg=require('./packages/pinflow-mcp/package.json'); if(pkg.name !== '@pinflow/mcp') process.exit(1)"
 node -e "const fs=require('fs'); const text=fs.readFileSync('.mcp.json','utf8'); if(!text.includes('@pinflow/mcp')) process.exit(1)"
-corepack pnpm exec nx build domscribe-mcp
+corepack pnpm exec nx build pinflow-mcp
 ```
 
 Expected:
@@ -328,17 +328,17 @@ Expected:
 - [ ] **Step 6: Commit**
 
 ```bash
-git add packages/domscribe-mcp/package.json packages/domscribe-mcp/README.md .plugin/plugin.json .claude-plugin/plugin.json .codex-plugin/plugin.json .mcp.json
+git add packages/pinflow-mcp/package.json packages/pinflow-mcp/README.md .plugin/plugin.json .claude-plugin/plugin.json .codex-plugin/plugin.json .mcp.json
 git commit -m "feat: make pinflow the canonical mcp package"
 ```
 
 ### Task 5: Rename Framework-Facing Public APIs
 
 **Files:**
-- Modify: `packages/domscribe-next/src/index.ts`
-- Modify: `packages/domscribe-react/src/vite/index.ts`
-- Modify: `packages/domscribe-vue/src/vite/index.ts`
-- Modify: `packages/domscribe-transform/src/plugins/vite/index.ts`
+- Modify: `packages/pinflow-next/src/index.ts`
+- Modify: `packages/pinflow-react/src/vite/index.ts`
+- Modify: `packages/pinflow-vue/src/vite/index.ts`
+- Modify: `packages/pinflow-transform/src/plugins/vite/index.ts`
 - Modify: framework README examples in `README.md` and package READMEs
 - Test: relevant package specs for exports
 
@@ -347,9 +347,9 @@ git commit -m "feat: make pinflow the canonical mcp package"
 Add exports like:
 
 ```ts
-export { withDomscribe as withPinFlow };
-export { domscribe as pinflow };
-export { DomscribeWebpackPlugin as PinFlowWebpackPlugin };
+export { withPinFlow as withPinFlow };
+export { pinflow as pinflow };
+export { PinFlowWebpackPlugin as PinFlowWebpackPlugin };
 ```
 
 - [ ] **Step 2: Switch product docs and examples to the new API names**
@@ -367,7 +367,7 @@ const { PinFlowWebpackPlugin } = require('@pinflow/react/webpack');
 Add short notes where needed:
 
 ```md
-Compatibility aliases `withDomscribe`, `domscribe()`, and `DomscribeWebpackPlugin` remain temporarily available.
+Compatibility aliases `withPinFlow`, `pinflow()`, and `PinFlowWebpackPlugin` remain temporarily available.
 ```
 
 - [ ] **Step 4: Verify exports compile**
@@ -375,7 +375,7 @@ Compatibility aliases `withDomscribe`, `domscribe()`, and `DomscribeWebpackPlugi
 Run:
 
 ```bash
-corepack pnpm exec nx build domscribe-next domscribe-react domscribe-vue domscribe-transform
+corepack pnpm exec nx build pinflow-next pinflow-react pinflow-vue pinflow-transform
 ```
 
 Expected:
@@ -385,17 +385,17 @@ Expected:
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/domscribe-next/src/index.ts packages/domscribe-react/src/vite/index.ts packages/domscribe-vue/src/vite/index.ts packages/domscribe-transform/src/plugins/vite/index.ts README.md packages/domscribe-*/README.md
+git add packages/pinflow-next/src/index.ts packages/pinflow-react/src/vite/index.ts packages/pinflow-vue/src/vite/index.ts packages/pinflow-transform/src/plugins/vite/index.ts README.md packages/pinflow-*/README.md
 git commit -m "feat: add pinflow framework api aliases"
 ```
 
 ### Task 6: Rename MCP Tool And Server Namespace
 
 **Files:**
-- Modify: `packages/domscribe-relay/src/mcp/**/*`
+- Modify: `packages/pinflow-relay/src/mcp/**/*`
 - Modify: plugin manifests
 - Modify: MCP prompt docs
-- Test: `packages/domscribe-relay/src/mcp/**/*.spec.ts`
+- Test: `packages/pinflow-relay/src/mcp/**/*.spec.ts`
 
 - [ ] **Step 1: Introduce PinFlow-first MCP namespace registration**
 
@@ -408,7 +408,7 @@ pinflow.annotation.process
 pinflow.status
 ```
 
-Keep old `domscribe.*` registrations as temporary aliases if the current MCP framework allows dual registration.
+Keep old `pinflow.*` registrations as temporary aliases if the current MCP framework allows dual registration.
 
 - [ ] **Step 2: Switch all product-owned manifests and examples to the PinFlow namespace**
 
@@ -435,8 +435,8 @@ Call `pinflow.query.bySource` ...
 Run:
 
 ```bash
-corepack pnpm exec nx test domscribe-relay
-corepack pnpm exec nx build domscribe-relay
+corepack pnpm exec nx test pinflow-relay
+corepack pnpm exec nx build pinflow-relay
 ```
 
 Expected:
@@ -446,7 +446,7 @@ Expected:
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/domscribe-relay/src/mcp packages/domscribe-relay/src/cli .plugin/plugin.json .claude-plugin/plugin.json .codex-plugin/plugin.json
+git add packages/pinflow-relay/src/mcp packages/pinflow-relay/src/cli .plugin/plugin.json .claude-plugin/plugin.json .codex-plugin/plugin.json
 git commit -m "feat: introduce pinflow mcp namespace"
 ```
 
@@ -461,9 +461,9 @@ git commit -m "feat: introduce pinflow mcp namespace"
 Support both:
 
 ```txt
-.domscribe/
 .pinflow/
-domscribe.config.json
+.pinflow/
+pinflow.config.json
 pinflow.config.json
 ```
 
@@ -523,16 +523,16 @@ git commit -m "feat: migrate pinflow local artifact paths"
 Move examples such as:
 
 ```txt
-packages/domscribe-core      -> packages/pinflow-core
-packages/domscribe-relay     -> packages/pinflow-relay
-packages/domscribe-overlay   -> packages/pinflow-overlay
+packages/pinflow-core      -> packages/pinflow-core
+packages/pinflow-relay     -> packages/pinflow-relay
+packages/pinflow-overlay   -> packages/pinflow-overlay
 ```
 
 Update every matching `project.json` name and root/sourceRoot/outputPath.
 
 - [ ] **Step 2: Rename TS path aliases and project references**
 
-In `tsconfig.base.json`, switch from `@domscribe/*` entries to `@pinflow/*`.
+In `tsconfig.base.json`, switch from `@pinflow/*` entries to `@pinflow/*`.
 
 In `tsconfig.json`, update all project references to the new directory names.
 
@@ -545,7 +545,7 @@ Fix:
 - any hardcoded package folder references in scripts and docs
 
 After the directory rename, run a fresh workspace install so pnpm rewrites any
-workspace symlinks that still point at the old `packages/domscribe-*` paths:
+workspace symlinks that still point at the old `packages/pinflow-*` paths:
 
 ```bash
 corepack pnpm install
@@ -584,7 +584,7 @@ Move the fixture package and project naming to PinFlow-native equivalents while 
 
 - [ ] **Step 2: Update the canonical preview script to consume only PinFlow-native outputs**
 
-The preview path should no longer depend on old `domscribe` package identities or stale fixture naming.
+The preview path should no longer depend on old `pinflow` package identities or stale fixture naming.
 
 - [ ] **Step 3: Verify the actual local preview**
 
@@ -597,7 +597,7 @@ corepack pnpm exec tsx scripts/pinflow-preview.ts --fixture vite-v5-react-18-ts 
 Expected:
 
 - current PinFlow UI appears
-- no stale Domscribe-branded fixture shell appears
+- no stale PinFlow-branded fixture shell appears
 
 - [ ] **Step 4: Run the fixture test subset**
 
@@ -626,19 +626,19 @@ git commit -m "feat: move fixtures and preview flow to pinflow identity"
 
 Candidates:
 
-- `domscribe`
-- `domscribe-mcp`
-- `domscribe.*` MCP registrations
-- `withDomscribe`
-- `DomscribeWebpackPlugin`
-- `domscribe()`
+- `pinflow`
+- `pinflow-mcp`
+- `pinflow.*` MCP registrations
+- `withPinFlow`
+- `PinFlowWebpackPlugin`
+- `pinflow()`
 
 - [ ] **Step 2: Remove stale docs and migration notes that are no longer true**
 
 Delete or rewrite text that says:
 
 - “current compatibility layer”
-- “domscribe alias remains available”
+- “pinflow alias remains available”
 
 once that is no longer accurate.
 
@@ -660,7 +660,7 @@ Expected:
 
 ```bash
 git add .
-git commit -m "chore: retire domscribe compatibility aliases"
+git commit -m "chore: retire pinflow compatibility aliases"
 ```
 
 ## Self-Review Notes

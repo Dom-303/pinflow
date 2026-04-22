@@ -1,7 +1,7 @@
 /**
  * Tests for Webpack Loader
  *
- * Tests the webpack loader that integrates Domscribe transformations into the Webpack build process.
+ * Tests the webpack loader that integrates PinFlow transformations into the Webpack build process.
  * This test suite focuses on testing the loader's business logic only,
  * with all external dependencies mocked.
  */

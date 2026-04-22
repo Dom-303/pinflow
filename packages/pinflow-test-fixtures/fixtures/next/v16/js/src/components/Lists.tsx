@@ -1,7 +1,7 @@
 /**
  * Lists - Tests list rendering with .map() and keys
  *
- * Validates that Domscribe:
+ * Validates that PinFlow:
  * - Correctly handles .map() rendered elements
  * - Preserves React keys (doesn't interfere with reconciliation)
  * - Handles nested lists

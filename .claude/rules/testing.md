@@ -9,7 +9,7 @@ description: Testing philosophy, mocking strategy, and patterns for unit, integr
 - **Unit tests mock dependencies by default.** Use `vi.mock()` for module-level mocking and `vi.fn()` for manual mock objects. Constructor DI exists to make clean mocking easy — use it.
 - **Arrange-Act-Assert (AAA).** Every unit test follows this structure: set up the preconditions (Arrange), execute the behavior under test (Act), verify the outcome (Assert). Separate each phase with a blank line. This keeps tests readable, predictable, and easy to maintain — a developer should be able to glance at any test and immediately understand what's being set up, what's being exercised, and what's being verified.
 - **Test behavior, not side effects.** Do not spy on global objects like `console`. Testing log messages is fragile, adds verbosity (setup + teardown per test or suite-wide pollution), and doesn't validate meaningful behavior. Test what a unit _does_, not what it _logs_.
-- **Test-fixtures is the black-box layer.** Integration and e2e tests in `domscribe-test-fixtures` treat PinFlow's current compatibility layer as an opaque bundler plugin — no `@domscribe/*` imports (except types). They build real fixtures and validate real outputs.
+- **Test-fixtures is the black-box layer.** Integration and e2e tests in `pinflow-test-fixtures` treat PinFlow's current compatibility layer as an opaque bundler plugin — no `@pinflow/*` imports (except types). They build real fixtures and validate real outputs.
 - **Test at the right level.** Don't duplicate coverage across unit/integration/e2e. If the build pipeline catches it, don't unit-test it.
 
 ## Unit Tests (Vitest)
@@ -69,11 +69,11 @@ function createMockAdapter(
 
 ### Exception: Pure Utilities (core)
 
-`@domscribe/core` contains pure functions (ID generation, redaction, error constructors) with no external dependencies. Test these directly — there's nothing to mock.
+`@pinflow/core` contains pure functions (ID generation, redaction, error constructors) with no external dependencies. Test these directly — there's nothing to mock.
 
 ### Exception: Relay (Integration-Style)
 
-`@domscribe/relay` tests use real Fastify servers, real services, and temp directories. This is intentional — relay is a coordinator, and its value is in the integration of services.
+`@pinflow/relay` tests use real Fastify servers, real services, and temp directories. This is intentional — relay is a coordinator, and its value is in the integration of services.
 
 ```typescript
 // relay uses createTestServer() which builds real services
@@ -104,19 +104,19 @@ afterEach(() => {
 it('should create an error with all properties', () => {
   // Arrange
   const problemDetails: ProblemDetails = {
-    code: DomscribeErrorCode.DS_INTERNAL_ERROR,
+    code: PinFlowErrorCode.DS_INTERNAL_ERROR,
     title: 'Internal server error',
     detail: 'Something went wrong',
     status: 500,
   };
 
   // Act
-  const error = new DomscribeError(problemDetails);
+  const error = new PinFlowError(problemDetails);
 
   // Assert
   expect(error).toBeInstanceOf(Error);
   expect(error.message).toBe('Internal server error');
-  expect(error.code).toBe(DomscribeErrorCode.DS_INTERNAL_ERROR);
+  expect(error.code).toBe(PinFlowErrorCode.DS_INTERNAL_ERROR);
 });
 ```
 
@@ -132,7 +132,7 @@ Thresholds per-package in `vite.config.ts`: 80% lines, 80% functions, 70% branch
 
 ## Integration & E2E Tests
 
-Detailed patterns for integration and e2e tests are in the path-scoped rule `test-fixtures.md`, which loads automatically when working in `packages/domscribe-test-fixtures/`.
+Detailed patterns for integration and e2e tests are in the path-scoped rule `test-fixtures.md`, which loads automatically when working in `packages/pinflow-test-fixtures/`.
 
 ## What NOT to Test
 

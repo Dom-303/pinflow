@@ -25,8 +25,6 @@ export interface PinFlowReactWebpackPluginOptions extends WebpackPluginOptions {
   capture?: PinFlowReactCaptureOptions;
 }
 
-export type DomscribeReactWebpackPluginOptions = PinFlowReactWebpackPluginOptions;
-
 /**
  * PinFlow webpack plugin for React projects.
  *
@@ -95,5 +93,3 @@ export class PinFlowWebpackPlugin implements WebpackPluginInstance {
     }
   }
 }
-
-export const DomscribeWebpackPlugin = PinFlowWebpackPlugin;

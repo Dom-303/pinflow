@@ -7,7 +7,7 @@ function readRepoFile(relativePath: string): string {
 }
 
 describe('pinflow framework api aliases', () => {
-  it('exports PinFlow aliases alongside existing Domscribe names', () => {
+  it('exports PinFlow aliases alongside existing PinFlow names', () => {
     const nextIndex = readRepoFile('packages/pinflow-next/src/index.ts');
     const reactViteIndex = readRepoFile(
       'packages/pinflow-react/src/vite/index.ts',

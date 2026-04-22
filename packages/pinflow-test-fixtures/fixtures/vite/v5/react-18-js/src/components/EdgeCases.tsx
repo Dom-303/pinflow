@@ -1,7 +1,7 @@
 /**
  * EdgeCases - Tests edge case scenarios
  *
- * Validates that Domscribe handles:
+ * Validates that PinFlow handles:
  * - null returns
  * - undefined returns
  * - boolean returns

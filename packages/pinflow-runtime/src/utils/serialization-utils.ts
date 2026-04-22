@@ -87,7 +87,7 @@ export function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 /**
- * Type guard for special serialized interface that domscribe uses
+ * Type guard for special serialized interface that pinflow uses
  * to serialize special types like Map, Set, Date, RegExp, Error, BigInt.
  */
 export interface SerializedSpecialType {

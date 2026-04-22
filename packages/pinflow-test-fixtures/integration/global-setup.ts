@@ -3,7 +3,7 @@
  *
  * Each Nx integration target spawns its own Vitest process with a
  * FIXTURE_ID env var. This setup cleans only that fixture's build
- * artifacts (.domscribe, .next, .output, .nuxt) so parallel targets
+ * artifacts (.pinflow, .next, .output, .nuxt) so parallel targets
  * don't clobber each other.
  */
 

@@ -324,5 +324,3 @@ export function createInjector<TParseResult = unknown, TElement = unknown>(
 
   return new PinFlowInjector(parser, idStabilizer, options);
 }
-
-export const DomscribeInjector = PinFlowInjector;

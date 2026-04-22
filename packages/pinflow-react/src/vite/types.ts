@@ -8,11 +8,10 @@
  * @module @pinflow/react/vite/types
  */
 
-import type { PinFlowRuntimeOptions, DomscribeRuntimeOptions } from '@pinflow/runtime';
+import type { PinFlowRuntimeOptions } from '@pinflow/runtime';
 
 export type {
   PinFlowRuntimeOptions,
-  DomscribeRuntimeOptions,
 };
 
 /**
@@ -32,8 +31,6 @@ export interface PinFlowReactCaptureOptions {
   /** Hook name resolvers as plain objects. Keys are component names, values map hook index to name. */
   hookNameResolvers?: Record<string, Record<number, string>>;
 }
-
-export type DomscribeReactCaptureOptions = PinFlowReactCaptureOptions;
 
 export interface PinFlowReactPluginOptions {
   include?: RegExp;
@@ -61,5 +58,3 @@ export interface PinFlowReactPluginOptions {
   /** React adapter capture configuration (strategy, tree depth, wrappers, hook resolvers). */
   capture?: PinFlowReactCaptureOptions;
 }
-
-export type DomscribeReactPluginOptions = PinFlowReactPluginOptions;

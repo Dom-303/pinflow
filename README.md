@@ -13,9 +13,9 @@
 <p align="center"><strong>Pin it, flow it, ship it.</strong></p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/search?q=%40domscribe"><img src="https://img.shields.io/npm/v/%40domscribe/core?label=npm&color=cb3837" alt="npm version" /></a>
+  <a href="https://www.npmjs.com/search?q=%40pinflow"><img src="https://img.shields.io/npm/v/%40pinflow/core?label=npm&color=cb3837" alt="npm version" /></a>
   <a href="https://github.com/Dom-303/pinflow/actions"><img src="https://img.shields.io/github/actions/workflow/status/Dom-303/pinflow/ci.yml?label=CI" alt="CI status" /></a>
-  <a href="#"><img src="https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/Narrator/1bedc40fc56874758abd3b7caf4d6748/raw/domscribe-coverage.json" alt="test coverage" /></a>
+  <a href="#"><img src="https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/Narrator/1bedc40fc56874758abd3b7caf4d6748/raw/pinflow-coverage.json" alt="test coverage" /></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license" /></a>
   <img src="https://img.shields.io/badge/TypeScript-5.x-3178c6?logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/node-%3E%3D18-417e38?logo=node.js&logoColor=white" alt="Node.js >= 18" />
@@ -47,10 +47,10 @@
 
 **AI coding agents edit your source files blind — they can't see your running frontend, and your frontend can't tell them where to look.**
 
-PinFlow bridges both directions: click a DOM element to tell your agent what to change, or let your agent query any source location to see exactly what it looks like live in the browser. It grows out of the original [Domscribe](https://github.com/patchorbit/domscribe) source-mapped runtime foundation, but the active product surface here is `PinFlow`: visual review, queueing, dispatch, and agent-facing workflow polish for real projects. Build-time stable IDs, deep runtime context (props, state, DOM), framework-agnostic, any MCP-compatible agent. Zero production impact.
+PinFlow bridges both directions: click a DOM element to tell your agent what to change, or let your agent query any source location to see exactly what it looks like live in the browser. It grows out of the original [PinFlow](https://github.com/patchorbit/pinflow) source-mapped runtime foundation, but the active product surface here is `PinFlow`: visual review, queueing, dispatch, and agent-facing workflow polish for real projects. Build-time stable IDs, deep runtime context (props, state, DOM), framework-agnostic, any MCP-compatible agent. Zero production impact.
 
 > [!NOTE]
-> `PinFlow` is our productized adaptation of the original [Domscribe](https://github.com/patchorbit/domscribe) codebase. The visible product surface, workflow wording, plugin manifests, package scopes, and UI evolve here. Legacy `domscribe` commands, MCP names, and artifact paths remain only as transitional compatibility aliases during the migration window.
+> `PinFlow` is our productized adaptation of the original [PinFlow](https://github.com/patchorbit/pinflow) codebase. The visible product surface, workflow wording, plugin manifests, package scopes, and UI evolve here. Legacy `pinflow` commands, MCP names, and artifact paths remain only as transitional compatibility aliases during the migration window.
 
 ---
 
@@ -69,12 +69,12 @@ This is the preferred path whenever you want to verify the current PinFlow UI in
 ## Getting Started
 
 ```bash
-npx domscribe init
+npx pinflow init
 ```
 
-Preferred installed CLI command: `pinflow`  
-Current no-install compatibility path: `npx domscribe init`  
-Compatibility alias: `domscribe`
+Preferred installed CLI command: `pinflow`
+Current no-install compatibility path: `npx pinflow init`
+Compatibility alias: `pinflow`
 
 The setup wizard walks you through two steps:
 
@@ -126,9 +126,9 @@ Click any element in the browser overlay, describe the change in plain English, 
 ## Manual Setup
 
 > [!NOTE]
-> `npx domscribe init` handles both steps below automatically. Use manual setup only if you need finer control.
+> `npx pinflow init` handles both steps below automatically. Use manual setup only if you need finer control.
 
-If you already installed the CLI package globally or through your toolchain, prefer `pinflow init`. The `domscribe` command remains available as a compatibility alias during the migration.
+If you already installed the CLI package globally or through your toolchain, prefer `pinflow init`. The `pinflow` command remains available as a compatibility alias during the migration.
 
 PinFlow has two sides: **app-side** (bundler + framework plugins) and **agent-side** (MCP for your coding agent). Both are needed for the full workflow.
 
@@ -324,16 +324,16 @@ For plugin configuration options, see the current compatibility package docs in 
 If your frontend app is in a subdirectory (e.g. `apps/web`), pass `--app-root` during init:
 
 ```bash
-npx domscribe init --app-root apps/web
+npx pinflow init --app-root apps/web
 ```
 
-Or run `npx domscribe init` and follow the prompts — the wizard asks if you're in a monorepo.
+Or run `npx pinflow init` and follow the prompts — the wizard asks if you're in a monorepo.
 
 This creates a `pinflow.config.json` at your repo root that tells PinFlow where your app lives. CLI commands (`serve`, `stop`, `status`) and agent MCP connections automatically resolve the app root from this config — no extra flags needed.
 
 ### Agent-Side — Connect Your Coding Agent
 
-PinFlow exposes 12 tools and 4 prompts via MCP. The preferred product-facing MCP namespace is now `pinflow`, while `domscribe.*` remains available as a temporary compatibility alias during the migration window.
+PinFlow exposes 12 tools and 4 prompts via MCP. The preferred product-facing MCP namespace is now `pinflow`, while `pinflow.*` remains available as a temporary compatibility alias during the migration window.
 
 #### Claude Code
 
@@ -370,7 +370,7 @@ Then add this MCP config to your agent:
 
 Preferred installed MCP binary: `pinflow-mcp`  
 Preferred MCP server key: `pinflow`
-Compatibility aliases remain available for older `domscribe.*` MCP clients
+Compatibility aliases remain available for older `pinflow.*` MCP clients
 
 ---
 
@@ -445,7 +445,7 @@ See the compatibility package docs in the [`@pinflow/mcp` README](./packages/pin
 | `@pinflow/vue`           | Vue 3 VNode resolution, Composition + Options API support, Vite + Webpack plugins   |
 | `@pinflow/next`          | `withPinFlow()` config wrapper for Next.js 15 + 16                                  |
 | `@pinflow/nuxt`          | Nuxt 3+ module with auto-relay and runtime plugin                                   |
-| `domscribe`                | Compatibility CLI binary. Preferred product commands are `pinflow serve`, `status`, `stop`, `init`, `mcp` |
+| `pinflow`                | Compatibility CLI binary. Preferred product commands are `pinflow serve`, `status`, `stop`, `init`, `mcp` |
 | `@pinflow/mcp`           | Compatibility MCP package. Preferred product binary is `pinflow-mcp`                |
 | `@pinflow/test-fixtures`   | Black-box integration + e2e suite (not published)                                   |
 

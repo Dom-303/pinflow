@@ -62,7 +62,7 @@ export class StateCapturer {
 
       if (this.options.debug) {
         console.log(
-          '[domscribe-runtime][state-capturer] Captured state:',
+          '[pinflow-runtime][state-capturer] Captured state:',
           Object.keys(state),
         );
       }
@@ -78,7 +78,7 @@ export class StateCapturer {
       );
 
       if (this.options.debug) {
-        console.error('[domscribe-runtime][state-capturer]', err);
+        console.error('[pinflow-runtime][state-capturer]', err);
       }
 
       return {

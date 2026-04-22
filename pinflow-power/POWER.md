@@ -2,10 +2,10 @@
 name: 'pinflow'
 displayName: 'PinFlow'
 author: 'Patch Orbit'
-description: 'PinFlow is a pixel-to-code bridge, based on Domscribe, that maps running UI elements to exact source locations and captures runtime context (props, state, DOM) for handoff to coding agents via MCP.'
+description: 'PinFlow is a pixel-to-code bridge, based on PinFlow, that maps running UI elements to exact source locations and captures runtime context (props, state, DOM) for handoff to coding agents via MCP.'
 keywords:
   [
-    'domscribe',
+    'pinflow',
     'pinflow',
     'annotation',
     'pixel-to-code',
@@ -28,14 +28,14 @@ keywords:
 
 # PinFlow
 
-PinFlow bridges running UI and source code. It is based on Domscribe and maps every rendered element to its exact source location while capturing live runtime context (props, state, DOM). This works in two directions:
+PinFlow bridges running UI and source code. It is based on PinFlow and maps every rendered element to its exact source location while capturing live runtime context (props, state, DOM). This works in two directions:
 
 - **UI → Code**: User clicks an element in the browser, PinFlow captures it as an annotation with source location, runtime context, and user intent. You claim and implement it.
 - **Code → UI**: You're editing a source file and want to know what an element looks like at runtime. Query by file and line to get live props, state, and DOM snapshot.
 
 ## Editing Components (Code → UI)
 
-**Why query runtime state?** Source code alone doesn't tell you what props a component actually received, whether a conditional branch rendered, what CSS classes were applied, or what text the user sees. The current PinFlow-compatible runtime query tool, `domscribe.query.bySource`, gives you the live truth from the browser.
+**Why query runtime state?** Source code alone doesn't tell you what props a component actually received, whether a conditional branch rendered, what CSS classes were applied, or what text the user sees. The current PinFlow-compatible runtime query tool, `pinflow.query.bySource`, gives you the live truth from the browser.
 
 **When to query (these tasks benefit):**
 
@@ -51,14 +51,14 @@ PinFlow bridges running UI and source code. It is based on Domscribe and maps ev
 - Refactoring (renames, extractions, moves)
 - Type errors or build failures (the compiler already tells you what's wrong)
 
-**Prerequisite:** Runtime queries require the user's dev server to be running and the target component to be rendered in an open browser tab. Before calling `domscribe.query.bySource`, confirm with the user that they have the relevant page open. If you get `browserConnected: false` or `runtime.rendered: false`, ask the user to navigate to the page that renders the component and retry.
+**Prerequisite:** Runtime queries require the user's dev server to be running and the target component to be rendered in an open browser tab. Before calling `pinflow.query.bySource`, confirm with the user that they have the relevant page open. If you get `browserConnected: false` or `runtime.rendered: false`, ask the user to navigate to the page that renders the component and retry.
 
 **Workflow:**
 
 1. **Confirm the page is open** — ask the user if they have the page with the target component open in their browser. If not, ask them to navigate there first.
-2. **Before editing** (if the task matches the scenarios above): Call `domscribe.query.bySource` with the file path and line number. Inspect `runtime.componentProps`, `runtime.componentState`, and `runtime.domSnapshot`.
+2. **Before editing** (if the task matches the scenarios above): Call `pinflow.query.bySource` with the file path and line number. Inspect `runtime.componentProps`, `runtime.componentState`, and `runtime.domSnapshot`.
 3. **Edit** the component source code.
-4. **After editing**: Call `domscribe.query.bySource` again to verify your changes took effect in the live browser.
+4. **After editing**: Call `pinflow.query.bySource` again to verify your changes took effect in the live browser.
 
 ## Quick Commands (MCP Prompts)
 
@@ -77,35 +77,35 @@ These tool names still use the current compatibility namespace.
 
 | Tool                       | Purpose                                                    |
 | -------------------------- | ---------------------------------------------------------- |
-| `domscribe.query.bySource` | Get runtime context for a source location (file + line)    |
-| `domscribe.manifest.query` | Find all manifest entries by file, component, or tag name  |
-| `domscribe.manifest.stats` | Manifest coverage statistics (entry/file/component counts) |
+| `pinflow.query.bySource` | Get runtime context for a source location (file + line)    |
+| `pinflow.manifest.query` | Find all manifest entries by file, component, or tag name  |
+| `pinflow.manifest.stats` | Manifest coverage statistics (entry/file/component counts) |
 
 ### Element Resolution (UI → Code)
 
 | Tool                      | Purpose                            |
 | ------------------------- | ---------------------------------- |
-| `domscribe.resolve`       | Get source location for element ID |
-| `domscribe.resolve.batch` | Resolve multiple element IDs       |
+| `pinflow.resolve`       | Get source location for element ID |
+| `pinflow.resolve.batch` | Resolve multiple element IDs       |
 
 ### Annotation Workflow
 
 | Tool                                | Purpose                               |
 | ----------------------------------- | ------------------------------------- |
-| `domscribe.annotation.process`      | Claim next queued annotation (atomic) |
-| `domscribe.annotation.respond`      | Store your implementation message     |
-| `domscribe.annotation.updateStatus` | Mark as `processed` or `failed`       |
-| `domscribe.annotation.list`         | List annotations by status            |
-| `domscribe.annotation.get`          | Get full annotation details           |
-| `domscribe.annotation.search`       | Search by element, file, or text      |
+| `pinflow.annotation.process`      | Claim next queued annotation (atomic) |
+| `pinflow.annotation.respond`      | Store your implementation message     |
+| `pinflow.annotation.updateStatus` | Mark as `processed` or `failed`       |
+| `pinflow.annotation.list`         | List annotations by status            |
+| `pinflow.annotation.get`          | Get full annotation details           |
+| `pinflow.annotation.search`       | Search by element, file, or text      |
 
 ### System
 
 | Tool               | Purpose                              |
 | ------------------ | ------------------------------------ |
-| `domscribe.status` | Relay health, manifest, queue counts |
+| `pinflow.status` | Relay health, manifest, queue counts |
 
-## Using `domscribe.query.bySource`
+## Using `pinflow.query.bySource`
 
 When you're working in a source file and want to understand what an element looks like at runtime, query by file path and line number:
 
@@ -123,7 +123,7 @@ When you're working in a source file and want to understand what an element look
 - **`runtime`**: Live data from the browser (if connected) — `componentProps`, `componentState`, `domSnapshot` (tag, attributes, innerText).
 - **`browserConnected`**: Whether a browser client is connected via WebSocket.
 
-Use `domscribe.manifest.query` first if you don't know the exact line — it returns all entries for a file, component, or tag, which you can then target with `domscribe.query.bySource`.
+Use `pinflow.manifest.query` first if you don't know the exact line — it returns all entries for a file, component, or tag, which you can then target with `pinflow.query.bySource`.
 
 ## Annotation Lifecycle
 
@@ -141,7 +141,7 @@ queued -> processing -> processed
 
 ## Standard Workflow
 
-1. **Claim** an annotation via `domscribe.annotation.process`
+1. **Claim** an annotation via `pinflow.annotation.process`
 
 2. **Understand** the response:
    - `userIntent`: What the user wants (e.g., "Make this button red")
@@ -155,11 +155,11 @@ queued -> processing -> processed
 
 4. **Implement** the change based on `userIntent`
 
-5. **Verify** via `domscribe.query.bySource` — call with the same file and line to confirm your changes are reflected in the live browser (HMR will have updated the page)
+5. **Verify** via `pinflow.query.bySource` — call with the same file and line to confirm your changes are reflected in the live browser (HMR will have updated the page)
 
-6. **Store** your response via `domscribe.annotation.respond` with the annotation ID and a message describing what you did
+6. **Store** your response via `pinflow.annotation.respond` with the annotation ID and a message describing what you did
 
-7. **Complete** the annotation via `domscribe.annotation.updateStatus` with status `processed` (or `failed` with `errorDetails`)
+7. **Complete** the annotation via `pinflow.annotation.updateStatus` with status `processed` (or `failed` with `errorDetails`)
 
 ## Error Handling
 
@@ -179,5 +179,5 @@ queued -> processing -> processed
 - Use `element.innerText` to confirm you're changing the right element
 - Use `runtimeContext` to understand current component state
 - Make minimal, focused changes
-- Provide clear explanation via `domscribe.annotation.respond`
-- Search with `domscribe.annotation.search` to check for related prior work
+- Provide clear explanation via `pinflow.annotation.respond`
+- Search with `pinflow.annotation.search` to check for related prior work

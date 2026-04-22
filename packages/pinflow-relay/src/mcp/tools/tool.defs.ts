@@ -30,18 +30,18 @@ export const MCP_TOOLS = {
 } as const;
 
 export const MCP_TOOL_COMPAT_ALIASES: Record<McpToolName, string[]> = {
-  [MCP_TOOLS.RESOLVE]: ['domscribe.resolve'],
-  [MCP_TOOLS.RESOLVE_BATCH]: ['domscribe.resolve.batch'],
-  [MCP_TOOLS.MANIFEST_STATS]: ['domscribe.manifest.stats'],
-  [MCP_TOOLS.MANIFEST_QUERY]: ['domscribe.manifest.query'],
-  [MCP_TOOLS.ANNOTATION_LIST]: ['domscribe.annotation.list'],
-  [MCP_TOOLS.ANNOTATION_GET]: ['domscribe.annotation.get'],
-  [MCP_TOOLS.ANNOTATION_UPDATE_STATUS]: ['domscribe.annotation.updateStatus'],
-  [MCP_TOOLS.ANNOTATION_PROCESS]: ['domscribe.annotation.process'],
-  [MCP_TOOLS.ANNOTATION_RESPOND]: ['domscribe.annotation.respond'],
-  [MCP_TOOLS.ANNOTATION_SEARCH]: ['domscribe.annotation.search'],
-  [MCP_TOOLS.QUERY_BY_SOURCE]: ['domscribe.query.bySource'],
-  [MCP_TOOLS.STATUS]: ['domscribe.status'],
+  [MCP_TOOLS.RESOLVE]: ['pinflow.resolve'],
+  [MCP_TOOLS.RESOLVE_BATCH]: ['pinflow.resolve.batch'],
+  [MCP_TOOLS.MANIFEST_STATS]: ['pinflow.manifest.stats'],
+  [MCP_TOOLS.MANIFEST_QUERY]: ['pinflow.manifest.query'],
+  [MCP_TOOLS.ANNOTATION_LIST]: ['pinflow.annotation.list'],
+  [MCP_TOOLS.ANNOTATION_GET]: ['pinflow.annotation.get'],
+  [MCP_TOOLS.ANNOTATION_UPDATE_STATUS]: ['pinflow.annotation.updateStatus'],
+  [MCP_TOOLS.ANNOTATION_PROCESS]: ['pinflow.annotation.process'],
+  [MCP_TOOLS.ANNOTATION_RESPOND]: ['pinflow.annotation.respond'],
+  [MCP_TOOLS.ANNOTATION_SEARCH]: ['pinflow.annotation.search'],
+  [MCP_TOOLS.QUERY_BY_SOURCE]: ['pinflow.query.bySource'],
+  [MCP_TOOLS.STATUS]: ['pinflow.status'],
 };
 
 export type McpToolName = (typeof MCP_TOOLS)[keyof typeof MCP_TOOLS];

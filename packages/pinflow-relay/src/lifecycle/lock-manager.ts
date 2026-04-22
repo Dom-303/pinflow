@@ -47,7 +47,7 @@ export class RelayLockManager {
     { nonce }: { nonce?: string } = {},
   ) {
     this.nonce = nonce;
-    this.pinflowDir = path.join(workspaceRoot, PATHS.DOMSCRIBE_DIR);
+    this.pinflowDir = path.join(workspaceRoot, PATHS.PINFLOW_DIR);
     this.lockFilePath = path.join(
       this.pinflowDir,
       DEFAULT_CONFIG.RELAY_LOCK_FILE,

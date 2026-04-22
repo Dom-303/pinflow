@@ -1,7 +1,7 @@
 /**
  * Overlay Interaction E2E Tests
  *
- * Tests the Domscribe overlay UI in a real browser across all fixture apps:
+ * Tests the PinFlow overlay UI in a real browser across all fixture apps:
  * - Overlay presence and mode management
  * - Entering capture mode via the overlay UI
  * - Selecting elements and validating captured data-ds, component name,

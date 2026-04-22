@@ -58,7 +58,7 @@ export class ManifestCompactor {
     if (threshold === 0) {
       if (debug) {
         console.log(
-          '[domscribe-manifest][compactor] Compaction disabled (threshold=0)',
+          '[pinflow-manifest][compactor] Compaction disabled (threshold=0)',
         );
       }
       const count = currentCount ?? 0;
@@ -69,7 +69,7 @@ export class ManifestCompactor {
     if (currentCount !== undefined && currentCount < threshold) {
       if (debug) {
         console.log(
-          `[domscribe-manifest][compactor] Skipping compaction (${currentCount} entries < ${threshold} threshold)`,
+          `[pinflow-manifest][compactor] Skipping compaction (${currentCount} entries < ${threshold} threshold)`,
         );
       }
       return skippedResult(currentCount, currentCount, 0);
@@ -102,7 +102,7 @@ export class ManifestCompactor {
       if (currentCount === undefined && entriesBefore < threshold) {
         if (debug) {
           console.log(
-            `[domscribe-manifest][compactor] Skipping compaction (${entriesBefore} entries < ${threshold} threshold)`,
+            `[pinflow-manifest][compactor] Skipping compaction (${entriesBefore} entries < ${threshold} threshold)`,
           );
         }
         return skippedResult(
@@ -150,7 +150,7 @@ export class ManifestCompactor {
       if (entriesRemoved === 0) {
         if (debug) {
           console.log(
-            '[domscribe-manifest][compactor] No stale entries found, skipping rewrite',
+            '[pinflow-manifest][compactor] No stale entries found, skipping rewrite',
           );
         }
         return {
@@ -182,7 +182,7 @@ export class ManifestCompactor {
 
       if (debug) {
         console.log(
-          `[domscribe-manifest][compactor] Compacted: removed ${entriesRemoved} entries (${missingFiles.size} deleted files, ${entriesSuperseded} superseded), ${entriesAfter} entries remaining`,
+          `[pinflow-manifest][compactor] Compacted: removed ${entriesRemoved} entries (${missingFiles.size} deleted files, ${entriesSuperseded} superseded), ${entriesAfter} entries remaining`,
         );
       }
 
@@ -198,7 +198,7 @@ export class ManifestCompactor {
     } catch (error) {
       if (debug) {
         console.warn(
-          '[domscribe-manifest][compactor] Compaction failed:',
+          '[pinflow-manifest][compactor] Compaction failed:',
           error instanceof Error ? error.message : String(error),
         );
       }

@@ -11,14 +11,14 @@ import { RelayLockManager, createLockManager } from './lock-manager.js';
 
 describe('RelayLockManager', () => {
   let tempDir: string;
-  let domscribeDir: string;
-  let legacyDomscribeDir: string;
+  let pinflowDir: string;
+  let legacyPinFlowDir: string;
 
   beforeEach(() => {
     tempDir = mkdtempSync(path.join(tmpdir(), 'lock-manager-test-'));
-    domscribeDir = path.join(tempDir, '.pinflow');
-    legacyDomscribeDir = path.join(tempDir, '.domscribe');
-    mkdirSync(domscribeDir, { recursive: true });
+    pinflowDir = path.join(tempDir, '.pinflow');
+    legacyPinFlowDir = path.join(tempDir, '.legacy-pinflow');
+    mkdirSync(pinflowDir, { recursive: true });
   });
 
   afterEach(() => {
@@ -45,7 +45,7 @@ describe('RelayLockManager', () => {
         status: 'claimed',
       };
       writeFileSync(
-        path.join(domscribeDir, 'relay.lock'),
+        path.join(pinflowDir, 'relay.lock'),
         JSON.stringify(lockData),
       );
       const manager = new RelayLockManager(tempDir);
@@ -59,7 +59,7 @@ describe('RelayLockManager', () => {
 
     it('should return null for invalid JSON', () => {
       // Arrange
-      writeFileSync(path.join(domscribeDir, 'relay.lock'), 'not json');
+      writeFileSync(path.join(pinflowDir, 'relay.lock'), 'not json');
       const manager = new RelayLockManager(tempDir);
 
       // Act & Assert
@@ -69,7 +69,7 @@ describe('RelayLockManager', () => {
     it('should return null for JSON that fails schema validation', () => {
       // Arrange
       writeFileSync(
-        path.join(domscribeDir, 'relay.lock'),
+        path.join(pinflowDir, 'relay.lock'),
         JSON.stringify({ pid: 'not-a-number' }),
       );
       const manager = new RelayLockManager(tempDir);
@@ -88,7 +88,7 @@ describe('RelayLockManager', () => {
 
     it('should return true when lock file exists', () => {
       // Arrange
-      writeFileSync(path.join(domscribeDir, 'relay.lock'), '{}');
+      writeFileSync(path.join(pinflowDir, 'relay.lock'), '{}');
       const manager = new RelayLockManager(tempDir);
 
       // Act & Assert
@@ -101,7 +101,7 @@ describe('RelayLockManager', () => {
       const manager = new RelayLockManager(tempDir);
 
       expect(manager.getLockFilePath()).toBe(
-        path.join(domscribeDir, 'relay.lock'),
+        path.join(pinflowDir, 'relay.lock'),
       );
     });
   });
@@ -109,7 +109,7 @@ describe('RelayLockManager', () => {
   describe('removeLockFile', () => {
     it('should remove the lock file', () => {
       // Arrange
-      const lockPath = path.join(domscribeDir, 'relay.lock');
+      const lockPath = path.join(pinflowDir, 'relay.lock');
       writeFileSync(lockPath, '{}');
       const manager = new RelayLockManager(tempDir);
 
@@ -152,7 +152,7 @@ describe('RelayLockManager', () => {
 
     it('should throw if lock file already exists', () => {
       // Arrange
-      writeFileSync(path.join(domscribeDir, 'relay.lock'), '{}');
+      writeFileSync(path.join(pinflowDir, 'relay.lock'), '{}');
       const manager = new RelayLockManager(tempDir, { nonce: 'my-nonce' });
 
       // Act & Assert
@@ -260,12 +260,12 @@ describe('RelayLockManager', () => {
     });
   });
 
-  describe('legacy fallback', () => {
-    it('should ignore a legacy lock file from .domscribe when .pinflow is absent', () => {
-      rmSync(domscribeDir, { recursive: true, force: true });
-      mkdirSync(legacyDomscribeDir, { recursive: true });
+  describe('lock directory selection', () => {
+    it('should ignore a non-pinflow lock directory when .pinflow is absent', () => {
+      rmSync(pinflowDir, { recursive: true, force: true });
+      mkdirSync(legacyPinFlowDir, { recursive: true });
       writeFileSync(
-        path.join(legacyDomscribeDir, 'relay.lock'),
+        path.join(legacyPinFlowDir, 'relay.lock'),
         JSON.stringify({
           pid: 1234,
           host: '127.0.0.1',
@@ -282,7 +282,7 @@ describe('RelayLockManager', () => {
 
       expect(manager.isLockFilePresent()).toBe(false);
       expect(manager.getLockFilePath()).toBe(
-        path.join(domscribeDir, 'relay.lock'),
+        path.join(pinflowDir, 'relay.lock'),
       );
     });
   });

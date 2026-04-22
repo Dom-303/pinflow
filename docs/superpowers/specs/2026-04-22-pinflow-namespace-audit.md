@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This audit captures the remaining `domscribe` namespace surfaces after Phase A and Phase B of the PinFlow technical migration.
+This audit captures the remaining `pinflow` namespace surfaces after Phase A and Phase B of the PinFlow technical migration.
 
 The goal is not to rename everything immediately. The goal is to decide, with evidence, which namespace surfaces are:
 
@@ -20,7 +20,7 @@ The current recommendation is:
 
 - keep the deep technical compatibility layer intact for now
 - rename only the highest-confusion surfaces in a later targeted pass
-- avoid a one-shot move from `domscribe` to `pinflow` across packages, CLI, MCP, artifacts, and repo internals
+- avoid a one-shot move from `pinflow` to `pinflow` across packages, CLI, MCP, artifacts, and repo internals
 
 Phase C should therefore begin as an audit and prioritization phase, not as a big-bang namespace rewrite.
 
@@ -28,32 +28,32 @@ Phase C should therefore begin as an audit and prioritization phase, not as a bi
 
 | Namespace surface | Examples | Visibility | Recommendation | Why |
 | --- | --- | --- | --- | --- |
-| npm package scopes | `@domscribe/react`, `@domscribe/overlay`, `@domscribe/mcp` | High for installers and docs | Rename later | Real users see them, but changing scope now would break install flows, fixture wiring, and all integration docs at once |
-| CLI binary names | `domscribe`, `domscribe-mcp` | High | Rename soon | These are product-facing and create more confusion than internal folder names, but they need a compatibility and alias plan first |
-| MCP server key and tool namespace | `domscribe` server key, `domscribe.query.bySource` | High | Rename later | Visible in agent setup, but changing it now would break plugin manifests and live workflows without enough gain yet |
-| Artifact and config directory names | `.domscribe/`, `domscribe.config.json` | Medium | Rename later | Users can see them, but they are persistent state and migration-sensitive; they need an upgrade path, not a search-and-replace |
-| Source-level API identifiers | `withDomscribe`, `DomscribeWebpackPlugin`, `domscribe()` Vite helpers | High for integrators | Rename later | Valuable to align eventually, but must be shipped with aliases or migration guidance to avoid breaking existing setups |
-| Repo package and target names | `packages/domscribe-*`, `domscribe-test-fixtures`, Nx project names | Low outside contributors | Keep | These are internal repo mechanics; renaming them now adds churn with little user benefit |
-| Demo fixture copy and labels | `Domscribe Tests`, fixture metadata, smoke test logs | Medium in local preview | Rename soon | These are visible in demo and preview flows and are one of the easiest ways to reduce perceived fork confusion |
-| Historical attribution and origin references | links to `patchorbit/domscribe`, origin notes in docs | Medium | Keep | These are intentional provenance markers and should remain as attribution |
-| Coverage/reporting artifact names | `domscribe-coverage.json`, report prefixes | Low to medium | Rename later | Useful cleanup, but not blocking product use or preview reliability |
+| npm package scopes | `@pinflow/react`, `@pinflow/overlay`, `@pinflow/mcp` | High for installers and docs | Rename later | Real users see them, but changing scope now would break install flows, fixture wiring, and all integration docs at once |
+| CLI binary names | `pinflow`, `pinflow-mcp` | High | Rename soon | These are product-facing and create more confusion than internal folder names, but they need a compatibility and alias plan first |
+| MCP server key and tool namespace | `pinflow` server key, `pinflow.query.bySource` | High | Rename later | Visible in agent setup, but changing it now would break plugin manifests and live workflows without enough gain yet |
+| Artifact and config directory names | `.pinflow/`, `pinflow.config.json` | Medium | Rename later | Users can see them, but they are persistent state and migration-sensitive; they need an upgrade path, not a search-and-replace |
+| Source-level API identifiers | `withPinFlow`, `PinFlowWebpackPlugin`, `pinflow()` Vite helpers | High for integrators | Rename later | Valuable to align eventually, but must be shipped with aliases or migration guidance to avoid breaking existing setups |
+| Repo package and target names | `packages/pinflow-*`, `pinflow-test-fixtures`, Nx project names | Low outside contributors | Keep | These are internal repo mechanics; renaming them now adds churn with little user benefit |
+| Demo fixture copy and labels | `PinFlow Tests`, fixture metadata, smoke test logs | Medium in local preview | Rename soon | These are visible in demo and preview flows and are one of the easiest ways to reduce perceived fork confusion |
+| Historical attribution and origin references | links to `patchorbit/pinflow`, origin notes in docs | Medium | Keep | These are intentional provenance markers and should remain as attribution |
+| Coverage/reporting artifact names | `pinflow-coverage.json`, report prefixes | Low to medium | Rename later | Useful cleanup, but not blocking product use or preview reliability |
 
-## Remaining `@domscribe/*` Scope Inventory
+## Remaining `@pinflow/*` Scope Inventory
 
 The following package scopes still exist and are currently intentional:
 
-- `@domscribe/core`
-- `@domscribe/manifest`
-- `@domscribe/relay`
-- `@domscribe/runtime`
-- `@domscribe/overlay`
-- `@domscribe/react`
-- `@domscribe/vue`
-- `@domscribe/next`
-- `@domscribe/nuxt`
-- `@domscribe/transform`
-- `@domscribe/mcp`
-- `@domscribe/test-fixtures`
+- `@pinflow/core`
+- `@pinflow/manifest`
+- `@pinflow/relay`
+- `@pinflow/runtime`
+- `@pinflow/overlay`
+- `@pinflow/react`
+- `@pinflow/vue`
+- `@pinflow/next`
+- `@pinflow/nuxt`
+- `@pinflow/transform`
+- `@pinflow/mcp`
+- `@pinflow/test-fixtures`
 
 ### Why they still exist
 
@@ -73,12 +73,12 @@ If scope renaming happens, it should be a dedicated migration with:
 - plugin manifest migration
 - explicit install-path verification
 
-## Remaining `.domscribe/` Artifact Uses
+## Remaining `.pinflow/` Artifact Uses
 
 Current artifact uses include:
 
-- `.domscribe/annotations/`
-- `.domscribe/manifest.jsonl`
+- `.pinflow/annotations/`
+- `.pinflow/manifest.jsonl`
 
 ### Why they still exist
 
@@ -100,13 +100,13 @@ Any rename here should ship with:
 
 Current CLI names:
 
-- `domscribe`
-- `domscribe-mcp`
+- `pinflow`
+- `pinflow-mcp`
 
 ### Why they still exist
 
 - they are the active compatibility entrypoints in package manifests and docs
-- plugin manifests still resolve `@domscribe/mcp`
+- plugin manifests still resolve `@pinflow/mcp`
 - they provide the least risky path while the product line stabilizes
 
 ### Recommendation
@@ -118,16 +118,16 @@ This is the strongest candidate for the first true Phase C implementation becaus
 Recommended migration shape:
 
 - introduce `pinflow` and `pinflow-mcp`
-- keep `domscribe` and `domscribe-mcp` as compatibility aliases for a while
+- keep `pinflow` and `pinflow-mcp` as compatibility aliases for a while
 - update README and plugin docs to prefer the new commands only after the aliases exist
 
 ## Remaining MCP Namespace Uses
 
 Current MCP surfaces:
 
-- plugin manifest server key: `domscribe`
-- tool names like `domscribe.query.bySource`
-- package install path `@domscribe/mcp`
+- plugin manifest server key: `pinflow`
+- tool names like `pinflow.query.bySource`
+- package install path `@pinflow/mcp`
 
 ### Why they still exist
 
@@ -145,9 +145,9 @@ This should be bundled with a real MCP compatibility transition, not done ahead 
 
 Examples:
 
-- `withDomscribe`
-- `DomscribeWebpackPlugin`
-- `domscribe()` plugin helper
+- `withPinFlow`
+- `PinFlowWebpackPlugin`
+- `pinflow()` plugin helper
 
 ### Why they still exist
 
@@ -169,8 +169,8 @@ If we do this, the right move is:
 
 Examples:
 
-- `packages/domscribe-*`
-- `domscribe-test-fixtures`
+- `packages/pinflow-*`
+- `pinflow-test-fixtures`
 - Nx target and project names
 - internal script references to those directories
 
@@ -194,15 +194,15 @@ These only become worth renaming if:
 
 Examples found in fixtures:
 
-- `Domscribe Tests`
-- `Domscribe Test Fixture`
-- smoke-test console labels like `[domscribe]`
+- `PinFlow Tests`
+- `PinFlow Test Fixture`
+- smoke-test console labels like `[pinflow]`
 
 ### Why they still exist
 
 - fixtures began as upstream test assets
 - they were not required to solve preview correctness in Phase A
-- they are now one of the most visible remaining sources of “this still looks like Domscribe”
+- they are now one of the most visible remaining sources of “this still looks like PinFlow”
 
 ### Recommendation
 
@@ -220,7 +220,7 @@ The following visible Phase C.1 surfaces have already been moved to PinFlow word
 - preferred CLI aliases: `pinflow` and `pinflow-mcp`
 - relay setup, relay runtime logs, and MCP guidance copy
 - relay README and visible CLI entrypoint wording
-- repo operator docs such as `CLAUDE.md`, `domscribe-power/POWER.md`, and `gemini-extension.json`
+- repo operator docs such as `CLAUDE.md`, `pinflow-power/POWER.md`, and `gemini-extension.json`
 - package-level README intros and provenance text across the main published packages
 - root README wording around setup, compatibility guidance, and preferred PinFlow-facing operator language
 - secondary operator/spec surfaces such as `AGENTS.md`, `TECHNICAL_SPEC.md`, and the local PinFlow skill copy
@@ -241,9 +241,9 @@ Run a targeted Phase C.1 pass for the highest-value visible surfaces only:
 
 Do not immediately rename:
 
-- all `@domscribe/*` scopes
-- `.domscribe/`
-- `domscribe.config.json`
+- all `@pinflow/*` scopes
+- `.pinflow/`
+- `pinflow.config.json`
 - MCP tool namespaces
 - repo package directories
 
@@ -276,28 +276,28 @@ At the current maturity level, PinFlow should execute `Phase C.1` first and trea
 
 ## Current Posture After The Latest Audit
 
-At this point, the remaining `domscribe` surfaces split cleanly into three groups:
+At this point, the remaining `pinflow` surfaces split cleanly into three groups:
 
 ### 1. Keep intentionally for now
 
 These are still active compatibility contracts or core workspace mechanics:
 
-- `@domscribe/*` package scopes
-- `domscribe` / `domscribe-mcp` compatibility binaries
-- MCP tool names such as `domscribe.query.bySource`
-- `.domscribe/` artifacts and `domscribe.config.json`
-- repo package directories and Nx project names like `packages/domscribe-*`
+- `@pinflow/*` package scopes
+- `pinflow` / `pinflow-mcp` compatibility binaries
+- MCP tool names such as `pinflow.query.bySource`
+- `.pinflow/` artifacts and `pinflow.config.json`
+- repo package directories and Nx project names like `packages/pinflow-*`
 - TypeScript path aliases, project references, and build output paths
 
 ### 2. Reasonable to migrate later, but only as a deliberate compatibility release
 
 These are the places where a true 100% PinFlow rename would eventually land if the product keeps stabilizing:
 
-- package scopes from `@domscribe/*` to a future `@pinflow/*`
-- source-level API exports such as `withDomscribe`, `DomscribeWebpackPlugin`, and `domscribe()`
-- persistent artifact/config names such as `.domscribe/` and `domscribe.config.json`
+- package scopes from `@pinflow/*` to a future `@pinflow/*`
+- source-level API exports such as `withPinFlow`, `PinFlowWebpackPlugin`, and `pinflow()`
+- persistent artifact/config names such as `.pinflow/` and `pinflow.config.json`
 - MCP server key and tool namespace
-- CLI package identity `domscribe`
+- CLI package identity `pinflow`
 
 These should move only with:
 
@@ -307,7 +307,7 @@ These should move only with:
 
 ### 3. Mostly exhausted visible cleanup
 
-The remaining visible `Domscribe` references are now mostly:
+The remaining visible `PinFlow` references are now mostly:
 
 - historical provenance, which should stay
 - planning/spec documents that describe the migration itself

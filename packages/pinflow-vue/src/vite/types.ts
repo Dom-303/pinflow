@@ -8,11 +8,10 @@
  * @module @pinflow/vue/vite/types
  */
 
-import type { PinFlowRuntimeOptions, DomscribeRuntimeOptions } from '@pinflow/runtime';
+import type { PinFlowRuntimeOptions } from '@pinflow/runtime';
 
 export type {
   PinFlowRuntimeOptions,
-  DomscribeRuntimeOptions,
 };
 
 /**
@@ -22,8 +21,6 @@ export interface PinFlowVueCaptureOptions {
   /** Maximum component tree depth. @default 50 */
   maxTreeDepth?: number;
 }
-
-export type DomscribeVueCaptureOptions = PinFlowVueCaptureOptions;
 
 export interface PinFlowVuePluginOptions {
   include?: RegExp;
@@ -51,5 +48,3 @@ export interface PinFlowVuePluginOptions {
   /** Vue adapter capture configuration (tree depth). */
   capture?: PinFlowVueCaptureOptions;
 }
-
-export type DomscribeVuePluginOptions = PinFlowVuePluginOptions;

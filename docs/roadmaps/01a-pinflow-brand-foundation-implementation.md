@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Rebrand the fork visibly to `PinFlow`, remove Cursor-first surfaces, and keep the internal `domscribe` technical foundation intact.
+**Goal:** Rebrand the fork visibly to `PinFlow`, remove Cursor-first surfaces, and keep the internal `pinflow` technical foundation intact.
 
 **Architecture:** This phase only changes outward-facing product identity and repo metadata. Internal package scopes, CLI names, MCP namespaces, and artifact folder names remain unchanged so the fork stays compatible with upstream architecture and future merges.
 
@@ -29,8 +29,8 @@ Add visible rename scope for the branded fork and cursor removal so the roadmap 
 
 Verify the roadmap still explicitly excludes:
 
-- `@domscribe/*`
-- `.domscribe/`
+- `@pinflow/*`
+- `.pinflow/`
 - MCP tool namespaces
 - CLI command names
 
@@ -46,14 +46,14 @@ Expected: those internal names remain deferred to later phases.
 
 - [ ] **Step 1: Update visible naming to PinFlow**
 
-Replace visible `Domscribe` product references with `PinFlow` in onboarding/meta files while keeping technical `domscribe` internals where needed.
+Replace visible `PinFlow` product references with `PinFlow` in onboarding/meta files while keeping technical `pinflow` internals where needed.
 
 - [ ] **Step 2: Update descriptions toward the new product**
 
 Use wording aligned to the product direction:
 
 ```text
-PinFlow is a visual review and change workflow for live web apps, built on top of the Domscribe source-mapped runtime foundation.
+PinFlow is a visual review and change workflow for live web apps, built on top of the PinFlow source-mapped runtime foundation.
 ```
 
 - [ ] **Step 3: Point repo links at the branded fork**
@@ -69,7 +69,7 @@ Expected: metadata surfaces present `PinFlow` first.
 
 - [ ] **Step 1: Replace visible title and hero naming**
 
-Update the README hero from `Domscribe` to `PinFlow` and include the claim:
+Update the README hero from `PinFlow` to `PinFlow` and include the claim:
 
 ```md
 <h1 align="center">PinFlow</h1>
@@ -86,9 +86,9 @@ Remove Cursor badges, install blocks, and plugin references from the README.
 
 - [ ] **Step 4: Keep technical setup examples intact**
 
-Do not rename package imports such as `@domscribe/react` or config examples such as `domscribe()`.
+Do not rename package imports such as `@pinflow/react` or config examples such as `pinflow()`.
 
-Expected: the README reads like a PinFlow product page built on a Domscribe technical core.
+Expected: the README reads like a PinFlow product page built on a PinFlow technical core.
 
 ### Task 4: Remove Cursor plugin surfaces from the fork
 
@@ -119,11 +119,11 @@ Expected: no primary product surface still promotes Cursor.
 
 - [ ] **Step 1: Rename the GitHub fork**
 
-Rename the GitHub fork from `Dom-303/domscribe` to `Dom-303/pinflow`.
+Rename the GitHub fork from `Dom-303/pinflow` to `Dom-303/pinflow`.
 
 - [ ] **Step 2: Update local remotes**
 
-Ensure local `origin` points to the renamed fork and `upstream` still points to `patchorbit/domscribe`.
+Ensure local `origin` points to the renamed fork and `upstream` still points to `patchorbit/pinflow`.
 
 Run:
 
@@ -135,7 +135,7 @@ Expected:
 
 ```text
 origin   git@github.com:Dom-303/pinflow.git
-upstream https://github.com/patchorbit/domscribe.git
+upstream https://github.com/patchorbit/pinflow.git
 ```
 
 ### Task 6: Verify phase 1
@@ -168,7 +168,7 @@ Expected: visible product surfaces now lead with PinFlow.
 Run:
 
 ```bash
-rg -n "@domscribe|\\.domscribe|domscribe\\(" README.md package.json packages -S
+rg -n "@pinflow|\\.pinflow|pinflow\\(" README.md package.json packages -S
 ```
 
 Expected: technical namespace is still intact for compatibility.

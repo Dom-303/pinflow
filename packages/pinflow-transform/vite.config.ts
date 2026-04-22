@@ -2,7 +2,7 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    name: '@domscribe/transform',
+    name: '@pinflow/transform',
     watch: false,
     globals: true,
     environment: 'node',

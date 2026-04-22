@@ -1,7 +1,7 @@
 /**
  * CompoundComponents - Tests compound component patterns
  *
- * Validates that Domscribe handles:
+ * Validates that PinFlow handles:
  * - Compound components (Tab.List, Tab.Panel pattern)
  * - Slot patterns
  * - Polymorphic components (as prop)

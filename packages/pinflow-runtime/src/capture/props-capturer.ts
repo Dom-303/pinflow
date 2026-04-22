@@ -61,7 +61,7 @@ export class PropsCapturer {
 
       if (this.options.debug) {
         console.log(
-          '[domscribe-runtime][props-capturer] Captured props:',
+          '[pinflow-runtime][props-capturer] Captured props:',
           Object.keys(props),
         );
       }
@@ -77,7 +77,7 @@ export class PropsCapturer {
       );
 
       if (this.options.debug) {
-        console.error('[domscribe-runtime][props-capturer]', err);
+        console.error('[pinflow-runtime][props-capturer]', err);
       }
 
       return {

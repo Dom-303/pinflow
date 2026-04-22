@@ -1,7 +1,7 @@
 /**
  * Fragments - Tests React.Fragment and <> syntax
  *
- * Validates that Domscribe correctly handles fragments.
+ * Validates that PinFlow correctly handles fragments.
  * Note: Fragments themselves don't get data-ds (not host elements),
  * but their children should.
  */

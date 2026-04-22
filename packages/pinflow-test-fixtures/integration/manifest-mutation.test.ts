@@ -1,7 +1,7 @@
 /**
  * Manifest Mutation Integration Tests
  *
- * Verifies Domscribe's manifest behavior when source files change:
+ * Verifies PinFlow's manifest behavior when source files change:
  * - Unmodified files: All IDs and entries remain identical
  * - Mutated file: All entries get new IDs and a new fileHash
  * - No stale data: Only entries with the current fileHash are present

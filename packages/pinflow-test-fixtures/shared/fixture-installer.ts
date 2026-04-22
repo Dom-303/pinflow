@@ -55,7 +55,7 @@ export interface FixtureOutcome {
 
 const STAMP_FILENAME = getInstallStampFilename();
 const PINFLOW_SCOPE = '@pinflow';
-const LEGACY_SCOPE = '@domscribe';
+const LEGACY_SCOPE = '@pinflow';
 
 // ---------------------------------------------------------------------------
 // Version & Staleness
@@ -152,7 +152,7 @@ function ensureNpmrc(
  *
  * 1. **package-lock.json** — locks exact versions; npm install is a no-op
  *    even when Verdaccio has newer packages.
- * 2. **node_modules/@pinflow** and **node_modules/@domscribe** — force a
+ * 2. **node_modules/@pinflow** and **node_modules/@pinflow** — force a
  *    fresh fetch of the canonical and legacy scopes rather than reusing
  *    cached copies.
  */

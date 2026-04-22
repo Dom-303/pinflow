@@ -1,7 +1,7 @@
 /**
  * RenderProps - Tests render prop pattern
  *
- * Validates that Domscribe correctly handles components using render props.
+ * Validates that PinFlow correctly handles components using render props.
  */
 
 import { ReactNode } from 'react';

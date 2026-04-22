@@ -220,7 +220,7 @@ export class DsAnnotationInput extends LitElement {
         textarea.style.height = 'auto';
       }
     } catch (error) {
-      console.error('[domscribe] Failed to submit annotation:', error);
+      console.error('[pinflow] Failed to submit annotation:', error);
     } finally {
       this.isSubmitting = false;
     }

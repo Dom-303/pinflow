@@ -12,7 +12,7 @@ The chosen direction is:
 - warm paper-like surfaces with soft highlights
 - calm enough for daily work, with a light modern glow
 
-This spec only covers the visible overlay experience. It does not rename the internal `domscribe` technical foundation, package names, CLI commands, or artifact paths.
+This spec only covers the visible overlay experience. It does not rename the internal `pinflow` technical foundation, package names, CLI commands, or artifact paths.
 
 ## Why This Direction
 
@@ -233,7 +233,7 @@ It should not yet cover:
 
 This direction is successful when:
 
-- the overlay clearly feels like PinFlow rather than upstream Domscribe
+- the overlay clearly feels like PinFlow rather than upstream PinFlow
 - the workspace feels bright and welcoming without becoming washed out
 - the UI feels calmer and more premium than the current overlay
 - the input area becomes the obvious primary working surface

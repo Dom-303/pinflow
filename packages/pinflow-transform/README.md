@@ -158,7 +158,7 @@ Returns the relay host and port detected during loader initialization. Available
 
 ## Links
 
-Part of PinFlow, built on the original [Domscribe](https://github.com/patchorbit/domscribe) foundation.
+Part of PinFlow, built on the original [PinFlow](https://github.com/patchorbit/pinflow) foundation.
 
 ## License
 

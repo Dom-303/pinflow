@@ -1,5 +1,5 @@
 /**
- * WebSocket Server for Domscribe Relay
+ * WebSocket Server for PinFlow Relay
  *
  * Provides real-time updates to the overlay UI.
  *

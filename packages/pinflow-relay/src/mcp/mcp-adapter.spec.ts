@@ -68,7 +68,7 @@ describe('McpAdapter', () => {
 
       // Assert
       const server = getServer(adapter);
-      expect(server.registeredTools.size).toBe(24);
+      expect(server.registeredTools.size).toBe(12);
       expect(server.registeredTools.has('pinflow.resolve')).toBe(true);
       expect(server.registeredTools.has('pinflow.resolve.batch')).toBe(true);
       expect(server.registeredTools.has('pinflow.manifest.stats')).toBe(true);
@@ -91,11 +91,6 @@ describe('McpAdapter', () => {
       );
       expect(server.registeredTools.has('pinflow.status')).toBe(true);
       expect(server.registeredTools.has('pinflow.query.bySource')).toBe(true);
-      expect(server.registeredTools.has('domscribe.resolve')).toBe(true);
-      expect(server.registeredTools.has('domscribe.annotation.process')).toBe(
-        true,
-      );
-      expect(server.registeredTools.has('domscribe.status')).toBe(true);
     });
 
     it('should register all 4 prompts', () => {
@@ -204,9 +199,8 @@ describe('McpAdapter', () => {
 
       // Assert
       const server = getServer(adapter);
-      expect(server.registeredTools.size).toBe(2);
+      expect(server.registeredTools.size).toBe(1);
       expect(server.registeredTools.has('pinflow.status')).toBe(true);
-      expect(server.registeredTools.has('domscribe.status')).toBe(true);
     });
 
     it('should register no prompts', () => {

@@ -111,7 +111,7 @@ export class ContextCapturer {
       if (!componentInstance) {
         if (this.options.debug) {
           console.warn(
-            '[domscribe-runtime][context-capturer] No component instance found for element',
+            '[pinflow-runtime][context-capturer] No component instance found for element',
           );
         }
         return null;
@@ -145,7 +145,7 @@ export class ContextCapturer {
         context.componentProps = propsResult.data;
       } else if (this.options.debug && propsResult.error) {
         console.warn(
-          '[domscribe-runtime][context-capturer] Props capture failed:',
+          '[pinflow-runtime][context-capturer] Props capture failed:',
           propsResult.error,
         );
       }
@@ -157,14 +157,14 @@ export class ContextCapturer {
         context.componentState = stateResult.data;
       } else if (this.options.debug && stateResult.error) {
         console.warn(
-          '[domscribe-runtime][context-capturer] State capture failed:',
+          '[pinflow-runtime][context-capturer] State capture failed:',
           stateResult.error,
         );
       }
     }
 
     if (this.options.debug) {
-      console.log('[domscribe-runtime][context-capturer] Captured context:', {
+      console.log('[pinflow-runtime][context-capturer] Captured context:', {
         hasProps: !!context.componentProps,
         hasState: !!context.componentState,
       });

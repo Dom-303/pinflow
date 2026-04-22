@@ -14,7 +14,7 @@ Internal package used by `@pinflow/transform`. You probably don't need to instal
 
 ## Links
 
-Part of PinFlow, built on the original [Domscribe](https://github.com/patchorbit/domscribe) foundation.
+Part of PinFlow, built on the original [PinFlow](https://github.com/patchorbit/pinflow) foundation.
 
 ## License
 

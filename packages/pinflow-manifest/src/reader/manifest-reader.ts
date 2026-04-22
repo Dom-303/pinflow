@@ -1,5 +1,5 @@
 /**
- * ManifestReader - Reads manifest entries for Domscribe Relay
+ * ManifestReader - Reads manifest entries for PinFlow Relay
  *
  * Provides fast element ID to source location resolution.
  * Maintains full entry map for O(1) lookups.

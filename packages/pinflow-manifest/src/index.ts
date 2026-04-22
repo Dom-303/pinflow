@@ -1,5 +1,5 @@
 /**
- * @pinflow/manifest - Manifest management for Domscribe
+ * @pinflow/manifest - Manifest management for PinFlow
  *
  * Provides centralized manifest operations:
  * - Batch writing to JSONL format

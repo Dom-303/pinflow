@@ -12,7 +12,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
-  DomscribeWebpackPlugin,
+  PinFlowWebpackPlugin,
   PinFlowWebpackPlugin,
 } from './webpack.plugin.js';
 import { Compiler, config } from 'webpack';
@@ -293,7 +293,7 @@ describe('PinFlowWebpackPlugin', () => {
       // Assert
       expect(plugin).toBeInstanceOf(PinFlowWebpackPlugin);
       expect(PinFlowWebpackPlugin.name).toBe('PinFlowWebpackPlugin');
-      expect(DomscribeWebpackPlugin).toBe(PinFlowWebpackPlugin);
+      expect(PinFlowWebpackPlugin).toBe(PinFlowWebpackPlugin);
     });
 
     it('should create plugin with custom options', () => {
@@ -304,10 +304,10 @@ describe('PinFlowWebpackPlugin', () => {
       };
 
       // Act
-      const plugin = new DomscribeWebpackPlugin(options);
+      const plugin = new PinFlowWebpackPlugin(options);
 
       // Assert
-      expect(plugin).toBeInstanceOf(DomscribeWebpackPlugin);
+      expect(plugin).toBeInstanceOf(PinFlowWebpackPlugin);
     });
 
     it('should disable in production by default', () => {
@@ -315,7 +315,7 @@ describe('PinFlowWebpackPlugin', () => {
       process.env.NODE_ENV = 'production';
 
       // Act
-      const plugin = new DomscribeWebpackPlugin();
+      const plugin = new PinFlowWebpackPlugin();
       const { compiler, compilerHooks } = createMockCompiler();
       plugin.apply(compiler);
 
@@ -329,7 +329,7 @@ describe('PinFlowWebpackPlugin', () => {
       process.env.NODE_ENV = 'production';
 
       // Act
-      const plugin = new DomscribeWebpackPlugin({ enabled: true });
+      const plugin = new PinFlowWebpackPlugin({ enabled: true });
       const { compiler, compilerHooks } = createMockCompiler();
       plugin.apply(compiler);
 
@@ -343,7 +343,7 @@ describe('PinFlowWebpackPlugin', () => {
       process.env.NODE_ENV = 'development';
 
       // Act
-      const plugin = new DomscribeWebpackPlugin({ enabled: false });
+      const plugin = new PinFlowWebpackPlugin({ enabled: false });
       const { compiler, compilerHooks } = createMockCompiler();
       plugin.apply(compiler);
 
@@ -356,7 +356,7 @@ describe('PinFlowWebpackPlugin', () => {
     it('should register all required hooks', () => {
       // Arrange
       process.env.NODE_ENV = 'development';
-      const plugin = new DomscribeWebpackPlugin();
+      const plugin = new PinFlowWebpackPlugin();
       const { compiler, compilerHooks } = createMockCompiler();
 
       // Act
@@ -383,7 +383,7 @@ describe('PinFlowWebpackPlugin', () => {
 
     it('should skip registration when disabled', () => {
       // Arrange
-      const plugin = new DomscribeWebpackPlugin({ enabled: false });
+      const plugin = new PinFlowWebpackPlugin({ enabled: false });
       const { compiler, compilerHooks } = createMockCompiler();
 
       // Act
@@ -632,7 +632,7 @@ describe('PinFlowWebpackPlugin', () => {
     it('should return early if writer not initialized', async () => {
       // Arrange
       process.env.NODE_ENV = 'development';
-      const plugin = new DomscribeWebpackPlugin();
+      const plugin = new PinFlowWebpackPlugin();
       const { compiler, compilerCallbacks } = createMockCompiler();
       plugin.apply(compiler);
       // Don't call beforeCompile to leave writer uninitialized
@@ -650,7 +650,7 @@ describe('PinFlowWebpackPlugin', () => {
     it('should register compilation hook on apply', () => {
       // Arrange
       process.env.NODE_ENV = 'development';
-      const plugin = new DomscribeWebpackPlugin();
+      const plugin = new PinFlowWebpackPlugin();
       const { compiler, compilerHooks } = createMockCompiler();
 
       // Act
@@ -665,7 +665,7 @@ describe('PinFlowWebpackPlugin', () => {
 
     it('should not register compilation hook when disabled', () => {
       // Arrange
-      const plugin = new DomscribeWebpackPlugin({ enabled: false });
+      const plugin = new PinFlowWebpackPlugin({ enabled: false });
       const { compiler, compilerHooks } = createMockCompiler();
 
       // Act
@@ -925,7 +925,7 @@ describe('PinFlowWebpackPlugin', () => {
     it('should handle shutdown without initialization gracefully', async () => {
       // Arrange
       process.env.NODE_ENV = 'development';
-      const plugin = new DomscribeWebpackPlugin();
+      const plugin = new PinFlowWebpackPlugin();
       const { compiler, compilerCallbacks } = createMockCompiler();
       plugin.apply(compiler);
 

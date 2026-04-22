@@ -4,7 +4,7 @@ PinFlow package identity is now canonical. The remaining compatibility window go
 
 - Preferred package names are `@pinflow/*`
 - Preferred binaries are `pinflow` and `pinflow-mcp`
-- Legacy `@domscribe/*` references remain available only as transitional compatibility aliases while downstream integrations migrate
+- Legacy `@pinflow/*` references remain available only as transitional compatibility aliases while downstream integrations migrate
 
 The active canonical surfaces are:
 

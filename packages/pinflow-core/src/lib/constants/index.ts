@@ -98,8 +98,8 @@ export const DEFAULT_CONFIG = {
  */
 export const PATHS = {
   // Root directory for PinFlow data
-  DOMSCRIBE_DIR: '.pinflow',
-  LEGACY_DOMSCRIBE_DIR: '.domscribe',
+  PINFLOW_DIR: '.pinflow',
+  LEGACY_PINFLOW_DIR: '.pinflow',
 
   // Subdirectories
   ANNOTATIONS_DIR: '.pinflow/annotations',
@@ -108,36 +108,36 @@ export const PATHS = {
   ANNOTATIONS_PROCESSED: '.pinflow/annotations/processed',
   ANNOTATIONS_FAILED: '.pinflow/annotations/failed',
   ANNOTATIONS_ARCHIVED: '.pinflow/annotations/archived',
-  LEGACY_ANNOTATIONS_DIR: '.domscribe/annotations',
-  LEGACY_ANNOTATIONS_QUEUED: '.domscribe/annotations/queued',
-  LEGACY_ANNOTATIONS_PROCESSING: '.domscribe/annotations/processing',
-  LEGACY_ANNOTATIONS_PROCESSED: '.domscribe/annotations/processed',
-  LEGACY_ANNOTATIONS_FAILED: '.domscribe/annotations/failed',
-  LEGACY_ANNOTATIONS_ARCHIVED: '.domscribe/annotations/archived',
+  LEGACY_ANNOTATIONS_DIR: '.pinflow/annotations',
+  LEGACY_ANNOTATIONS_QUEUED: '.pinflow/annotations/queued',
+  LEGACY_ANNOTATIONS_PROCESSING: '.pinflow/annotations/processing',
+  LEGACY_ANNOTATIONS_PROCESSED: '.pinflow/annotations/processed',
+  LEGACY_ANNOTATIONS_FAILED: '.pinflow/annotations/failed',
+  LEGACY_ANNOTATIONS_ARCHIVED: '.pinflow/annotations/archived',
 
   // Manifest files
   MANIFEST_FILE: '.pinflow/manifest.jsonl',
   MANIFEST_INDEX: '.pinflow/manifest.index.json',
   MANIFEST_SNAPSHOTS: '.pinflow/manifest.snapshots',
-  LEGACY_MANIFEST_FILE: '.domscribe/manifest.jsonl',
-  LEGACY_MANIFEST_INDEX: '.domscribe/manifest.index.json',
-  LEGACY_MANIFEST_SNAPSHOTS: '.domscribe/manifest.snapshots',
+  LEGACY_MANIFEST_FILE: '.pinflow/manifest.jsonl',
+  LEGACY_MANIFEST_INDEX: '.pinflow/manifest.index.json',
+  LEGACY_MANIFEST_SNAPSHOTS: '.pinflow/manifest.snapshots',
 
   // Cache directories
   TRANSFORM_CACHE: '.pinflow/transform-cache',
   SESSIONS: '.pinflow/sessions',
   AGENT_INSTRUCTIONS: '.pinflow/agent-instructions',
-  LEGACY_TRANSFORM_CACHE: '.domscribe/transform-cache',
-  LEGACY_SESSIONS: '.domscribe/sessions',
-  LEGACY_AGENT_INSTRUCTIONS: '.domscribe/agent-instructions',
+  LEGACY_TRANSFORM_CACHE: '.pinflow/transform-cache',
+  LEGACY_SESSIONS: '.pinflow/sessions',
+  LEGACY_AGENT_INSTRUCTIONS: '.pinflow/agent-instructions',
 
   // Config files
   CONFIG_JSON_FILE: 'pinflow.config.json',
   CONFIG_FILE: 'pinflow.config.ts',
   CONFIG_JS_FILE: 'pinflow.config.js',
-  LEGACY_CONFIG_JSON_FILE: 'domscribe.config.json',
-  LEGACY_CONFIG_FILE: 'domscribe.config.ts',
-  LEGACY_CONFIG_JS_FILE: 'domscribe.config.js',
+  LEGACY_CONFIG_JSON_FILE: 'pinflow.config.json',
+  LEGACY_CONFIG_FILE: 'pinflow.config.ts',
+  LEGACY_CONFIG_JS_FILE: 'pinflow.config.js',
   VALIDATION_RECIPE: 'pinflow.validation.yaml',
 } as const;
 

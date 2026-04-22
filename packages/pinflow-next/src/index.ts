@@ -9,5 +9,5 @@
  * @module @pinflow/next
  */
 
-export { withPinFlow, withDomscribe } from './with-pinflow.js';
-export type { PinFlowNextOptions, DomscribeNextOptions } from './types.js';
+export { withPinFlow } from './with-pinflow.js';
+export type { PinFlowNextOptions } from './types.js';

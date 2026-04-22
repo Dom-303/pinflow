@@ -1,5 +1,5 @@
 /**
- * HTTP Server for Domscribe Relay
+ * HTTP Server for PinFlow Relay
  *
  * Provides HTTP APIs for manifest resolution and annotation management.
  *

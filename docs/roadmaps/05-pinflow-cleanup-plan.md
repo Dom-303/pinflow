@@ -6,7 +6,7 @@ Clean up the PinFlow fork after the product direction, overlay UX, and agent wor
 
 ## Why Last
 
-Cleanup should follow productization, not precede it. Right now the upstream Domscribe structure still gives us useful compatibility, test coverage, and release machinery. Removing pieces too early would increase risk and reduce our ability to compare against upstream behavior.
+Cleanup should follow productization, not precede it. Right now the upstream PinFlow structure still gives us useful compatibility, test coverage, and release machinery. Removing pieces too early would increase risk and reduce our ability to compare against upstream behavior.
 
 ## Migration Prerequisite
 
@@ -22,7 +22,7 @@ Before running cleanup aggressively, finish the technical migration phases that 
 
 ### 2. Branding leftovers
 
-- remaining visible `Domscribe` references that are no longer needed
+- remaining visible `PinFlow` references that are no longer needed
 - old screenshots, logos, and docs assets
 - wording that no longer matches the PinFlow product identity
 
@@ -56,7 +56,7 @@ Remove or simplify later only if:
 
 ### 6. Internal namespace review
 
-- review whether `@domscribe/*`, `domscribe` CLI names, and `.domscribe/` still make sense
+- review whether `@pinflow/*`, `pinflow` CLI names, and `.pinflow/` still make sense
 - only rename deeper technical namespaces if the product has clearly outgrown the old naming
 
 ## Verdaccio Assessment
@@ -65,7 +65,7 @@ Right now Verdaccio is not random clutter. It is part of the local registry and 
 
 - `package.json`
 - `.verdaccio/config.yml`
-- `packages/domscribe-test-fixtures/*`
+- `packages/pinflow-test-fixtures/*`
 
 That means:
 
@@ -80,4 +80,4 @@ That means:
 
 ## Post-Rename Cleanup
 
-Cleanup must now follow the full PinFlow rename waves. Deprecated `domscribe` aliases, paths, and docs should only be removed after the new PinFlow-native contracts are verified in real preview, fixture, and MCP flows.
+Cleanup must now follow the full PinFlow rename waves. Deprecated `pinflow` aliases, paths, and docs should only be removed after the new PinFlow-native contracts are verified in real preview, fixture, and MCP flows.

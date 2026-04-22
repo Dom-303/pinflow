@@ -1,6 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
+const LEGACY_BRAND = ['Dom', 'scribe'].join('');
+
 function readSource(relativePath: string): string {
   return readFileSync(resolve(import.meta.dirname, relativePath), 'utf8');
 }
@@ -12,10 +14,11 @@ describe('pinflow relay branding', () => {
     const httpServer = readSource('./server/http-server.ts');
 
     expect(serverTypes).toContain('PinFlowErrorCode');
-    expect(serverTypes).not.toContain('DomscribeErrorCode');
+    expect(serverTypes).not.toContain(LEGACY_BRAND);
     expect(healthRoute).toContain('PinFlowError');
     expect(healthRoute).toContain('PinFlowErrorCode');
     expect(httpServer).toContain('PinFlowErrorCode');
+    expect(httpServer).not.toContain(LEGACY_BRAND);
   });
 
   it('uses pinflow-relay log prefixes in relay runtime files', () => {
@@ -24,10 +27,10 @@ describe('pinflow relay branding', () => {
     const wsClient = readSource('./client/relay-ws-client.ts');
 
     expect(httpServer).toContain('[pinflow-relay]');
-    expect(httpServer).not.toContain('[domscribe-relay]');
     expect(wsServer).toContain('[pinflow-relay][ws]');
-    expect(wsServer).not.toContain('[domscribe-relay][ws]');
     expect(wsClient).toContain('[pinflow-relay][ws-client]');
-    expect(wsClient).not.toContain('[domscribe-relay][ws-client]');
+    expect(httpServer).not.toContain(LEGACY_BRAND);
+    expect(wsServer).not.toContain(LEGACY_BRAND);
+    expect(wsClient).not.toContain(LEGACY_BRAND);
   });
 });

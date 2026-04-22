@@ -4,7 +4,7 @@
 
 **Goal:** Turn the current PinFlow fork into a technically reliable product line by fixing versioning, fixture installation, and preview reliability first, then aligning package/tooling surfaces, and finally evaluating deeper namespace migration.
 
-**Architecture:** Execute the migration in three deliberate phases. Phase A fixes the technical identity and current-build preview path so local installs stop drifting back to stale Domscribe artifacts. Phase B aligns package metadata, tooling surfaces, and workflow docs with PinFlow. Phase C is an optional deeper namespace migration that only proceeds if the Phase A/B posture proves insufficient.
+**Architecture:** Execute the migration in three deliberate phases. Phase A fixes the technical identity and current-build preview path so local installs stop drifting back to stale PinFlow artifacts. Phase B aligns package metadata, tooling surfaces, and workflow docs with PinFlow. Phase C is an optional deeper namespace migration that only proceeds if the Phase A/B posture proves insufficient.
 
 **Tech Stack:** Nx monorepo, pnpm, Verdaccio local registry, Vitest, TypeScript, Node scripts, PinFlow test fixtures, Markdown docs
 
@@ -33,13 +33,13 @@ Replace the current `Now / Soon / Later` posture in `docs/roadmaps/04-pinflow-pl
 ## Soon
 
 - align package and tooling surfaces with PinFlow
-- reduce visible `Domscribe` friction in daily development flows
+- reduce visible `PinFlow` friction in daily development flows
 - document the canonical PinFlow preview/install path
 
 ## Later
 
 - decide whether deep namespace moves like `@pinflow/*` are worth the churn
-- evaluate whether `.domscribe/` and MCP names should move with the product
+- evaluate whether `.pinflow/` and MCP names should move with the product
 - keep deep renames optional until evidence proves they are needed
 ```
 
@@ -71,14 +71,14 @@ git commit -m "docs: align platform roadmaps with pinflow migration"
 ### Task 2: Introduce a first-class PinFlow workspace identity and install stamp
 
 **Files:**
-- Create: `packages/domscribe-test-fixtures/shared/workspace-identity.ts`
-- Create: `packages/domscribe-test-fixtures/shared/workspace-identity.spec.ts`
-- Modify: `packages/domscribe-test-fixtures/shared/fixture-installer.ts`
-- Test: `packages/domscribe-test-fixtures/shared/workspace-identity.spec.ts`
+- Create: `packages/pinflow-test-fixtures/shared/workspace-identity.ts`
+- Create: `packages/pinflow-test-fixtures/shared/workspace-identity.spec.ts`
+- Modify: `packages/pinflow-test-fixtures/shared/fixture-installer.ts`
+- Test: `packages/pinflow-test-fixtures/shared/workspace-identity.spec.ts`
 
 - [ ] **Step 1: Write the failing workspace-identity tests**
 
-Create `packages/domscribe-test-fixtures/shared/workspace-identity.spec.ts` with:
+Create `packages/pinflow-test-fixtures/shared/workspace-identity.spec.ts` with:
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -121,7 +121,7 @@ describe('workspace identity', () => {
 Run:
 
 ```bash
-corepack pnpm exec vitest run packages/domscribe-test-fixtures/shared/workspace-identity.spec.ts --config packages/domscribe-test-fixtures/vite.config.ts
+corepack pnpm exec vitest run packages/pinflow-test-fixtures/shared/workspace-identity.spec.ts --config packages/pinflow-test-fixtures/vite.config.ts
 ```
 
 Expected:
@@ -130,7 +130,7 @@ Expected:
 
 - [ ] **Step 3: Implement the minimal workspace identity helper**
 
-Create `packages/domscribe-test-fixtures/shared/workspace-identity.ts` with:
+Create `packages/pinflow-test-fixtures/shared/workspace-identity.ts` with:
 
 ```ts
 export interface WorkspaceIdentity {
@@ -159,9 +159,9 @@ export function buildInstallStampValue(identity: WorkspaceIdentity): string {
 
 - [ ] **Step 4: Refactor the fixture installer to use the new helper**
 
-In `packages/domscribe-test-fixtures/shared/fixture-installer.ts`:
+In `packages/pinflow-test-fixtures/shared/fixture-installer.ts`:
 
-- replace `STAMP_FILENAME = '.domscribe-install-stamp'`
+- replace `STAMP_FILENAME = '.pinflow-install-stamp'`
 - stop comparing the stamp to raw version only
 - read the root package identity through the new helper
 - write the stamp as `pinflow@<version>`
@@ -185,7 +185,7 @@ log(`Installing (${stampValue})...`);
 Run:
 
 ```bash
-corepack pnpm exec vitest run packages/domscribe-test-fixtures/shared/workspace-identity.spec.ts --config packages/domscribe-test-fixtures/vite.config.ts
+corepack pnpm exec vitest run packages/pinflow-test-fixtures/shared/workspace-identity.spec.ts --config packages/pinflow-test-fixtures/vite.config.ts
 ```
 
 Expected:
@@ -195,7 +195,7 @@ Expected:
 - [ ] **Step 6: Commit**
 
 ```bash
-git add packages/domscribe-test-fixtures/shared/workspace-identity.ts packages/domscribe-test-fixtures/shared/workspace-identity.spec.ts packages/domscribe-test-fixtures/shared/fixture-installer.ts
+git add packages/pinflow-test-fixtures/shared/workspace-identity.ts packages/pinflow-test-fixtures/shared/workspace-identity.spec.ts packages/pinflow-test-fixtures/shared/fixture-installer.ts
 git commit -m "feat: add pinflow workspace identity for fixture installs"
 ```
 
@@ -206,7 +206,7 @@ git commit -m "feat: add pinflow workspace identity for fixture installs"
 - Modify: `packages/*/package.json`
 - Modify: `scripts/sync-versions.mjs`
 - Test: `package.json`
-- Test: `packages/domscribe-overlay/package.json`
+- Test: `packages/pinflow-overlay/package.json`
 
 - [ ] **Step 1: Write a failing test or assertion target for the version posture**
 
@@ -238,7 +238,7 @@ Update the package version field across the published packages to:
 "version": "0.6.0-pinflow.0"
 ```
 
-Do not rename every package scope yet. Keep `@domscribe/*` for now, but move their version line to the PinFlow release series.
+Do not rename every package scope yet. Keep `@pinflow/*` for now, but move their version line to the PinFlow release series.
 
 - [ ] **Step 4: Update the post-version sync script to keep PinFlow plugin manifests aligned**
 
@@ -250,7 +250,7 @@ Run:
 
 ```bash
 node -e "const pkg=require('./package.json'); if(pkg.name !== 'pinflow' || pkg.version !== '0.6.0-pinflow.0') process.exit(1)"
-node -e "const pkg=require('./packages/domscribe-overlay/package.json'); if(pkg.version !== '0.6.0-pinflow.0') process.exit(1)"
+node -e "const pkg=require('./packages/pinflow-overlay/package.json'); if(pkg.version !== '0.6.0-pinflow.0') process.exit(1)"
 ```
 
 Expected:
@@ -267,24 +267,24 @@ git commit -m "chore: start the pinflow version line"
 ### Task 4: Fix local package export surfaces required by the preview flow
 
 **Files:**
-- Modify: `packages/domscribe-react/package.json`
-- Modify: `packages/domscribe-transform/package.json`
-- Modify: `packages/domscribe-overlay/project.json`
-- Test: `packages/domscribe-react/package.json`
-- Test: `packages/domscribe-transform/package.json`
+- Modify: `packages/pinflow-react/package.json`
+- Modify: `packages/pinflow-transform/package.json`
+- Modify: `packages/pinflow-overlay/project.json`
+- Test: `packages/pinflow-react/package.json`
+- Test: `packages/pinflow-transform/package.json`
 
 - [ ] **Step 1: Add a failing resolution check for subpath exports**
 
 Run:
 
 ```bash
-node -e "import('@domscribe/react/vite').then(()=>process.exit(0)).catch(()=>process.exit(1))"
+node -e "import('@pinflow/react/vite').then(()=>process.exit(0)).catch(()=>process.exit(1))"
 ```
 
 and
 
 ```bash
-node -e "import('@domscribe/transform/plugins/vite').then(()=>process.exit(0)).catch(()=>process.exit(1))"
+node -e "import('@pinflow/transform/plugins/vite').then(()=>process.exit(0)).catch(()=>process.exit(1))"
 ```
 
 Expected before the fix:
@@ -293,7 +293,7 @@ Expected before the fix:
 
 - [ ] **Step 2: Add the source-level export maps needed for local package consumption**
 
-In `packages/domscribe-react/package.json`, add:
+In `packages/pinflow-react/package.json`, add:
 
 ```json
 "exports": {
@@ -316,7 +316,7 @@ In `packages/domscribe-react/package.json`, add:
 }
 ```
 
-In `packages/domscribe-transform/package.json`, add matching source-level exports for:
+In `packages/pinflow-transform/package.json`, add matching source-level exports for:
 
 - `./plugins/vite`
 - `./plugins/webpack`
@@ -326,16 +326,16 @@ In `packages/domscribe-transform/package.json`, add matching source-level export
 
 - [ ] **Step 3: Keep the overlay asset copying intact**
 
-Preserve the existing asset-copy behavior in `packages/domscribe-overlay/project.json` so the PinFlow icon assets continue to land in `dist/`.
+Preserve the existing asset-copy behavior in `packages/pinflow-overlay/project.json` so the PinFlow icon assets continue to land in `dist/`.
 
 - [ ] **Step 4: Verify export resolution through the built packages**
 
 Run:
 
 ```bash
-corepack pnpm exec nx build domscribe-react domscribe-transform domscribe-overlay
-node -e "import('./dist/packages/domscribe-react/vite/index.js').then(()=>console.log('ok'))"
-node -e "import('./dist/packages/domscribe-transform/plugins/vite/index.js').then(()=>console.log('ok'))"
+corepack pnpm exec nx build pinflow-react pinflow-transform pinflow-overlay
+node -e "import('./dist/packages/pinflow-react/vite/index.js').then(()=>console.log('ok'))"
+node -e "import('./dist/packages/pinflow-transform/plugins/vite/index.js').then(()=>console.log('ok'))"
 ```
 
 Expected:
@@ -345,7 +345,7 @@ Expected:
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/domscribe-react/package.json packages/domscribe-transform/package.json packages/domscribe-overlay/project.json
+git add packages/pinflow-react/package.json packages/pinflow-transform/package.json packages/pinflow-overlay/project.json
 git commit -m "fix: expose pinflow preview exports for local packages"
 ```
 
@@ -354,17 +354,17 @@ git commit -m "fix: expose pinflow preview exports for local packages"
 **Files:**
 - Create: `scripts/publish-current.ts`
 - Create: `scripts/pinflow-preview.ts`
-- Modify: `packages/domscribe-test-fixtures/scripts/install-fixture.ts`
+- Modify: `packages/pinflow-test-fixtures/scripts/install-fixture.ts`
 - Modify: `package.json`
 - Modify: `README.md`
-- Test: `packages/domscribe-test-fixtures/shared/pinflow-preview.spec.ts`
+- Test: `packages/pinflow-test-fixtures/shared/pinflow-preview.spec.ts`
 
 - [ ] **Step 1: Write the failing preview contract as a stable preview-plan expectation**
 
 Define the desired flow by running:
 
 ```bash
-corepack pnpm exec vitest run packages/domscribe-test-fixtures/shared/pinflow-preview.spec.ts --config packages/domscribe-test-fixtures/vite.config.ts
+corepack pnpm exec vitest run packages/pinflow-test-fixtures/shared/pinflow-preview.spec.ts --config packages/pinflow-test-fixtures/vite.config.ts
 ```
 
 Expected after implementation:
@@ -394,7 +394,7 @@ ensureFreshPreviewRegistry({
   storageDir: 'tmp/pinflow-preview-registry/storage',
 });
 run(`corepack pnpm run registry:publish:current -- --registry http://127.0.0.1:4874`);
-run(`FIXTURE_ID=${fixtureId} REGISTRY_URL=http://127.0.0.1:4874 REGISTRY_PORT=4874 corepack pnpm exec tsx packages/domscribe-test-fixtures/scripts/install-fixture.ts`);
+run(`FIXTURE_ID=${fixtureId} REGISTRY_URL=http://127.0.0.1:4874 REGISTRY_PORT=4874 corepack pnpm exec tsx packages/pinflow-test-fixtures/scripts/install-fixture.ts`);
 run(`corepack pnpm dev --host 0.0.0.0 --port ${port}`, { cwd: fixtureDir });
 ```
 
@@ -406,7 +406,7 @@ Use argument parsing only for:
 
 - [ ] **Step 4: Make fixture installation accept a caller-selected registry**
 
-In `packages/domscribe-test-fixtures/scripts/install-fixture.ts`:
+In `packages/pinflow-test-fixtures/scripts/install-fixture.ts`:
 
 - allow `REGISTRY_URL`
 - allow `REGISTRY_PORT`
@@ -444,30 +444,30 @@ curl -I http://localhost:4301/
 Expected:
 
 - the preview host responds `200 OK`
-- the overlay shows current PinFlow branding rather than stale Domscribe UI
+- the overlay shows current PinFlow branding rather than stale PinFlow UI
 
 - [ ] **Step 8: Commit**
 
 ```bash
-git add scripts/publish-current.ts scripts/pinflow-preview.ts packages/domscribe-test-fixtures/scripts/install-fixture.ts package.json README.md packages/domscribe-test-fixtures/shared/pinflow-preview.spec.ts packages/domscribe-test-fixtures/shared/pinflow-preview.ts
+git add scripts/publish-current.ts scripts/pinflow-preview.ts packages/pinflow-test-fixtures/scripts/install-fixture.ts package.json README.md packages/pinflow-test-fixtures/shared/pinflow-preview.spec.ts packages/pinflow-test-fixtures/shared/pinflow-preview.ts
 git commit -m "feat: add canonical pinflow preview flow"
 ```
 
 ### Task 6: Close Phase A with a reproducibility verification pass
 
 **Files:**
-- Test: `packages/domscribe-test-fixtures/shared/workspace-identity.spec.ts`
-- Test: `packages/domscribe-overlay/src/core/dispatch-config.spec.ts`
-- Test: `packages/domscribe-overlay/src/core/overlay-store.dispatch.spec.ts`
-- Test: `packages/domscribe-overlay/src/components/paper-glow-ui.spec.ts`
+- Test: `packages/pinflow-test-fixtures/shared/workspace-identity.spec.ts`
+- Test: `packages/pinflow-overlay/src/core/dispatch-config.spec.ts`
+- Test: `packages/pinflow-overlay/src/core/overlay-store.dispatch.spec.ts`
+- Test: `packages/pinflow-overlay/src/components/paper-glow-ui.spec.ts`
 
 - [ ] **Step 1: Run the focused migration and overlay tests**
 
 Run:
 
 ```bash
-corepack pnpm exec vitest run packages/domscribe-test-fixtures/shared/workspace-identity.spec.ts --config packages/domscribe-test-fixtures/vite.config.ts
-corepack pnpm exec vitest run packages/domscribe-overlay/src/core/dispatch-config.spec.ts packages/domscribe-overlay/src/core/overlay-store.dispatch.spec.ts packages/domscribe-overlay/src/components/paper-glow-ui.spec.ts --config packages/domscribe-overlay/vite.config.ts
+corepack pnpm exec vitest run packages/pinflow-test-fixtures/shared/workspace-identity.spec.ts --config packages/pinflow-test-fixtures/vite.config.ts
+corepack pnpm exec vitest run packages/pinflow-overlay/src/core/dispatch-config.spec.ts packages/pinflow-overlay/src/core/overlay-store.dispatch.spec.ts packages/pinflow-overlay/src/components/paper-glow-ui.spec.ts --config packages/pinflow-overlay/vite.config.ts
 ```
 
 - [ ] **Step 2: Run package-level lint and build**
@@ -475,8 +475,8 @@ corepack pnpm exec vitest run packages/domscribe-overlay/src/core/dispatch-confi
 Run:
 
 ```bash
-corepack pnpm exec nx lint domscribe-overlay
-corepack pnpm exec nx build domscribe-react domscribe-transform domscribe-overlay
+corepack pnpm exec nx lint pinflow-overlay
+corepack pnpm exec nx build pinflow-react pinflow-transform pinflow-overlay
 ```
 
 - [ ] **Step 3: Run the canonical preview refresh flow one more time**
@@ -507,14 +507,14 @@ git commit -m "feat: complete phase a of the pinflow technical migration"
 - Modify: `.plugin/plugin.json`
 - Modify: `.claude-plugin/plugin.json`
 - Modify: `.codex-plugin/plugin.json`
-- Modify: package metadata files that still surface old Domscribe wording
+- Modify: package metadata files that still surface old PinFlow wording
 
-- [ ] **Step 1: Inventory visible PinFlow-vs-Domscribe leftovers**
+- [ ] **Step 1: Inventory visible PinFlow-vs-PinFlow leftovers**
 
 Run:
 
 ```bash
-rg -n "Domscribe|domscribe" README.md .plugin .claude-plugin .codex-plugin packages/*/package.json
+rg -n "PinFlow|pinflow" README.md .plugin .claude-plugin .codex-plugin packages/*/package.json
 ```
 
 - [ ] **Step 2: Remove product-facing leftovers that are now misleading**
@@ -551,8 +551,8 @@ git commit -m "chore: align pinflow package and tooling surfaces"
 
 Document:
 
-- all remaining `@domscribe/*` scopes
-- `.domscribe/` artifact uses
+- all remaining `@pinflow/*` scopes
+- `.pinflow/` artifact uses
 - CLI names
 - MCP names
 - why each one still exists after Phase A/B
@@ -570,5 +570,5 @@ For each remaining namespace use, mark:
 
 ```bash
 git add docs/superpowers/specs/2026-04-22-pinflow-namespace-audit.md
-git commit -m "docs: audit remaining domscribe namespaces"
+git commit -m "docs: audit remaining pinflow namespaces"
 ```

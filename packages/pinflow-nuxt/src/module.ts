@@ -33,13 +33,13 @@ export const pinflowModule = defineNuxtModule<PinFlowNuxtOptions>({
   },
   async setup(options, nuxt) {
     // Only enable in development (unless force-transform is set for testing)
-    if (!nuxt.options.dev && !process.env.DOMSCRIBE_FORCE_TRANSFORM) {
+    if (!nuxt.options.dev && !process.env.PINFLOW_FORCE_TRANSFORM) {
       return;
     }
 
     const { resolve } = createResolver(import.meta.url);
     const debug = options.debug ?? false;
-    const forceTransform = !!process.env.DOMSCRIBE_FORCE_TRANSFORM;
+    const forceTransform = !!process.env.PINFLOW_FORCE_TRANSFORM;
 
     // 1. Start relay to discover actual host/port.
     //    Nuxt bypasses Vite's transformIndexHtml, so the Vite plugin's
@@ -109,7 +109,7 @@ export const pinflowModule = defineNuxtModule<PinFlowNuxtOptions>({
     // 3. Register Vite transform plugin (dev-only, client + server)
     //    Runs on both builds so SSR output also has data-ds attributes.
     //    Relay is already running — skip auto-start in the Vite plugin.
-    //    When DOMSCRIBE_FORCE_TRANSFORM is set, register for all modes
+    //    When PINFLOW_FORCE_TRANSFORM is set, register for all modes
     //    so transforms run during `nuxi build` (production) too.
     addVitePlugin(
       () => {
@@ -166,5 +166,3 @@ export const pinflowModule = defineNuxtModule<PinFlowNuxtOptions>({
     });
   },
 });
-
-export const domscribeModule = pinflowModule;

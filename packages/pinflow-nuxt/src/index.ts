@@ -9,5 +9,5 @@
  * @module @pinflow/nuxt
  */
 
-export { pinflowModule as default, pinflowModule, domscribeModule } from './module.js';
-export type { PinFlowNuxtOptions, DomscribeNuxtOptions } from './types.js';
+export { pinflowModule as default, pinflowModule } from './module.js';
+export type { PinFlowNuxtOptions } from './types.js';

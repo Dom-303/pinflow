@@ -75,7 +75,7 @@ export class ElementTracker {
     if (this.isObserving) {
       if (this.options.debug) {
         console.warn(
-          '[domscribe-runtime][element-tracker] Already observing DOM',
+          '[pinflow-runtime][element-tracker] Already observing DOM',
         );
       }
       return;
@@ -85,7 +85,7 @@ export class ElementTracker {
     if (!this.options.root || !this.options.root.nodeType) {
       if (this.options.debug) {
         console.warn(
-          '[domscribe-runtime][element-tracker] No valid root element, skipping DOM observation',
+          '[pinflow-runtime][element-tracker] No valid root element, skipping DOM observation',
         );
       }
       return;
@@ -112,12 +112,12 @@ export class ElementTracker {
 
       if (this.options.debug) {
         console.log(
-          `[domscribe-runtime][element-tracker] Started observing DOM (${this.registry.size} elements)`,
+          `[pinflow-runtime][element-tracker] Started observing DOM (${this.registry.size} elements)`,
         );
       }
     } catch (error) {
       console.error(
-        '[domscribe-runtime][element-tracker] Failed to start DOM observation',
+        '[pinflow-runtime][element-tracker] Failed to start DOM observation',
         error,
       );
       throw new ElementTrackingError(
@@ -138,7 +138,7 @@ export class ElementTracker {
 
       if (this.options.debug) {
         console.log(
-          '[domscribe-runtime][element-tracker] Stopped observing DOM',
+          '[pinflow-runtime][element-tracker] Stopped observing DOM',
         );
       }
     }
@@ -153,7 +153,7 @@ export class ElementTracker {
     if (!hasDsId(element)) {
       if (this.options.debug) {
         console.warn(
-          '[domscribe-runtime][element-tracker] Element does not have data-ds attribute',
+          '[pinflow-runtime][element-tracker] Element does not have data-ds attribute',
         );
       }
       return;
@@ -178,7 +178,7 @@ export class ElementTracker {
       } catch (error) {
         if (this.options.debug) {
           console.warn(
-            `[domscribe-runtime][element-tracker] Failed to resolve component for entry ID ${entryId}:`,
+            `[pinflow-runtime][element-tracker] Failed to resolve component for entry ID ${entryId}:`,
             error,
           );
         }
@@ -187,7 +187,7 @@ export class ElementTracker {
 
     if (this.options.debug) {
       console.log(
-        `[domscribe-runtime][element-tracker] Tracked element with entry ID ${entryId}`,
+        `[pinflow-runtime][element-tracker] Tracked element with entry ID ${entryId}`,
       );
     }
   }
@@ -203,7 +203,7 @@ export class ElementTracker {
 
     if (this.options.debug) {
       console.log(
-        `[domscribe-runtime][element-tracker] Untracked element with entry ID ${entryId}`,
+        `[pinflow-runtime][element-tracker] Untracked element with entry ID ${entryId}`,
       );
     }
   }
@@ -305,7 +305,7 @@ export class ElementTracker {
 
     if (this.options.debug) {
       console.log(
-        '[domscribe-runtime][element-tracker] Cleared all tracked elements',
+        '[pinflow-runtime][element-tracker] Cleared all tracked elements',
       );
     }
   }
@@ -318,7 +318,7 @@ export class ElementTracker {
     this.clear();
 
     if (this.options.debug) {
-      console.log('[domscribe-runtime][element-tracker] Disposed');
+      console.log('[pinflow-runtime][element-tracker] Disposed');
     }
   }
 
@@ -331,7 +331,7 @@ export class ElementTracker {
     if (!this.options.root) {
       if (this.options.debug) {
         console.warn(
-          '[domscribe-runtime][element-tracker] No root element, skipping scan',
+          '[pinflow-runtime][element-tracker] No root element, skipping scan',
         );
       }
       return;
@@ -344,7 +344,7 @@ export class ElementTracker {
 
     if (this.options.debug) {
       console.log(
-        `[domscribe-runtime][element-tracker] Scanned ${elements.length} existing elements`,
+        `[pinflow-runtime][element-tracker] Scanned ${elements.length} existing elements`,
       );
     }
   }

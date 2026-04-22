@@ -41,7 +41,7 @@ export function ClientComponent() {
       <div className="info-box">
         <p>Hydrated: {mounted ? 'Yes' : 'No'}</p>
         <p>
-          Client components have full React Fiber access — Domscribe can capture
+          Client components have full React Fiber access — PinFlow can capture
           props, state, and hooks via runtime introspection.
         </p>
       </div>

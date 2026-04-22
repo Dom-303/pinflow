@@ -1,5 +1,5 @@
 /**
- * Webpack loader for Domscribe transform
+ * Webpack loader for PinFlow transform
  *
  * Per-file transform loader that injects `data-ds` attributes into JSX/TSX/Vue
  * source code. Requires PinFlowWebpackPlugin to be registered for lifecycle
@@ -21,7 +21,7 @@ import { TransformStats } from '../../core/stats.js';
 import { PATHS } from '@pinflow/core';
 import path from 'path';
 
-export default function domscribeLoader(
+export default function pinflowLoader(
   this: LoaderContext<WebpackLoaderOptions>,
   source: string,
   sourceMap?: SourceMap,
@@ -65,7 +65,7 @@ export async function transform(
     return callback(null, source);
   }
 
-  // Declare dependencies on domscribe cache files so webpack's persistent
+  // Declare dependencies on pinflow cache files so webpack's persistent
   // filesystem cache invalidates when they change (e.g., ID cache cleared).
   const idCachePath = path.join(
     rootContext,

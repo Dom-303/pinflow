@@ -1,5 +1,5 @@
 /**
- * HTTP handlers for Domscribe Relay
+ * HTTP handlers for PinFlow Relay
  * @module @pinflow/relay/server/handlers
  */
 export { registerManifestHandlers } from './manifest-handler.js';

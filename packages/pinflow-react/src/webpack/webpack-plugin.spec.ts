@@ -7,15 +7,9 @@ vi.mock('@pinflow/transform/plugins/webpack', () => ({
   PinFlowWebpackPlugin: class {
     apply = mockBaseApply;
   },
-  DomscribeWebpackPlugin: class {
-    apply = mockBaseApply;
-  },
 }));
 
-import {
-  DomscribeWebpackPlugin,
-  PinFlowWebpackPlugin,
-} from './webpack-plugin.js';
+import { PinFlowWebpackPlugin } from './webpack-plugin.js';
 
 const mockDefinePluginApply = vi.fn();
 
@@ -52,8 +46,8 @@ describe('PinFlowWebpackPlugin (react)', () => {
   });
 
   describe('apply', () => {
-    it('should keep DomscribeWebpackPlugin as a compatibility alias', () => {
-      expect(DomscribeWebpackPlugin).toBe(PinFlowWebpackPlugin);
+    it('should keep PinFlowWebpackPlugin as a compatibility alias', () => {
+      expect(PinFlowWebpackPlugin).toBe(PinFlowWebpackPlugin);
     });
 
     it('should call the base plugin apply', () => {

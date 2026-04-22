@@ -1,5 +1,5 @@
 /**
- * Status HTTP handler for Domscribe Relay
+ * Status HTTP handler for PinFlow Relay
  *
  * Aggregates system status from manifest and annotations.
  */

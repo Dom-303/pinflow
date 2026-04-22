@@ -4,14 +4,14 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   resolve: {
     alias: {
-      '@domscribe/relay/client': resolve(
+      '@pinflow/relay/client': resolve(
         __dirname,
         '../pinflow-relay/src/client/index.ts',
       ),
     },
   },
   test: {
-    name: '@domscribe/overlay',
+    name: '@pinflow/overlay',
     watch: false,
     globals: true,
     environment: 'happy-dom',

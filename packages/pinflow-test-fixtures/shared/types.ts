@@ -67,7 +67,7 @@ export interface BuildOptions {
   /** Capture build statistics */
   captureStats?: boolean;
   /** Disable PinFlow (for baseline comparison) */
-  disableDomscribe?: boolean;
+  disablePinFlow?: boolean;
 }
 
 /**

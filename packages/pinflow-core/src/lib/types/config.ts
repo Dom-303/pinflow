@@ -21,5 +21,3 @@ export const PinFlowConfigSchema = z.object({
 });
 
 export type PinFlowConfig = z.infer<typeof PinFlowConfigSchema>;
-export const DomscribeConfigSchema = PinFlowConfigSchema;
-export type DomscribeConfig = PinFlowConfig;

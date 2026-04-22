@@ -87,13 +87,13 @@ export class RelayService {
 
       if (debug) {
         console.log(
-          `[domscribe-overlay][relay-service] Connected to relay at ${host}:${port}`,
+          `[pinflow-overlay][relay-service] Connected to relay at ${host}:${port}`,
         );
       }
     } catch (error) {
       if (debug) {
         console.error(
-          '[domscribe-overlay][relay-service] Health check failed:',
+          '[pinflow-overlay][relay-service] Health check failed:',
           error,
         );
       }
@@ -209,7 +209,7 @@ export class RelayService {
     } catch (error) {
       if (this.store.getState().debug) {
         console.error(
-          '[domscribe-overlay][relay-service] Failed to refresh annotations:',
+          '[pinflow-overlay][relay-service] Failed to refresh annotations:',
           error,
         );
       }

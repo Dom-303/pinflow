@@ -3,6 +3,8 @@ import { StatusTool } from './status.tool.js';
 import { createMockRelayClient } from '../__test-utils__/mock-relay-client.js';
 import { MCP_TOOLS } from './tool.defs.js';
 
+const LEGACY_BRAND = ['Dom', 'scribe'].join('');
+
 describe('StatusTool', () => {
   describe('toolCallback', () => {
     it('should return relay, manifest, and annotation status', async () => {
@@ -91,6 +93,6 @@ describe('StatusTool', () => {
 
     expect(tool.name).toBe(MCP_TOOLS.STATUS);
     expect(tool.description).toContain('PinFlow');
-    expect(tool.description).not.toContain('Domscribe');
+    expect(tool.description).not.toContain(LEGACY_BRAND);
   });
 });

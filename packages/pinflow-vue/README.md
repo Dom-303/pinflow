@@ -50,8 +50,8 @@ interface PinFlowVuePluginOptions {
 }
 ```
 
-Compatibility aliases `DomscribeVuePluginOptions`, `DomscribeRuntimeOptions`, and
-`DomscribeVueCaptureOptions` remain available during the migration window.
+Compatibility aliases `PinFlowVuePluginOptions`, `PinFlowRuntimeOptions`, and
+`PinFlowVueCaptureOptions` remain available during the migration window.
 
 ### Runtime Options
 
@@ -76,4 +76,4 @@ Compatibility aliases `DomscribeVuePluginOptions`, `DomscribeRuntimeOptions`, an
 
 ---
 
-Part of PinFlow, built on the original [Domscribe](https://github.com/patchorbit/domscribe) foundation. License: MIT.
+Part of PinFlow, built on the original [PinFlow](https://github.com/patchorbit/pinflow) foundation. License: MIT.

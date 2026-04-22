@@ -20,6 +20,5 @@ export type { IRuntimeTransport } from './bridge/transport.interface.js';
 // Configuration types
 export type {
   PinFlowRuntimeOptions,
-  DomscribeRuntimeOptions,
 } from './core/types.js';
 export type { SerializationConstraints } from './capture/types.js';

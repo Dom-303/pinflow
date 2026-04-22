@@ -66,7 +66,7 @@ export class ManifestWriter {
 
     if (this.options.debug) {
       console.log(
-        `[domscribe-manifest][writer] Loaded ${entries.length} existing entries from ${manifestPath}`,
+        `[pinflow-manifest][writer] Loaded ${entries.length} existing entries from ${manifestPath}`,
       );
     }
 
@@ -77,7 +77,7 @@ export class ManifestWriter {
 
     if (this.options.debug) {
       console.log(
-        `[domscribe-manifest][writer] Initialized (entries: ${entries.length}, files: ${this.index.fileToIds.size})`,
+        `[pinflow-manifest][writer] Initialized (entries: ${entries.length}, files: ${this.index.fileToIds.size})`,
       );
     }
   }
@@ -157,7 +157,7 @@ export class ManifestWriter {
 
     if (this.options.debug) {
       console.log(
-        `[domscribe-manifest][writer] Appended ${entries.length} entries (total: ${this.index.entryCount})`,
+        `[pinflow-manifest][writer] Appended ${entries.length} entries (total: ${this.index.entryCount})`,
       );
     }
   }
@@ -174,7 +174,7 @@ export class ManifestWriter {
       this.writer.stop();
     } catch (error) {
       if (this.options.debug) {
-        console.error('[domscribe-manifest][writer] Close failed:', error);
+        console.error('[pinflow-manifest][writer] Close failed:', error);
       }
 
       throw error;
@@ -207,7 +207,7 @@ export class ManifestWriter {
     } catch (error) {
       if (this.options.debug) {
         console.warn(
-          '[domscribe-manifest][writer] Compaction failed:',
+          '[pinflow-manifest][writer] Compaction failed:',
           error instanceof Error ? error.message : String(error),
         );
       }
@@ -228,7 +228,7 @@ export class ManifestWriter {
 
     if (this.options.debug) {
       console.log(
-        `[domscribe-manifest][writer] Index rebuilt after compaction (entries: ${entries.length}, files: ${this.index.fileToIds.size})`,
+        `[pinflow-manifest][writer] Index rebuilt after compaction (entries: ${entries.length}, files: ${this.index.fileToIds.size})`,
       );
     }
   }

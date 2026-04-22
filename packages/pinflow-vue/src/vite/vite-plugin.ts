@@ -3,7 +3,7 @@
  * @module @pinflow/vue/vite/vite-plugin
  */
 import type { Plugin, IndexHtmlTransformResult, HtmlTagDescriptor } from 'vite';
-import { domscribe as baseDomscribe } from '@pinflow/transform/plugins/vite';
+import { pinflow as basePinFlow } from '@pinflow/transform/plugins/vite';
 import type { PinFlowVuePluginOptions } from './types.js';
 
 /**
@@ -42,7 +42,7 @@ const INIT_MODULE_PATH = '/@pinflow/vue-init.js';
  * ```
  */
 export function pinflow(options?: PinFlowVuePluginOptions): Plugin {
-  const basePlugin = baseDomscribe(options);
+  const basePlugin = basePinFlow(options);
   const baseTransformIndexHtml = basePlugin.transformIndexHtml;
   const baseResolveId =
     typeof basePlugin.resolveId === 'function' ? basePlugin.resolveId : null;
@@ -115,5 +115,3 @@ export function pinflow(options?: PinFlowVuePluginOptions): Plugin {
 
   return basePlugin;
 }
-
-export const domscribe = pinflow;

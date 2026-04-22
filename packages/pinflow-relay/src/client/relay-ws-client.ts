@@ -203,7 +203,7 @@ export class RelayWSClient {
   }
 
   /**
-   * Subscribe to standard Domscribe events
+   * Subscribe to standard PinFlow events
    */
   onAnnotationCreated(handler: (data: unknown) => void): () => void {
     return this.on(WS_EVENTS.ANNOTATION_CREATED, handler);

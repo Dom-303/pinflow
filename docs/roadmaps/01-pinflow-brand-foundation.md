@@ -2,7 +2,7 @@
 
 ## Goal
 
-Introduce `PinFlow` as the visible product name across the repo, docs, plugin surfaces, and GitHub presence while keeping the internal technical `domscribe` foundation intact.
+Introduce `PinFlow` as the visible product name across the repo, docs, plugin surfaces, and GitHub presence while keeping the internal technical `pinflow` foundation intact.
 
 ## Why First
 
@@ -31,8 +31,8 @@ It also gives all later UI and workflow work a clear product direction:
 
 ## Soon
 
-- Replace Domscribe logos and hero branding in docs/assets where appropriate
-- Introduce a short product description tuned to PinFlow rather than upstream Domscribe language
+- Replace PinFlow logos and hero branding in docs/assets where appropriate
+- Introduce a short product description tuned to PinFlow rather than upstream PinFlow language
 - Adjust screenshots, badges, and install guidance to center `Codex + Claude`
 
 ## Later
@@ -42,8 +42,8 @@ It also gives all later UI and workflow work a clear product direction:
 
 ## Explicit Non-Goals
 
-- Do not rename `@domscribe/*` packages in this phase
-- Do not rename `.domscribe/` artifacts in this phase
+- Do not rename `@pinflow/*` packages in this phase
+- Do not rename `.pinflow/` artifacts in this phase
 - Do not rename MCP tool names in this phase
 - Do not change CLI command names in this phase
 
@@ -80,7 +80,7 @@ Do only if justified later:
 
 ## Exit Criteria
 
-- A new visitor sees `PinFlow` first, not `Domscribe`
+- A new visitor sees `PinFlow` first, not `PinFlow`
 - Repo/docs clearly describe `Codex + Claude` as the main agent paths
 - Cursor is no longer treated as a primary surface
-- Internal compatibility with upstream `domscribe` remains intact
+- Internal compatibility with upstream `pinflow` remains intact

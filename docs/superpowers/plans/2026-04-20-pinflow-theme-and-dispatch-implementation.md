@@ -56,11 +56,11 @@ git commit -m "docs: refine theme and dispatch roadmaps"
 ### Task 2: Add theme state as a first-class overlay concept
 
 **Files:**
-- Modify: `packages/domscribe-overlay/src/core/overlay-store.ts`
-- Modify: `packages/domscribe-overlay/src/core/store-controller.ts`
-- Modify: `packages/domscribe-overlay/src/styles/theme.ts`
-- Modify: `packages/domscribe-overlay/src/components/ds-sidebar.ts`
-- Test: `packages/domscribe-overlay/src/components/paper-glow-ui.spec.ts`
+- Modify: `packages/pinflow-overlay/src/core/overlay-store.ts`
+- Modify: `packages/pinflow-overlay/src/core/store-controller.ts`
+- Modify: `packages/pinflow-overlay/src/styles/theme.ts`
+- Modify: `packages/pinflow-overlay/src/components/ds-sidebar.ts`
+- Test: `packages/pinflow-overlay/src/components/paper-glow-ui.spec.ts`
 
 - [ ] **Step 1: Define a stable theme enum/type and state fields**
 
@@ -96,26 +96,26 @@ Add a compact UI control that switches themes without overwhelming the main anno
 Run:
 
 ```bash
-corepack pnpm exec vitest run packages/domscribe-overlay/src/components/paper-glow-ui.spec.ts --config packages/domscribe-overlay/vite.config.ts
-corepack pnpm exec nx lint domscribe-overlay
-corepack pnpm exec nx build domscribe-overlay
+corepack pnpm exec vitest run packages/pinflow-overlay/src/components/paper-glow-ui.spec.ts --config packages/pinflow-overlay/vite.config.ts
+corepack pnpm exec nx lint pinflow-overlay
+corepack pnpm exec nx build pinflow-overlay
 ```
 
 - [ ] **Step 6: Commit**
 
 ```bash
-git add packages/domscribe-overlay/src/core/overlay-store.ts packages/domscribe-overlay/src/core/store-controller.ts packages/domscribe-overlay/src/styles/theme.ts packages/domscribe-overlay/src/components/ds-sidebar.ts
+git add packages/pinflow-overlay/src/core/overlay-store.ts packages/pinflow-overlay/src/core/store-controller.ts packages/pinflow-overlay/src/styles/theme.ts packages/pinflow-overlay/src/components/ds-sidebar.ts
 git commit -m "feat: add persistent overlay theme selection"
 ```
 
 ### Task 3: Prepare theme-aware branding assets
 
 **Files:**
-- Modify: `packages/domscribe-overlay/src/components/logo/index.ts`
-- Modify: `packages/domscribe-overlay/src/components/logo/logo-svg.ts`
-- Modify: `packages/domscribe-overlay/src/components/ds-header.ts`
-- Modify: `packages/domscribe-overlay/src/components/ds-tab.ts`
-- Test: `packages/domscribe-overlay/src/components/paper-glow-ui.spec.ts`
+- Modify: `packages/pinflow-overlay/src/components/logo/index.ts`
+- Modify: `packages/pinflow-overlay/src/components/logo/logo-svg.ts`
+- Modify: `packages/pinflow-overlay/src/components/ds-header.ts`
+- Modify: `packages/pinflow-overlay/src/components/ds-tab.ts`
+- Test: `packages/pinflow-overlay/src/components/paper-glow-ui.spec.ts`
 
 - [ ] **Step 1: Define a theme-aware logo selection path**
 
@@ -139,26 +139,26 @@ If final brand assets are not yet available, keep the current vector system as a
 Run:
 
 ```bash
-corepack pnpm exec vitest run packages/domscribe-overlay/src/components/paper-glow-ui.spec.ts --config packages/domscribe-overlay/vite.config.ts
-corepack pnpm exec nx lint domscribe-overlay
-corepack pnpm exec nx build domscribe-overlay
+corepack pnpm exec vitest run packages/pinflow-overlay/src/components/paper-glow-ui.spec.ts --config packages/pinflow-overlay/vite.config.ts
+corepack pnpm exec nx lint pinflow-overlay
+corepack pnpm exec nx build pinflow-overlay
 ```
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/domscribe-overlay/src/components/logo/index.ts packages/domscribe-overlay/src/components/logo/logo-svg.ts packages/domscribe-overlay/src/components/ds-header.ts packages/domscribe-overlay/src/components/ds-tab.ts
+git add packages/pinflow-overlay/src/components/logo/index.ts packages/pinflow-overlay/src/components/logo/logo-svg.ts packages/pinflow-overlay/src/components/ds-header.ts packages/pinflow-overlay/src/components/ds-tab.ts
 git commit -m "feat: support theme-aware pinflow branding"
 ```
 
 ### Task 4: Introduce the queue and dispatch settings model
 
 **Files:**
-- Modify: `packages/domscribe-overlay/src/core/overlay-store.ts`
-- Modify: `packages/domscribe-overlay/src/core/store-controller.ts`
-- Modify: `packages/domscribe-overlay/src/services/relay-service.ts`
-- Create: `packages/domscribe-overlay/src/core/dispatch-config.ts`
-- Test: `packages/domscribe-overlay/src/core/dispatch-config.ts`
+- Modify: `packages/pinflow-overlay/src/core/overlay-store.ts`
+- Modify: `packages/pinflow-overlay/src/core/store-controller.ts`
+- Modify: `packages/pinflow-overlay/src/services/relay-service.ts`
+- Create: `packages/pinflow-overlay/src/core/dispatch-config.ts`
+- Test: `packages/pinflow-overlay/src/core/dispatch-config.ts`
 
 - [ ] **Step 1: Define the configuration model**
 
@@ -203,18 +203,18 @@ Run the focused tests plus overlay verification.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add packages/domscribe-overlay/src/core/dispatch-config.ts packages/domscribe-overlay/src/core/overlay-store.ts packages/domscribe-overlay/src/core/store-controller.ts packages/domscribe-overlay/src/services/relay-service.ts
+git add packages/pinflow-overlay/src/core/dispatch-config.ts packages/pinflow-overlay/src/core/overlay-store.ts packages/pinflow-overlay/src/core/store-controller.ts packages/pinflow-overlay/src/services/relay-service.ts
 git commit -m "feat: add queue and dispatch configuration model"
 ```
 
 ### Task 5: Add compact workflow controls to the sidebar
 
 **Files:**
-- Modify: `packages/domscribe-overlay/src/components/ds-sidebar.ts`
-- Modify: `packages/domscribe-overlay/src/components/ds-annotation-input.ts`
-- Create: `packages/domscribe-overlay/src/components/ds-workflow-panel.ts`
-- Create: `packages/domscribe-overlay/src/components/ds-session-settings.ts`
-- Test: `packages/domscribe-overlay/src/components/paper-glow-ui.spec.ts`
+- Modify: `packages/pinflow-overlay/src/components/ds-sidebar.ts`
+- Modify: `packages/pinflow-overlay/src/components/ds-annotation-input.ts`
+- Create: `packages/pinflow-overlay/src/components/ds-workflow-panel.ts`
+- Create: `packages/pinflow-overlay/src/components/ds-session-settings.ts`
+- Test: `packages/pinflow-overlay/src/components/paper-glow-ui.spec.ts`
 
 - [ ] **Step 1: Add a small workflow panel to the main sidebar**
 
@@ -243,25 +243,25 @@ Do not let configuration controls dominate the primary "mark and write" workflow
 Run:
 
 ```bash
-corepack pnpm exec vitest run packages/domscribe-overlay/src/components/paper-glow-ui.spec.ts --config packages/domscribe-overlay/vite.config.ts
-corepack pnpm exec nx lint domscribe-overlay
-corepack pnpm exec nx build domscribe-overlay
+corepack pnpm exec vitest run packages/pinflow-overlay/src/components/paper-glow-ui.spec.ts --config packages/pinflow-overlay/vite.config.ts
+corepack pnpm exec nx lint pinflow-overlay
+corepack pnpm exec nx build pinflow-overlay
 ```
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/domscribe-overlay/src/components/ds-sidebar.ts packages/domscribe-overlay/src/components/ds-annotation-input.ts packages/domscribe-overlay/src/components/ds-workflow-panel.ts packages/domscribe-overlay/src/components/ds-session-settings.ts
+git add packages/pinflow-overlay/src/components/ds-sidebar.ts packages/pinflow-overlay/src/components/ds-annotation-input.ts packages/pinflow-overlay/src/components/ds-workflow-panel.ts packages/pinflow-overlay/src/components/ds-session-settings.ts
 git commit -m "feat: add sidebar workflow and session controls"
 ```
 
 ### Task 6: Implement queue progression rules without deep provider coupling
 
 **Files:**
-- Modify: `packages/domscribe-overlay/src/core/overlay-store.ts`
-- Modify: `packages/domscribe-overlay/src/services/relay-service.ts`
-- Test: `packages/domscribe-overlay/src/core/dispatch-config.ts`
-- Test: `packages/domscribe-overlay/src/components/paper-glow-ui.spec.ts`
+- Modify: `packages/pinflow-overlay/src/core/overlay-store.ts`
+- Modify: `packages/pinflow-overlay/src/services/relay-service.ts`
+- Test: `packages/pinflow-overlay/src/core/dispatch-config.ts`
+- Test: `packages/pinflow-overlay/src/components/paper-glow-ui.spec.ts`
 
 - [ ] **Step 1: Implement send-mode behavior**
 
@@ -296,7 +296,7 @@ Run overlay verification plus focused queue-behavior tests.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add packages/domscribe-overlay/src/core/overlay-store.ts packages/domscribe-overlay/src/services/relay-service.ts packages/domscribe-overlay/src/core/dispatch-config.ts packages/domscribe-overlay/src/components/paper-glow-ui.spec.ts
+git add packages/pinflow-overlay/src/core/overlay-store.ts packages/pinflow-overlay/src/services/relay-service.ts packages/pinflow-overlay/src/core/dispatch-config.ts packages/pinflow-overlay/src/components/paper-glow-ui.spec.ts
 git commit -m "feat: add configurable queue progression behavior"
 ```
 
@@ -328,7 +328,7 @@ Explain:
 
 - [ ] **Step 3: Keep compatibility disclaimers intact**
 
-Do not imply that the technical `domscribe` namespace has already been renamed.
+Do not imply that the technical `pinflow` namespace has already been renamed.
 
 - [ ] **Step 4: Commit**
 

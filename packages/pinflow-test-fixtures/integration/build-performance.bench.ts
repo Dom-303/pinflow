@@ -1,17 +1,17 @@
 /**
  * Build Performance Benchmarks
  *
- * Measures full build overhead introduced by the Domscribe transform.
+ * Measures full build overhead introduced by the PinFlow transform.
  *
- * **Full build A/B** — Builds with and without the Domscribe transform
+ * **Full build A/B** — Builds with and without the PinFlow transform
  * to measure total build overhead. Works across all bundlers:
- * - Vite: strips domscribe plugins via filterDomscribePlugins()
- * - Webpack: strips domscribe loader rules and plugin
- * - Next: omits DOMSCRIBE_FORCE_TRANSFORM (production guard skips transforms)
- * - Nuxt: omits DOMSCRIBE_FORCE_TRANSFORM (module returns early)
+ * - Vite: strips pinflow plugins via filterPinFlowPlugins()
+ * - Webpack: strips pinflow loader rules and plugin
+ * - Next: omits PINFLOW_FORCE_TRANSFORM (production guard skips transforms)
+ * - Nuxt: omits PINFLOW_FORCE_TRANSFORM (module returns early)
  *
- * Per-file transform benchmarks live in @domscribe/transform
- * (injector-performance.bench.ts) — no @domscribe/* imports needed here.
+ * Per-file transform benchmarks live in @pinflow/transform
+ * (injector-performance.bench.ts) — no @pinflow/* imports needed here.
  *
  * Operates on a single fixture specified by the FIXTURE_ID env var.
  * Usage: FIXTURE_ID=webpack-v5-react-19-ts nx integration pinflow-test-fixtures
@@ -67,8 +67,8 @@ describe.skipIf(!fixture)('Build Performance', () => {
   // =========================================================================
   // Full Build A/B Comparison
   //
-  // Builds with and without domscribe to measure transform overhead.
-  // Each bundler has its own mechanism for disabling domscribe — see
+  // Builds with and without pinflow to measure transform overhead.
+  // Each bundler has its own mechanism for disabling pinflow — see
   // fixture-builder.ts for details.
   // =========================================================================
 
@@ -79,10 +79,10 @@ describe.skipIf(!fixture)('Build Performance', () => {
       await buildFixture(fixture!, { mode: 'development' });
       await buildFixture(fixture!, {
         mode: 'development',
-        disableDomscribe: true,
+        disablePinFlow: true,
       });
 
-      // Measure with domscribe
+      // Measure with pinflow
       const withTimes: number[] = [];
       for (let i = 0; i < BUILD_ITERATIONS; i++) {
         const result = await buildFixture(fixture!, {
@@ -91,12 +91,12 @@ describe.skipIf(!fixture)('Build Performance', () => {
         withTimes.push(result.buildTime);
       }
 
-      // Measure without domscribe
+      // Measure without pinflow
       const withoutTimes: number[] = [];
       for (let i = 0; i < BUILD_ITERATIONS; i++) {
         const result = await buildFixture(fixture!, {
           mode: 'development',
-          disableDomscribe: true,
+          disablePinFlow: true,
         });
         withoutTimes.push(result.buildTime);
       }

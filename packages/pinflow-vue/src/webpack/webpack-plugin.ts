@@ -25,8 +25,6 @@ export interface PinFlowVueWebpackPluginOptions extends WebpackPluginOptions {
   capture?: PinFlowVueCaptureOptions;
 }
 
-export type DomscribeVueWebpackPluginOptions = PinFlowVueWebpackPluginOptions;
-
 /**
  * PinFlow webpack plugin for Vue projects.
  *
@@ -92,5 +90,3 @@ export class PinFlowWebpackPlugin implements WebpackPluginInstance {
     }
   }
 }
-
-export const DomscribeWebpackPlugin = PinFlowWebpackPlugin;

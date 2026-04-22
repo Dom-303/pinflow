@@ -10,7 +10,7 @@ try {
   initOverlay();
 } catch (e) {
   console.warn(
-    '[domscribe] Failed to auto-init overlay:',
+    '[pinflow] Failed to auto-init overlay:',
     e instanceof Error ? e.message : String(e),
   );
 }

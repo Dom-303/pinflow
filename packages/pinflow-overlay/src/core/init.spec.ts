@@ -117,11 +117,11 @@ describe('initOverlay', () => {
       expect(mockRelayServiceGetInstance).toHaveBeenCalled();
     });
 
-    it('should ignore the legacy __DOMSCRIBE_RELAY_PORT__ fallback', async () => {
+    it('should ignore unrelated PinFlow-looking globals', async () => {
       // Arrange
       delete window.__PINFLOW_RELAY_PORT__;
-      // @ts-expect-error legacy compatibility contract under removal
-      window.__DOMSCRIBE_RELAY_PORT__ = 4500;
+      // @ts-expect-error deliberate unrelated global for guard coverage
+      window.__PINFLOW_RELAY_PORT_LEGACY__ = 4500;
 
       // Act
       await initOverlay();

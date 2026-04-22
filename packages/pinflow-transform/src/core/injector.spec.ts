@@ -9,7 +9,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import os from 'os';
 import path from 'path';
-import { PinFlowInjector, createInjector, DomscribeInjector } from './injector.js';
+import { PinFlowInjector, createInjector, PinFlowInjector } from './injector.js';
 import {
   InjectorRegistry,
   isInjectorFileExtension,

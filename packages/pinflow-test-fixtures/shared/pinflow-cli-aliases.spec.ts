@@ -7,31 +7,26 @@ function readRepoFile(relativePath: string): string {
 }
 
 describe('pinflow cli aliases', () => {
-  it('makes pinflow the canonical cli package while keeping domscribe as an alias', () => {
+  it('uses pinflow as the canonical cli package entrypoint', () => {
     const pkg = JSON.parse(
       readRepoFile('packages/pinflow-cli/package.json'),
     ) as {
       name?: string;
       distBin?: Record<string, string>;
     };
-    const aliasSource = readRepoFile('packages/pinflow-cli/src/bin/pinflow.ts');
-    const compatibilitySource = readRepoFile(
-      'packages/pinflow-cli/src/bin/domscribe.ts',
-    );
+    const entrySource = readRepoFile('packages/pinflow-cli/src/bin/pinflow.ts');
 
     expect(pkg.name).toBe('pinflow');
-    expect(pkg.distBin).toMatchObject({
-      domscribe: './bin/domscribe.js',
+    expect(pkg.distBin).toEqual({
       pinflow: './bin/pinflow.js',
     });
-    expect(aliasSource).toContain("import { program } from '@pinflow/relay/program';");
-    expect(aliasSource).toContain('program.parse();');
-    expect(compatibilitySource).toContain(
-      'Compatibility CLI alias for the PinFlow package identity.',
+    expect(entrySource).toContain(
+      "import { program } from '@pinflow/relay/program';",
     );
+    expect(entrySource).toContain('program.parse();');
   });
 
-  it('adds a pinflow-mcp binary alias that routes through the pinflow command shape', () => {
+  it('uses pinflow-mcp as the canonical mcp package entrypoint', () => {
     const pkg = JSON.parse(
       readRepoFile('packages/pinflow-mcp/package.json'),
     ) as {
@@ -43,8 +38,7 @@ describe('pinflow cli aliases', () => {
     );
 
     expect(pkg.name).toBe('@pinflow/mcp');
-    expect(pkg.distBin).toMatchObject({
-      'domscribe-mcp': './bin/domscribe-mcp.js',
+    expect(pkg.distBin).toEqual({
       'pinflow-mcp': './bin/pinflow-mcp.js',
     });
     expect(aliasSource).toContain("import { program } from '@pinflow/relay/program';");

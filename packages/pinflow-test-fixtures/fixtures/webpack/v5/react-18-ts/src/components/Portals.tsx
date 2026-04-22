@@ -1,7 +1,7 @@
 /**
  * Portals - Tests ReactDOM.createPortal()
  *
- * Validates that Domscribe handles:
+ * Validates that PinFlow handles:
  * - Elements rendered outside parent DOM hierarchy via portals
  * - Modal/tooltip patterns that use portals
  * - Resolution should point to component defining portal, not portal target

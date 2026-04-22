@@ -1,7 +1,7 @@
 /**
  * ErrorBoundaries - Tests React Error Boundaries
  *
- * Validates that Domscribe handles:
+ * Validates that PinFlow handles:
  * - Class components with componentDidCatch
  * - Error boundary fallback UI
  * - Components that throw errors

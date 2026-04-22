@@ -2,7 +2,7 @@
 
 ## Goal
 
-Generalize PinFlow into a reusable multi-project tool without losing the strengths of the current Domscribe foundation.
+Generalize PinFlow into a reusable multi-project tool without losing the strengths of the current PinFlow foundation.
 
 ## Why Fourth
 
@@ -17,14 +17,14 @@ Generalization is valuable, but it should follow product clarity and working aut
 ## Soon
 
 - Align package and tooling surfaces with PinFlow
-- Reduce visible `Domscribe` friction in daily development flows
+- Reduce visible `PinFlow` friction in daily development flows
 - Document the canonical PinFlow preview and install path
 - Improve configuration guidance for different app roots and monorepo layouts
 
 ## Later
 
 - Decide whether deep namespace moves like `@pinflow/*` are worth the churn
-- Evaluate whether `.domscribe/` and MCP names should move with the product
+- Evaluate whether `.pinflow/` and MCP names should move with the product
 - Split product-facing docs from lower-level architecture docs if needed
 - Consider publishing strategy and versioning posture for the fork
 
@@ -60,4 +60,4 @@ Only do deeper renames when one of these becomes true after Phase A and Phase B 
 
 ## Full Rename Destination
 
-PinFlow is no longer targeting a permanent hybrid state. The long-term destination is a complete technical and product migration away from public `domscribe` naming, executed in controlled compatibility waves.
+PinFlow is no longer targeting a permanent hybrid state. The long-term destination is a complete technical and product migration away from public `pinflow` naming, executed in controlled compatibility waves.

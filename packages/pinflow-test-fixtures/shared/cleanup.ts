@@ -10,10 +10,10 @@ import { existsSync, rmSync } from 'fs';
 import type { DiscoveredFixture } from './fixture-registry.js';
 
 /** Directories to clean before tests */
-const CLEAN_DIRS = ['.domscribe', '.next', '.output', '.nuxt'];
+const CLEAN_DIRS = ['.pinflow', '.next', '.output', '.nuxt'];
 
 /**
- * Remove build artifacts (.domscribe, .next, .output, .nuxt) from fixtures.
+ * Remove build artifacts (.pinflow, .next, .output, .nuxt) from fixtures.
  * Call once at the start of a test suite to ensure a clean slate.
  */
 export function cleanFixtures(fixtures: DiscoveredFixture[]): void {

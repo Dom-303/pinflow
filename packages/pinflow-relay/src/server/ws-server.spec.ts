@@ -50,7 +50,7 @@ interface WSTestServer {
  */
 async function createTestWSServer(): Promise<WSTestServer> {
   const tempDir = mkdtempSync(path.join(tmpdir(), 'relay-ws-test-'));
-  mkdirSync(path.join(tempDir, PATHS.DOMSCRIBE_DIR), { recursive: true });
+  mkdirSync(path.join(tempDir, PATHS.PINFLOW_DIR), { recursive: true });
 
   const manifestReader = new ManifestReader(tempDir);
   const annotationStorage = new FileAnnotationStorage(

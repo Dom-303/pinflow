@@ -24,7 +24,7 @@ export function ImageOptimization() {
           <div className="demo-card" data-testid="img-responsive">
             <h3>Responsive Image</h3>
             <img
-              src="https://picsum.photos/seed/domscribe1/400/300"
+              src="https://picsum.photos/seed/pinflow1/400/300"
               alt="Responsive demo"
               width={400}
               height={300}
@@ -36,7 +36,7 @@ export function ImageOptimization() {
           <div className="demo-card" data-testid="img-fixed">
             <h3>Fixed Size Image</h3>
             <img
-              src="https://picsum.photos/seed/domscribe2/200/200"
+              src="https://picsum.photos/seed/pinflow2/200/200"
               alt="Fixed size demo"
               width={200}
               height={200}
@@ -47,7 +47,7 @@ export function ImageOptimization() {
           <div className="demo-card" data-testid="img-priority">
             <h3>Priority Image (LCP)</h3>
             <img
-              src="https://picsum.photos/seed/domscribe3/600/400"
+              src="https://picsum.photos/seed/pinflow3/600/400"
               alt="Priority demo"
               width={600}
               height={400}

@@ -130,6 +130,3 @@ export class PinFlowError extends Error {
     };
   }
 }
-
-export const DomscribeErrorCode = PinFlowErrorCode;
-export { PinFlowError as DomscribeError };

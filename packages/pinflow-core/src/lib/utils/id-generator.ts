@@ -1,5 +1,5 @@
 /**
- * Utility functions for generating and validating Domscribe identifiers.
+ * Utility functions for generating and validating PinFlow identifiers.
  * Uses nanoid with a custom alphabet for unique 8-character base IDs.
  * @module @pinflow/core/utils/id-generator
  */

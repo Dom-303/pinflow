@@ -57,7 +57,7 @@ describe('getWorkspaceRoot', () => {
 
     // Assert
     expect(result).toBe(process.cwd());
-    // Config loader should not be consulted when .domscribe is found directly
+    // Config loader should not be consulted when .pinflow is found directly
     expect(loadAppRoot).not.toHaveBeenCalled();
   });
 
@@ -113,9 +113,9 @@ describe('getWorkspaceRoot', () => {
     expect(result).toBeUndefined();
   });
 
-  it('should ignore a legacy .domscribe directory', () => {
+  it('should ignore unrelated directories that only resemble .pinflow', () => {
     vi.mocked(existsSync).mockImplementation((p) =>
-      String(p).endsWith('.domscribe'),
+      String(p).endsWith('.legacy-pinflow'),
     );
 
     const result = getWorkspaceRoot();

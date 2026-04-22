@@ -1,7 +1,7 @@
 /**
  * Kitchen Sink React Components
  *
- * Battle-tested React components covering all edge cases for Domscribe transform validation.
+ * Battle-tested React components covering all edge cases for PinFlow transform validation.
  *
  * These components test:
  * - Basic HTML elements (div, span, button, input, etc.)

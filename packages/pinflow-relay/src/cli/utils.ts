@@ -43,7 +43,7 @@ export function getWorkspaceRoot(): string | undefined {
 }
 
 function hasWorkspaceArtifacts(dir: string): boolean {
-  return existsSync(path.join(dir, PATHS.DOMSCRIBE_DIR));
+  return existsSync(path.join(dir, PATHS.PINFLOW_DIR));
 }
 
 function walkUpToFindWorkspaceArtifacts(startPath: string): string | undefined {

@@ -1,5 +1,5 @@
 /**
- * Shared Playwright fixtures for Domscribe E2E tests.
+ * Shared Playwright fixtures for PinFlow E2E tests.
  *
  * Dev Server Pool
  * ───────────────

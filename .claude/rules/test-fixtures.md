@@ -1,13 +1,13 @@
 ---
 description: Integration and e2e test patterns for the PinFlow compatibility fixtures package
-paths: ['packages/domscribe-test-fixtures/**']
+paths: ['packages/pinflow-test-fixtures/**']
 ---
 
 # Test Fixtures — Integration & E2E Patterns
 
 ## Core Constraint
 
-**Test-fixtures is a black-box test layer.** It treats PinFlow's current compatibility layer as an opaque bundler plugin. Zero `@domscribe/*` imports (except types for TypeScript). Build real apps, validate real outputs.
+**Test-fixtures is a black-box test layer.** It treats PinFlow's current compatibility layer as an opaque bundler plugin. Zero `@pinflow/*` imports (except types for TypeScript). Build real apps, validate real outputs.
 
 ## Integration Tests (Vitest)
 
@@ -74,4 +74,4 @@ All fixture dev servers use `port: 0` (dynamic assignment). Never hardcode port 
 - Each is a standalone app with its own `package.json` (uses npm, not pnpm)
 - `_registry/` — reference components copied into fixtures by the generator
 - `_templates/` — generator templates (files use `__tmpl__` suffix, stripped during generation)
-- Regenerate with `npx nx g @domscribe/test-fixtures:test-fixture` (delete dir first)
+- Regenerate with `npx nx g @pinflow/test-fixtures:test-fixture` (delete dir first)

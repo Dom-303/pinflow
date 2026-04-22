@@ -3,7 +3,7 @@
 /**
  * ConditionalRendering - Tests conditional rendering patterns
  *
- * Validates that Domscribe handles:
+ * Validates that PinFlow handles:
  * - Logical AND (&&) rendering
  * - Ternary operators
  * - if/else patterns

@@ -1,7 +1,7 @@
 /**
  * React18Features - Tests React 18 specific features
  *
- * Validates that Domscribe handles:
+ * Validates that PinFlow handles:
  * - useTransition for concurrent rendering
  * - useDeferredValue for deferred updates
  * - useId for SSR-safe unique IDs

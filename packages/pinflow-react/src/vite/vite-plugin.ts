@@ -3,7 +3,7 @@
  * @module @pinflow/react/vite/vite-plugin
  */
 import type { Plugin, IndexHtmlTransformResult, HtmlTagDescriptor } from 'vite';
-import { domscribe as baseDomscribe } from '@pinflow/transform/plugins/vite';
+import { pinflow as basePinFlow } from '@pinflow/transform/plugins/vite';
 import type { PinFlowReactPluginOptions } from './types.js';
 
 /**
@@ -42,7 +42,7 @@ const INIT_MODULE_PATH = '/@pinflow/react-init.js';
  * ```
  */
 export function pinflow(options?: PinFlowReactPluginOptions): Plugin {
-  const basePlugin = baseDomscribe(options);
+  const basePlugin = basePinFlow(options);
   const baseTransformIndexHtml = basePlugin.transformIndexHtml;
   const baseTransform = basePlugin.transform;
   const baseResolveId =
@@ -167,5 +167,3 @@ export function pinflow(options?: PinFlowReactPluginOptions): Plugin {
 
   return basePlugin;
 }
-
-export const domscribe = pinflow;

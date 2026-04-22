@@ -36,7 +36,7 @@ interface OverlayOptions {
 
 ## Tab Persistence
 
-The collapsed tab's vertical position is stored in `localStorage` as `domscribe:tabOffsetY` (0-100%, default `50` = center). The tab is draggable along the right edge with a 4px drag threshold to distinguish a click from a drag.
+The collapsed tab's vertical position is stored in `localStorage` as `pinflow:tabOffsetY` (0-100%, default `50` = center). The tab is draggable along the right edge with a 4px drag threshold to distinguish a click from a drag.
 
 ## Shadow DOM
 
@@ -48,7 +48,7 @@ The overlay renders inside a shadow root to prevent CSS and JavaScript conflicts
 
 ## Links
 
-Part of PinFlow, built on the original [Domscribe](https://github.com/patchorbit/domscribe) foundation.
+Part of PinFlow, built on the original [PinFlow](https://github.com/patchorbit/pinflow) foundation.
 
 ## License
 

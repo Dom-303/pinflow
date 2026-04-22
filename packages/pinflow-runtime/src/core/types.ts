@@ -52,7 +52,7 @@ export interface ElementInfo {
   element: HTMLElement;
 
   /**
-   * The Domscribe manifest entry ID (data-ds attribute value)
+   * The PinFlow manifest entry ID (data-ds attribute value)
    */
   entryId: ManifestEntryId;
 
@@ -82,8 +82,6 @@ export interface IRuntimeBridge {
   getComponentName(entryId: ManifestEntryId): string | null;
   getTrackedCount(): number;
 }
-
-export type DomscribeRuntimeOptions = PinFlowRuntimeOptions;
 
 // Re-export RuntimeContext from core for convenience
 export type { RuntimeContext };

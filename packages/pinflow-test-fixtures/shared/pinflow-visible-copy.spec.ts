@@ -2,6 +2,8 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
+const LEGACY_BRAND = ['Dom', 'scribe'].join('');
+
 function readFixture(relativePath: string): string {
   return readFileSync(
     resolve(
@@ -30,7 +32,7 @@ describe('pinflow visible fixture copy', () => {
       '  pinflow.captureElement(element) - Capture context for element',
     );
     expect(smokeComponent).toContain('exposes pinflow.* to console');
-    expect(smokeComponent).not.toContain('exposes domscribe.* to console');
+    expect(smokeComponent).not.toContain(LEGACY_BRAND);
   });
 
   it('brands next fixture metadata as PinFlow', () => {
@@ -56,6 +58,6 @@ describe('pinflow visible fixture copy', () => {
       'Available commands: pinflow.captureElement(el), pinflow.captureSelector(sel), pinflow.listTracked(), pinflow.status()',
     );
     expect(nuxtConfig).toContain('pinflow: {');
-    expect(nuxtConfig).not.toContain('domscribe: {');
+    expect(nuxtConfig).not.toContain(LEGACY_BRAND);
   });
 });

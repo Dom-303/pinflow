@@ -43,7 +43,7 @@ describe.skipIf(!fixture)('Production Strip', () => {
   });
 
   it('should not contain overlay scripts in production', () => {
-    expect(bundle.js).not.toContain('domscribe-overlay');
-    expect(bundle.html).not.toContain('domscribe-overlay');
+    expect(bundle.js).not.toContain('pinflow-overlay');
+    expect(bundle.html).not.toContain('pinflow-overlay');
   });
 });

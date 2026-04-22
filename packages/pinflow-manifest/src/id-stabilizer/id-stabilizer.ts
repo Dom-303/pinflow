@@ -141,7 +141,7 @@ export class IDStabilizer implements IDGenerator, IDCacheControl {
     if (this.initalized) {
       if (this.options.debug) {
         console.log(
-          `[domscribe-manifest][id-stabilizer] IDStabilizer already initialized. Skipping initialization.`,
+          `[pinflow-manifest][id-stabilizer] IDStabilizer already initialized. Skipping initialization.`,
         );
       }
       return;
@@ -180,7 +180,7 @@ export class IDStabilizer implements IDGenerator, IDCacheControl {
 
       if (this.options.debug) {
         console.log(
-          `[domscribe-manifest][id-stabilizer] Cache miss (${entry ? 'hash changed' : 'new file'}): ${filePath} → ${newId}`,
+          `[pinflow-manifest][id-stabilizer] Cache miss (${entry ? 'hash changed' : 'new file'}): ${filePath} → ${newId}`,
         );
       }
 
@@ -195,7 +195,7 @@ export class IDStabilizer implements IDGenerator, IDCacheControl {
 
       if (this.options.debug) {
         console.log(
-          `[domscribe-manifest][id-stabilizer] Cache hit: ${filePath}:${line}:${column} → ${existingId}`,
+          `[pinflow-manifest][id-stabilizer] Cache hit: ${filePath}:${line}:${column} → ${existingId}`,
         );
       }
 
@@ -213,7 +213,7 @@ export class IDStabilizer implements IDGenerator, IDCacheControl {
 
     if (this.options.debug) {
       console.log(
-        `[domscribe-manifest][id-stabilizer] Cache miss (new position): ${filePath}:${line}:${column} → ${newId}`,
+        `[pinflow-manifest][id-stabilizer] Cache miss (new position): ${filePath}:${line}:${column} → ${newId}`,
       );
     }
 
@@ -235,7 +235,7 @@ export class IDStabilizer implements IDGenerator, IDCacheControl {
     this.stats.misses = 0;
 
     if (this.options.debug) {
-      console.log('[domscribe-manifest][id-stabilizer] Cache cleared');
+      console.log('[pinflow-manifest][id-stabilizer] Cache cleared');
     }
   }
 
@@ -260,7 +260,7 @@ export class IDStabilizer implements IDGenerator, IDCacheControl {
     if (!existsSync(this.cacheFilePath)) {
       if (this.options.debug) {
         console.log(
-          `[domscribe-manifest][id-stabilizer] No cache file found at ${this.cacheFilePath}, starting fresh`,
+          `[pinflow-manifest][id-stabilizer] No cache file found at ${this.cacheFilePath}, starting fresh`,
         );
       }
       return;
@@ -273,7 +273,7 @@ export class IDStabilizer implements IDGenerator, IDCacheControl {
       // Validate schema version
       if (serialized.version !== CACHE_SCHEMA_VERSION) {
         console.warn(
-          `[domscribe-manifest][id-stabilizer] Cache schema version mismatch (expected ${CACHE_SCHEMA_VERSION}, got ${serialized.version}), starting fresh`,
+          `[pinflow-manifest][id-stabilizer] Cache schema version mismatch (expected ${CACHE_SCHEMA_VERSION}, got ${serialized.version}), starting fresh`,
         );
         return;
       }
@@ -299,13 +299,13 @@ export class IDStabilizer implements IDGenerator, IDCacheControl {
           0,
         );
         console.log(
-          `[domscribe-manifest][id-stabilizer] Loaded cache: ${this.cache.size} files, ${totalIds} IDs`,
+          `[pinflow-manifest][id-stabilizer] Loaded cache: ${this.cache.size} files, ${totalIds} IDs`,
         );
       }
     } catch (error) {
       if (this.options.debug) {
         console.error(
-          '[domscribe-manifest][id-stabilizer] Failed to load cache, starting fresh:',
+          '[pinflow-manifest][id-stabilizer] Failed to load cache, starting fresh:',
           error instanceof Error ? error.message : String(error),
         );
       }
@@ -322,7 +322,7 @@ export class IDStabilizer implements IDGenerator, IDCacheControl {
     if (!this.isDirty) {
       if (this.options.debug) {
         console.log(
-          '[domscribe-manifest][id-stabilizer] Skipping save (cache not dirty)',
+          '[pinflow-manifest][id-stabilizer] Skipping save (cache not dirty)',
         );
       }
       return;
@@ -364,12 +364,12 @@ export class IDStabilizer implements IDGenerator, IDCacheControl {
           0,
         );
         console.log(
-          `[domscribe-manifest][id-stabilizer] Saved cache: ${entries.length} files, ${totalIds} IDs to ${this.cacheFilePath}`,
+          `[pinflow-manifest][id-stabilizer] Saved cache: ${entries.length} files, ${totalIds} IDs to ${this.cacheFilePath}`,
         );
       }
     } catch (error) {
       console.error(
-        '[domscribe-manifest][id-stabilizer] Failed to save cache:',
+        '[pinflow-manifest][id-stabilizer] Failed to save cache:',
         error instanceof Error ? error.message : String(error),
       );
     } finally {

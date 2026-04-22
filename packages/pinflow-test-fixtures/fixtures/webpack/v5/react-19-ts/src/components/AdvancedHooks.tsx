@@ -1,7 +1,7 @@
 /**
  * AdvancedHooks - Tests advanced React hook patterns
  *
- * Validates that Domscribe handles:
+ * Validates that PinFlow handles:
  * - useReducer with complex state
  * - useImperativeHandle with forwardRef
  * - Custom hooks that return JSX

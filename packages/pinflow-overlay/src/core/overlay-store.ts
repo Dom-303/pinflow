@@ -85,7 +85,7 @@ export class OverlayStore {
   private state: OverlayState;
   private listeners: Set<StateListener> = new Set();
 
-  private static readonly TAB_OFFSET_KEY = 'domscribe:tabOffsetY';
+  private static readonly TAB_OFFSET_KEY = 'pinflow:tabOffsetY';
   private static readonly THEME_KEY = 'pinflow:theme';
   private static readonly DISPATCH_DEFAULTS_KEY = 'pinflow:dispatchDefaults';
 
@@ -309,7 +309,7 @@ export class OverlayStore {
     this.state = { ...this.state, ...partial };
 
     if (this.state.debug) {
-      console.log('[domscribe-overlay][store] State updated:', {
+      console.log('[pinflow-overlay][store] State updated:', {
         changed: Object.keys(partial),
         prev: prevState,
         next: this.state,
@@ -350,7 +350,7 @@ export class OverlayStore {
         listener(frozenState);
       } catch (error) {
         if (this.state.debug) {
-          console.error('[domscribe-overlay][store] Listener error:', error);
+          console.error('[pinflow-overlay][store] Listener error:', error);
         }
       }
     });
@@ -468,7 +468,7 @@ export class OverlayStore {
     } catch (error) {
       if (this.state.debug) {
         console.warn(
-          '[domscribe-overlay][store] Failed to capture runtime context:',
+          '[pinflow-overlay][store] Failed to capture runtime context:',
           error,
         );
       }
@@ -486,7 +486,7 @@ export class OverlayStore {
       } catch (error) {
         if (this.state.debug) {
           console.warn(
-            '[domscribe-overlay][store] Failed to resolve manifest entry:',
+            '[pinflow-overlay][store] Failed to resolve manifest entry:',
             error,
           );
         }

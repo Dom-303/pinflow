@@ -35,10 +35,10 @@ describe('loadWebpackPlugin', () => {
     expect(result).toBe(MockPlugin);
   });
 
-  it('should fall back to the DomscribeWebpackPlugin alias when needed', () => {
+  it('should fall back to the PinFlowWebpackPlugin alias when needed', () => {
     class MockPlugin {}
     mockModuleState.shouldThrow = false;
-    mockModuleState.result = { DomscribeWebpackPlugin: MockPlugin };
+    mockModuleState.result = { PinFlowWebpackPlugin: MockPlugin };
 
     const result = loadWebpackPlugin();
 

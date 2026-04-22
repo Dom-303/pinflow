@@ -2,7 +2,7 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    name: '@domscribe/vue',
+    name: '@pinflow/vue',
     watch: false,
     globals: true,
     environment: 'happy-dom',

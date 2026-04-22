@@ -49,7 +49,7 @@ describe('ManifestReader', () => {
   };
 
   beforeEach(() => {
-    testDir = path.join(tmpdir(), `domscribe-manifest-test-${Date.now()}`);
+    testDir = path.join(tmpdir(), `pinflow-manifest-test-${Date.now()}`);
     mkdirSync(testDir, { recursive: true });
   });
 
@@ -111,9 +111,9 @@ describe('ManifestReader', () => {
       expect(stats.entryCount).toBe(2);
     });
 
-    it('ignores a legacy .domscribe manifest when .pinflow is absent', () => {
+    it('ignores a non-pinflow manifest directory when .pinflow is absent', () => {
       const entries = [createTestEntry('legacy01')];
-      const manifestDir = path.join(testDir, '.domscribe');
+      const manifestDir = path.join(testDir, '.legacy-pinflow');
       mkdirSync(manifestDir, { recursive: true });
       writeFileSync(
         path.join(manifestDir, 'manifest.jsonl'),

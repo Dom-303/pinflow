@@ -28,16 +28,16 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - run: npx nx run-many -t lint test build typecheck --exclude domscribe-test-fixtures
+      - run: npx nx run-many -t lint test build typecheck --exclude pinflow-test-fixtures
 
       - name: Update coverage badge
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         env:
           GH_TOKEN: ${{ secrets.GIST_SECRET }}
         run: |
-          npx nx run domscribe:coverage-badge
+          npx nx run pinflow:coverage-badge
           gh api --method PATCH "gists/${{ vars.COVERAGE_GIST_ID }}" \
-            -f "files[domscribe-coverage.json][content]=$(cat coverage/shields.json)"
+            -f "files[pinflow-coverage.json][content]=$(cat coverage/shields.json)"
 
   build-registry:
     runs-on: ubuntu-latest
@@ -58,7 +58,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - name: Build packages
-        run: npx nx run-many -t build --exclude domscribe-test-fixtures
+        run: npx nx run-many -t build --exclude pinflow-test-fixtures
 
       - name: Start Verdaccio
         run: npx verdaccio --config .verdaccio/config.yml --listen 4873 &
@@ -124,10 +124,10 @@ jobs:
         run: npx wait-on http://localhost:4873 --timeout 30000
 
       - name: Install fixture
-        run: npx nx run domscribe-test-fixtures:install-fixture--${{ matrix.fixture }}
+        run: npx nx run pinflow-test-fixtures:install-fixture--${{ matrix.fixture }}
 
       - name: Run integration tests
-        run: npx nx run domscribe-test-fixtures:integration--${{ matrix.fixture }}
+        run: npx nx run pinflow-test-fixtures:integration--${{ matrix.fixture }}
 
   e2e:
     runs-on: ubuntu-latest
@@ -166,7 +166,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - name: Install Playwright browsers
-        run: pnpm --filter @domscribe/test-fixtures exec playwright install --with-deps chromium
+        run: pnpm --filter @pinflow/test-fixtures exec playwright install --with-deps chromium
 
       - name: Download registry storage
         uses: actions/download-artifact@v4
@@ -181,15 +181,15 @@ jobs:
         run: npx wait-on http://localhost:4873 --timeout 30000
 
       - name: Install fixture
-        run: npx nx run domscribe-test-fixtures:install-fixture--${{ matrix.fixture }}
+        run: npx nx run pinflow-test-fixtures:install-fixture--${{ matrix.fixture }}
 
       - name: Run e2e tests
-        run: FIXTURE_ID=${{ matrix.fixture }} pnpm --filter @domscribe/test-fixtures exec playwright test --grep ${{ matrix.fixture }}
+        run: FIXTURE_ID=${{ matrix.fixture }} pnpm --filter @pinflow/test-fixtures exec playwright test --grep ${{ matrix.fixture }}
 
       - name: Upload Playwright report
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report-${{ matrix.fixture }}
-          path: packages/domscribe-test-fixtures/playwright-report/
+          path: packages/pinflow-test-fixtures/playwright-report/
           retention-days: 7

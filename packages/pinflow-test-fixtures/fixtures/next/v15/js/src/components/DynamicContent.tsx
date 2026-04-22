@@ -1,7 +1,7 @@
 /**
  * DynamicContent - Tests state-driven dynamic rendering
  *
- * Validates that Domscribe handles:
+ * Validates that PinFlow handles:
  * - useState for dynamic content
  * - useEffect for side effects
  * - Dynamically rendered components based on state

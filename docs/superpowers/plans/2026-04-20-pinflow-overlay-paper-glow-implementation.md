@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Refresh the PinFlow overlay into the approved `Paper Glow` design language while keeping the current `domscribe` technical foundation intact.
+**Goal:** Refresh the PinFlow overlay into the approved `Paper Glow` design language while keeping the current `pinflow` technical foundation intact.
 
-**Architecture:** The implementation stays inside the existing `@domscribe/overlay` package and focuses on visual presentation, hierarchy, and small wording refinements only. We will first lock the user-facing Paper Glow contract with component tests, then update shared theme tokens and component surfaces in layers: shell, input/focus surfaces, and annotation history surfaces.
+**Architecture:** The implementation stays inside the existing `@pinflow/overlay` package and focuses on visual presentation, hierarchy, and small wording refinements only. We will first lock the user-facing Paper Glow contract with component tests, then update shared theme tokens and component surfaces in layers: shell, input/focus surfaces, and annotation history surfaces.
 
 **Tech Stack:** Lit web components, TypeScript, shared CSS custom properties in `theme.ts`, Vitest with `happy-dom`, Nx build/lint/test targets via `corepack pnpm`
 
@@ -13,9 +13,9 @@
 ### Task 1: Add a Paper Glow UI contract test
 
 **Files:**
-- Create: `packages/domscribe-overlay/src/components/paper-glow-ui.spec.ts`
-- Modify: `packages/domscribe-overlay/vite.config.ts` (only if the new spec needs explicit environment comments or setup; otherwise no code change)
-- Test: `packages/domscribe-overlay/src/components/paper-glow-ui.spec.ts`
+- Create: `packages/pinflow-overlay/src/components/paper-glow-ui.spec.ts`
+- Modify: `packages/pinflow-overlay/vite.config.ts` (only if the new spec needs explicit environment comments or setup; otherwise no code change)
+- Test: `packages/pinflow-overlay/src/components/paper-glow-ui.spec.ts`
 
 - [ ] **Step 1: Write the failing test for visible Paper Glow text and structure**
 
@@ -70,7 +70,7 @@ describe('Paper Glow UI contract', () => {
 Run:
 
 ```bash
-corepack pnpm exec vitest run packages/domscribe-overlay/src/components/paper-glow-ui.spec.ts --config packages/domscribe-overlay/vite.config.ts
+corepack pnpm exec vitest run packages/pinflow-overlay/src/components/paper-glow-ui.spec.ts --config packages/pinflow-overlay/vite.config.ts
 ```
 
 Expected: FAIL initially because the test file is new and at least one assertion will need setup/mocking or implementation follow-up.
@@ -112,7 +112,7 @@ vi.mock('../core/event-manager.js', () => ({
 Run:
 
 ```bash
-corepack pnpm exec vitest run packages/domscribe-overlay/src/components/paper-glow-ui.spec.ts --config packages/domscribe-overlay/vite.config.ts
+corepack pnpm exec vitest run packages/pinflow-overlay/src/components/paper-glow-ui.spec.ts --config packages/pinflow-overlay/vite.config.ts
 ```
 
 Expected: PASS with 2 passing tests.
@@ -120,17 +120,17 @@ Expected: PASS with 2 passing tests.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/domscribe-overlay/src/components/paper-glow-ui.spec.ts
+git add packages/pinflow-overlay/src/components/paper-glow-ui.spec.ts
 git commit -m "test: add pinflow paper glow ui contract"
 ```
 
 ### Task 2: Refresh shared theme tokens and sidebar shell
 
 **Files:**
-- Modify: `packages/domscribe-overlay/src/styles/theme.ts`
-- Modify: `packages/domscribe-overlay/src/components/ds-sidebar.ts`
-- Modify: `packages/domscribe-overlay/src/components/ds-header.ts`
-- Test: `packages/domscribe-overlay/src/components/paper-glow-ui.spec.ts`
+- Modify: `packages/pinflow-overlay/src/styles/theme.ts`
+- Modify: `packages/pinflow-overlay/src/components/ds-sidebar.ts`
+- Modify: `packages/pinflow-overlay/src/components/ds-header.ts`
+- Test: `packages/pinflow-overlay/src/components/paper-glow-ui.spec.ts`
 
 - [ ] **Step 1: Update theme tokens toward warm Paper Glow surfaces**
 
@@ -175,7 +175,7 @@ Replace the current dark-shell token block in `theme.ts` with a warm light found
 Run:
 
 ```bash
-corepack pnpm exec vitest run packages/domscribe-overlay/src/components/paper-glow-ui.spec.ts --config packages/domscribe-overlay/vite.config.ts
+corepack pnpm exec vitest run packages/pinflow-overlay/src/components/paper-glow-ui.spec.ts --config packages/pinflow-overlay/vite.config.ts
 ```
 
 Expected: PASS.
@@ -241,8 +241,8 @@ Update `ds-sidebar.ts` and `ds-header.ts` styles so the shell feels like a soft 
 Run:
 
 ```bash
-corepack pnpm exec nx lint domscribe-overlay
-corepack pnpm exec nx build domscribe-overlay
+corepack pnpm exec nx lint pinflow-overlay
+corepack pnpm exec nx build pinflow-overlay
 ```
 
 Expected: both commands succeed.
@@ -250,17 +250,17 @@ Expected: both commands succeed.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/domscribe-overlay/src/styles/theme.ts packages/domscribe-overlay/src/components/ds-sidebar.ts packages/domscribe-overlay/src/components/ds-header.ts
+git add packages/pinflow-overlay/src/styles/theme.ts packages/pinflow-overlay/src/components/ds-sidebar.ts packages/pinflow-overlay/src/components/ds-header.ts
 git commit -m "feat: add paper glow shell styling"
 ```
 
 ### Task 3: Redesign the annotation input and selected-element focus area
 
 **Files:**
-- Modify: `packages/domscribe-overlay/src/components/ds-annotation-input.ts`
-- Modify: `packages/domscribe-overlay/src/components/ds-element-preview.ts`
-- Modify: `packages/domscribe-overlay/src/components/ds-context-panel.ts`
-- Test: `packages/domscribe-overlay/src/components/paper-glow-ui.spec.ts`
+- Modify: `packages/pinflow-overlay/src/components/ds-annotation-input.ts`
+- Modify: `packages/pinflow-overlay/src/components/ds-element-preview.ts`
+- Modify: `packages/pinflow-overlay/src/components/ds-context-panel.ts`
+- Test: `packages/pinflow-overlay/src/components/paper-glow-ui.spec.ts`
 
 - [ ] **Step 1: Extend the test to assert the input remains the primary visual workspace**
 
@@ -286,7 +286,7 @@ Append this test:
 Run:
 
 ```bash
-corepack pnpm exec vitest run packages/domscribe-overlay/src/components/paper-glow-ui.spec.ts --config packages/domscribe-overlay/vite.config.ts
+corepack pnpm exec vitest run packages/pinflow-overlay/src/components/paper-glow-ui.spec.ts --config packages/pinflow-overlay/vite.config.ts
 ```
 
 Expected: FAIL because the input copy is present only in attributes and not yet surfaced strongly enough for the test contract.
@@ -370,9 +370,9 @@ Update `ds-context-panel.ts`:
 Run:
 
 ```bash
-corepack pnpm exec vitest run packages/domscribe-overlay/src/components/paper-glow-ui.spec.ts --config packages/domscribe-overlay/vite.config.ts
-corepack pnpm exec nx lint domscribe-overlay
-corepack pnpm exec nx build domscribe-overlay
+corepack pnpm exec vitest run packages/pinflow-overlay/src/components/paper-glow-ui.spec.ts --config packages/pinflow-overlay/vite.config.ts
+corepack pnpm exec nx lint pinflow-overlay
+corepack pnpm exec nx build pinflow-overlay
 ```
 
 Expected: all commands succeed.
@@ -380,17 +380,17 @@ Expected: all commands succeed.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/domscribe-overlay/src/components/ds-annotation-input.ts packages/domscribe-overlay/src/components/ds-element-preview.ts packages/domscribe-overlay/src/components/ds-context-panel.ts packages/domscribe-overlay/src/components/paper-glow-ui.spec.ts
+git add packages/pinflow-overlay/src/components/ds-annotation-input.ts packages/pinflow-overlay/src/components/ds-element-preview.ts packages/pinflow-overlay/src/components/ds-context-panel.ts packages/pinflow-overlay/src/components/paper-glow-ui.spec.ts
 git commit -m "feat: redesign paper glow input surfaces"
 ```
 
 ### Task 4: Soften annotation history, assistant responses, and status treatment
 
 **Files:**
-- Modify: `packages/domscribe-overlay/src/components/ds-annotation-list.ts`
-- Modify: `packages/domscribe-overlay/src/components/ds-annotation-item.ts`
-- Modify: `packages/domscribe-overlay/src/components/ds-sidebar.ts`
-- Test: `packages/domscribe-overlay/src/components/paper-glow-ui.spec.ts`
+- Modify: `packages/pinflow-overlay/src/components/ds-annotation-list.ts`
+- Modify: `packages/pinflow-overlay/src/components/ds-annotation-item.ts`
+- Modify: `packages/pinflow-overlay/src/components/ds-sidebar.ts`
+- Test: `packages/pinflow-overlay/src/components/paper-glow-ui.spec.ts`
 
 - [ ] **Step 1: Add a failing test for calm status language and assistant rendering**
 
@@ -444,7 +444,7 @@ Append this test:
 Run:
 
 ```bash
-corepack pnpm exec vitest run packages/domscribe-overlay/src/components/paper-glow-ui.spec.ts --config packages/domscribe-overlay/vite.config.ts
+corepack pnpm exec vitest run packages/pinflow-overlay/src/components/paper-glow-ui.spec.ts --config packages/pinflow-overlay/vite.config.ts
 ```
 
 Expected: FAIL because the test needs annotation card support and the expanded-card interaction/setup will need refinement.
@@ -525,10 +525,10 @@ Update `ds-sidebar.ts` status styling:
 Run:
 
 ```bash
-corepack pnpm exec vitest run packages/domscribe-overlay/src/components/paper-glow-ui.spec.ts --config packages/domscribe-overlay/vite.config.ts
-corepack pnpm exec nx test domscribe-overlay
-corepack pnpm exec nx lint domscribe-overlay
-corepack pnpm exec nx build domscribe-overlay
+corepack pnpm exec vitest run packages/pinflow-overlay/src/components/paper-glow-ui.spec.ts --config packages/pinflow-overlay/vite.config.ts
+corepack pnpm exec nx test pinflow-overlay
+corepack pnpm exec nx lint pinflow-overlay
+corepack pnpm exec nx build pinflow-overlay
 ```
 
 Expected: all commands succeed.
@@ -536,7 +536,7 @@ Expected: all commands succeed.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add packages/domscribe-overlay/src/components/ds-annotation-list.ts packages/domscribe-overlay/src/components/ds-annotation-item.ts packages/domscribe-overlay/src/components/ds-sidebar.ts packages/domscribe-overlay/src/components/paper-glow-ui.spec.ts
+git add packages/pinflow-overlay/src/components/ds-annotation-list.ts packages/pinflow-overlay/src/components/ds-annotation-item.ts packages/pinflow-overlay/src/components/ds-sidebar.ts packages/pinflow-overlay/src/components/paper-glow-ui.spec.ts
 git commit -m "feat: soften paper glow annotation history"
 ```
 
@@ -546,7 +546,7 @@ git commit -m "feat: soften paper glow annotation history"
 - Modify: `docs/roadmaps/02-pinflow-overlay-ui.md`
 - Modify: `docs/roadmaps/02a-pinflow-overlay-ui-implementation.md`
 - Modify: `README.md` (only if Paper Glow wording needs a short note; otherwise no change)
-- Verify: `packages/domscribe-overlay/src/**/*`
+- Verify: `packages/pinflow-overlay/src/**/*`
 
 - [ ] **Step 1: Mark the Paper Glow design decision in the overlay roadmap docs**
 
@@ -562,10 +562,10 @@ Add a short note to the Phase 2 docs:
 Run:
 
 ```bash
-corepack pnpm exec vitest run packages/domscribe-overlay/src/components/paper-glow-ui.spec.ts --config packages/domscribe-overlay/vite.config.ts
-corepack pnpm exec nx test domscribe-overlay
-corepack pnpm exec nx lint domscribe-overlay
-corepack pnpm exec nx build domscribe-overlay
+corepack pnpm exec vitest run packages/pinflow-overlay/src/components/paper-glow-ui.spec.ts --config packages/pinflow-overlay/vite.config.ts
+corepack pnpm exec nx test pinflow-overlay
+corepack pnpm exec nx lint pinflow-overlay
+corepack pnpm exec nx build pinflow-overlay
 git status --short
 ```
 
@@ -580,7 +580,7 @@ Expected:
 - [ ] **Step 3: Commit**
 
 ```bash
-git add docs/roadmaps/02-pinflow-overlay-ui.md docs/roadmaps/02a-pinflow-overlay-ui-implementation.md README.md packages/domscribe-overlay/src
+git add docs/roadmaps/02-pinflow-overlay-ui.md docs/roadmaps/02a-pinflow-overlay-ui-implementation.md README.md packages/pinflow-overlay/src
 git commit -m "feat: ship pinflow paper glow overlay refresh"
 ```
 

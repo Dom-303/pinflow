@@ -14,7 +14,7 @@ This is the foundational package -- you probably want a framework adapter instea
 
 ## Links
 
-Part of PinFlow, built on the original [Domscribe](https://github.com/patchorbit/domscribe) foundation.
+Part of PinFlow, built on the original [PinFlow](https://github.com/patchorbit/pinflow) foundation.
 
 ## License
 

@@ -1,5 +1,5 @@
 /**
- * @pinflow/react - React framework adapter for Domscribe
+ * @pinflow/react - React framework adapter for PinFlow
  *
  * Provides runtime context capture for React applications, including:
  * - Props and state extraction

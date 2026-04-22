@@ -13,7 +13,7 @@ export default defineConfig({
     },
   },
   test: {
-    name: '@domscribe/next',
+    name: '@pinflow/next',
     watch: false,
     globals: true,
     environment: 'node',

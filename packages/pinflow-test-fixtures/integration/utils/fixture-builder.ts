@@ -22,44 +22,44 @@ import type {
 import type { DiscoveredFixture } from '../../shared/fixture-registry.js';
 
 /**
- * Check whether a Vite plugin is domscribe-related by name.
+ * Check whether a Vite plugin is pinflow-related by name.
  */
-function isDomscribePlugin(plugin: Plugin): boolean {
-  return typeof plugin.name === 'string' && plugin.name.includes('domscribe');
+function isPinFlowPlugin(plugin: Plugin): boolean {
+  return typeof plugin.name === 'string' && plugin.name.includes('pinflow');
 }
 
 /**
- * Recursively filter domscribe plugins from a Vite plugin list.
+ * Recursively filter pinflow plugins from a Vite plugin list.
  * Vite plugins can be nested arrays, false, null, or undefined.
  */
-function filterDomscribePlugins(
+function filterPinFlowPlugins(
   plugins: UserConfig['plugins'],
 ): UserConfig['plugins'] {
   if (!plugins) return [];
   return plugins
     .map((p) => {
-      if (Array.isArray(p)) return filterDomscribePlugins(p);
+      if (Array.isArray(p)) return filterPinFlowPlugins(p);
       if (!p) return p;
-      if (isDomscribePlugin(p as Plugin)) return false;
+      if (isPinFlowPlugin(p as Plugin)) return false;
       return p;
     })
     .filter(Boolean);
 }
 
 /**
- * Force domscribe plugins to apply during builds.
+ * Force pinflow plugins to apply during builds.
  * By default the Vite plugin has `apply: 'serve'` (dev server only).
  * For integration tests we need it to run during `viteBuild()` too.
  * Relay failures are caught by the plugin and don't fail the build.
  */
-function forceDomscribePlugins(
+function forcePinFlowPlugins(
   plugins: UserConfig['plugins'],
 ): UserConfig['plugins'] {
   if (!plugins) return [];
   return plugins.map((p) => {
-    if (Array.isArray(p)) return forceDomscribePlugins(p);
+    if (Array.isArray(p)) return forcePinFlowPlugins(p);
     if (!p) return p;
-    if (isDomscribePlugin(p as Plugin)) {
+    if (isPinFlowPlugin(p as Plugin)) {
       (p as Plugin).apply = undefined; // Apply in all modes
     }
     return p;
@@ -73,17 +73,17 @@ async function buildViteFixture(
   config: FixtureConfig,
   options: BuildOptions = {},
 ): Promise<FixtureBuildResult> {
-  const { mode = 'development', disableDomscribe = false } = options;
+  const { mode = 'development', disablePinFlow = false } = options;
   const startTime = Date.now();
 
   // Use mode-specific output dirs to avoid race conditions when
   // multiple test files build the same fixture in parallel.
-  // Append '-baseline' for domscribe-disabled builds to avoid clobbering.
-  const suffix = disableDomscribe ? `${mode}-baseline` : mode;
+  // Append '-baseline' for pinflow-disabled builds to avoid clobbering.
+  const suffix = disablePinFlow ? `${mode}-baseline` : mode;
   const outDir = join(config.path, `dist-${suffix}`);
 
-  if (disableDomscribe) {
-    // Load the fixture's vite.config, strip domscribe plugin(s), rebuild
+  if (disablePinFlow) {
+    // Load the fixture's vite.config, strip pinflow plugin(s), rebuild
     // with configFile: false so Vite doesn't re-read the config file.
     const loaded = await loadConfigFromFile(
       { command: 'build', mode },
@@ -96,7 +96,7 @@ async function buildViteFixture(
     }
 
     const userConfig = loaded.config;
-    userConfig.plugins = filterDomscribePlugins(userConfig.plugins);
+    userConfig.plugins = filterPinFlowPlugins(userConfig.plugins);
 
     await viteBuild({
       ...userConfig,
@@ -112,7 +112,7 @@ async function buildViteFixture(
       logLevel: 'warn',
     });
   } else {
-    // Normal build — load config, replace domscribe plugin for build mode
+    // Normal build — load config, replace pinflow plugin for build mode
     const loaded = await loadConfigFromFile(
       { command: 'build', mode },
       undefined,
@@ -125,7 +125,7 @@ async function buildViteFixture(
 
     const userConfig = loaded.config;
     if (mode !== 'production') {
-      userConfig.plugins = forceDomscribePlugins(userConfig.plugins);
+      userConfig.plugins = forcePinFlowPlugins(userConfig.plugins);
     }
 
     await viteBuild({
@@ -144,7 +144,7 @@ async function buildViteFixture(
   }
 
   const buildTime = Date.now() - startTime;
-  const manifestPath = join(config.path, '.domscribe', 'manifest.jsonl');
+  const manifestPath = join(config.path, '.pinflow', 'manifest.jsonl');
 
   return {
     outputDir: outDir,
@@ -160,7 +160,7 @@ async function buildWebpackFixture(
   config: FixtureConfig,
   options: BuildOptions = {},
 ): Promise<FixtureBuildResult> {
-  const { mode = 'development', disableDomscribe = false } = options;
+  const { mode = 'development', disablePinFlow = false } = options;
   const startTime = Date.now();
 
   // Import webpack from the fixture's own node_modules (not the test runner's)
@@ -193,19 +193,19 @@ async function buildWebpackFixture(
     webpackConfig.context = config.path;
   }
 
-  // Strip domscribe loader rules and plugin when disabled
-  if (disableDomscribe) {
+  // Strip pinflow loader rules and plugin when disabled
+  if (disablePinFlow) {
     if (webpackConfig.module?.rules) {
       webpackConfig.module.rules = webpackConfig.module.rules.filter(
         (rule: Record<string, unknown>) => {
-          // Filter out rules whose use array contains the domscribe loader
+          // Filter out rules whose use array contains the pinflow loader
           const uses = Array.isArray(rule.use) ? rule.use : [rule.use];
           return !uses.some(
             (u: string | Record<string, string>) =>
-              (typeof u === 'string' && u.includes('domscribe')) ||
+              (typeof u === 'string' && u.includes('pinflow')) ||
               (typeof u === 'object' &&
                 u?.loader &&
-                u.loader.includes('domscribe')),
+                u.loader.includes('pinflow')),
           );
         },
       );
@@ -213,13 +213,13 @@ async function buildWebpackFixture(
     if (webpackConfig.plugins) {
       webpackConfig.plugins = webpackConfig.plugins.filter(
         (p: { constructor?: { name?: string } }) =>
-          !p?.constructor?.name?.includes('Domscribe'),
+          !p?.constructor?.name?.includes('PinFlow'),
       );
     }
   }
 
   // Use mode-specific output dirs to avoid race conditions
-  const suffix = disableDomscribe ? `${resolvedMode}-baseline` : resolvedMode;
+  const suffix = disablePinFlow ? `${resolvedMode}-baseline` : resolvedMode;
   const outDir = join(config.path, `dist-${suffix}`);
   if (webpackConfig.output) {
     webpackConfig.output.path = outDir;
@@ -258,7 +258,7 @@ async function buildWebpackFixture(
         }
 
         const buildTime = Date.now() - startTime;
-        const manifestPath = join(config.path, '.domscribe', 'manifest.jsonl');
+        const manifestPath = join(config.path, '.pinflow', 'manifest.jsonl');
 
         resolvePromise({
           outputDir: outDir,
@@ -274,13 +274,13 @@ async function buildWebpackFixture(
  * Build a fixture using Next.js CLI.
  *
  * Next.js always builds in production mode (NODE_ENV=production).
- * Legacy DOMSCRIBE_FORCE_TRANSFORM=1 bypasses the production guard in withPinFlow().
+ * Legacy PINFLOW_FORCE_TRANSFORM=1 bypasses the production guard in withPinFlow().
  */
 async function buildNextFixture(
   config: FixtureConfig,
   options: BuildOptions = {},
 ): Promise<FixtureBuildResult> {
-  const { mode = 'development', disableDomscribe = false } = options;
+  const { mode = 'development', disablePinFlow = false } = options;
   const startTime = Date.now();
 
   // Clean previous build output — Next always writes to .next/
@@ -294,9 +294,9 @@ async function buildNextFixture(
     NODE_ENV: 'production',
   };
 
-  // Force transforms unless we're testing production stripping or domscribe is disabled
-  if (mode === 'development' && !disableDomscribe) {
-    env['DOMSCRIBE_FORCE_TRANSFORM'] = '1';
+  // Force transforms unless we're testing production stripping or pinflow is disabled
+  if (mode === 'development' && !disablePinFlow) {
+    env['PINFLOW_FORCE_TRANSFORM'] = '1';
   }
 
   const nextBin = join(config.path, 'node_modules', '.bin', 'next');
@@ -308,7 +308,7 @@ async function buildNextFixture(
   });
 
   const buildTime = Date.now() - startTime;
-  const manifestPath = join(config.path, '.domscribe', 'manifest.jsonl');
+  const manifestPath = join(config.path, '.pinflow', 'manifest.jsonl');
 
   // Next.js client JS lives under .next/static/chunks/
   const outputDir = join(config.path, '.next');
@@ -324,13 +324,13 @@ async function buildNextFixture(
  * Build a fixture using Nuxt CLI.
  *
  * Nuxt builds in production mode by default (dev: false).
- * Legacy DOMSCRIBE_FORCE_TRANSFORM=1 bypasses the dev guard in the PinFlow Nuxt module.
+ * Legacy PINFLOW_FORCE_TRANSFORM=1 bypasses the dev guard in the PinFlow Nuxt module.
  */
 async function buildNuxtFixture(
   config: FixtureConfig,
   options: BuildOptions = {},
 ): Promise<FixtureBuildResult> {
-  const { mode = 'development', disableDomscribe = false } = options;
+  const { mode = 'development', disablePinFlow = false } = options;
   const startTime = Date.now();
 
   // Clean previous build output — Nuxt writes to .output/
@@ -343,9 +343,9 @@ async function buildNuxtFixture(
     ...(process.env as Record<string, string>),
   };
 
-  // Force transforms unless we're testing production stripping or domscribe is disabled
-  if (mode === 'development' && !disableDomscribe) {
-    env['DOMSCRIBE_FORCE_TRANSFORM'] = '1';
+  // Force transforms unless we're testing production stripping or pinflow is disabled
+  if (mode === 'development' && !disablePinFlow) {
+    env['PINFLOW_FORCE_TRANSFORM'] = '1';
   }
 
   const nuxiBin = join(config.path, 'node_modules', '.bin', 'nuxi');
@@ -357,7 +357,7 @@ async function buildNuxtFixture(
   });
 
   const buildTime = Date.now() - startTime;
-  const manifestPath = join(config.path, '.domscribe', 'manifest.jsonl');
+  const manifestPath = join(config.path, '.pinflow', 'manifest.jsonl');
 
   // Nuxt client JS lives under .output/public/_nuxt/
   const outputDir = join(config.path, '.output');

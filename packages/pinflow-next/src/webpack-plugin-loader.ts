@@ -19,9 +19,8 @@ export function loadWebpackPlugin(): WebpackPluginConstructor | null {
   try {
     const mod = esmRequire('@pinflow/transform/plugins/webpack') as {
       PinFlowWebpackPlugin?: WebpackPluginConstructor;
-      DomscribeWebpackPlugin?: WebpackPluginConstructor;
     };
-    return mod.PinFlowWebpackPlugin ?? mod.DomscribeWebpackPlugin ?? null;
+    return mod.PinFlowWebpackPlugin ?? null;
   } catch {
     return null;
   }

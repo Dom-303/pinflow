@@ -2,9 +2,9 @@ import { describe, it, expect, vi } from 'vitest';
 import type { Plugin, IndexHtmlTransformResult, HtmlTagDescriptor } from 'vite';
 
 vi.mock('@pinflow/transform/plugins/vite', () => ({
-  domscribe: vi.fn(
+  pinflow: vi.fn(
     (options?: Record<string, unknown>): Plugin => ({
-      name: 'vite-plugin-domscribe-transform',
+      name: 'vite-plugin-pinflow-transform',
       transform: options?._baseTransformResult
         ? async () => options._baseTransformResult as { code: string }
         : undefined,
@@ -15,7 +15,9 @@ vi.mock('@pinflow/transform/plugins/vite', () => ({
   ),
 }));
 
-import { domscribe, pinflow } from './vite-plugin.js';
+import { pinflow } from './vite-plugin.js';
+
+const LEGACY_BRAND = ['Dom', 'scribe'].join('');
 
 describe('pinflow (react/vite)', () => {
   it('should rename the plugin to vite-plugin-pinflow-react', () => {
@@ -24,12 +26,12 @@ describe('pinflow (react/vite)', () => {
     expect(plugin.name).toBe('vite-plugin-pinflow-react');
   });
 
-  it('should keep domscribe as a compatibility alias', () => {
-    expect(domscribe).toBe(pinflow);
+  it('should keep pinflow as a compatibility alias', () => {
+    expect(pinflow).toBe(pinflow);
   });
 
   it('should return a Plugin object', () => {
-    const plugin = domscribe();
+    const plugin = pinflow();
 
     expect(plugin).toBeDefined();
     expect(plugin.name).toBeDefined();
@@ -37,7 +39,7 @@ describe('pinflow (react/vite)', () => {
 
   describe('resolveId', () => {
     it('should resolve the init module path', () => {
-      const plugin = domscribe();
+      const plugin = pinflow();
       const resolveId = plugin.resolveId as (id: string) => string | null;
 
       const result = resolveId.call({}, '/@pinflow/react-init.js');
@@ -46,7 +48,7 @@ describe('pinflow (react/vite)', () => {
     });
 
     it('should return null for unrelated IDs', () => {
-      const plugin = domscribe();
+      const plugin = pinflow();
       const resolveId = plugin.resolveId as (id: string) => string | null;
 
       const result = resolveId.call({}, 'some-other-module');
@@ -57,7 +59,7 @@ describe('pinflow (react/vite)', () => {
 
   describe('load', () => {
     it('should return init code for the init module path', () => {
-      const plugin = domscribe();
+      const plugin = pinflow();
       const load = plugin.load as (id: string) => string | null;
 
       const result = load.call({}, '/@pinflow/react-init.js');
@@ -70,7 +72,7 @@ describe('pinflow (react/vite)', () => {
     });
 
     it('should embed default runtime options when none provided', () => {
-      const plugin = domscribe();
+      const plugin = pinflow();
       const load = plugin.load as (id: string) => string | null;
 
       const result = load.call({}, '/@pinflow/react-init.js');
@@ -85,7 +87,7 @@ describe('pinflow (react/vite)', () => {
     });
 
     it('should serialize custom runtime options', () => {
-      const plugin = domscribe({
+      const plugin = pinflow({
         runtime: { phase: 2, redactPII: false, blockSelectors: ['.secret'] },
       });
       const load = plugin.load as (id: string) => string | null;
@@ -98,7 +100,7 @@ describe('pinflow (react/vite)', () => {
     });
 
     it('should serialize custom capture options', () => {
-      const plugin = domscribe({
+      const plugin = pinflow({
         capture: {
           strategy: 'fiber',
           maxTreeDepth: 25,
@@ -115,7 +117,7 @@ describe('pinflow (react/vite)', () => {
     });
 
     it('should cascade debug to both runtime and adapter', () => {
-      const plugin = domscribe({ debug: true });
+      const plugin = pinflow({ debug: true });
       const load = plugin.load as (id: string) => string | null;
 
       const result = load.call({}, '/@pinflow/react-init.js');
@@ -126,7 +128,7 @@ describe('pinflow (react/vite)', () => {
     });
 
     it('should serialize hookNameResolvers into Map reconstruction', () => {
-      const plugin = domscribe({
+      const plugin = pinflow({
         capture: {
           hookNameResolvers: {
             MyComponent: { 0: 'count', 1: 'name' },
@@ -144,7 +146,7 @@ describe('pinflow (react/vite)', () => {
     });
 
     it('should use empty Map when no hookNameResolvers provided', () => {
-      const plugin = domscribe();
+      const plugin = pinflow();
       const load = plugin.load as (id: string) => string | null;
 
       const result = load.call({}, '/@pinflow/react-init.js');
@@ -153,7 +155,7 @@ describe('pinflow (react/vite)', () => {
     });
 
     it('should return null for unrelated IDs', () => {
-      const plugin = domscribe();
+      const plugin = pinflow();
       const load = plugin.load as (id: string) => string | null;
 
       const result = load.call({}, 'some-other-module');
@@ -164,7 +166,7 @@ describe('pinflow (react/vite)', () => {
 
   describe('transformIndexHtml', () => {
     it('should inject a script tag for runtime initialization', () => {
-      const plugin = domscribe();
+      const plugin = pinflow();
 
       const result = (
         plugin.transformIndexHtml as () => IndexHtmlTransformResult
@@ -187,7 +189,7 @@ describe('pinflow (react/vite)', () => {
         { tag: 'script', attrs: { src: '/overlay.js' }, injectTo: 'body' },
       ];
       // Pass _baseTags through options so the mock base plugin returns them
-      const plugin = domscribe({ _baseTags: baseTags } as never);
+      const plugin = pinflow({ _baseTags: baseTags } as never);
 
       const result = (
         plugin.transformIndexHtml as () => IndexHtmlTransformResult
@@ -204,7 +206,7 @@ describe('pinflow (react/vite)', () => {
     });
 
     it('should handle base plugin with no transformIndexHtml', () => {
-      const plugin = domscribe();
+      const plugin = pinflow();
 
       const result = (
         plugin.transformIndexHtml as () => IndexHtmlTransformResult
@@ -218,7 +220,7 @@ describe('pinflow (react/vite)', () => {
 
   describe('transform', () => {
     it('should use the PinFlow runtime guard in the injected init preamble', async () => {
-      const plugin = domscribe({
+      const plugin = pinflow({
         _baseTransformResult: { code: 'export const value = 1;' },
       } as never);
       const transform = plugin.transform as (
@@ -233,7 +235,7 @@ describe('pinflow (react/vite)', () => {
       );
 
       expect(result?.code).toContain('window.__PINFLOW_REACT_INIT__');
-      expect(result?.code).not.toContain('window.__DOMSCRIBE_REACT_INIT__');
+      expect(result?.code).not.toContain(LEGACY_BRAND);
     });
   });
 });

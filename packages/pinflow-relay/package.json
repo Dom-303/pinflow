@@ -17,8 +17,8 @@
     "access": "restricted"
   },
   "distBin": {
-    "domscribe": "./cli/bin/main.js",
-    "domscribe-mcp": "./cli/bin/mcp.js"
+    "pinflow": "./cli/bin/main.js",
+    "pinflow-mcp": "./cli/bin/mcp.js"
   },
   "dependencies": {
     "@clack/prompts": "^1.1.0",

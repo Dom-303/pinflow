@@ -1,7 +1,7 @@
 /**
  * TypeScriptFeatures - Tests TypeScript-specific patterns
  *
- * Validates that Domscribe handles:
+ * Validates that PinFlow handles:
  * - Generic components
  * - Type assertions
  * - Interfaces and type aliases

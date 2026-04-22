@@ -2,12 +2,12 @@
 
 ## Goal
 
-Turn the current branded fork into a technically reliable `PinFlow` product line without breaking the useful parts of the upstream Domscribe foundation.
+Turn the current branded fork into a technically reliable `PinFlow` product line without breaking the useful parts of the upstream PinFlow foundation.
 
 This migration is driven by a concrete operational problem:
 
 - visible product surfaces already say `PinFlow`
-- internal package/version/install flows still behave like `Domscribe`
+- internal package/version/install flows still behave like `PinFlow`
 - fixture installs and local preview flows keep resolving old `0.5.2` artifacts
 - the current hybrid state makes further feature work riskier and more confusing
 
@@ -18,7 +18,7 @@ The goal is not aesthetic renaming alone. The goal is to make PinFlow reproducib
 PinFlow currently has a split identity:
 
 - product branding is already moving to `PinFlow`
-- package scope, release behavior, fixture stamps, and registry installs still revolve around `@domscribe/*` and the old version line
+- package scope, release behavior, fixture stamps, and registry installs still revolve around `@pinflow/*` and the old version line
 
 This creates several real failures:
 
@@ -100,7 +100,7 @@ Rejected as the default path because:
 
 ### Goal
 
-Make PinFlow installable and previewable as a current product build rather than a stale artifact of the old Domscribe line.
+Make PinFlow installable and previewable as a current product build rather than a stale artifact of the old PinFlow line.
 
 ### Required Outcomes
 
@@ -116,7 +116,7 @@ Make PinFlow installable and previewable as a current product build rather than 
 - adjust fixture install stamps and related cache invalidation points
 - verify local publish/install scripts against the new version posture
 - ensure built package exports are correct for the actual local dev flow
-- remove or reduce assumptions that only made sense for upstream Domscribe release simulation
+- remove or reduce assumptions that only made sense for upstream PinFlow release simulation
 
 ### Non-Goals For Phase A
 
@@ -143,26 +143,26 @@ Make the repo, package surfaces, and tooling feel intentionally PinFlow-aligned 
 - package metadata cleanup
 - export map cleanup
 - local dev command naming and documentation cleanup
-- fixture and preview docs rewritten around PinFlow instead of Domscribe
-- remaining obvious product-surface `Domscribe` wording removed
+- fixture and preview docs rewritten around PinFlow instead of PinFlow
+- remaining obvious product-surface `PinFlow` wording removed
 
 ### Non-Goals For Phase B
 
 - mandatory npm scope rename
-- mandatory `.domscribe/` artifact rename
+- mandatory `.pinflow/` artifact rename
 - mandatory MCP rename
 
 ## Phase C: Deep Namespace Migration
 
 ### Goal
 
-Decide whether PinFlow should fully sever deep technical naming from Domscribe.
+Decide whether PinFlow should fully sever deep technical naming from PinFlow.
 
 ### Candidate Changes
 
-- `@domscribe/*` -> `@pinflow/*`
+- `@pinflow/*` -> `@pinflow/*`
 - CLI names
-- artifact directory names such as `.domscribe/`
+- artifact directory names such as `.pinflow/`
 - MCP namespace names
 - internal technical identifiers that are still product-visible
 
@@ -198,7 +198,7 @@ The migration is only successful if we can verify the new technical identity, no
 ### Phase A Validation
 
 - a fresh local fixture install resolves the new PinFlow artifact line
-- local preview shows current PinFlow UI, not stale Domscribe UI
+- local preview shows current PinFlow UI, not stale PinFlow UI
 - release/install steps are repeatable from a clean fixture state
 - no manual symlink hacks are required for the canonical preview flow
 
@@ -206,7 +206,7 @@ The migration is only successful if we can verify the new technical identity, no
 
 - package/export surfaces behave consistently
 - onboarding docs match the real commands
-- no obvious product-facing Domscribe leftovers remain in the normal workflow
+- no obvious product-facing PinFlow leftovers remain in the normal workflow
 
 ### Phase C Validation
 
@@ -234,6 +234,6 @@ Trying to preserve too much backward compatibility can keep the hybrid problem a
 This migration is considered successful when:
 
 - PinFlow has a reliable current-build preview path
-- fixture installs no longer drift back to stale Domscribe artifacts
+- fixture installs no longer drift back to stale PinFlow artifacts
 - versioning and local install behavior reflect PinFlow as a live product line
 - the repo can support further feature work without carrying the current hybrid confusion forward

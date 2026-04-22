@@ -7,8 +7,8 @@ import { describe, it, expect } from 'vitest';
 import {
   PinFlowError,
   PinFlowErrorCode,
-  DomscribeError,
-  DomscribeErrorCode,
+  PinFlowError,
+  PinFlowErrorCode,
   type ProblemDetails,
 } from './index.js';
 
@@ -84,13 +84,13 @@ describe('Error Types', () => {
     });
   });
 
-  describe('Domscribe compatibility aliases', () => {
-    it('should keep DomscribeError as a compatibility alias', () => {
-      expect(DomscribeError).toBe(PinFlowError);
+  describe('PinFlow compatibility aliases', () => {
+    it('should keep PinFlowError as a compatibility alias', () => {
+      expect(PinFlowError).toBe(PinFlowError);
     });
 
-    it('should keep DomscribeErrorCode as a compatibility alias', () => {
-      expect(DomscribeErrorCode).toBe(PinFlowErrorCode);
+    it('should keep PinFlowErrorCode as a compatibility alias', () => {
+      expect(PinFlowErrorCode).toBe(PinFlowErrorCode);
     });
   });
 });

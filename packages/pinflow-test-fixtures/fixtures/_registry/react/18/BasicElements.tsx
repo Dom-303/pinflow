@@ -1,7 +1,7 @@
 /**
  * BasicElements - Tests basic HTML elements
  *
- * This component validates that Domscribe correctly injects data-ds attributes
+ * This component validates that PinFlow correctly injects data-ds attributes
  * on common HTML elements (div, span, button, input, img, form).
  */
 

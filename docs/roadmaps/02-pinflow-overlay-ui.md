@@ -17,8 +17,8 @@ The overlay is the daily working surface. Once the visible brand exists, the nex
 ## Now
 
 - Translate the overlay working surface to German
-- Replace visible `Domscribe` branding with `PinFlow`
-- Add a matching README/docs note near the top that `PinFlow` is built on top of the original `Domscribe` foundation, with an upstream link
+- Replace visible `PinFlow` branding with `PinFlow`
+- Add a matching README/docs note near the top that `PinFlow` is built on top of the original `PinFlow` foundation, with an upstream link
 - Replace generic `Agent` wording with a neutral but product-appropriate label, likely `Assistent` or an agent-specific label when available
 - Keep the interaction model intact while refining wording, labels, and hints
 - Remove visual emphasis on unsupported or secondary agent paths

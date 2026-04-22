@@ -1,5 +1,5 @@
 /**
- * Canonical Annotation data model for Domscribe.
+ * Canonical Annotation data model for PinFlow.
  * Represents a structured record of a user interaction with captured context.
  * @module @pinflow/core/types/annotation
  */
@@ -90,7 +90,7 @@ export const AnnotationMetadataSchema = z.object({
 export const SelectedElementSchema = z.object({
   tagName: z.string().describe('HTML tag name'),
   selector: z.string().describe('CSS selector path to the element'),
-  dataDs: z.string().optional().describe('Domscribe element ID if transformed'),
+  dataDs: z.string().optional().describe('PinFlow element ID if transformed'),
   attributes: z
     .record(z.string(), z.string())
     .optional()

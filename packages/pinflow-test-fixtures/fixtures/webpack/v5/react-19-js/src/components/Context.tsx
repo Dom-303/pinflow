@@ -1,7 +1,7 @@
 /**
  * Context - Tests React Context API
  *
- * Validates that Domscribe handles:
+ * Validates that PinFlow handles:
  * - createContext + Provider/Consumer
  * - useContext hook
  * - Nested providers with different values

@@ -665,7 +665,7 @@ export async function testFixtureGenerator(
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Domscribe Test Fixture - ${framework} ${frameworkVersion}</title>
+    <title>PinFlow Test Fixture - ${framework} ${frameworkVersion}</title>
   </head>
   <body>
     <div id="root"></div>

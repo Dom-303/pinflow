@@ -124,7 +124,7 @@ vi.mock('@pinflow/relay', () => ({
 
 vi.mock('@pinflow/core', () => ({
   PATHS: {
-    TRANSFORM_CACHE: '.domscribe/cache',
+    TRANSFORM_CACHE: '.pinflow/cache',
   },
 }));
 

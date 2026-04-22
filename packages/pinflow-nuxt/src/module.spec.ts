@@ -8,7 +8,7 @@ interface MockNuxt {
     dev: boolean;
     rootDir: string;
     pinflow?: PinFlowNuxtOptions;
-    domscribe?: PinFlowNuxtOptions;
+    pinflow?: PinFlowNuxtOptions;
     app: {
       head: {
         script: Array<{ innerHTML: string }>;
@@ -171,8 +171,8 @@ describe('pinflowModule', () => {
         expect(mockExtendWebpackConfig).not.toHaveBeenCalled();
       });
 
-      it('should run setup in production when DOMSCRIBE_FORCE_TRANSFORM is set', async () => {
-        vi.stubEnv('DOMSCRIBE_FORCE_TRANSFORM', '1');
+      it('should run setup in production when PINFLOW_FORCE_TRANSFORM is set', async () => {
+        vi.stubEnv('PINFLOW_FORCE_TRANSFORM', '1');
         const nuxt = createMockNuxt({ dev: false });
 
         await callSetup({ debug: false, overlay: true, relay: {} }, nuxt);
@@ -189,9 +189,9 @@ describe('pinflowModule', () => {
         expect(mockAddPlugin).toHaveBeenCalled();
       });
 
-      it('should ignore legacy domscribe config now that pinflow is canonical', async () => {
+      it('should ignore legacy pinflow config now that pinflow is canonical', async () => {
         const nuxt = createMockNuxt({
-          domscribe: {
+          pinflow: {
             debug: true,
             overlay: { initialMode: 'expanded' },
             relay: { port: 3300 },
@@ -384,7 +384,7 @@ describe('pinflowModule', () => {
       });
 
       it('should register vite plugin for all modes when force-transform is set', async () => {
-        vi.stubEnv('DOMSCRIBE_FORCE_TRANSFORM', '1');
+        vi.stubEnv('PINFLOW_FORCE_TRANSFORM', '1');
         const nuxt = createMockNuxt({ dev: false });
 
         await callSetup({ debug: false, relay: {}, overlay: true }, nuxt);
@@ -509,7 +509,7 @@ describe('pinflowModule', () => {
       });
 
       it('should register webpack config for all modes when force-transform is set', async () => {
-        vi.stubEnv('DOMSCRIBE_FORCE_TRANSFORM', '1');
+        vi.stubEnv('PINFLOW_FORCE_TRANSFORM', '1');
         const nuxt = createMockNuxt({ dev: false });
 
         await callSetup({ debug: false, relay: {}, overlay: true }, nuxt);

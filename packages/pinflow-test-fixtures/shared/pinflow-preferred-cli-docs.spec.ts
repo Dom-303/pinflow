@@ -7,12 +7,12 @@ function readRepoFile(relativePath: string): string {
 }
 
 describe('pinflow preferred cli docs', () => {
-  it('documents pinflow as the preferred installed command while keeping domscribe init as the compatibility path', () => {
+  it('documents pinflow as the preferred installed command while keeping pinflow init as the compatibility path', () => {
     const readme = readRepoFile('README.md');
 
     expect(readme).toContain('Preferred installed CLI command: `pinflow`');
-    expect(readme).toContain('Current no-install compatibility path: `npx domscribe init`');
-    expect(readme).toContain('Compatibility alias: `domscribe`');
+    expect(readme).toContain('Current no-install compatibility path: `npx pinflow init`');
+    expect(readme).toContain('Compatibility alias: `pinflow`');
   });
 
   it('documents pinflow-mcp as the preferred installed binary while keeping compatibility aliases available', () => {
@@ -22,7 +22,7 @@ describe('pinflow preferred cli docs', () => {
     expect(readme).toContain('Preferred MCP server key: `pinflow`');
     expect(readme).toContain('"args": ["-y", "@pinflow/mcp"]');
     expect(readme).toContain(
-      'Compatibility aliases remain available for older `domscribe.*` MCP clients',
+      'Compatibility aliases remain available for older `pinflow.*` MCP clients',
     );
   });
 });

@@ -5,7 +5,7 @@
  * directly on representative source files (.tsx, .vue).
  *
  * This is a unit benchmark of the transform layer, not an integration test.
- * It lives in domscribe-transform so it has no cross-package dependencies.
+ * It lives in pinflow-transform so it has no cross-package dependencies.
  */
 
 import { describe, it, expect } from 'vitest';

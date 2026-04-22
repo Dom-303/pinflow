@@ -1,5 +1,5 @@
 /**
- * ReactAdapter - React framework adapter for Domscribe
+ * ReactAdapter - React framework adapter for PinFlow
  *
  * Implements the FrameworkAdapter interface to provide runtime context capture
  * for React applications. Supports multiple capture strategies:

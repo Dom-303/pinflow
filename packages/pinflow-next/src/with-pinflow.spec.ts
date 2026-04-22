@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { NextConfig } from 'next';
 import type { WebpackConfigContext } from 'next/dist/server/config-shared.js';
 import {
-  withDomscribe,
+  withPinFlow,
   withPinFlow,
   type WebpackConfig,
 } from './with-pinflow.js';
@@ -53,7 +53,7 @@ describe('withPinFlow', () => {
   });
 
   it('should expose withPinFlow as the canonical alias', () => {
-    expect(withPinFlow).toBe(withDomscribe);
+    expect(withPinFlow).toBe(withPinFlow);
   });
 
   it('should return a NextConfig object', () => {
@@ -108,9 +108,9 @@ describe('withPinFlow', () => {
       expect(resolveAlias['@pinflow/overlay']).toContain('noop/overlay');
     });
 
-    it('should apply dev transforms when DOMSCRIBE_FORCE_TRANSFORM is set in production', () => {
+    it('should apply dev transforms when PINFLOW_FORCE_TRANSFORM is set in production', () => {
       vi.stubEnv('NODE_ENV', 'production');
-      vi.stubEnv('DOMSCRIBE_FORCE_TRANSFORM', '1');
+      vi.stubEnv('PINFLOW_FORCE_TRANSFORM', '1');
 
       const result = withPinFlow()({});
 

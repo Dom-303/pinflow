@@ -26,7 +26,7 @@ This design does not yet cover:
 - direct provider API integration details
 - authentication/token transport for Codex or Claude
 - retries, billing, or provider-specific execution plumbing
-- deep internal namespace renames away from `domscribe`
+- deep internal namespace renames away from `pinflow`
 
 ## Product Intent
 

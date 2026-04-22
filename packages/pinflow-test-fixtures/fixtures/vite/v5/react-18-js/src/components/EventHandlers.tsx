@@ -1,7 +1,7 @@
 /**
  * EventHandlers - Tests event handler attributes
  *
- * Validates that Domscribe correctly handles elements with:
+ * Validates that PinFlow correctly handles elements with:
  * - onClick, onChange, onSubmit, onFocus, onBlur, etc.
  */
 

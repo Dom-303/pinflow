@@ -1,7 +1,7 @@
 /**
  * SSRHydration - Tests SSR/hydration edge cases
  *
- * Validates that Domscribe handles:
+ * Validates that PinFlow handles:
  * - Client-only rendered content (useEffect-only)
  * - typeof window !== 'undefined' checks
  * - Content that differs between server and client

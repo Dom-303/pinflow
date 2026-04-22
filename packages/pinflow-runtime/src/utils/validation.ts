@@ -6,7 +6,7 @@
 import { PATTERNS } from '@pinflow/core';
 
 /**
- * Validate a Domscribe element ID
+ * Validate a PinFlow element ID
  *
  * @param id - The ID to validate
  * @returns True if valid

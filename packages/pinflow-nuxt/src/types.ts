@@ -88,6 +88,3 @@ export interface PinFlowNuxtOptions {
         debug?: boolean;
       };
 }
-
-/** @deprecated Use `PinFlowNuxtOptions`. */
-export type DomscribeNuxtOptions = PinFlowNuxtOptions;

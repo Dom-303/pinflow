@@ -1,7 +1,7 @@
 /**
  * DeeplyNested - Tests deeply nested component structures
  *
- * Validates that Domscribe handles 10+ levels of nesting.
+ * Validates that PinFlow handles 10+ levels of nesting.
  * This stress-tests the transform layer's ability to handle deep ASTs.
  */
 

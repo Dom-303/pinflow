@@ -10,7 +10,7 @@ export default defineConfig({
     },
   },
   test: {
-    name: '@domscribe/nuxt',
+    name: '@pinflow/nuxt',
     watch: false,
     globals: true,
     environment: 'node',

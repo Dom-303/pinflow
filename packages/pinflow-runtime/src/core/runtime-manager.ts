@@ -159,7 +159,7 @@ export class RuntimeManager {
       if (!element) {
         if (this.options.debug) {
           console.warn(
-            `[domscribe-runtime][runtime-manager] Element not found: ${entryId}`,
+            `[pinflow-runtime][runtime-manager] Element not found: ${entryId}`,
           );
         }
         return null;
@@ -169,7 +169,7 @@ export class RuntimeManager {
       if (this.isElementBlocked(element)) {
         if (this.options.debug) {
           console.warn(
-            `[domscribe-runtime][runtime-manager] Element is blocked: ${entryId}`,
+            `[pinflow-runtime][runtime-manager] Element is blocked: ${entryId}`,
           );
         }
         return null;
@@ -210,7 +210,7 @@ export class RuntimeManager {
     if (!isHTMLElement(element)) {
       if (this.options.debug) {
         console.warn(
-          '[domscribe-runtime][runtime-manager] Invalid element provided to captureContextForElement',
+          '[pinflow-runtime][runtime-manager] Invalid element provided to captureContextForElement',
         );
       }
       return null;
@@ -221,7 +221,7 @@ export class RuntimeManager {
       if (this.isElementBlocked(element)) {
         if (this.options.debug) {
           console.warn(
-            '[domscribe-runtime][runtime-manager] Element is blocked',
+            '[pinflow-runtime][runtime-manager] Element is blocked',
           );
         }
         return null;
@@ -287,7 +287,7 @@ export class RuntimeManager {
       this.initialize(this.options).catch((error) => {
         if (this.options.debug) {
           console.error(
-            '[domscribe-runtime][runtime-manager] Failed to re-initialize with new adapter:',
+            '[pinflow-runtime][runtime-manager] Failed to re-initialize with new adapter:',
             error,
           );
         }
@@ -296,7 +296,7 @@ export class RuntimeManager {
 
     if (this.options.debug) {
       console.log(
-        `[domscribe-runtime][runtime-manager] Registered adapter: ${adapter.name}`,
+        `[pinflow-runtime][runtime-manager] Registered adapter: ${adapter.name}`,
       );
     }
   }
@@ -314,7 +314,7 @@ export class RuntimeManager {
     this.isInitialized = false;
 
     if (this.options.debug) {
-      console.log('[domscribe-runtime][runtime-manager] Cleaned up');
+      console.log('[pinflow-runtime][runtime-manager] Cleaned up');
     }
   }
 

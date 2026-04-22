@@ -1,7 +1,7 @@
 /**
  * LazyLoading - Tests React.lazy() and Suspense
  *
- * Validates that Domscribe handles:
+ * Validates that PinFlow handles:
  * - Components loaded via React.lazy()
  * - Suspense boundaries with fallback content
  * - Dynamic imports and code splitting

@@ -1,13 +1,13 @@
 /**
  * Tests for Vite plugin
  *
- * Tests the Vite plugin that integrates Domscribe transformations into the Vite build process.
+ * Tests the Vite plugin that integrates PinFlow transformations into the Vite build process.
  * This test suite focuses on testing the plugin's business logic only,
  * with all external dependencies mocked.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { domscribe, pinflow } from './vite.plugin.js';
+import { pinflow, pinflow } from './vite.plugin.js';
 import type { Plugin, ResolvedConfig } from 'vite';
 import { type RawSourceMap } from 'source-map';
 import type { VitePluginOptions } from './types.js';
@@ -200,7 +200,7 @@ function callHook<T extends (...args: any[]) => ReturnType<T>>(
  * Helper to set up a plugin through the complete initialization lifecycle
  */
 async function setupPlugin(options: VitePluginOptions = {}): Promise<Plugin> {
-  const plugin = domscribe(options);
+  const plugin = pinflow(options);
   const config = createMockResolvedConfig({ root: '/test/workspace' });
   callHook(plugin.configResolved, {}, config);
   await callHook(plugin.buildStart);
@@ -263,15 +263,15 @@ describe('pinflow Vite plugin', () => {
 
     it('should create plugin with default options', () => {
       // Arrange & Act
-      const plugin = domscribe({});
+      const plugin = pinflow({});
 
       // Assert
       expect(plugin).toBeDefined();
       expect(plugin.enforce).toBe('pre');
     });
 
-    it('should keep domscribe as a compatibility alias', () => {
-      expect(domscribe).toBe(pinflow);
+    it('should keep pinflow as a compatibility alias', () => {
+      expect(pinflow).toBe(pinflow);
     });
 
     it('should create plugin with debug enabled', () => {
@@ -288,7 +288,7 @@ describe('pinflow Vite plugin', () => {
       const customInclude = /\.tsx$/i;
 
       // Act
-      const plugin = domscribe({ include: customInclude });
+      const plugin = pinflow({ include: customInclude });
 
       // Assert
       expect(plugin).toBeDefined();
@@ -299,7 +299,7 @@ describe('pinflow Vite plugin', () => {
       const customExclude = /\.stories\./i;
 
       // Act
-      const plugin = domscribe({ exclude: customExclude });
+      const plugin = pinflow({ exclude: customExclude });
 
       // Assert
       expect(plugin).toBeDefined();
@@ -309,7 +309,7 @@ describe('pinflow Vite plugin', () => {
   describe('configResolved hook', () => {
     it('should store root context from config', () => {
       // Arrange
-      const plugin = domscribe();
+      const plugin = pinflow();
       const config = createMockResolvedConfig({ root: '/custom/path' });
 
       // Act
@@ -323,7 +323,7 @@ describe('pinflow Vite plugin', () => {
 
     it('should use rootDir option over config.root when provided', async () => {
       // Arrange — Nuxt sets config.root to srcDir, but rootDir points to project root
-      const plugin = domscribe({ rootDir: '/project/root' });
+      const plugin = pinflow({ rootDir: '/project/root' });
       const config = createMockResolvedConfig({ root: '/project/root/app' });
 
       // Act
@@ -339,7 +339,7 @@ describe('pinflow Vite plugin', () => {
 
     it('should handle being called multiple times', () => {
       // Arrange
-      const plugin = domscribe();
+      const plugin = pinflow();
       const config1 = createMockResolvedConfig({ root: '/path1' });
       const config2 = createMockResolvedConfig({ root: '/path2' });
 
@@ -355,7 +355,7 @@ describe('pinflow Vite plugin', () => {
   describe('buildStart hook', () => {
     it('should throw error if configResolved not called first', async () => {
       // Arrange
-      const plugin = domscribe();
+      const plugin = pinflow();
 
       // Act & Assert
       await expect(callHook(plugin.buildStart)).rejects.toThrow(
@@ -365,7 +365,7 @@ describe('pinflow Vite plugin', () => {
 
     it('should initialize ManifestWriter with correct root', async () => {
       // Arrange
-      const plugin = domscribe();
+      const plugin = pinflow();
       const config = createMockResolvedConfig({ root: '/test/workspace' });
       callHook(plugin.configResolved, {}, config);
 
@@ -380,7 +380,7 @@ describe('pinflow Vite plugin', () => {
 
     it('should call InjectorRegistry.getInstance with workspaceRoot and options', async () => {
       // Arrange
-      const plugin = domscribe({ debug: true });
+      const plugin = pinflow({ debug: true });
       const config = createMockResolvedConfig({ root: '/test/workspace' });
       callHook(plugin.configResolved, {}, config);
 
@@ -398,7 +398,7 @@ describe('pinflow Vite plugin', () => {
 
     it('should initialize InjectorRegistry', async () => {
       // Arrange
-      const plugin = domscribe();
+      const plugin = pinflow();
       const config = createMockResolvedConfig({ root: '/test/workspace' });
       callHook(plugin.configResolved, {}, config);
 
@@ -411,7 +411,7 @@ describe('pinflow Vite plugin', () => {
 
     it('should initialize TransformStats', async () => {
       // Arrange
-      const plugin = domscribe();
+      const plugin = pinflow();
       const config = createMockResolvedConfig({ root: '/test/workspace' });
       callHook(plugin.configResolved, {}, config);
 
@@ -424,7 +424,7 @@ describe('pinflow Vite plugin', () => {
 
     it('should handle writer getInstance errors', async () => {
       // Arrange
-      const plugin = domscribe();
+      const plugin = pinflow();
       const config = createMockResolvedConfig({ root: '/test/workspace' });
       callHook(plugin.configResolved, {}, config);
 
@@ -445,7 +445,7 @@ describe('pinflow Vite plugin', () => {
   describe('transform hook - File Filtering', () => {
     it('should throw if buildStart not called (writer and injector not initialized)', async () => {
       // Arrange
-      const plugin = domscribe();
+      const plugin = pinflow();
       const config = createMockResolvedConfig({ root: '/test/workspace' });
       callHook(plugin.configResolved, {}, config);
       // Skip buildStart to leave both writer and injector uninitialized
@@ -932,7 +932,7 @@ describe('pinflow Vite plugin', () => {
   describe('buildEnd hook', () => {
     it('should return early if writer not initialized', () => {
       // Arrange
-      const plugin = domscribe();
+      const plugin = pinflow();
       const config = createMockResolvedConfig({ root: '/test/workspace' });
       callHook(plugin.configResolved, {}, config);
       // Don't call buildStart, so writer stays undefined
@@ -968,7 +968,7 @@ describe('pinflow Vite plugin', () => {
   describe('Integration Scenarios', () => {
     it('should handle complete lifecycle: configResolved → buildStart → transform → buildEnd', async () => {
       // Arrange
-      const plugin = domscribe();
+      const plugin = pinflow();
       const config = createMockResolvedConfig();
       const context = createPluginContext();
 
@@ -1009,7 +1009,7 @@ describe('pinflow Vite plugin', () => {
 
     it('should handle multiple transforms in sequence', async () => {
       // Arrange
-      const plugin = domscribe();
+      const plugin = pinflow();
       const config = createMockResolvedConfig();
       const context = createPluginContext();
 
@@ -1054,7 +1054,7 @@ describe('pinflow Vite plugin', () => {
 
     it('should handle mixed file types with some filtered out', async () => {
       // Arrange
-      const plugin = domscribe();
+      const plugin = pinflow();
       const config = createMockResolvedConfig();
       const context = createPluginContext();
 
@@ -1107,7 +1107,7 @@ describe('pinflow Vite plugin', () => {
 
     it('should handle transformation with source maps end-to-end', async () => {
       // Arrange
-      const plugin = domscribe();
+      const plugin = pinflow();
       const config = createMockResolvedConfig();
       const mockSourceMap: RawSourceMap = {
         version: 3,

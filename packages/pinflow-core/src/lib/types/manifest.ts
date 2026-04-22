@@ -1,5 +1,5 @@
 /**
- * Canonical Manifest data model for Domscribe.
+ * Canonical Manifest data model for PinFlow.
  * Represents the DOM→source mapping index for element resolution.
  * @module @pinflow/core/types/manifest
  */

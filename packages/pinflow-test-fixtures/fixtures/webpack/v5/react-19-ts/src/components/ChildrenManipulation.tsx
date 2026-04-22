@@ -1,7 +1,7 @@
 /**
  * ChildrenManipulation - Tests React.Children utilities and cloneElement (React 19 compatible)
  *
- * Validates that Domscribe handles:
+ * Validates that PinFlow handles:
  * - React.Children.map/forEach
  * - React.cloneElement
  * - Children as function pattern

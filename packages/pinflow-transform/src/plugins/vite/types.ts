@@ -48,7 +48,7 @@ export interface VitePluginOptions {
 
   /**
    * Override the root directory for `.pinflow/` artifacts (manifest,
-   * transform cache, relay lock). Legacy `.domscribe/` paths are still read
+   * transform cache, relay lock). Legacy `.pinflow/` paths are still read
    * during the migration window.
    *
    * When omitted, defaults to Vite's `config.root`. Needed when the Vite

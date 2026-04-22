@@ -1,7 +1,7 @@
 /**
  * Styling - Tests various styling patterns
  *
- * Validates that Domscribe handles:
+ * Validates that PinFlow handles:
  * - Inline styles with dynamic values
  * - Large className strings (utility-first/Tailwind-style)
  * - Style objects

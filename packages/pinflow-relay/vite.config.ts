@@ -2,7 +2,7 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    name: '@domscribe/relay',
+    name: '@pinflow/relay',
     watch: false,
     globals: true,
     environment: 'node',

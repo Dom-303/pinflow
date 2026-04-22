@@ -1,7 +1,7 @@
 /**
  * SelfClosing - Tests self-closing JSX elements
  *
- * Validates that Domscribe correctly handles self-closing elements
+ * Validates that PinFlow correctly handles self-closing elements
  * like <input />, <br />, <hr />, <img />.
  */
 

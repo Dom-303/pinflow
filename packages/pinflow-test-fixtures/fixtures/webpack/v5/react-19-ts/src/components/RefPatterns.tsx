@@ -1,7 +1,7 @@
 /**
  * RefPatterns - Tests various ref patterns (React 19 compatible)
  *
- * Validates that Domscribe handles:
+ * Validates that PinFlow handles:
  * - useRef with DOM elements
  * - Callback refs
  * - forwardRef (already tested in Memo.tsx, but added here for completeness)

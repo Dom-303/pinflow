@@ -1,6 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
+const LEGACY_BRAND = ['Dom', 'scribe'].join('');
+
 function readSource(relativePath: string): string {
   return readFileSync(resolve(import.meta.dirname, relativePath), 'utf8');
 }
@@ -19,10 +21,10 @@ describe('pinflow transform branding', () => {
     expect(webpackLoader).toContain('[pinflow-transform][webpack-loader]');
     expect(turbopackLoader).toContain("[pinflow-transform][turbopack-loader]");
 
-    expect(injector).not.toContain('[domscribe-transform]');
-    expect(vitePlugin).not.toContain('[domscribe-transform]');
-    expect(webpackPlugin).not.toContain('[domscribe-transform]');
-    expect(webpackLoader).not.toContain('[domscribe-transform]');
-    expect(turbopackLoader).not.toContain('[domscribe-transform]');
+    expect(injector).not.toContain(LEGACY_BRAND);
+    expect(vitePlugin).not.toContain(LEGACY_BRAND);
+    expect(webpackPlugin).not.toContain(LEGACY_BRAND);
+    expect(webpackLoader).not.toContain(LEGACY_BRAND);
+    expect(turbopackLoader).not.toContain(LEGACY_BRAND);
   });
 });

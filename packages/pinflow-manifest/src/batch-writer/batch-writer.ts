@@ -64,7 +64,7 @@ export class BatchWriter implements IWriter {
 
     if (debug) {
       console.log(
-        `[domscribe-manifest][batch-writer] Started (batchSize: ${batchSize}, interval: ${flushIntervalMs}ms)`,
+        `[pinflow-manifest][batch-writer] Started (batchSize: ${batchSize}, interval: ${flushIntervalMs}ms)`,
       );
     }
   }
@@ -110,13 +110,13 @@ export class BatchWriter implements IWriter {
 
       if (this.options.debug) {
         console.log(
-          `[domscribe-manifest][batch-writer] Flushed ${entriesWritten} entries (total: ${this.stats.totalWritten})`,
+          `[pinflow-manifest][batch-writer] Flushed ${entriesWritten} entries (total: ${this.stats.totalWritten})`,
         );
       }
     } catch (error) {
       if (this.options.debug) {
         console.error(
-          '[domscribe-manifest][batch-writer] Flush failed:',
+          '[pinflow-manifest][batch-writer] Flush failed:',
           error instanceof Error ? error.message : String(error),
         );
       }
@@ -147,7 +147,7 @@ export class BatchWriter implements IWriter {
     this.flush({ drain: true });
 
     if (this.options.debug) {
-      console.log('[domscribe-manifest][batch-writer] Stopped');
+      console.log('[pinflow-manifest][batch-writer] Stopped');
     }
   }
 
@@ -228,7 +228,7 @@ export class BatchWriter implements IWriter {
       this.writeEntriesToFile({ pushToBufferOnError: false, drain: true });
     } catch (error) {
       console.error(
-        '[domscribe-manifest][batch-writer] Exit flush failed:',
+        '[pinflow-manifest][batch-writer] Exit flush failed:',
         error,
       );
     }

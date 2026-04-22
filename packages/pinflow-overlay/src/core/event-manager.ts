@@ -83,7 +83,7 @@ export class EventManager {
     document.addEventListener('click', this.boundClick, { capture: true });
 
     if (this.store.getState().debug) {
-      console.log('[domscribe-overlay][event-manager] Capture mode enabled');
+      console.log('[pinflow-overlay][event-manager] Capture mode enabled');
     }
   }
 
@@ -103,7 +103,7 @@ export class EventManager {
     document.removeEventListener('click', this.boundClick, { capture: true });
 
     if (this.store.getState().debug) {
-      console.log('[domscribe-overlay][event-manager] Capture mode disabled');
+      console.log('[pinflow-overlay][event-manager] Capture mode disabled');
     }
   }
 
@@ -210,7 +210,7 @@ export class EventManager {
       this.disableCapture();
 
       if (this.store.getState().debug) {
-        console.log('[domscribe-overlay][event-manager] Element selected:', {
+        console.log('[pinflow-overlay][event-manager] Element selected:', {
           element,
           entryId,
           tagName: element.tagName,

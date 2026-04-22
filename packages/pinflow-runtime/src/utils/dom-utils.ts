@@ -6,7 +6,7 @@
 import { ManifestEntryId, PATTERNS } from '@pinflow/core';
 
 /**
- * Get element by Domscribe element ID (data-ds attribute)
+ * Get element by PinFlow element ID (data-ds attribute)
  *
  * @param entryId - The manifest entry ID to search for
  * @param root - Root element to search within (defaults to document.body)
@@ -21,7 +21,7 @@ export function getElementByDsId(
 }
 
 /**
- * Get Domscribe element ID from an element
+ * Get PinFlow element ID from an element
  *
  * @param element - The element to query
  * @returns The element ID or null if not found
@@ -33,7 +33,7 @@ export function getDsIdFromElement(
 }
 
 /**
- * Check if an element has a Domscribe element ID
+ * Check if an element has a PinFlow element ID
  *
  * @param element - The element to check
  * @returns True if the element has a data-ds attribute
@@ -43,7 +43,7 @@ export function hasDsId(element: HTMLElement): boolean {
 }
 
 /**
- * Validate a Domscribe element ID
+ * Validate a PinFlow element ID
  *
  * @param id - The ID to validate
  * @returns True if the ID is valid
@@ -53,7 +53,7 @@ export function isValidDsId(id: string): boolean {
 }
 
 /**
- * Find the closest ancestor element with a Domscribe element ID
+ * Find the closest ancestor element with a PinFlow element ID
  *
  * @param element - The starting element
  * @returns The closest ancestor with a data-ds attribute or null
@@ -72,7 +72,7 @@ export function findClosestDsElement(element: HTMLElement): HTMLElement | null {
 }
 
 /**
- * Get all descendant elements with Domscribe element IDs
+ * Get all descendant elements with PinFlow element IDs
  *
  * @param root - Root element to search within
  * @returns Array of elements with data-ds attributes

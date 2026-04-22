@@ -1,7 +1,7 @@
 /**
  * Memo - Tests React.memo, forwardRef, and useCallback
  *
- * Validates that Domscribe handles memoization and ref forwarding.
+ * Validates that PinFlow handles memoization and ref forwarding.
  */
 
 import { memo, forwardRef, useCallback, useRef, useState } from 'react';

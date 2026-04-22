@@ -1,7 +1,7 @@
 /**
  * MemberExpressions - Tests member expression JSX elements
  *
- * Validates that Domscribe handles:
+ * Validates that PinFlow handles:
  * - <UI.Button> style components
  * - <Card.Header> style nested components
  */

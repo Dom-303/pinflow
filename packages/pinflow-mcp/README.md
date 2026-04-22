@@ -1,6 +1,6 @@
 # PinFlow MCP Package
 
-Standalone MCP server package for PinFlow runtime context workflows, with `domscribe-mcp` kept as a temporary binary alias during the migration window.
+Standalone MCP server package for PinFlow runtime context workflows, with `pinflow-mcp` kept as a temporary binary alias during the migration window.
 
 ## Install
 
@@ -23,7 +23,7 @@ pinflow-mcp
 Compatibility binary:
 
 ```bash
-domscribe-mcp
+pinflow-mcp
 ```
 
 Requires Node.js 20 or later.
@@ -44,7 +44,7 @@ Add `pinflow` to your MCP server configuration. The server communicates over std
 }
 ```
 
-Compatibility note: `domscribe-mcp` remains available as a temporary binary alias during the migration window.
+Compatibility note: `pinflow-mcp` remains available as a temporary binary alias during the migration window.
 
 The relay daemon starts automatically when you run your dev server with PinFlow configured. The MCP server connects to it on localhost and exposes the full runtime toolset to your coding agent.
 
@@ -159,7 +159,7 @@ Returned by `pinflow.annotation.get`, `pinflow.annotation.process`, and related 
 
 ## Links
 
-PinFlow is built from the original [Domscribe](https://github.com/patchorbit/domscribe) foundation.
+PinFlow is built from the original [PinFlow](https://github.com/patchorbit/pinflow) foundation.
 
 ## License
 

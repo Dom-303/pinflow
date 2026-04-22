@@ -1,5 +1,5 @@
 /**
- * Turbopack self-initializing loader for Domscribe transform
+ * Turbopack self-initializing loader for PinFlow transform
  *
  * Unlike the webpack loader (which relies on PinFlowWebpackPlugin for lifecycle),
  * this loader handles its own initialization, relay auto-start, and cleanup —

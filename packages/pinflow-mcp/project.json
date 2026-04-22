@@ -16,7 +16,7 @@
       "options": {
         "rootDir": "packages/pinflow-mcp/src",
         "outputPath": "dist/packages/pinflow-mcp",
-        "main": "packages/pinflow-mcp/src/bin/domscribe-mcp.ts",
+        "main": "packages/pinflow-mcp/src/bin/pinflow-mcp.ts",
         "tsConfig": "packages/pinflow-mcp/tsconfig.lib.json",
         "generatePackageJson": true,
         "generateExportsField": true,

@@ -222,7 +222,7 @@ export class PinFlowWebpackPlugin {
    *     <!DOCTYPE html>
    *     <html>
    *       <head>
-   *         ${domscribePlugin.getRelayScriptTag()}
+   *         ${pinflowPlugin.getRelayScriptTag()}
    *         ${htmlWebpackPlugin.tags.headTags}
    *       </head>
    *       <body>
@@ -253,12 +253,12 @@ export class PinFlowWebpackPlugin {
    *     <!DOCTYPE html>
    *     <html>
    *       <head>
-   *         ${domscribePlugin.getOverlayScriptTags().head}
+   *         ${pinflowPlugin.getOverlayScriptTags().head}
    *         ${htmlWebpackPlugin.tags.headTags}
    *       </head>
    *       <body>
    *         ${htmlWebpackPlugin.tags.bodyTags}
-   *         ${domscribePlugin.getOverlayScriptTags().body}
+   *         ${pinflowPlugin.getOverlayScriptTags().body}
    *       </body>
    *     </html>
    *   `,
@@ -399,6 +399,5 @@ export class PinFlowWebpackPlugin {
   }
 }
 
-export const DomscribeWebpackPlugin = PinFlowWebpackPlugin;
 
 export default PinFlowWebpackPlugin;

@@ -3,9 +3,9 @@ import { describe, it, expect, vi } from 'vitest';
 import type { Plugin, IndexHtmlTransformResult, HtmlTagDescriptor } from 'vite';
 
 vi.mock('@pinflow/transform/plugins/vite', () => ({
-  domscribe: vi.fn(
+  pinflow: vi.fn(
     (options?: Record<string, unknown>): Plugin => ({
-      name: 'vite-plugin-domscribe-transform',
+      name: 'vite-plugin-pinflow-transform',
       transformIndexHtml: options?._baseTags
         ? () => ({ html: '', tags: options._baseTags as HtmlTagDescriptor[] })
         : undefined,
@@ -13,7 +13,7 @@ vi.mock('@pinflow/transform/plugins/vite', () => ({
   ),
 }));
 
-import { domscribe, pinflow } from './vite-plugin.js';
+import { pinflow } from './vite-plugin.js';
 
 describe('pinflow (vue/vite)', () => {
   it('should rename the plugin to vite-plugin-pinflow-vue', () => {
@@ -22,12 +22,12 @@ describe('pinflow (vue/vite)', () => {
     expect(plugin.name).toBe('vite-plugin-pinflow-vue');
   });
 
-  it('should keep domscribe as a compatibility alias', () => {
-    expect(domscribe).toBe(pinflow);
+  it('should keep pinflow as a compatibility alias', () => {
+    expect(pinflow).toBe(pinflow);
   });
 
   it('should return a Plugin object', () => {
-    const plugin = domscribe();
+    const plugin = pinflow();
 
     expect(plugin).toBeDefined();
     expect(plugin.name).toBeDefined();
@@ -35,7 +35,7 @@ describe('pinflow (vue/vite)', () => {
 
   describe('resolveId', () => {
     it('should resolve the init module path', () => {
-      const plugin = domscribe();
+      const plugin = pinflow();
       const resolveId = plugin.resolveId as (id: string) => string | null;
 
       const result = resolveId.call({}, '/@pinflow/vue-init.js');
@@ -44,7 +44,7 @@ describe('pinflow (vue/vite)', () => {
     });
 
     it('should return null for unrelated IDs', () => {
-      const plugin = domscribe();
+      const plugin = pinflow();
       const resolveId = plugin.resolveId as (id: string) => string | null;
 
       const result = resolveId.call({}, 'some-other-module');
@@ -55,7 +55,7 @@ describe('pinflow (vue/vite)', () => {
 
   describe('load', () => {
     it('should return init code for the init module path', () => {
-      const plugin = domscribe();
+      const plugin = pinflow();
       const load = plugin.load as (id: string) => string | null;
 
       const result = load.call({}, '/@pinflow/vue-init.js');
@@ -67,7 +67,7 @@ describe('pinflow (vue/vite)', () => {
     });
 
     it('should embed default runtime options when none provided', () => {
-      const plugin = domscribe();
+      const plugin = pinflow();
       const load = plugin.load as (id: string) => string | null;
 
       const result = load.call({}, '/@pinflow/vue-init.js');
@@ -80,7 +80,7 @@ describe('pinflow (vue/vite)', () => {
     });
 
     it('should serialize custom runtime options', () => {
-      const plugin = domscribe({
+      const plugin = pinflow({
         runtime: { phase: 2, redactPII: false, blockSelectors: ['.secret'] },
       });
       const load = plugin.load as (id: string) => string | null;
@@ -93,7 +93,7 @@ describe('pinflow (vue/vite)', () => {
     });
 
     it('should serialize custom capture options', () => {
-      const plugin = domscribe({
+      const plugin = pinflow({
         capture: { maxTreeDepth: 25 },
       });
       const load = plugin.load as (id: string) => string | null;
@@ -104,7 +104,7 @@ describe('pinflow (vue/vite)', () => {
     });
 
     it('should cascade debug to both runtime and adapter', () => {
-      const plugin = domscribe({ debug: true });
+      const plugin = pinflow({ debug: true });
       const load = plugin.load as (id: string) => string | null;
 
       const result = load.call({}, '/@pinflow/vue-init.js');
@@ -115,7 +115,7 @@ describe('pinflow (vue/vite)', () => {
     });
 
     it('should return null for unrelated IDs', () => {
-      const plugin = domscribe();
+      const plugin = pinflow();
       const load = plugin.load as (id: string) => string | null;
 
       const result = load.call({}, 'some-other-module');
@@ -126,7 +126,7 @@ describe('pinflow (vue/vite)', () => {
 
   describe('transformIndexHtml', () => {
     it('should inject a script tag for runtime initialization', () => {
-      const plugin = domscribe();
+      const plugin = pinflow();
 
       const result = (
         plugin.transformIndexHtml as () => IndexHtmlTransformResult
@@ -148,7 +148,7 @@ describe('pinflow (vue/vite)', () => {
       const baseTags: HtmlTagDescriptor[] = [
         { tag: 'script', attrs: { src: '/overlay.js' }, injectTo: 'body' },
       ];
-      const plugin = domscribe({ _baseTags: baseTags } as never);
+      const plugin = pinflow({ _baseTags: baseTags } as never);
 
       const result = (
         plugin.transformIndexHtml as () => IndexHtmlTransformResult
@@ -165,7 +165,7 @@ describe('pinflow (vue/vite)', () => {
     });
 
     it('should handle base plugin with no transformIndexHtml', () => {
-      const plugin = domscribe();
+      const plugin = pinflow();
 
       const result = (
         plugin.transformIndexHtml as () => IndexHtmlTransformResult

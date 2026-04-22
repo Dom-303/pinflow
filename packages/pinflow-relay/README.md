@@ -55,7 +55,7 @@ The relay broadcasts events over WebSocket to keep connected overlay instances i
 
 ## Links
 
-PinFlow is based on [Domscribe](https://github.com/patchorbit/domscribe).
+PinFlow is based on [PinFlow](https://github.com/patchorbit/pinflow).
 
 ## License
 

@@ -1,7 +1,7 @@
 /**
  * SVGElements - Tests SVG namespace elements
  *
- * Validates that Domscribe handles:
+ * Validates that PinFlow handles:
  * - SVG elements (<svg>, <path>, <circle>, <rect>, etc.)
  * - SVG namespace vs HTML namespace
  * - Nested SVG structures

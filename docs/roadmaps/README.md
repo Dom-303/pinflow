@@ -1,6 +1,6 @@
 # PinFlow Roadmaps
 
-This folder captures the staged transition from upstream `domscribe` to the visible product direction `PinFlow`.
+This folder captures the staged transition from upstream `pinflow` to the visible product direction `PinFlow`.
 
 ## Guiding Principle
 
@@ -33,7 +33,7 @@ PinFlow should be introduced in three layers:
 That means:
 
 - rename the visible product first
-- keep internal `domscribe` namespaces for now
+- keep internal `pinflow` namespaces for now
 - avoid mass-renaming package names, CLI names, and artifact folders until there is a concrete reason
 
 ## Scope Discipline

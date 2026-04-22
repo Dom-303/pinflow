@@ -50,8 +50,8 @@ interface PinFlowReactPluginOptions {
 }
 ```
 
-Compatibility aliases `DomscribeReactPluginOptions`, `DomscribeRuntimeOptions`, and
-`DomscribeReactCaptureOptions` remain available during the migration window.
+Compatibility aliases `PinFlowReactPluginOptions`, `PinFlowRuntimeOptions`, and
+`PinFlowReactCaptureOptions` remain available during the migration window.
 
 ### Runtime Options
 
@@ -90,4 +90,4 @@ Hooks use semantic names based on their inferred type: `state_0`, `ref_0`, `memo
 
 ---
 
-Part of PinFlow, built on the original [Domscribe](https://github.com/patchorbit/domscribe) foundation. License: MIT.
+Part of PinFlow, built on the original [PinFlow](https://github.com/patchorbit/pinflow) foundation. License: MIT.

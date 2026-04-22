@@ -16,7 +16,7 @@
       "options": {
         "rootDir": "packages/pinflow-cli/src",
         "outputPath": "dist/packages/pinflow-cli",
-        "main": "packages/pinflow-cli/src/bin/domscribe.ts",
+        "main": "packages/pinflow-cli/src/bin/pinflow.ts",
         "tsConfig": "packages/pinflow-cli/tsconfig.lib.json",
         "generatePackageJson": true,
         "generateExportsField": true,

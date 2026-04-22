@@ -1,5 +1,5 @@
 /**
- * VueAdapter - Vue framework adapter for Domscribe
+ * VueAdapter - Vue framework adapter for PinFlow
  *
  * Implements the FrameworkAdapter interface to provide runtime context capture
  * for Vue 3 applications. Uses Vue's internal DOM-attached VNode references

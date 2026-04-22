@@ -1,5 +1,5 @@
 /**
- * Shared test infrastructure for domscribe-relay integration tests.
+ * Shared test infrastructure for pinflow-relay integration tests.
  *
  * Creates a real Fastify server backed by real services writing to
  * temp directories — no mocking. Each test suite gets its own
@@ -66,8 +66,8 @@ export async function createTestServer(
   if (manifestEntries.length > 0) {
     seedManifest(tempDir, manifestEntries);
   } else {
-    // Ensure .domscribe dir exists even without manifest
-    mkdirSync(path.join(tempDir, PATHS.DOMSCRIBE_DIR), { recursive: true });
+    // Ensure .pinflow dir exists even without manifest
+    mkdirSync(path.join(tempDir, PATHS.PINFLOW_DIR), { recursive: true });
   }
 
   // Create real services
@@ -148,7 +148,7 @@ export function seedManifest(tempDir: string, entries: ManifestEntry[]): void {
  */
 export function seedAnnotation(tempDir: string, annotation: Annotation): void {
   const status = annotation.metadata.status;
-  const dir = path.join(tempDir, PATHS.DOMSCRIBE_DIR, 'annotations', status);
+  const dir = path.join(tempDir, PATHS.PINFLOW_DIR, 'annotations', status);
   mkdirSync(dir, { recursive: true });
 
   const filePath = path.join(dir, `${annotation.metadata.id}.json`);
@@ -278,7 +278,7 @@ export function annotationExistsOnDisk(
 ): boolean {
   const filePath = path.join(
     tempDir,
-    PATHS.DOMSCRIBE_DIR,
+    PATHS.PINFLOW_DIR,
     'annotations',
     status,
     `${id}.json`,

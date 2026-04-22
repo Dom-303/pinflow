@@ -2,13 +2,13 @@
 
 ## Goal
 
-Complete the transition from the current hybrid `PinFlow` / `domscribe` state to a fully productized `PinFlow` codebase, while preserving the proven behavior, architecture, and migration safety of the original foundation.
+Complete the transition from the current hybrid `PinFlow` / `pinflow` state to a fully productized `PinFlow` codebase, while preserving the proven behavior, architecture, and migration safety of the original foundation.
 
 This is not a cosmetic rename. It is a controlled compatibility migration that must end in:
 
 - `PinFlow` as the only public product identity
 - a reliable local preview path that resolves the current PinFlow build
-- no product-facing dependency on old `domscribe` names
+- no product-facing dependency on old `pinflow` names
 - preservation of the core runtime, relay, overlay, transform, and fixture behavior that already works
 
 ## Why This Must Happen
@@ -19,7 +19,7 @@ The repo now has:
 
 - visible PinFlow branding
 - partially updated tooling and onboarding
-- deep technical names that still point to `domscribe`
+- deep technical names that still point to `pinflow`
 - multiple compatibility layers that are useful now, but expensive to build on forever
 
 Every additional feature added on top of the hybrid state increases later rename cost in:
@@ -35,7 +35,7 @@ The correct next step is therefore not “more cleanup”. It is a real migratio
 
 ## Non-Negotiable Outcome
 
-The desired end state is a **complete PinFlow version**, not a permanent fork that still behaves like Domscribe internally.
+The desired end state is a **complete PinFlow version**, not a permanent fork that still behaves like PinFlow internally.
 
 That means:
 
@@ -116,7 +116,7 @@ Create a hard baseline so the rename can be verified against a known-good system
 ### Required Outcomes
 
 - green verification for the current canonical preview flow
-- saved inventory of all remaining `domscribe` surfaces
+- saved inventory of all remaining `pinflow` surfaces
 - explicit classification of what will rename now, what gets aliases, and what migrates later in the sequence
 
 ## Wave 1: Dual Public Identity
@@ -136,19 +136,19 @@ Introduce `PinFlow` as the preferred technical identity everywhere public while 
 
 - old public names may remain as aliases
 - new work must prefer the PinFlow identity
-- no new docs should introduce fresh `domscribe` user-facing language
+- no new docs should introduce fresh `pinflow` user-facing language
 
 ## Wave 2: Public API Rename
 
 ### Purpose
 
-Rename source-level framework exports and integration APIs so framework users no longer code against `Domscribe`-named helpers.
+Rename source-level framework exports and integration APIs so framework users no longer code against `PinFlow`-named helpers.
 
 ### Targets
 
-- `withDomscribe` to PinFlow-native wrapper naming
-- `DomscribeWebpackPlugin` to PinFlow-native plugin naming
-- `domscribe()` plugin helper to PinFlow-native helper naming
+- `withPinFlow` to PinFlow-native wrapper naming
+- `PinFlowWebpackPlugin` to PinFlow-native plugin naming
+- `pinflow()` plugin helper to PinFlow-native helper naming
 
 ### Rules
 
@@ -182,8 +182,8 @@ Rename local on-disk product state without breaking existing workspaces.
 
 ### Targets
 
-- `.domscribe/`
-- `domscribe.config.json`
+- `.pinflow/`
+- `pinflow.config.json`
 - lock files and install stamps that still carry the old product identity
 
 ### Rules
@@ -200,7 +200,7 @@ Make the repo internals match the product identity.
 
 ### Targets
 
-- `packages/domscribe-*`
+- `packages/pinflow-*`
 - Nx project names
 - TS path aliases
 - build outputs and project references
@@ -284,7 +284,7 @@ If a rename looks clean on paper but weakens the ability to diagnose preview, fi
 The migration is complete when:
 
 - the preferred and default identity everywhere public is `PinFlow`
-- no new contributor or user needs to learn `domscribe` first
+- no new contributor or user needs to learn `pinflow` first
 - existing local workspaces can migrate without losing queue/annotation/manifest state
 - local preview, fixture install, and agent setup all run through PinFlow-native flows
 - remaining old names, if any, are only temporary compatibility shims with explicit removal plans

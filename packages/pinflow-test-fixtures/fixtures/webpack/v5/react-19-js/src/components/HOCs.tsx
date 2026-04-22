@@ -1,7 +1,7 @@
 /**
  * HOCs - Tests Higher-Order Components
  *
- * Validates that Domscribe correctly handles components wrapped by HOCs.
+ * Validates that PinFlow correctly handles components wrapped by HOCs.
  */
 
 import { ComponentType } from 'react';

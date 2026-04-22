@@ -11,7 +11,7 @@ export interface WriterOptions {
   /**
    * Path to manifest file (relative to workspace root)
    *
-   * @default '.domscribe/manifest.jsonl'
+   * @default '.pinflow/manifest.jsonl'
    */
   manifestPath?: string;
 

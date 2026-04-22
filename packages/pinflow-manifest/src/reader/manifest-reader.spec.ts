@@ -111,7 +111,7 @@ describe('ManifestReader', () => {
       expect(stats.entryCount).toBe(2);
     });
 
-    it('loads entries from legacy .domscribe manifest when .pinflow is absent', () => {
+    it('ignores a legacy .domscribe manifest when .pinflow is absent', () => {
       const entries = [createTestEntry('legacy01')];
       const manifestDir = path.join(testDir, '.domscribe');
       mkdirSync(manifestDir, { recursive: true });
@@ -123,8 +123,8 @@ describe('ManifestReader', () => {
       reader = new ManifestReader(testDir);
       reader.initialize();
 
-      expect(reader.getStats().entryCount).toBe(1);
-      expect(reader.resolve('legacy01').success).toBe(true);
+      expect(reader.getStats().entryCount).toBe(0);
+      expect(reader.resolve('legacy01').success).toBe(false);
     });
   });
 

@@ -261,7 +261,7 @@ describe('RelayLockManager', () => {
   });
 
   describe('legacy fallback', () => {
-    it('should read a legacy lock file from .domscribe when .pinflow is absent', () => {
+    it('should ignore a legacy lock file from .domscribe when .pinflow is absent', () => {
       rmSync(domscribeDir, { recursive: true, force: true });
       mkdirSync(legacyDomscribeDir, { recursive: true });
       writeFileSync(
@@ -280,9 +280,9 @@ describe('RelayLockManager', () => {
 
       const manager = new RelayLockManager(tempDir);
 
-      expect(manager.isLockFilePresent()).toBe(true);
+      expect(manager.isLockFilePresent()).toBe(false);
       expect(manager.getLockFilePath()).toBe(
-        path.join(legacyDomscribeDir, 'relay.lock'),
+        path.join(domscribeDir, 'relay.lock'),
       );
     });
   });

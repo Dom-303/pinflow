@@ -64,7 +64,7 @@ pinflow({
 | `debug`   | `boolean`                         | `false`                               | Enable debug logging                                                                                                                      |
 | `relay`   | `RelayPluginOptions`              | See shared                            | Relay server config                                                                                                                       |
 | `overlay` | `boolean \| OverlayPluginOptions` | `true`                                | Overlay UI config                                                                                                                         |
-| `rootDir` | `string`                          | Vite's `config.root`                  | Override root directory for `.pinflow/` artifacts. Legacy `.domscribe/` paths are still read during the migration window. |
+| `rootDir` | `string`                          | Vite's `config.root`                  | Override root directory for `.pinflow/` artifacts. |
 
 ---
 

@@ -24,7 +24,7 @@ pinflow mcp         # Run as MCP server via stdio
 
 For use in agent MCP configuration, the standalone `pinflow-mcp` binary runs the MCP server directly over stdio without the HTTP/WebSocket relay.
 
-**Monorepo support:** All commands automatically resolve the app root from a `pinflow.config.json` file when run from a monorepo root. Legacy `domscribe.config.json` files are still read during migration. Run `pinflow init --app-root <path>` to generate the config, or let the interactive wizard detect it.
+**Monorepo support:** All commands automatically resolve the app root from a `pinflow.config.json` file when run from a monorepo root. Run `pinflow init --app-root <path>` to generate the config, or let the interactive wizard detect it.
 
 ## Annotation Lifecycle
 

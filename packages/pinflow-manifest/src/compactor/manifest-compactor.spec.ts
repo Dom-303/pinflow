@@ -33,7 +33,7 @@ const mockWriteFileSync = vi.mocked(writeFileSync);
 const mockRenameSync = vi.mocked(renameSync);
 const mockUnlinkSync = vi.mocked(unlinkSync);
 
-const MANIFEST_PATH = '/workspace/.domscribe/manifest.jsonl';
+const MANIFEST_PATH = '/workspace/.pinflow/manifest.jsonl';
 const WORKSPACE_ROOT = '/workspace';
 
 function createEntry(overrides?: Partial<ManifestEntry>): ManifestEntry {

@@ -113,13 +113,13 @@ describe('getWorkspaceRoot', () => {
     expect(result).toBeUndefined();
   });
 
-  it('should still detect a legacy .domscribe directory', () => {
+  it('should ignore a legacy .domscribe directory', () => {
     vi.mocked(existsSync).mockImplementation((p) =>
       String(p).endsWith('.domscribe'),
     );
 
     const result = getWorkspaceRoot();
 
-    expect(result).toBe(process.cwd());
+    expect(result).toBeUndefined();
   });
 });

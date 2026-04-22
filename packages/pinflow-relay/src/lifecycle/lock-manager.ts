@@ -30,7 +30,7 @@ export const RelayLockSchema = z.object({
   port: z.number().optional().describe('Port the relay server is listening on'),
   startedAt: z.string().describe('ISO timestamp when the relay was started'),
   workspaceRoot: z.string().describe('Absolute path to the workspace root'),
-  version: z.string().describe('Version of domscribe that started the relay'),
+  version: z.string().describe('Version of PinFlow that started the relay'),
   nonce: z.string().describe('Nonce of the relay server'),
   status: z.enum(['claiming', 'claimed']).describe('Status of the lock'),
 });
@@ -39,24 +39,17 @@ export type RelayLock = z.infer<typeof RelayLockSchema>;
 
 export class RelayLockManager {
   private readonly nonce?: string;
-  private readonly domscribeDir: string;
-  private readonly legacyDomscribeDir: string;
+  private readonly pinflowDir: string;
   private readonly lockFilePath: string;
-  private readonly legacyLockFilePath: string;
 
   constructor(
     private readonly workspaceRoot: string,
     { nonce }: { nonce?: string } = {},
   ) {
     this.nonce = nonce;
-    this.domscribeDir = path.join(workspaceRoot, PATHS.DOMSCRIBE_DIR);
-    this.legacyDomscribeDir = path.join(workspaceRoot, PATHS.LEGACY_DOMSCRIBE_DIR);
+    this.pinflowDir = path.join(workspaceRoot, PATHS.DOMSCRIBE_DIR);
     this.lockFilePath = path.join(
-      this.domscribeDir,
-      DEFAULT_CONFIG.RELAY_LOCK_FILE,
-    );
-    this.legacyLockFilePath = path.join(
-      this.legacyDomscribeDir,
+      this.pinflowDir,
       DEFAULT_CONFIG.RELAY_LOCK_FILE,
     );
   }
@@ -64,13 +57,12 @@ export class RelayLockManager {
   // --- Read operations (no nonce required) ---
 
   getLockData(): RelayLock | null {
-    const lockPath = this.resolveExistingLockFilePath();
-    if (!lockPath) {
+    if (!existsSync(this.lockFilePath)) {
       return null;
     }
 
     try {
-      const content = readFileSync(lockPath, 'utf-8');
+      const content = readFileSync(this.lockFilePath, 'utf-8');
       const result = RelayLockSchema.safeParse(JSON.parse(content));
       return result.success ? result.data : null;
     } catch {
@@ -79,19 +71,18 @@ export class RelayLockManager {
   }
 
   isLockFilePresent(): boolean {
-    return Boolean(this.resolveExistingLockFilePath());
+    return existsSync(this.lockFilePath);
   }
 
   getLockFilePath(): string {
-    return this.resolveExistingLockFilePath() ?? this.lockFilePath;
+    return this.lockFilePath;
   }
 
   // --- Stale lock file removal (no nonce required) ---
 
   removeLockFile(): void {
-    const lockPath = this.resolveExistingLockFilePath() ?? this.lockFilePath;
     try {
-      unlinkSync(lockPath);
+      unlinkSync(this.lockFilePath);
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
         throw error;
@@ -104,10 +95,9 @@ export class RelayLockManager {
   claim(): void {
     const nonce = this.requireNonce();
 
-    const existingLockPath = this.resolveExistingLockFilePath();
-    if (existingLockPath) {
+    if (existsSync(this.lockFilePath)) {
       throw new Error(
-        `Lock file already exists at ${existingLockPath}. Another relay may be running.`,
+        `Lock file already exists at ${this.lockFilePath}. Another relay may be running.`,
       );
     }
 
@@ -121,8 +111,8 @@ export class RelayLockManager {
     };
 
     // Ensure primary PinFlow artifact directory exists
-    if (!existsSync(this.domscribeDir)) {
-      mkdirSync(this.domscribeDir, { recursive: true });
+    if (!existsSync(this.pinflowDir)) {
+      mkdirSync(this.pinflowDir, { recursive: true });
     }
 
     this.exclusiveWrite(data);
@@ -180,16 +170,6 @@ export class RelayLockManager {
     return this.nonce;
   }
 
-  private resolveExistingLockFilePath(): string | null {
-    if (existsSync(this.lockFilePath)) {
-      return this.lockFilePath;
-    }
-    if (existsSync(this.legacyLockFilePath)) {
-      return this.legacyLockFilePath;
-    }
-    return null;
-  }
-
   /**
    * Create lock file exclusively using O_EXCL — fails atomically if the file
    * already exists, preventing TOCTOU races between competing processes.
@@ -225,7 +205,7 @@ export class RelayLockManager {
    */
   private atomicWrite(data: RelayLock): void {
     const tempPath = path.join(
-      this.domscribeDir,
+      this.pinflowDir,
       `relay.lock.${process.pid}.tmp`,
     );
 

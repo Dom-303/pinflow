@@ -49,14 +49,14 @@ describe('findConfigFile', () => {
     expect(result).toBe('/project/pinflow.config.js');
   });
 
-  it('should fall back to legacy domscribe config when pinflow config does not exist', () => {
+  it('should ignore a legacy config filename when pinflow config does not exist', () => {
     vi.mocked(existsSync).mockImplementation(
       (p) => String(p) === '/project/domscribe.config.json',
     );
 
     const result = findConfigFile('/project');
 
-    expect(result).toBe('/project/domscribe.config.json');
+    expect(result).toBeUndefined();
   });
 
   it('should return undefined when no config file exists', () => {

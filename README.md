@@ -329,7 +329,7 @@ npx domscribe init --app-root apps/web
 
 Or run `npx domscribe init` and follow the prompts — the wizard asks if you're in a monorepo.
 
-This creates a `pinflow.config.json` at your repo root that tells PinFlow where your app lives. Legacy `domscribe.config.json` files are still read during the migration window. CLI commands (`serve`, `stop`, `status`) and agent MCP connections automatically resolve the app root from this config — no extra flags needed.
+This creates a `pinflow.config.json` at your repo root that tells PinFlow where your app lives. CLI commands (`serve`, `stop`, `status`) and agent MCP connections automatically resolve the app root from this config — no extra flags needed.
 
 ### Agent-Side — Connect Your Coding Agent
 

@@ -6,7 +6,7 @@
  * - In-memory index for deduplication
  * - Entry lifecycle management
  */
-import { copyFileSync, existsSync, mkdirSync, readFileSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync } from 'fs';
 import path, { dirname } from 'path';
 import { PATHS, type ManifestEntry, type ManifestIndex } from '@pinflow/core';
 import { IWriter } from '../batch-writer/types.js';
@@ -57,17 +57,9 @@ export class ManifestWriter {
     const manifestPath = ManifestWriter.getManifestPath(this.workspaceRoot, {
       manifestPath: this.options.manifestPath,
     });
-    const legacyManifestPath = path.join(
-      this.workspaceRoot,
-      PATHS.LEGACY_MANIFEST_FILE,
-    );
 
     // Ensure manifest directory exists
     mkdirSync(dirname(manifestPath), { recursive: true });
-
-    if (!existsSync(manifestPath) && existsSync(legacyManifestPath)) {
-      copyFileSync(legacyManifestPath, manifestPath);
-    }
 
     // Load existing entries
     const entries = this.loadEntries(manifestPath);

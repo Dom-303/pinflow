@@ -81,15 +81,7 @@ export class ManifestReader {
   private fileWatcher: ReturnType<typeof watchFile> | null = null;
 
   constructor(workspaceRoot: string) {
-    const primaryManifestPath = path.join(workspaceRoot, PATHS.MANIFEST_FILE);
-    const legacyManifestPath = path.join(
-      workspaceRoot,
-      PATHS.LEGACY_MANIFEST_FILE,
-    );
-    this.manifestPath =
-      existsSync(primaryManifestPath) || !existsSync(legacyManifestPath)
-        ? primaryManifestPath
-        : legacyManifestPath;
+    this.manifestPath = path.join(workspaceRoot, PATHS.MANIFEST_FILE);
   }
 
   /**

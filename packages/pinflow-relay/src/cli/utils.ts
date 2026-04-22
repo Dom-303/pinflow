@@ -14,8 +14,8 @@ import { findConfigFile, loadAppRoot } from './config-loader.js';
  *
  * @remarks
  * Discovery chain:
- * 1. `.pinflow/` or legacy `.domscribe/` at cwd — single-repo fast path
- * 2. `pinflow.config.*` or legacy `domscribe.config.*` at cwd — monorepo
+ * 1. `.pinflow/` at cwd — single-repo fast path
+ * 2. `pinflow.config.*` at cwd — monorepo
  * 3. Walk up for workspace artifact dirs — nested working directory
  * 4. Walk up for config files — nested working directory in monorepo
  * 5. Nothing found — returns `undefined` (dormant mode)
@@ -43,10 +43,7 @@ export function getWorkspaceRoot(): string | undefined {
 }
 
 function hasWorkspaceArtifacts(dir: string): boolean {
-  return (
-    existsSync(path.join(dir, PATHS.DOMSCRIBE_DIR)) ||
-    existsSync(path.join(dir, PATHS.LEGACY_DOMSCRIBE_DIR))
-  );
+  return existsSync(path.join(dir, PATHS.DOMSCRIBE_DIR));
 }
 
 function walkUpToFindWorkspaceArtifacts(startPath: string): string | undefined {

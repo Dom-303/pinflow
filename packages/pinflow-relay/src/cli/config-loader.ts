@@ -1,5 +1,5 @@
 /**
- * Domscribe config file discovery and loading.
+ * PinFlow config file discovery and loading.
  * @module @pinflow/relay/cli/config-loader
  */
 import { existsSync, readFileSync } from 'node:fs';
@@ -15,9 +15,6 @@ const CONFIG_FILENAMES = [
   PATHS.CONFIG_JSON_FILE,
   PATHS.CONFIG_JS_FILE,
   PATHS.CONFIG_FILE,
-  PATHS.LEGACY_CONFIG_JSON_FILE,
-  PATHS.LEGACY_CONFIG_JS_FILE,
-  PATHS.LEGACY_CONFIG_FILE,
 ] as const;
 
 /**

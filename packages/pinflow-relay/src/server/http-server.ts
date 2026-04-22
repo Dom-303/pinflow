@@ -122,7 +122,6 @@ export async function createRelayServer(
   // Create services
   const annotationStorage = new FileAnnotationStorage(
     path.join(workspaceRoot, PATHS.ANNOTATIONS_DIR),
-    { legacyBaseDir: path.join(workspaceRoot, PATHS.LEGACY_ANNOTATIONS_DIR) },
   );
   const annotationService = new AnnotationService(annotationStorage);
   const manifestReader = new ManifestReader(workspaceRoot);

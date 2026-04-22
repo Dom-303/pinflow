@@ -25,24 +25,26 @@ export interface DomscribeVueWebpackPluginOptions extends WebpackPluginOptions {
   capture?: DomscribeVueCaptureOptions;
 }
 
+export type PinFlowVueWebpackPluginOptions = DomscribeVueWebpackPluginOptions;
+
 /**
- * Domscribe webpack plugin for Vue projects.
+ * PinFlow webpack plugin for Vue projects.
  *
  * Creates the base transform plugin internally and adds `@pinflow/vue/auto-init`
  * as a webpack entry so that RuntimeManager + VueAdapter are initialized
  * automatically — no entrypoint changes needed.
  *
  * @remarks
- * For framework-agnostic usage (no runtime capture), import `DomscribeWebpackPlugin`
+ * For framework-agnostic usage (no runtime capture), import `PinFlowWebpackPlugin`
  * from `@pinflow/transform/plugins/webpack` directly.
  *
  * Usage:
  * ```ts
  * // webpack.config.ts
- * import { DomscribeWebpackPlugin } from '@pinflow/vue/webpack'
+ * import { PinFlowWebpackPlugin } from '@pinflow/vue/webpack'
  *
  * export default {
- *   plugins: [new DomscribeWebpackPlugin({ overlay: true })]
+ *   plugins: [new PinFlowWebpackPlugin({ overlay: true })]
  * }
  * ```
  */

@@ -55,3 +55,5 @@ export interface VitePluginOptions {
    */
   rootDir?: string;
 }
+
+export type PinFlowVitePluginOptions = VitePluginOptions;

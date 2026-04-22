@@ -10,7 +10,10 @@
 
 import type { DomscribeRuntimeOptions } from '@pinflow/runtime';
 
-export type { DomscribeRuntimeOptions };
+export type {
+  DomscribeRuntimeOptions,
+  DomscribeRuntimeOptions as PinFlowRuntimeOptions,
+};
 
 /**
  * React adapter capture configuration.
@@ -29,6 +32,8 @@ export interface DomscribeReactCaptureOptions {
   /** Hook name resolvers as plain objects. Keys are component names, values map hook index to name. */
   hookNameResolvers?: Record<string, Record<number, string>>;
 }
+
+export type PinFlowReactCaptureOptions = DomscribeReactCaptureOptions;
 
 export interface DomscribeReactPluginOptions {
   include?: RegExp;
@@ -56,3 +61,5 @@ export interface DomscribeReactPluginOptions {
   /** React adapter capture configuration (strategy, tree depth, wrappers, hook resolvers). */
   capture?: DomscribeReactCaptureOptions;
 }
+
+export type PinFlowReactPluginOptions = DomscribeReactPluginOptions;

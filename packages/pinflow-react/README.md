@@ -34,7 +34,7 @@ const { PinFlowWebpackPlugin } = require('@pinflow/react/webpack');
 The React plugin extends the base transform plugin options with `runtime` and `capture` namespaces:
 
 ```ts
-interface DomscribeReactPluginOptions {
+interface PinFlowReactPluginOptions {
   // Base transform options
   include?: RegExp;
   exclude?: RegExp;
@@ -45,10 +45,13 @@ interface DomscribeReactPluginOptions {
     | { initialMode?: 'collapsed' | 'expanded'; debug?: boolean };
 
   // React-specific
-  runtime?: DomscribeRuntimeOptions;
-  capture?: DomscribeReactCaptureOptions;
+  runtime?: PinFlowRuntimeOptions;
+  capture?: PinFlowReactCaptureOptions;
 }
 ```
+
+Compatibility aliases `DomscribeReactPluginOptions`, `DomscribeRuntimeOptions`, and
+`DomscribeReactCaptureOptions` remain available during the migration window.
 
 ### Runtime Options
 

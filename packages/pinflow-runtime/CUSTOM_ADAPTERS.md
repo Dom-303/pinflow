@@ -5,7 +5,7 @@ PinFlow captures runtime context (component props, state, metadata) through fram
 ## The Interface
 
 ```ts
-import type { FrameworkAdapter } from '@domscribe/runtime';
+import type { FrameworkAdapter } from '@pinflow/runtime';
 
 interface FrameworkAdapter {
   readonly name: string;
@@ -70,7 +70,7 @@ interface ComponentTreeNode {
 ## Example: Minimal Adapter
 
 ```ts
-import type { FrameworkAdapter } from '@domscribe/runtime';
+import type { FrameworkAdapter } from '@pinflow/runtime';
 
 export class SvelteAdapter implements FrameworkAdapter {
   readonly name = 'svelte';
@@ -142,7 +142,7 @@ export class SvelteAdapter implements FrameworkAdapter {
 ### Option A: Manual initialization in your app entry
 
 ```ts
-import { RuntimeManager } from '@domscribe/runtime';
+import { RuntimeManager } from '@pinflow/runtime';
 import { SvelteAdapter } from './svelte-adapter';
 
 RuntimeManager.getInstance().initialize({
@@ -152,14 +152,14 @@ RuntimeManager.getInstance().initialize({
 
 ### Option B: Build a Vite/Webpack plugin wrapper
 
-Follow the pattern in `@domscribe/react/vite` or `@domscribe/vue/vite` — wrap the current `domscribe()` compatibility plugin and inject a script that auto-initializes your adapter:
+Follow the pattern in `@pinflow/react/vite` or `@pinflow/vue/vite` — wrap the current `pinflow()` plugin and inject a script that auto-initializes your adapter:
 
 ```ts
 // svelte-vite-plugin.ts
 import type { Plugin, IndexHtmlTransformResult, HtmlTagDescriptor } from 'vite';
-import { domscribe as baseDomscribe } from '@domscribe/transform/plugins/vite';
+import { pinflow as basePinFlow } from '@pinflow/transform/plugins/vite';
 
-interface DomscribeSveltePluginOptions {
+interface PinFlowSveltePluginOptions {
   include?: RegExp;
   exclude?: RegExp;
   debug?: boolean;
@@ -173,17 +173,17 @@ interface DomscribeSveltePluginOptions {
   };
 }
 
-const INIT_MODULE_PATH = '/@domscribe/svelte-init.js';
+const INIT_MODULE_PATH = '/@pinflow/svelte-init.js';
 
-export function domscribe(options?: DomscribeSveltePluginOptions): Plugin {
-  const basePlugin = baseDomscribe(options);
+export function pinflow(options?: PinFlowSveltePluginOptions): Plugin {
+  const basePlugin = basePinFlow(options);
   const baseTransformIndexHtml = basePlugin.transformIndexHtml;
   const baseResolveId =
     typeof basePlugin.resolveId === 'function' ? basePlugin.resolveId : null;
   const baseLoad =
     typeof basePlugin.load === 'function' ? basePlugin.load : null;
 
-  basePlugin.name = 'vite-plugin-domscribe-svelte';
+  basePlugin.name = 'vite-plugin-pinflow-svelte';
 
   // Resolve the virtual init module
   basePlugin.resolveId = function (id, ...args) {
@@ -198,7 +198,7 @@ export function domscribe(options?: DomscribeSveltePluginOptions): Plugin {
       const debug = options?.debug ?? false;
 
       return [
-        `import { RuntimeManager } from '@domscribe/runtime';`,
+        `import { RuntimeManager } from '@pinflow/runtime';`,
         `import { SvelteAdapter } from './svelte-adapter';`,
         ``,
         `RuntimeManager.getInstance().initialize({`,
@@ -207,7 +207,7 @@ export function domscribe(options?: DomscribeSveltePluginOptions): Plugin {
         `  redactPII: ${rt.redactPII ?? true},`,
         `  blockSelectors: ${JSON.stringify(rt.blockSelectors ?? [])},`,
         `  adapter: new SvelteAdapter({ debug: ${debug} }),`,
-        `}).catch(e => console.warn('[domscribe] Failed to init Svelte runtime:', e.message));`,
+        `}).catch(e => console.warn('[pinflow] Failed to init Svelte runtime:', e.message));`,
       ].join('\n');
     }
     return baseLoad?.call(this, id, ...args) ?? null;

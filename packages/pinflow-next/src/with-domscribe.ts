@@ -38,7 +38,7 @@ const DEFAULT_INCLUDE = /\.(jsx|tsx)$/i;
 const DEFAULT_EXCLUDE = /node_modules|\.test\.|\.spec\./i;
 
 /**
- * Wrap a Next.js config with Domscribe dev-time transforms.
+ * Wrap a Next.js config with PinFlow dev-time transforms.
  *
  * Configures both Turbopack and Webpack paths using the same self-initializing
  * loader, so it works regardless of bundler choice (Next.js 15 webpack,
@@ -50,9 +50,9 @@ const DEFAULT_EXCLUDE = /node_modules|\.test\.|\.spec\./i;
  * @example
  * ```js
  * // next.config.js
- * import { withDomscribe } from '@pinflow/next';
+ * import { withPinFlow } from '@pinflow/next';
  *
- * export default withDomscribe({
+ * export default withPinFlow({
  *   debug: true,
  *   overlay: true,
  *   relay: { port: 4400 },

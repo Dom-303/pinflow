@@ -34,7 +34,7 @@ const { PinFlowWebpackPlugin } = require('@pinflow/vue/webpack');
 The Vue plugin extends the base transform plugin options with `runtime` and `capture` namespaces:
 
 ```ts
-interface DomscribeVuePluginOptions {
+interface PinFlowVuePluginOptions {
   // Base transform options
   include?: RegExp;
   exclude?: RegExp;
@@ -45,10 +45,13 @@ interface DomscribeVuePluginOptions {
     | { initialMode?: 'collapsed' | 'expanded'; debug?: boolean };
 
   // Vue-specific
-  runtime?: DomscribeRuntimeOptions;
-  capture?: DomscribeVueCaptureOptions;
+  runtime?: PinFlowRuntimeOptions;
+  capture?: PinFlowVueCaptureOptions;
 }
 ```
+
+Compatibility aliases `DomscribeVuePluginOptions`, `DomscribeRuntimeOptions`, and
+`DomscribeVueCaptureOptions` remain available during the migration window.
 
 ### Runtime Options
 

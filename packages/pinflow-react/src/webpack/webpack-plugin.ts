@@ -25,24 +25,26 @@ export interface DomscribeReactWebpackPluginOptions extends WebpackPluginOptions
   capture?: DomscribeReactCaptureOptions;
 }
 
+export type PinFlowReactWebpackPluginOptions = DomscribeReactWebpackPluginOptions;
+
 /**
- * Domscribe webpack plugin for React projects.
+ * PinFlow webpack plugin for React projects.
  *
  * Creates the base transform plugin internally and adds `@pinflow/react/auto-init`
  * as a webpack entry so that RuntimeManager + ReactAdapter are initialized
  * automatically — no entrypoint changes needed.
  *
  * @remarks
- * For framework-agnostic usage (no runtime capture), import `DomscribeWebpackPlugin`
+ * For framework-agnostic usage (no runtime capture), import `PinFlowWebpackPlugin`
  * from `@pinflow/transform/plugins/webpack` directly.
  *
  * Usage:
  * ```ts
  * // webpack.config.ts
- * import { DomscribeWebpackPlugin } from '@pinflow/react/webpack'
+ * import { PinFlowWebpackPlugin } from '@pinflow/react/webpack'
  *
  * export default {
- *   plugins: [new DomscribeWebpackPlugin({ overlay: true })]
+ *   plugins: [new PinFlowWebpackPlugin({ overlay: true })]
  * }
  * ```
  */

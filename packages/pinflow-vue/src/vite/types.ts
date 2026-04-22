@@ -10,7 +10,10 @@
 
 import type { DomscribeRuntimeOptions } from '@pinflow/runtime';
 
-export type { DomscribeRuntimeOptions };
+export type {
+  DomscribeRuntimeOptions,
+  DomscribeRuntimeOptions as PinFlowRuntimeOptions,
+};
 
 /**
  * Vue adapter capture configuration.
@@ -19,6 +22,8 @@ export interface DomscribeVueCaptureOptions {
   /** Maximum component tree depth. @default 50 */
   maxTreeDepth?: number;
 }
+
+export type PinFlowVueCaptureOptions = DomscribeVueCaptureOptions;
 
 export interface DomscribeVuePluginOptions {
   include?: RegExp;
@@ -46,3 +51,5 @@ export interface DomscribeVuePluginOptions {
   /** Vue adapter capture configuration (tree depth). */
   capture?: DomscribeVueCaptureOptions;
 }
+
+export type PinFlowVuePluginOptions = DomscribeVuePluginOptions;

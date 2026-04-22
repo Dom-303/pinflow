@@ -59,3 +59,5 @@ export interface WebpackPluginOptions {
    */
   overlay?: boolean | OverlayPluginOptions;
 }
+
+export type PinFlowWebpackPluginOptions = WebpackPluginOptions;

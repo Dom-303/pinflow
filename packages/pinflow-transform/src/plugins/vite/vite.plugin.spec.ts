@@ -7,7 +7,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { domscribe } from './vite.plugin.js';
+import { domscribe, pinflow } from './vite.plugin.js';
 import type { Plugin, ResolvedConfig } from 'vite';
 import { type RawSourceMap } from 'source-map';
 import type { VitePluginOptions } from './types.js';
@@ -211,7 +211,7 @@ async function setupPlugin(options: VitePluginOptions = {}): Promise<Plugin> {
 // Tests
 // ============================================================================
 
-describe('domscribe Vite plugin', () => {
+describe('pinflow Vite plugin', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
@@ -252,11 +252,11 @@ describe('domscribe Vite plugin', () => {
   describe('Plugin Creation & Configuration', () => {
     it('should return plugin object with correct properties', () => {
       // Arrange & Act
-      const plugin = domscribe();
+      const plugin = pinflow();
 
       // Assert
       expect(plugin).toBeDefined();
-      expect(plugin.name).toBe('vite-plugin-domscribe-transform');
+      expect(plugin.name).toBe('vite-plugin-pinflow-transform');
       expect(plugin.enforce).toBe('pre');
       expect(plugin.apply).toBe('serve');
     });
@@ -270,13 +270,17 @@ describe('domscribe Vite plugin', () => {
       expect(plugin.enforce).toBe('pre');
     });
 
+    it('should keep domscribe as a compatibility alias', () => {
+      expect(domscribe).toBe(pinflow);
+    });
+
     it('should create plugin with debug enabled', () => {
       // Arrange & Act
-      const plugin = domscribe({ debug: true });
+      const plugin = pinflow({ debug: true });
 
       // Assert
       expect(plugin).toBeDefined();
-      expect(plugin.name).toBe('vite-plugin-domscribe-transform');
+      expect(plugin.name).toBe('vite-plugin-pinflow-transform');
     });
 
     it('should create plugin with custom include pattern', () => {

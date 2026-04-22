@@ -21,27 +21,27 @@ import type { DomscribeVuePluginOptions } from './types.js';
 const INIT_MODULE_PATH = '/@pinflow/vue-init.js';
 
 /**
- * Domscribe Vite plugin for Vue projects.
+ * PinFlow Vite plugin for Vue projects.
  *
  * Creates the base transform plugin internally and adds RuntimeManager + VueAdapter
  * initialization via a virtual module. No entrypoint changes needed.
  *
  * @remarks
- * For framework-agnostic usage (no runtime capture), import `domscribe`
+ * For framework-agnostic usage (no runtime capture), import `pinflow`
  * from `@pinflow/transform/plugins/vite` directly.
  *
  * Usage:
  * ```ts
  * // vite.config.ts
  * import vue from '@vitejs/plugin-vue'
- * import { domscribe } from '@pinflow/vue/vite'
+ * import { pinflow } from '@pinflow/vue/vite'
  *
  * export default defineConfig({
- *   plugins: [vue(), domscribe({ overlay: true })]
+ *   plugins: [vue(), pinflow({ overlay: true })]
  * })
  * ```
  */
-export function domscribe(options?: DomscribeVuePluginOptions): Plugin {
+export function pinflow(options?: DomscribeVuePluginOptions): Plugin {
   const basePlugin = baseDomscribe(options);
   const baseTransformIndexHtml = basePlugin.transformIndexHtml;
   const baseResolveId =
@@ -49,7 +49,7 @@ export function domscribe(options?: DomscribeVuePluginOptions): Plugin {
   const baseLoad =
     typeof basePlugin.load === 'function' ? basePlugin.load : null;
 
-  basePlugin.name = 'vite-plugin-domscribe-vue';
+  basePlugin.name = 'vite-plugin-pinflow-vue';
 
   basePlugin.resolveId = function (id, ...args) {
     if (id === INIT_MODULE_PATH) {
@@ -79,7 +79,7 @@ export function domscribe(options?: DomscribeVuePluginOptions): Plugin {
         `    maxTreeDepth: ${cap.maxTreeDepth ?? 50},`,
         `    debug: ${debug},`,
         `  }),`,
-        `}).catch(e => console.warn('[domscribe] Failed to init Vue runtime:', e.message));`,
+        `}).catch(e => console.warn('[pinflow] Failed to init Vue runtime:', e.message));`,
       ].join('\n');
     }
     return baseLoad?.call(this, id, ...args) ?? null;
@@ -115,3 +115,5 @@ export function domscribe(options?: DomscribeVuePluginOptions): Plugin {
 
   return basePlugin;
 }
+
+export const domscribe = pinflow;

@@ -21,27 +21,27 @@ import type { DomscribeReactPluginOptions } from './types.js';
 const INIT_MODULE_PATH = '/@pinflow/react-init.js';
 
 /**
- * Domscribe Vite plugin for React projects.
+ * PinFlow Vite plugin for React projects.
  *
  * Creates the base transform plugin internally and adds RuntimeManager + ReactAdapter
  * initialization via a virtual module. No entrypoint changes needed.
  *
  * @remarks
- * For framework-agnostic usage (no runtime capture), import `domscribe`
+ * For framework-agnostic usage (no runtime capture), import `pinflow`
  * from `@pinflow/transform/plugins/vite` directly.
  *
  * Usage:
  * ```ts
  * // vite.config.ts
  * import react from '@vitejs/plugin-react'
- * import { domscribe } from '@pinflow/react/vite'
+ * import { pinflow } from '@pinflow/react/vite'
  *
  * export default defineConfig({
- *   plugins: [react(), domscribe({ overlay: true })]
+ *   plugins: [react(), pinflow({ overlay: true })]
  * })
  * ```
  */
-export function domscribe(options?: DomscribeReactPluginOptions): Plugin {
+export function pinflow(options?: DomscribeReactPluginOptions): Plugin {
   const basePlugin = baseDomscribe(options);
   const baseTransformIndexHtml = basePlugin.transformIndexHtml;
   const baseTransform = basePlugin.transform;
@@ -50,7 +50,7 @@ export function domscribe(options?: DomscribeReactPluginOptions): Plugin {
   const baseLoad =
     typeof basePlugin.load === 'function' ? basePlugin.load : null;
 
-  basePlugin.name = 'vite-plugin-domscribe-react';
+  basePlugin.name = 'vite-plugin-pinflow-react';
 
   basePlugin.resolveId = function (id, ...args) {
     if (id === INIT_MODULE_PATH) {
@@ -167,3 +167,5 @@ export function domscribe(options?: DomscribeReactPluginOptions): Plugin {
 
   return basePlugin;
 }
+
+export const domscribe = pinflow;

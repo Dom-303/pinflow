@@ -3,8 +3,8 @@
  * @module @pinflow/vue/webpack
  */
 export {
-  DomscribeWebpackPlugin,
-  DomscribeWebpackPlugin as PinFlowWebpackPlugin,
+  PinFlowWebpackPlugin,
+  PinFlowWebpackPlugin as DomscribeWebpackPlugin,
 } from './webpack-plugin.js';
 export type {
   DomscribeVueWebpackPluginOptions,

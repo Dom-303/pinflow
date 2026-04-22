@@ -95,7 +95,7 @@ function buildVitePreamble(opts: {
  * @param options - Plugin configuration (file filters, debug, relay, overlay)
  * @returns Vite plugin instance (enforce: 'pre', apply: 'serve')
  */
-export function domscribe(options: VitePluginOptions = {}): Plugin {
+export function pinflow(options: VitePluginOptions = {}): Plugin {
   const {
     include = /\.(jsx|tsx|vue)$/i, // Transform JSX, TSX, and Vue SFC files
     exclude = /node_modules|\.test\.|\.spec\./i,
@@ -168,7 +168,7 @@ export function domscribe(options: VitePluginOptions = {}): Plugin {
   }
 
   return {
-    name: 'vite-plugin-domscribe-transform',
+    name: 'vite-plugin-pinflow-transform',
     enforce: 'pre', // Needs to run before other plugins
     apply: 'serve', // Only run in development mode
 
@@ -441,5 +441,7 @@ export function domscribe(options: VitePluginOptions = {}): Plugin {
     },
   };
 }
+
+export const domscribe = pinflow;
 
 export default domscribe;

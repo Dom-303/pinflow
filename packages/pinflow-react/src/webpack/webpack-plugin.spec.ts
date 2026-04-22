@@ -4,12 +4,18 @@ import type { Compiler } from 'webpack';
 const mockBaseApply = vi.fn();
 
 vi.mock('@pinflow/transform/plugins/webpack', () => ({
+  PinFlowWebpackPlugin: class {
+    apply = mockBaseApply;
+  },
   DomscribeWebpackPlugin: class {
     apply = mockBaseApply;
   },
 }));
 
-import { DomscribeWebpackPlugin } from './webpack-plugin.js';
+import {
+  DomscribeWebpackPlugin,
+  PinFlowWebpackPlugin,
+} from './webpack-plugin.js';
 
 const mockDefinePluginApply = vi.fn();
 
@@ -38,7 +44,7 @@ function createMockCompiler(
   } as unknown as Compiler;
 }
 
-describe('DomscribeWebpackPlugin (react)', () => {
+describe('PinFlowWebpackPlugin (react)', () => {
   beforeEach(() => {
     mockBaseApply.mockClear();
     mockDefinePluginApply.mockClear();
@@ -46,8 +52,12 @@ describe('DomscribeWebpackPlugin (react)', () => {
   });
 
   describe('apply', () => {
+    it('should keep DomscribeWebpackPlugin as a compatibility alias', () => {
+      expect(DomscribeWebpackPlugin).toBe(PinFlowWebpackPlugin);
+    });
+
     it('should call the base plugin apply', () => {
-      const plugin = new DomscribeWebpackPlugin();
+      const plugin = new PinFlowWebpackPlugin();
       const compiler = createMockCompiler();
 
       plugin.apply(compiler);
@@ -56,7 +66,7 @@ describe('DomscribeWebpackPlugin (react)', () => {
     });
 
     it('should add auto-init entry to the first entry point', () => {
-      const plugin = new DomscribeWebpackPlugin();
+      const plugin = new PinFlowWebpackPlugin();
       const entry = { main: { import: ['./src/index.ts'] } };
       const compiler = createMockCompiler(entry);
 
@@ -66,7 +76,7 @@ describe('DomscribeWebpackPlugin (react)', () => {
     });
 
     it('should preserve existing entries', () => {
-      const plugin = new DomscribeWebpackPlugin();
+      const plugin = new PinFlowWebpackPlugin();
       const entry = {
         main: { import: ['./src/index.ts', './src/polyfills.ts'] },
       };
@@ -80,7 +90,7 @@ describe('DomscribeWebpackPlugin (react)', () => {
     });
 
     it('should handle entry as non-object gracefully', () => {
-      const plugin = new DomscribeWebpackPlugin();
+      const plugin = new PinFlowWebpackPlugin();
       const compiler = {
         options: { entry: './src/index.ts' },
         webpack: { DefinePlugin: MockDefinePlugin },
@@ -92,7 +102,7 @@ describe('DomscribeWebpackPlugin (react)', () => {
     });
 
     it('should handle entry as array gracefully', () => {
-      const plugin = new DomscribeWebpackPlugin();
+      const plugin = new PinFlowWebpackPlugin();
       const compiler = {
         options: { entry: ['./src/index.ts'] },
         webpack: { DefinePlugin: MockDefinePlugin },
@@ -104,7 +114,7 @@ describe('DomscribeWebpackPlugin (react)', () => {
     });
 
     it('should handle empty entry object', () => {
-      const plugin = new DomscribeWebpackPlugin();
+      const plugin = new PinFlowWebpackPlugin();
       const compiler = createMockCompiler(
         {} as Record<string, { import: string[] }>,
       );
@@ -115,7 +125,7 @@ describe('DomscribeWebpackPlugin (react)', () => {
     });
 
     it('should handle entry without import array', () => {
-      const plugin = new DomscribeWebpackPlugin();
+      const plugin = new PinFlowWebpackPlugin();
       const compiler = {
         options: { entry: { main: {} } },
         webpack: { DefinePlugin: MockDefinePlugin },
@@ -127,7 +137,7 @@ describe('DomscribeWebpackPlugin (react)', () => {
     });
 
     it('should add to the first key when multiple entries exist', () => {
-      const plugin = new DomscribeWebpackPlugin();
+      const plugin = new PinFlowWebpackPlugin();
       const entry = {
         main: { import: ['./src/main.ts'] },
         vendor: { import: ['./src/vendor.ts'] },
@@ -143,7 +153,7 @@ describe('DomscribeWebpackPlugin (react)', () => {
 
   describe('DefinePlugin injection', () => {
     it('should apply DefinePlugin with default options', () => {
-      const plugin = new DomscribeWebpackPlugin();
+      const plugin = new PinFlowWebpackPlugin();
       const compiler = createMockCompiler();
 
       plugin.apply(compiler);
@@ -181,7 +191,7 @@ describe('DomscribeWebpackPlugin (react)', () => {
     });
 
     it('should inject custom runtime options', () => {
-      const plugin = new DomscribeWebpackPlugin({
+      const plugin = new PinFlowWebpackPlugin({
         runtime: { phase: 2, redactPII: false, blockSelectors: ['.secret'] },
       });
       const compiler = createMockCompiler();
@@ -196,7 +206,7 @@ describe('DomscribeWebpackPlugin (react)', () => {
     });
 
     it('should inject custom capture options', () => {
-      const plugin = new DomscribeWebpackPlugin({
+      const plugin = new PinFlowWebpackPlugin({
         capture: {
           strategy: 'fiber',
           maxTreeDepth: 25,
@@ -219,7 +229,7 @@ describe('DomscribeWebpackPlugin (react)', () => {
     });
 
     it('should cascade debug to both runtime and adapter definitions', () => {
-      const plugin = new DomscribeWebpackPlugin({ debug: true });
+      const plugin = new PinFlowWebpackPlugin({ debug: true });
       const compiler = createMockCompiler();
 
       plugin.apply(compiler);
@@ -236,7 +246,7 @@ describe('DomscribeWebpackPlugin (react)', () => {
       mockDefinePluginApply.mockImplementation(() => callOrder.push('define'));
       mockBaseApply.mockImplementation(() => callOrder.push('base'));
 
-      const plugin = new DomscribeWebpackPlugin();
+      const plugin = new PinFlowWebpackPlugin();
       const compiler = createMockCompiler();
 
       plugin.apply(compiler);

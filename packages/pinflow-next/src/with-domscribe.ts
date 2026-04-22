@@ -61,7 +61,7 @@ const DEFAULT_EXCLUDE = /node_modules|\.test\.|\.spec\./i;
  * });
  * ```
  */
-export function withDomscribe(
+export function withPinFlow(
   options: DomscribeNextOptions = {},
 ): (nextConfig: NextConfig) => NextConfig {
   return (nextConfig: NextConfig): NextConfig => {
@@ -74,6 +74,8 @@ export function withDomscribe(
       : applyProductionAliases(nextConfig);
   };
 }
+
+export const withDomscribe = withPinFlow;
 
 // ---------------------------------------------------------------------------
 // Production path — alias dev-only packages to no-op stubs

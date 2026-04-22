@@ -5,12 +5,18 @@ import type { Compiler } from 'webpack';
 const mockBaseApply = vi.fn();
 
 vi.mock('@pinflow/transform/plugins/webpack', () => ({
+  PinFlowWebpackPlugin: class {
+    apply = mockBaseApply;
+  },
   DomscribeWebpackPlugin: class {
     apply = mockBaseApply;
   },
 }));
 
-import { DomscribeWebpackPlugin } from './webpack-plugin.js';
+import {
+  DomscribeWebpackPlugin,
+  PinFlowWebpackPlugin,
+} from './webpack-plugin.js';
 
 const mockDefinePluginApply = vi.fn();
 
@@ -35,15 +41,19 @@ function createMockCompiler(
   } as unknown as Compiler;
 }
 
-describe('DomscribeWebpackPlugin (vue)', () => {
+describe('PinFlowWebpackPlugin (vue)', () => {
   beforeEach(() => {
     mockBaseApply.mockReset();
     mockDefinePluginApply.mockClear();
     MockDefinePlugin.calls = [];
   });
 
+  it('should keep DomscribeWebpackPlugin as a compatibility alias', () => {
+    expect(DomscribeWebpackPlugin).toBe(PinFlowWebpackPlugin);
+  });
+
   it('should add auto-init entry to first entry point', () => {
-    const plugin = new DomscribeWebpackPlugin();
+    const plugin = new PinFlowWebpackPlugin();
     const compiler = createMockCompiler();
 
     plugin.apply(compiler);
@@ -54,7 +64,7 @@ describe('DomscribeWebpackPlugin (vue)', () => {
   });
 
   it('should call base plugin apply', () => {
-    const plugin = new DomscribeWebpackPlugin();
+    const plugin = new PinFlowWebpackPlugin();
     const compiler = createMockCompiler();
 
     plugin.apply(compiler);
@@ -67,7 +77,7 @@ describe('DomscribeWebpackPlugin (vue)', () => {
       const entry = c.options.entry as Record<string, { import: string[] }>;
       expect(entry.main.import).toContain('@pinflow/vue/auto-init');
     });
-    const plugin = new DomscribeWebpackPlugin();
+    const plugin = new PinFlowWebpackPlugin();
     const compiler = createMockCompiler();
 
     plugin.apply(compiler);
@@ -76,7 +86,7 @@ describe('DomscribeWebpackPlugin (vue)', () => {
   });
 
   it('should handle entry without import array', () => {
-    const plugin = new DomscribeWebpackPlugin();
+    const plugin = new PinFlowWebpackPlugin();
     const compiler = createMockCompiler({ main: {} } as unknown as Record<
       string,
       { import: string[] }
@@ -88,7 +98,7 @@ describe('DomscribeWebpackPlugin (vue)', () => {
   });
 
   it('should handle non-object entry', () => {
-    const plugin = new DomscribeWebpackPlugin();
+    const plugin = new PinFlowWebpackPlugin();
     const compiler = {
       options: { entry: './src/index.ts' },
       webpack: { DefinePlugin: MockDefinePlugin },
@@ -100,7 +110,7 @@ describe('DomscribeWebpackPlugin (vue)', () => {
   });
 
   it('should handle empty entry object', () => {
-    const plugin = new DomscribeWebpackPlugin();
+    const plugin = new PinFlowWebpackPlugin();
     const compiler = createMockCompiler({});
 
     plugin.apply(compiler);
@@ -109,7 +119,7 @@ describe('DomscribeWebpackPlugin (vue)', () => {
   });
 
   it('should only modify the first entry key', () => {
-    const plugin = new DomscribeWebpackPlugin();
+    const plugin = new PinFlowWebpackPlugin();
     const compiler = createMockCompiler({
       main: { import: ['./src/main.ts'] },
       vendor: { import: ['./src/vendor.ts'] },
@@ -127,7 +137,7 @@ describe('DomscribeWebpackPlugin (vue)', () => {
 
   describe('DefinePlugin injection', () => {
     it('should apply DefinePlugin with default options', () => {
-      const plugin = new DomscribeWebpackPlugin();
+      const plugin = new PinFlowWebpackPlugin();
       const compiler = createMockCompiler();
 
       plugin.apply(compiler);
@@ -159,7 +169,7 @@ describe('DomscribeWebpackPlugin (vue)', () => {
     });
 
     it('should inject custom runtime options', () => {
-      const plugin = new DomscribeWebpackPlugin({
+      const plugin = new PinFlowWebpackPlugin({
         runtime: { phase: 2, redactPII: false, blockSelectors: ['.secret'] },
       });
       const compiler = createMockCompiler();
@@ -174,7 +184,7 @@ describe('DomscribeWebpackPlugin (vue)', () => {
     });
 
     it('should inject custom capture options', () => {
-      const plugin = new DomscribeWebpackPlugin({
+      const plugin = new PinFlowWebpackPlugin({
         capture: { maxTreeDepth: 25 },
       });
       const compiler = createMockCompiler();
@@ -187,7 +197,7 @@ describe('DomscribeWebpackPlugin (vue)', () => {
     });
 
     it('should cascade debug to both runtime and adapter definitions', () => {
-      const plugin = new DomscribeWebpackPlugin({ debug: true });
+      const plugin = new PinFlowWebpackPlugin({ debug: true });
       const compiler = createMockCompiler();
 
       plugin.apply(compiler);
@@ -204,7 +214,7 @@ describe('DomscribeWebpackPlugin (vue)', () => {
       mockDefinePluginApply.mockImplementation(() => callOrder.push('define'));
       mockBaseApply.mockImplementation(() => callOrder.push('base'));
 
-      const plugin = new DomscribeWebpackPlugin();
+      const plugin = new PinFlowWebpackPlugin();
       const compiler = createMockCompiler();
 
       plugin.apply(compiler);

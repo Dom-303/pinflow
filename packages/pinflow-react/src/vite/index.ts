@@ -2,7 +2,7 @@
  * Vite plugin entry point
  * @module @pinflow/react/vite
  */
-export { domscribe, domscribe as pinflow } from './vite-plugin.js';
+export { pinflow, pinflow as domscribe, pinflow as vite } from './vite-plugin.js';
 export type {
   DomscribeReactPluginOptions,
   PinFlowReactPluginOptions,

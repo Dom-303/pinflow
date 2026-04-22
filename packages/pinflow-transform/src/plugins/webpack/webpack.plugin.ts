@@ -30,11 +30,11 @@ interface ResolvedOptions {
 }
 
 /**
- * Webpack plugin that manages the Domscribe transform pipeline.
+ * Webpack plugin that manages the PinFlow transform pipeline.
  * Disabled automatically in production builds unless explicitly enabled.
  */
-export class DomscribeWebpackPlugin {
-  public static name = 'DomscribeWebpackPlugin';
+export class PinFlowWebpackPlugin {
+  public static name = 'PinFlowWebpackPlugin';
 
   public stats: TransformStats | undefined;
   public injectorRegistry: InjectorRegistry | undefined;
@@ -96,7 +96,7 @@ export class DomscribeWebpackPlugin {
     /**
      * BeforeCompile is invoked before a compilation is started. Will only be invoked once per build.
      */
-    beforeCompile.tapPromise(DomscribeWebpackPlugin.name, async () => {
+    beforeCompile.tapPromise(PinFlowWebpackPlugin.name, async () => {
       await this.preCompilationHook(compiler);
     });
 
@@ -104,14 +104,14 @@ export class DomscribeWebpackPlugin {
      * Compilation is invoked after a new compilation is created.
      * Used to auto-inject relay/overlay script tags via HtmlWebpackPlugin hooks.
      */
-    compilation.tap(DomscribeWebpackPlugin.name, (compilationInstance) => {
+    compilation.tap(PinFlowWebpackPlugin.name, (compilationInstance) => {
       this.tapHtmlWebpackPlugin(compilationInstance);
     });
 
     /**
      * Done is invoked after a compilation is finished. HMR cycles will invoke this hook after each change.
      */
-    done.tap(DomscribeWebpackPlugin.name, () => {
+    done.tap(PinFlowWebpackPlugin.name, () => {
       this.printStats();
       this.injectorRegistry?.close();
       this.stats?.reset();
@@ -120,7 +120,7 @@ export class DomscribeWebpackPlugin {
     /**
      * Shutdown is invoked when the compiler is shutting down after a build. HMR cycles will not invoke this hook.
      */
-    shutdown.tap(DomscribeWebpackPlugin.name, () => {
+    shutdown.tap(PinFlowWebpackPlugin.name, () => {
       this.shutdownHook();
     });
   }
@@ -322,7 +322,7 @@ export class DomscribeWebpackPlugin {
         const HtmlWebpackPlugin = mod.default ?? mod;
         HtmlWebpackPlugin.getCompilationHooks(
           compilationInstance,
-        ).beforeEmit.tapAsync(DomscribeWebpackPlugin.name, (data, callback) => {
+        ).beforeEmit.tapAsync(PinFlowWebpackPlugin.name, (data, callback) => {
           try {
             data.html = this.injectIntoHtml(data.html);
           } catch (error) {
@@ -399,4 +399,6 @@ export class DomscribeWebpackPlugin {
   }
 }
 
-export default DomscribeWebpackPlugin;
+export const DomscribeWebpackPlugin = PinFlowWebpackPlugin;
+
+export default PinFlowWebpackPlugin;

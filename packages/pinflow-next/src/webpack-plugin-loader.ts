@@ -11,16 +11,17 @@ type WebpackPluginConstructor = new (opts: Record<string, unknown>) => unknown;
 const esmRequire = createRequire(import.meta.url);
 
 /**
- * Lazily loads DomscribeWebpackPlugin from @pinflow/transform.
+ * Lazily loads PinFlowWebpackPlugin from @pinflow/transform.
  * Separated into its own module so tests can mock it via vi.mock().
  * Returns null if the module can't be loaded.
  */
 export function loadWebpackPlugin(): WebpackPluginConstructor | null {
   try {
     const mod = esmRequire('@pinflow/transform/plugins/webpack') as {
-      DomscribeWebpackPlugin: WebpackPluginConstructor;
+      PinFlowWebpackPlugin?: WebpackPluginConstructor;
+      DomscribeWebpackPlugin?: WebpackPluginConstructor;
     };
-    return mod.DomscribeWebpackPlugin;
+    return mod.PinFlowWebpackPlugin ?? mod.DomscribeWebpackPlugin ?? null;
   } catch {
     return null;
   }

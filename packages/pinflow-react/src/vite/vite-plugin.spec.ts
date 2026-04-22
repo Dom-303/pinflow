@@ -15,13 +15,17 @@ vi.mock('@pinflow/transform/plugins/vite', () => ({
   ),
 }));
 
-import { domscribe } from './vite-plugin.js';
+import { domscribe, pinflow } from './vite-plugin.js';
 
-describe('domscribe (react/vite)', () => {
-  it('should rename the plugin to vite-plugin-domscribe-react', () => {
-    const plugin = domscribe();
+describe('pinflow (react/vite)', () => {
+  it('should rename the plugin to vite-plugin-pinflow-react', () => {
+    const plugin = pinflow();
 
-    expect(plugin.name).toBe('vite-plugin-domscribe-react');
+    expect(plugin.name).toBe('vite-plugin-pinflow-react');
+  });
+
+  it('should keep domscribe as a compatibility alias', () => {
+    expect(domscribe).toBe(pinflow);
   });
 
   it('should return a Plugin object', () => {

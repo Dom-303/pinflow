@@ -1,7 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { NextConfig } from 'next';
 import type { WebpackConfigContext } from 'next/dist/server/config-shared.js';
-import { withDomscribe, type WebpackConfig } from './with-domscribe.js';
+import {
+  withDomscribe,
+  withPinFlow,
+  type WebpackConfig,
+} from './with-domscribe.js';
 
 // Mock createRequire so we can control resolve behavior
 vi.mock('node:module', () => ({
@@ -46,6 +50,10 @@ describe('withDomscribe', () => {
     const wrapper = withDomscribe();
 
     expect(typeof wrapper).toBe('function');
+  });
+
+  it('should expose withPinFlow as the canonical alias', () => {
+    expect(withPinFlow).toBe(withDomscribe);
   });
 
   it('should return a NextConfig object', () => {

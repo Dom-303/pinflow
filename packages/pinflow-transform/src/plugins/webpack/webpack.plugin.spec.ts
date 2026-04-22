@@ -11,7 +11,10 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { DomscribeWebpackPlugin } from './webpack.plugin.js';
+import {
+  DomscribeWebpackPlugin,
+  PinFlowWebpackPlugin,
+} from './webpack.plugin.js';
 import { Compiler, config } from 'webpack';
 import type { WebpackPluginOptions } from './types.js';
 
@@ -225,12 +228,12 @@ function createMockCompiler(context = '/test/workspace'): {
  * Helper to set up plugin and trigger initialization
  */
 async function setupPlugin(options: WebpackPluginOptions = {}): Promise<{
-  plugin: DomscribeWebpackPlugin;
+  plugin: PinFlowWebpackPlugin;
   compiler: ReturnType<typeof createMockCompiler>['compiler'];
   compilerCallbacks: ReturnType<typeof createMockCompiler>['compilerCallbacks'];
   initializePlugin: () => Promise<void>;
 }> {
-  const plugin = new DomscribeWebpackPlugin(options);
+  const plugin = new PinFlowWebpackPlugin(options);
   const { compiler, compilerCallbacks } = createMockCompiler();
 
   const initializePlugin = async () => {
@@ -248,7 +251,7 @@ async function setupPlugin(options: WebpackPluginOptions = {}): Promise<{
 // Tests
 // ============================================================================
 
-describe('DomscribeWebpackPlugin', () => {
+describe('PinFlowWebpackPlugin', () => {
   let originalEnv: NodeJS.ProcessEnv;
   let mockManifestWriter: MockManifestWriter;
   let mockInjectorRegistry: MockInjectorRegistry;
@@ -285,11 +288,12 @@ describe('DomscribeWebpackPlugin', () => {
       process.env.NODE_ENV = 'development';
 
       // Act
-      const plugin = new DomscribeWebpackPlugin();
+      const plugin = new PinFlowWebpackPlugin();
 
       // Assert
-      expect(plugin).toBeInstanceOf(DomscribeWebpackPlugin);
-      expect(DomscribeWebpackPlugin.name).toBe('DomscribeWebpackPlugin');
+      expect(plugin).toBeInstanceOf(PinFlowWebpackPlugin);
+      expect(PinFlowWebpackPlugin.name).toBe('PinFlowWebpackPlugin');
+      expect(DomscribeWebpackPlugin).toBe(PinFlowWebpackPlugin);
     });
 
     it('should create plugin with custom options', () => {
@@ -360,19 +364,19 @@ describe('DomscribeWebpackPlugin', () => {
 
       // Assert
       expect(compilerHooks.beforeCompileTapPromise).toHaveBeenCalledWith(
-        'DomscribeWebpackPlugin',
+        'PinFlowWebpackPlugin',
         expect.any(Function),
       );
       expect(compilerHooks.compilationTap).toHaveBeenCalledWith(
-        'DomscribeWebpackPlugin',
+        'PinFlowWebpackPlugin',
         expect.any(Function),
       );
       expect(compilerHooks.doneTap).toHaveBeenCalledWith(
-        'DomscribeWebpackPlugin',
+        'PinFlowWebpackPlugin',
         expect.any(Function),
       );
       expect(compilerHooks.shutdownTap).toHaveBeenCalledWith(
-        'DomscribeWebpackPlugin',
+        'PinFlowWebpackPlugin',
         expect.any(Function),
       );
     });
@@ -654,7 +658,7 @@ describe('DomscribeWebpackPlugin', () => {
 
       // Assert
       expect(compilerHooks.compilationTap).toHaveBeenCalledWith(
-        'DomscribeWebpackPlugin',
+        'PinFlowWebpackPlugin',
         expect.any(Function),
       );
     });
@@ -687,7 +691,7 @@ describe('DomscribeWebpackPlugin', () => {
         expect(mockGetCompilationHooks).toHaveBeenCalledWith(mockCompilation);
       });
       expect(mockBeforeEmitTapAsync).toHaveBeenCalledWith(
-        'DomscribeWebpackPlugin',
+        'PinFlowWebpackPlugin',
         expect.any(Function),
       );
     });

@@ -4,7 +4,7 @@
  */
 import type { Compiler, WebpackPluginInstance } from 'webpack';
 import {
-  DomscribeWebpackPlugin as BaseDomscribeWebpackPlugin,
+  PinFlowWebpackPlugin as BasePinFlowWebpackPlugin,
   type WebpackPluginOptions,
 } from '@pinflow/transform/plugins/webpack';
 import type {
@@ -48,14 +48,14 @@ export type PinFlowVueWebpackPluginOptions = DomscribeVueWebpackPluginOptions;
  * }
  * ```
  */
-export class DomscribeWebpackPlugin implements WebpackPluginInstance {
-  private readonly basePlugin: BaseDomscribeWebpackPlugin;
+export class PinFlowWebpackPlugin implements WebpackPluginInstance {
+  private readonly basePlugin: BasePinFlowWebpackPlugin;
   private readonly runtimeOptions: DomscribeRuntimeOptions;
   private readonly captureOptions: DomscribeVueCaptureOptions;
   private readonly debug: boolean;
 
   constructor(options?: DomscribeVueWebpackPluginOptions) {
-    this.basePlugin = new BaseDomscribeWebpackPlugin(options);
+    this.basePlugin = new BasePinFlowWebpackPlugin(options);
     this.runtimeOptions = options?.runtime ?? {};
     this.captureOptions = options?.capture ?? {};
     this.debug = options?.debug ?? false;
@@ -94,3 +94,5 @@ export class DomscribeWebpackPlugin implements WebpackPluginInstance {
     }
   }
 }
+
+export const DomscribeWebpackPlugin = PinFlowWebpackPlugin;

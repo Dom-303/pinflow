@@ -25,7 +25,17 @@ vi.mock('node:module', () => ({
 import { loadWebpackPlugin } from './webpack-plugin-loader.js';
 
 describe('loadWebpackPlugin', () => {
-  it('should return the DomscribeWebpackPlugin class when available', () => {
+  it('should prefer the PinFlowWebpackPlugin class when available', () => {
+    class MockPlugin {}
+    mockModuleState.shouldThrow = false;
+    mockModuleState.result = { PinFlowWebpackPlugin: MockPlugin };
+
+    const result = loadWebpackPlugin();
+
+    expect(result).toBe(MockPlugin);
+  });
+
+  it('should fall back to the DomscribeWebpackPlugin alias when needed', () => {
     class MockPlugin {}
     mockModuleState.shouldThrow = false;
     mockModuleState.result = { DomscribeWebpackPlugin: MockPlugin };

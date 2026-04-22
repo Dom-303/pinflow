@@ -3,7 +3,7 @@
  * @module @pinflow/transform/plugins/webpack
  */
 export {
-  DomscribeWebpackPlugin,
-  DomscribeWebpackPlugin as PinFlowWebpackPlugin,
+  PinFlowWebpackPlugin,
+  PinFlowWebpackPlugin as DomscribeWebpackPlugin,
 } from './webpack.plugin.js';
 export type { WebpackPluginOptions, PinFlowWebpackPluginOptions } from './types.js';

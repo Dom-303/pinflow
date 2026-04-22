@@ -47,8 +47,9 @@ export interface VitePluginOptions {
   overlay?: boolean | OverlayPluginOptions;
 
   /**
-   * Override the root directory for `.domscribe/` artifacts (manifest,
-   * transform cache, relay lock).
+   * Override the root directory for `.pinflow/` artifacts (manifest,
+   * transform cache, relay lock). Legacy `.domscribe/` paths are still read
+   * during the migration window.
    *
    * When omitted, defaults to Vite's `config.root`. Needed when the Vite
    * root differs from the project root (e.g., Nuxt with a custom `srcDir`).

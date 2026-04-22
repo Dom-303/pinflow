@@ -2,7 +2,7 @@
  * Webpack loader for Domscribe transform
  *
  * Per-file transform loader that injects `data-ds` attributes into JSX/TSX/Vue
- * source code. Requires DomscribeWebpackPlugin to be registered for lifecycle
+ * source code. Requires PinFlowWebpackPlugin to be registered for lifecycle
  * management (InjectorRegistry and ManifestWriter initialization).
  *
  * @module @pinflow/transform/plugins/webpack/webpack-loader

@@ -1,7 +1,7 @@
 /**
  * Turbopack self-initializing loader for Domscribe transform
  *
- * Unlike the webpack loader (which relies on DomscribeWebpackPlugin for lifecycle),
+ * Unlike the webpack loader (which relies on PinFlowWebpackPlugin for lifecycle),
  * this loader handles its own initialization, relay auto-start, and cleanup —
  * because Turbopack has no plugin system.
  *

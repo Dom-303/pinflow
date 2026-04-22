@@ -10,4 +10,4 @@
  */
 
 export { pinflowModule as default, pinflowModule, domscribeModule } from './module.js';
-export type { DomscribeNuxtOptions, PinFlowNuxtOptions } from './types.js';
+export type { PinFlowNuxtOptions, DomscribeNuxtOptions } from './types.js';

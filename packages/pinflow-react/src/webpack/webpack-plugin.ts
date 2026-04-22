@@ -8,8 +8,8 @@ import {
   type WebpackPluginOptions,
 } from '@pinflow/transform/plugins/webpack';
 import type {
-  DomscribeRuntimeOptions,
-  DomscribeReactCaptureOptions,
+  PinFlowRuntimeOptions,
+  PinFlowReactCaptureOptions,
 } from '../vite/types.js';
 
 /**
@@ -18,14 +18,14 @@ import type {
  * Extends the base transform options with `runtime` and `capture` namespaces
  * for configuring RuntimeManager and ReactAdapter behavior.
  */
-export interface DomscribeReactWebpackPluginOptions extends WebpackPluginOptions {
+export interface PinFlowReactWebpackPluginOptions extends WebpackPluginOptions {
   /** RuntimeManager configuration (phase, PII redaction, block selectors). */
-  runtime?: DomscribeRuntimeOptions;
+  runtime?: PinFlowRuntimeOptions;
   /** React adapter capture configuration (strategy, tree depth, wrappers, hook resolvers). */
-  capture?: DomscribeReactCaptureOptions;
+  capture?: PinFlowReactCaptureOptions;
 }
 
-export type PinFlowReactWebpackPluginOptions = DomscribeReactWebpackPluginOptions;
+export type DomscribeReactWebpackPluginOptions = PinFlowReactWebpackPluginOptions;
 
 /**
  * PinFlow webpack plugin for React projects.
@@ -50,11 +50,11 @@ export type PinFlowReactWebpackPluginOptions = DomscribeReactWebpackPluginOption
  */
 export class PinFlowWebpackPlugin implements WebpackPluginInstance {
   private readonly basePlugin: BasePinFlowWebpackPlugin;
-  private readonly runtimeOptions: DomscribeRuntimeOptions;
-  private readonly captureOptions: DomscribeReactCaptureOptions;
+  private readonly runtimeOptions: PinFlowRuntimeOptions;
+  private readonly captureOptions: PinFlowReactCaptureOptions;
   private readonly debug: boolean;
 
-  constructor(options?: DomscribeReactWebpackPluginOptions) {
+  constructor(options?: PinFlowReactWebpackPluginOptions) {
     this.basePlugin = new BasePinFlowWebpackPlugin(options);
     this.runtimeOptions = options?.runtime ?? {};
     this.captureOptions = options?.capture ?? {};

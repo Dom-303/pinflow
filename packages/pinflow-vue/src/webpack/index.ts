@@ -7,6 +7,6 @@ export {
   PinFlowWebpackPlugin as DomscribeWebpackPlugin,
 } from './webpack-plugin.js';
 export type {
-  DomscribeVueWebpackPluginOptions,
   PinFlowVueWebpackPluginOptions,
+  DomscribeVueWebpackPluginOptions,
 } from './webpack-plugin.js';

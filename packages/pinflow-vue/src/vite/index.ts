@@ -4,10 +4,10 @@
  */
 export { pinflow, pinflow as domscribe, pinflow as vite } from './vite-plugin.js';
 export type {
-  DomscribeVuePluginOptions,
   PinFlowVuePluginOptions,
-  DomscribeRuntimeOptions,
   PinFlowRuntimeOptions,
-  DomscribeVueCaptureOptions,
   PinFlowVueCaptureOptions,
+  DomscribeVuePluginOptions,
+  DomscribeRuntimeOptions,
+  DomscribeVueCaptureOptions,
 } from './types.js';

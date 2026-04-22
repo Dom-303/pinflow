@@ -7,6 +7,6 @@ export {
   PinFlowWebpackPlugin as DomscribeWebpackPlugin,
 } from './webpack-plugin.js';
 export type {
-  DomscribeReactWebpackPluginOptions,
   PinFlowReactWebpackPluginOptions,
+  DomscribeReactWebpackPluginOptions,
 } from './webpack-plugin.js';

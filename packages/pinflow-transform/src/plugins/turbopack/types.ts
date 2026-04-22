@@ -7,7 +7,7 @@ import type { RelayPluginOptions, OverlayPluginOptions } from '../types.js';
 /**
  * Loader options for the Turbopack self-initializing loader.
  *
- * Unlike the webpack loader (which relies on DomscribeWebpackPlugin for init),
+ * Unlike the webpack loader (which relies on PinFlowWebpackPlugin for init),
  * the Turbopack loader handles its own singleton initialization, relay auto-start,
  * and cleanup — because Turbopack has no plugin system.
  */
@@ -37,7 +37,7 @@ export interface TurbopackLoaderOptions {
   /**
    * Overlay UI configuration.
    * When provided, the loader injects overlay options as client-side globals
-   * so DomscribeDevProvider (or equivalent) can initialize the overlay.
+   * so a PinFlow-compatible auto-init layer can initialize the overlay.
    *
    * @default false
    */
@@ -52,7 +52,7 @@ export interface TurbopackLoaderOptions {
    * transformed file may belong to a workspace package that doesn't directly
    * depend on the auto-init package.
    *
-   * Meta-framework wrappers (e.g. `withDomscribe` in `@pinflow/next`)
+   * Meta-framework wrappers (e.g. `withPinFlow` in `@pinflow/next`)
    * should resolve this via `require.resolve()` and pass it here.
    *
    * Falls back to `@pinflow/next/auto-init` when omitted.

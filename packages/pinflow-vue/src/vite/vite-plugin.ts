@@ -1,10 +1,10 @@
 /**
- * Vue-aware Domscribe Vite plugin
+ * Vue-aware PinFlow Vite plugin
  * @module @pinflow/vue/vite/vite-plugin
  */
 import type { Plugin, IndexHtmlTransformResult, HtmlTagDescriptor } from 'vite';
 import { domscribe as baseDomscribe } from '@pinflow/transform/plugins/vite';
-import type { DomscribeVuePluginOptions } from './types.js';
+import type { PinFlowVuePluginOptions } from './types.js';
 
 /**
  * URL path for the virtual init module.
@@ -41,7 +41,7 @@ const INIT_MODULE_PATH = '/@pinflow/vue-init.js';
  * })
  * ```
  */
-export function pinflow(options?: DomscribeVuePluginOptions): Plugin {
+export function pinflow(options?: PinFlowVuePluginOptions): Plugin {
   const basePlugin = baseDomscribe(options);
   const baseTransformIndexHtml = basePlugin.transformIndexHtml;
   const baseResolveId =

@@ -53,7 +53,7 @@ pinflow({
   debug: false,
   relay: { autoStart: true, port: 0, host: '127.0.0.1', bodyLimit: 10485760 },
   overlay: true,
-  rootDir: undefined, // Override root directory for .domscribe/ artifacts
+  rootDir: undefined, // Override root directory for .pinflow/ artifacts
 });
 ```
 
@@ -64,7 +64,7 @@ pinflow({
 | `debug`   | `boolean`                         | `false`                               | Enable debug logging                                                                                                                      |
 | `relay`   | `RelayPluginOptions`              | See shared                            | Relay server config                                                                                                                       |
 | `overlay` | `boolean \| OverlayPluginOptions` | `true`                                | Overlay UI config                                                                                                                         |
-| `rootDir` | `string`                          | Vite's `config.root`                  | Override root directory for `.domscribe/` artifacts. Needed when Vite root differs from project root (e.g., Nuxt with a custom `srcDir`). |
+| `rootDir` | `string`                          | Vite's `config.root`                  | Override root directory for `.pinflow/` artifacts. Legacy `.domscribe/` paths are still read during the migration window. |
 
 ---
 

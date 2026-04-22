@@ -1,5 +1,5 @@
 /**
- * Options for the React-aware Domscribe Vite plugin.
+ * Options for the React-aware PinFlow Vite plugin.
  *
  * Mirrors the base transform plugin options — all options are passed through.
  * Adds `runtime` and `capture` namespaces for configuring runtime behavior
@@ -8,11 +8,11 @@
  * @module @pinflow/react/vite/types
  */
 
-import type { DomscribeRuntimeOptions } from '@pinflow/runtime';
+import type { PinFlowRuntimeOptions, DomscribeRuntimeOptions } from '@pinflow/runtime';
 
 export type {
+  PinFlowRuntimeOptions,
   DomscribeRuntimeOptions,
-  DomscribeRuntimeOptions as PinFlowRuntimeOptions,
 };
 
 /**
@@ -22,7 +22,7 @@ export type {
  * `hookNameResolvers` uses plain objects (JSON-serializable) in plugin options.
  * Converted to `Map<string, Map<number, string>>` at runtime.
  */
-export interface DomscribeReactCaptureOptions {
+export interface PinFlowReactCaptureOptions {
   /** Capture strategy. @default 'best-effort' */
   strategy?: 'devtools' | 'fiber' | 'best-effort';
   /** Maximum component tree depth. @default 50 */
@@ -33,9 +33,9 @@ export interface DomscribeReactCaptureOptions {
   hookNameResolvers?: Record<string, Record<number, string>>;
 }
 
-export type PinFlowReactCaptureOptions = DomscribeReactCaptureOptions;
+export type DomscribeReactCaptureOptions = PinFlowReactCaptureOptions;
 
-export interface DomscribeReactPluginOptions {
+export interface PinFlowReactPluginOptions {
   include?: RegExp;
   exclude?: RegExp;
   debug?: boolean;
@@ -57,9 +57,9 @@ export interface DomscribeReactPluginOptions {
         debug?: boolean;
       };
   /** RuntimeManager configuration (phase, PII redaction, block selectors). */
-  runtime?: DomscribeRuntimeOptions;
+  runtime?: PinFlowRuntimeOptions;
   /** React adapter capture configuration (strategy, tree depth, wrappers, hook resolvers). */
-  capture?: DomscribeReactCaptureOptions;
+  capture?: PinFlowReactCaptureOptions;
 }
 
-export type PinFlowReactPluginOptions = DomscribeReactPluginOptions;
+export type DomscribeReactPluginOptions = PinFlowReactPluginOptions;

@@ -8,8 +8,8 @@ import {
   type WebpackPluginOptions,
 } from '@pinflow/transform/plugins/webpack';
 import type {
-  DomscribeRuntimeOptions,
-  DomscribeVueCaptureOptions,
+  PinFlowRuntimeOptions,
+  PinFlowVueCaptureOptions,
 } from '../vite/types.js';
 
 /**
@@ -18,14 +18,14 @@ import type {
  * Extends the base transform options with `runtime` and `capture` namespaces
  * for configuring RuntimeManager and VueAdapter behavior.
  */
-export interface DomscribeVueWebpackPluginOptions extends WebpackPluginOptions {
+export interface PinFlowVueWebpackPluginOptions extends WebpackPluginOptions {
   /** RuntimeManager configuration (phase, PII redaction, block selectors). */
-  runtime?: DomscribeRuntimeOptions;
+  runtime?: PinFlowRuntimeOptions;
   /** Vue adapter capture configuration (tree depth). */
-  capture?: DomscribeVueCaptureOptions;
+  capture?: PinFlowVueCaptureOptions;
 }
 
-export type PinFlowVueWebpackPluginOptions = DomscribeVueWebpackPluginOptions;
+export type DomscribeVueWebpackPluginOptions = PinFlowVueWebpackPluginOptions;
 
 /**
  * PinFlow webpack plugin for Vue projects.
@@ -50,11 +50,11 @@ export type PinFlowVueWebpackPluginOptions = DomscribeVueWebpackPluginOptions;
  */
 export class PinFlowWebpackPlugin implements WebpackPluginInstance {
   private readonly basePlugin: BasePinFlowWebpackPlugin;
-  private readonly runtimeOptions: DomscribeRuntimeOptions;
-  private readonly captureOptions: DomscribeVueCaptureOptions;
+  private readonly runtimeOptions: PinFlowRuntimeOptions;
+  private readonly captureOptions: PinFlowVueCaptureOptions;
   private readonly debug: boolean;
 
-  constructor(options?: DomscribeVueWebpackPluginOptions) {
+  constructor(options?: PinFlowVueWebpackPluginOptions) {
     this.basePlugin = new BasePinFlowWebpackPlugin(options);
     this.runtimeOptions = options?.runtime ?? {};
     this.captureOptions = options?.capture ?? {};

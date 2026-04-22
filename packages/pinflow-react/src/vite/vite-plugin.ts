@@ -1,10 +1,10 @@
 /**
- * React-aware Domscribe Vite plugin
+ * React-aware PinFlow Vite plugin
  * @module @pinflow/react/vite/vite-plugin
  */
 import type { Plugin, IndexHtmlTransformResult, HtmlTagDescriptor } from 'vite';
 import { domscribe as baseDomscribe } from '@pinflow/transform/plugins/vite';
-import type { DomscribeReactPluginOptions } from './types.js';
+import type { PinFlowReactPluginOptions } from './types.js';
 
 /**
  * URL path for the virtual init module.
@@ -41,7 +41,7 @@ const INIT_MODULE_PATH = '/@pinflow/react-init.js';
  * })
  * ```
  */
-export function pinflow(options?: DomscribeReactPluginOptions): Plugin {
+export function pinflow(options?: PinFlowReactPluginOptions): Plugin {
   const basePlugin = baseDomscribe(options);
   const baseTransformIndexHtml = basePlugin.transformIndexHtml;
   const baseTransform = basePlugin.transform;

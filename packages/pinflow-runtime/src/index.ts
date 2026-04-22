@@ -18,5 +18,8 @@ export { BridgeDispatch } from './bridge/bridge-dispatch.js';
 export type { IRuntimeTransport } from './bridge/transport.interface.js';
 
 // Configuration types
-export type { DomscribeRuntimeOptions } from './core/types.js';
+export type {
+  PinFlowRuntimeOptions,
+  DomscribeRuntimeOptions,
+} from './core/types.js';
 export type { SerializationConstraints } from './capture/types.js';

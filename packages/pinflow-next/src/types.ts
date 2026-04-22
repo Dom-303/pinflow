@@ -97,4 +97,5 @@ export interface PinFlowNextOptions {
       };
 }
 
+/** @deprecated Use `PinFlowNextOptions`. */
 export type DomscribeNextOptions = PinFlowNextOptions;

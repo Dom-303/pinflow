@@ -13,7 +13,7 @@ import type { SerializationConstraints } from '../capture/types.js';
  * Shared across all framework adapters (React, Vue, Next, Nuxt).
  * Each adapter re-exports this type in its own plugin options.
  */
-export interface DomscribeRuntimeOptions {
+export interface PinFlowRuntimeOptions {
   /** Capture phase. @default 1 */
   phase?: 1 | 2;
   /** Redact PII from captured data. @default true */
@@ -29,7 +29,7 @@ export interface DomscribeRuntimeOptions {
  *
  * Extends user-facing options with the framework adapter.
  */
-export interface RuntimeOptions extends DomscribeRuntimeOptions {
+export interface RuntimeOptions extends PinFlowRuntimeOptions {
   /**
    * Framework adapter for runtime context capture.
    * If not provided, a noop adapter will be used.
@@ -82,6 +82,8 @@ export interface IRuntimeBridge {
   getComponentName(entryId: ManifestEntryId): string | null;
   getTrackedCount(): number;
 }
+
+export type DomscribeRuntimeOptions = PinFlowRuntimeOptions;
 
 // Re-export RuntimeContext from core for convenience
 export type { RuntimeContext };

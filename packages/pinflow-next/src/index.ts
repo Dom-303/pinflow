@@ -10,4 +10,4 @@
  */
 
 export { withPinFlow, withDomscribe } from './with-pinflow.js';
-export type { DomscribeNextOptions, PinFlowNextOptions } from './types.js';
+export type { PinFlowNextOptions, DomscribeNextOptions } from './types.js';

@@ -1,5 +1,5 @@
 /**
- * Options for the Vue-aware Domscribe Vite plugin.
+ * Options for the Vue-aware PinFlow Vite plugin.
  *
  * Mirrors the base transform plugin options — all options are passed through.
  * Adds `runtime` and `capture` namespaces for configuring runtime behavior
@@ -8,24 +8,24 @@
  * @module @pinflow/vue/vite/types
  */
 
-import type { DomscribeRuntimeOptions } from '@pinflow/runtime';
+import type { PinFlowRuntimeOptions, DomscribeRuntimeOptions } from '@pinflow/runtime';
 
 export type {
+  PinFlowRuntimeOptions,
   DomscribeRuntimeOptions,
-  DomscribeRuntimeOptions as PinFlowRuntimeOptions,
 };
 
 /**
  * Vue adapter capture configuration.
  */
-export interface DomscribeVueCaptureOptions {
+export interface PinFlowVueCaptureOptions {
   /** Maximum component tree depth. @default 50 */
   maxTreeDepth?: number;
 }
 
-export type PinFlowVueCaptureOptions = DomscribeVueCaptureOptions;
+export type DomscribeVueCaptureOptions = PinFlowVueCaptureOptions;
 
-export interface DomscribeVuePluginOptions {
+export interface PinFlowVuePluginOptions {
   include?: RegExp;
   exclude?: RegExp;
   debug?: boolean;
@@ -47,9 +47,9 @@ export interface DomscribeVuePluginOptions {
         debug?: boolean;
       };
   /** RuntimeManager configuration (phase, PII redaction, block selectors). */
-  runtime?: DomscribeRuntimeOptions;
+  runtime?: PinFlowRuntimeOptions;
   /** Vue adapter capture configuration (tree depth). */
-  capture?: DomscribeVueCaptureOptions;
+  capture?: PinFlowVueCaptureOptions;
 }
 
-export type PinFlowVuePluginOptions = DomscribeVuePluginOptions;
+export type DomscribeVuePluginOptions = PinFlowVuePluginOptions;

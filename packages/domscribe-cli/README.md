@@ -5,7 +5,7 @@ Preferred command-line entrypoint for PinFlow, with `domscribe` kept as a compat
 ## Install
 
 ```bash
-npm install -g domscribe
+npm install -g pinflow
 ```
 
 Then use either:
@@ -23,6 +23,8 @@ domscribe
 ## Note
 
 Starts the relay server and MCP adapter from the command line.
+
+Compatibility note: `domscribe` remains available as a temporary alias during the migration window.
 
 ## Links
 

@@ -9,7 +9,7 @@ description: Testing philosophy, mocking strategy, and patterns for unit, integr
 - **Unit tests mock dependencies by default.** Use `vi.mock()` for module-level mocking and `vi.fn()` for manual mock objects. Constructor DI exists to make clean mocking easy — use it.
 - **Arrange-Act-Assert (AAA).** Every unit test follows this structure: set up the preconditions (Arrange), execute the behavior under test (Act), verify the outcome (Assert). Separate each phase with a blank line. This keeps tests readable, predictable, and easy to maintain — a developer should be able to glance at any test and immediately understand what's being set up, what's being exercised, and what's being verified.
 - **Test behavior, not side effects.** Do not spy on global objects like `console`. Testing log messages is fragile, adds verbosity (setup + teardown per test or suite-wide pollution), and doesn't validate meaningful behavior. Test what a unit _does_, not what it _logs_.
-- **Test-fixtures is the black-box layer.** Integration and e2e tests in `domscribe-test-fixtures` treat Domscribe as an opaque bundler plugin — no `@domscribe/*` imports (except types). They build real fixtures and validate real outputs.
+- **Test-fixtures is the black-box layer.** Integration and e2e tests in `domscribe-test-fixtures` treat PinFlow's current compatibility layer as an opaque bundler plugin — no `@domscribe/*` imports (except types). They build real fixtures and validate real outputs.
 - **Test at the right level.** Don't duplicate coverage across unit/integration/e2e. If the build pipeline catches it, don't unit-test it.
 
 ## Unit Tests (Vitest)

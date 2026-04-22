@@ -22,6 +22,8 @@ Package-to-scope mapping:
 - **build**: `@domscribe/transform`
 - **adapter**: `@domscribe/react`, `@domscribe/vue`, `@domscribe/runtime`, `@domscribe/overlay`, `@domscribe/next`, `@domscribe/nuxt`
 
+These package names are still the active compatibility layer even though the visible product surface is now `PinFlow`.
+
 **Before adding a cross-package import**: check `tags` in the source package's `project.json` to verify the dependency is allowed. If it's not, the architecture needs to be reconsidered — don't just add the tag.
 
 ## Schema-First Design
@@ -103,4 +105,4 @@ These are resolved by `scripts/resolve-workspace-deps.mjs` during `sync-dist`. D
 - **Dynamic ports**: Dev servers and relay use `port: 0`. Never hardcode port numbers.
 - **IPv6-aware**: Verdaccio binds to `[::1]` — port availability checks must try both `::1` and `127.0.0.1`.
 - **Bounded serialization**: Props and state serialization is constrained by depth (6/4), array length (20), string length (2048), property count (50), and byte budget (256 KB). Adapters provide `SerializationHints` via `getSerializationHints()` to skip framework-internal keys (React: `_owner`, `__reactFiber$*`; Vue: `__v_*`).
-- **Shared runtime options**: `DomscribeRuntimeOptions` (including `serialization` constraints) is defined once in `@domscribe/runtime` and re-exported by adapter packages. Framework-specific capture options remain in each adapter.
+- **Shared runtime options**: `DomscribeRuntimeOptions` (including `serialization` constraints) is defined once in `@domscribe/runtime` and re-exported by adapter packages. Framework-specific capture options remain in each adapter. The compatibility type name is intentional for now.

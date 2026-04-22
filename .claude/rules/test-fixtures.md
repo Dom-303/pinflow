@@ -1,5 +1,5 @@
 ---
-description: Integration and e2e test patterns for the domscribe-test-fixtures package
+description: Integration and e2e test patterns for the PinFlow compatibility fixtures package
 paths: ['packages/domscribe-test-fixtures/**']
 ---
 
@@ -7,7 +7,7 @@ paths: ['packages/domscribe-test-fixtures/**']
 
 ## Core Constraint
 
-**Test-fixtures is a black-box test layer.** It treats Domscribe as an opaque bundler plugin. Zero `@domscribe/*` imports (except types for TypeScript). Build real apps, validate real outputs.
+**Test-fixtures is a black-box test layer.** It treats PinFlow's current compatibility layer as an opaque bundler plugin. Zero `@domscribe/*` imports (except types for TypeScript). Build real apps, validate real outputs.
 
 ## Integration Tests (Vitest)
 

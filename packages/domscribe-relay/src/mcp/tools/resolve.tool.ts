@@ -33,7 +33,7 @@ export class ResolveTool implements McpToolDefinition<
 > {
   name = MCP_TOOLS.RESOLVE;
   description =
-    'Resolve a Domscribe element ID (data-ds attribute) to its source code location. ' +
+    'Resolve a PinFlow element ID (data-ds attribute) to its source code location. ' +
     'Returns file path, line/column positions, component name, and tag name. ' +
     'Use when you have a data-ds ID and need to find where the element is defined in source code.';
   inputSchema = ResolveToolInputSchema;

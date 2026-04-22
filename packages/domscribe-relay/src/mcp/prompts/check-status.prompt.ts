@@ -11,7 +11,7 @@ export class CheckStatusPrompt
 {
   name = MCP_PROMPTS.CHECK_STATUS;
   description =
-    'Check Domscribe system status. Shows relay health, manifest stats, and annotation queue counts.';
+    'Check PinFlow system status. Shows relay health, manifest stats, and annotation queue counts.';
   argsSchema = CheckStatusArgsSchema;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -21,7 +21,7 @@ export class CheckStatusPrompt
         role: 'user',
         content: {
           type: 'text',
-          text: `Check the Domscribe system status.
+          text: `Check the PinFlow system status.
 
 Use the domscribe.status tool to get:
 - Relay server health (version, uptime, port)

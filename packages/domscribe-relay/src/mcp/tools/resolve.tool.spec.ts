@@ -98,6 +98,7 @@ describe('ResolveTool', () => {
 
     expect(tool.name).toBe(MCP_TOOLS.RESOLVE);
     expect(tool.description).toContain('Resolve');
+    expect(tool.description).toContain('PinFlow element ID');
     expect(tool.inputSchema).toBeDefined();
     expect(tool.outputSchema).toBeDefined();
   });

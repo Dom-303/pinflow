@@ -90,5 +90,6 @@ describe('ManifestQueryTool', () => {
     const tool = new ManifestQueryTool(createMockRelayClient());
 
     expect(tool.name).toBe(MCP_TOOLS.MANIFEST_QUERY);
+    expect(tool.description).toContain('PinFlow manifest');
   });
 });

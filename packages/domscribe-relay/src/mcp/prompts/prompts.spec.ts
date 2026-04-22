@@ -10,6 +10,7 @@ describe('ProcessNextPrompt', () => {
 
     expect(prompt.name).toBe(MCP_PROMPTS.PROCESS_NEXT);
     expect(prompt.description).toContain('Process');
+    expect(prompt.description).toContain('PinFlow');
   });
 
   it('should return user message with processing instructions', () => {
@@ -20,6 +21,7 @@ describe('ProcessNextPrompt', () => {
     expect(messages).toHaveLength(1);
     expect(messages[0].role).toBe('user');
     expect(messages[0].content.type).toBe('text');
+    expect(messages[0].content.text).toContain('PinFlow annotation');
     expect(messages[0].content.text).toContain('domscribe.annotation.process');
     expect(messages[0].content.text).toContain('domscribe.annotation.respond');
     expect(messages[0].content.text).toContain(
@@ -34,6 +36,7 @@ describe('CheckStatusPrompt', () => {
 
     expect(prompt.name).toBe(MCP_PROMPTS.CHECK_STATUS);
     expect(prompt.description).toContain('status');
+    expect(prompt.description).toContain('PinFlow');
   });
 
   it('should return user message with status check instructions', () => {
@@ -43,6 +46,7 @@ describe('CheckStatusPrompt', () => {
 
     expect(messages).toHaveLength(1);
     expect(messages[0].role).toBe('user');
+    expect(messages[0].content.text).toContain('PinFlow system status');
     expect(messages[0].content.text).toContain('domscribe.status');
   });
 });
@@ -61,6 +65,7 @@ describe('ExploreComponentPrompt', () => {
 
     expect(messages).toHaveLength(1);
     expect(messages[0].content.text).toContain('"Header"');
+    expect(messages[0].content.text).toContain('PinFlow');
     expect(messages[0].content.text).toContain('componentName="Header"');
     expect(messages[0].content.text).toContain('domscribe.manifest.query');
   });
@@ -82,6 +87,7 @@ describe('FindAnnotationsPrompt', () => {
       entryId: 'ds_123',
     });
 
+    expect(messages[0].content.text).toContain('PinFlow annotations');
     expect(messages[0].content.text).toContain('query: "button fix"');
     expect(messages[0].content.text).toContain('file: "Button.tsx"');
     expect(messages[0].content.text).toContain('entryId: "ds_123"');

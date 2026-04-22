@@ -12,7 +12,7 @@ const StatusToolInputSchema = z.object({});
 type StatusToolInput = z.infer<typeof StatusToolInputSchema>;
 
 const RelayStatusSchema = z.object({
-  version: z.string().describe('Domscribe version'),
+  version: z.string().describe('PinFlow version'),
   uptime: z.number().describe('Server uptime in seconds'),
   port: z.number().describe('Server port'),
 });
@@ -50,9 +50,9 @@ export class StatusTool
 {
   name = MCP_TOOLS.STATUS;
   description =
-    'Get the health status of Domscribe including relay server status, ' +
+    'Get the health status of PinFlow including relay server status, ' +
     'manifest loading state, and annotation queue counts. ' +
-    'Use to diagnose issues, verify setup, or check if Domscribe is working.';
+    'Use to diagnose issues, verify setup, or check if PinFlow is working.';
   inputSchema = StatusToolInputSchema;
   outputSchema = StatusToolOutputSchema;
 

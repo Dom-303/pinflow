@@ -90,5 +90,7 @@ describe('StatusTool', () => {
     const tool = new StatusTool(createMockRelayClient());
 
     expect(tool.name).toBe(MCP_TOOLS.STATUS);
+    expect(tool.description).toContain('PinFlow');
+    expect(tool.description).not.toContain('Domscribe');
   });
 });

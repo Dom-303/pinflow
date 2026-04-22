@@ -28,7 +28,7 @@ export class FindAnnotationsPrompt implements McpPromptDefinition<
         role: 'user',
         content: {
           type: 'text',
-          text: `Search for Domscribe annotations.
+          text: `Search for PinFlow annotations.
 
 Use the domscribe.annotation.search tool with these filters:
 ${args.query ? `- query: "${args.query}"` : ''}

@@ -23,7 +23,7 @@ export class ExploreComponentPrompt
         role: 'user',
         content: {
           type: 'text',
-          text: `Explore the "${args.componentName}" component.
+          text: `Explore the "${args.componentName}" component in PinFlow.
 
 Use the domscribe.manifest.query tool with componentName="${args.componentName}" to list all DOM elements.
 

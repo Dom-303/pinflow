@@ -133,5 +133,7 @@ describe('AnnotationsListTool', () => {
     const tool = new AnnotationsListTool(createMockRelayClient());
 
     expect(tool.name).toBe(MCP_TOOLS.ANNOTATION_LIST);
+    expect(tool.description).toContain('PinFlow annotations');
+    expect(tool.description).toContain('domscribe.annotation.process');
   });
 });

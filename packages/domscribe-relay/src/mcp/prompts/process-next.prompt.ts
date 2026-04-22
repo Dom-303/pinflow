@@ -11,7 +11,7 @@ export class ProcessNextPrompt implements McpPromptDefinition<
 > {
   name = MCP_PROMPTS.PROCESS_NEXT;
   description =
-    'Process the next queued UI annotation. Claims and processes one annotation from the queue.';
+    'Process the next queued PinFlow UI annotation. Claims and processes one annotation from the queue.';
   argsSchema = ProcessNextArgsSchema;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -21,7 +21,7 @@ export class ProcessNextPrompt implements McpPromptDefinition<
         role: 'user',
         content: {
           type: 'text',
-          text: `Process the next queued Domscribe annotation.
+          text: `Process the next queued PinFlow annotation.
 
 Use the domscribe.annotation.process tool to claim the next annotation.
 

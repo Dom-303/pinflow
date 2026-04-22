@@ -48,7 +48,7 @@ export class ManifestQueryTool implements McpToolDefinition<
 > {
   name = MCP_TOOLS.MANIFEST_QUERY;
   description =
-    'Query the Domscribe manifest to find UI elements by file, component, or tag name. ' +
+    'Query the PinFlow manifest to find UI elements by file, component, or tag name. ' +
     'Use to explore what elements exist in a file ("what\'s in Button.tsx?"), ' +
     'find all instances of a component ("find all Modal elements"), ' +
     'or list elements by tag ("show all input elements").';

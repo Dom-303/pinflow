@@ -1,11 +1,11 @@
 /**
- * Domscribe Vue Smoke Test - Console utilities for testing runtime context capture
+ * PinFlow Vue Smoke Test - Console utilities for testing runtime context capture
  *
  * Usage in browser console:
- *   domscribe.captureElement(element)      - Capture context for element (current strategy)
- *   domscribe.captureSelector(selector)    - Capture context for selector (current strategy)
- *   domscribe.listTracked()                - List all tracked element IDs
- *   domscribe.status()                     - Show runtime status
+ *   pinflow.captureElement(element)      - Capture context for element (current strategy)
+ *   pinflow.captureSelector(selector)    - Capture context for selector (current strategy)
+ *   pinflow.listTracked()                - List all tracked element IDs
+ *   pinflow.status()                     - Show runtime status
  */
 
 import { RuntimeManager } from '@pinflow/runtime';
@@ -147,7 +147,7 @@ async function testAllStrategies(element: HTMLElement): Promise<void> {
 }
 
 // Expose utilities globally
-const domscribeUtils = {
+const pinflowUtils = {
   captureElement,
   captureSelector,
   listTracked,
@@ -155,14 +155,15 @@ const domscribeUtils = {
   testAllStrategies,
 };
 
-(window as unknown as Record<string, unknown>).domscribe = domscribeUtils;
+(window as unknown as Record<string, unknown>).pinflow = pinflowUtils;
+(window as unknown as Record<string, unknown>).domscribe = pinflowUtils;
 
 console.log('[pinflow-preview] Vue smoke test utilities loaded. Available commands:');
 console.log(
-  '  domscribe.captureElement(element) - Capture context for element',
+  '  pinflow.captureElement(element) - Capture context for element',
 );
 console.log(
-  '  domscribe.captureSelector(selector) - Capture context for selector',
+  '  pinflow.captureSelector(selector) - Capture context for selector',
 );
-console.log('  domscribe.listTracked() - List tracked elements');
-console.log('  domscribe.status() - Show runtime status');
+console.log('  pinflow.listTracked() - List tracked elements');
+console.log('  pinflow.status() - Show runtime status');

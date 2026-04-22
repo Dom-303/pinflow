@@ -274,7 +274,7 @@ async function buildWebpackFixture(
  * Build a fixture using Next.js CLI.
  *
  * Next.js always builds in production mode (NODE_ENV=production).
- * DOMSCRIBE_FORCE_TRANSFORM=1 bypasses the production guard in withDomscribe().
+ * Legacy DOMSCRIBE_FORCE_TRANSFORM=1 bypasses the production guard in withPinFlow().
  */
 async function buildNextFixture(
   config: FixtureConfig,
@@ -324,7 +324,7 @@ async function buildNextFixture(
  * Build a fixture using Nuxt CLI.
  *
  * Nuxt builds in production mode by default (dev: false).
- * DOMSCRIBE_FORCE_TRANSFORM=1 bypasses the dev guard in the Nuxt module.
+ * Legacy DOMSCRIBE_FORCE_TRANSFORM=1 bypasses the dev guard in the PinFlow Nuxt module.
  */
 async function buildNuxtFixture(
   config: FixtureConfig,

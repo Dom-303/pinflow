@@ -2,11 +2,11 @@
  * PinFlow Preview Smoke Test - Console utilities for testing runtime context capture
  *
  * Usage in browser console:
- *   domscribe.captureElement(element)      - Capture context for element (current strategy)
- *   domscribe.captureSelector(selector)    - Capture context for selector (current strategy)
- *   domscribe.setStrategy('fiber'|'devtools'|'best-effort') - Change strategy
- *   domscribe.listTracked()                - List all tracked element IDs
- *   domscribe.status()                     - Show runtime status
+ *   pinflow.captureElement(element)      - Capture context for element (current strategy)
+ *   pinflow.captureSelector(selector)    - Capture context for selector (current strategy)
+ *   pinflow.setStrategy('fiber'|'devtools'|'best-effort') - Change strategy
+ *   pinflow.listTracked()                - List all tracked element IDs
+ *   pinflow.status()                     - Show runtime status
  */
 
 import { RuntimeManager } from '@pinflow/runtime';
@@ -170,7 +170,7 @@ async function status(): Promise<void> {
   });
 }
 
-const domscribeUtils = {
+const pinflowUtils = {
   captureElement,
   captureElementData,
   captureSelector,
@@ -185,6 +185,7 @@ const domscribeUtils = {
 };
 
 if (typeof window !== 'undefined') {
-  (window as unknown as Record<string, unknown>).domscribe = domscribeUtils;
+  (window as unknown as Record<string, unknown>).pinflow = pinflowUtils;
+  (window as unknown as Record<string, unknown>).domscribe = pinflowUtils;
   console.log('[pinflow-preview] Smoke test utilities loaded.');
 }

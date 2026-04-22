@@ -2,11 +2,11 @@
  * PinFlow Preview Smoke Test - Console utilities for testing runtime context capture
  *
  * Usage in browser console:
- *   domscribe.captureElement(element)      - Capture context for element (current strategy)
- *   domscribe.captureSelector(selector)    - Capture context for selector (current strategy)
- *   domscribe.setStrategy('fiber'|'devtools'|'best-effort') - Change strategy
- *   domscribe.listTracked()                - List all tracked element IDs
- *   domscribe.status()                     - Show runtime status
+ *   pinflow.captureElement(element)      - Capture context for element (current strategy)
+ *   pinflow.captureSelector(selector)    - Capture context for selector (current strategy)
+ *   pinflow.setStrategy('fiber'|'devtools'|'best-effort') - Change strategy
+ *   pinflow.listTracked()                - List all tracked element IDs
+ *   pinflow.status()                     - Show runtime status
  */
 
 import { RuntimeManager } from '@pinflow/runtime';
@@ -237,7 +237,7 @@ async function testAllStrategies(element: HTMLElement): Promise<void> {
 }
 
 // Expose utilities globally
-const domscribeUtils = {
+const pinflowUtils = {
   captureElement,
   captureElementData,
   captureSelector,
@@ -252,20 +252,21 @@ const domscribeUtils = {
   },
 };
 
-(window as unknown as Record<string, unknown>).domscribe = domscribeUtils;
+(window as unknown as Record<string, unknown>).pinflow = pinflowUtils;
+(window as unknown as Record<string, unknown>).domscribe = pinflowUtils;
 
 console.log('[pinflow-preview] Smoke test utilities loaded. Available commands:');
 console.log(
-  '  domscribe.captureElement(element) - Capture context for element',
+  '  pinflow.captureElement(element) - Capture context for element',
 );
 console.log(
-  '  domscribe.captureSelector(selector) - Capture context for selector',
+  '  pinflow.captureSelector(selector) - Capture context for selector',
 );
 console.log(
-  "  domscribe.setStrategy('fiber'|'devtools'|'best-effort') - Change strategy",
+  "  pinflow.setStrategy('fiber'|'devtools'|'best-effort') - Change strategy",
 );
 console.log(
-  '  domscribe.testAllStrategies(element) - Test all strategies on element',
+  '  pinflow.testAllStrategies(element) - Test all strategies on element',
 );
-console.log('  domscribe.listTracked() - List tracked elements');
-console.log('  domscribe.status() - Show runtime status');
+console.log('  pinflow.listTracked() - List tracked elements');
+console.log('  pinflow.status() - Show runtime status');

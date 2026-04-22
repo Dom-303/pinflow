@@ -8,7 +8,7 @@ import { LitElement, html, css } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { StoreController } from '../core/store-controller.js';
 import { themeStyles } from '../styles/theme.js';
-import { getThemeIconAsset } from './logo/index.js';
+import { logoSvg } from './logo/index.js';
 
 /** Minimum px of movement before we treat it as a drag instead of a click. */
 const DRAG_THRESHOLD = 4;
@@ -34,7 +34,7 @@ export class DsTab extends LitElement {
       :host {
         display: block;
         position: absolute;
-        right: -18px;
+        right: -10px;
         /* top is set dynamically via inline style */
         transform: translateY(-50%);
         z-index: 3;
@@ -44,12 +44,12 @@ export class DsTab extends LitElement {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 72px;
-        height: 72px;
-        padding: 10px;
+        width: 78px;
+        height: 78px;
+        padding: 0;
         background: var(--ds-shell-surface-strong);
         border: 1px solid var(--ds-shell-border-soft);
-        border-radius: 22px;
+        border-radius: 24px;
         box-shadow: var(--ds-panel-shadow);
         cursor: pointer;
         touch-action: none; /* prevent scroll while dragging */
@@ -74,12 +74,25 @@ export class DsTab extends LitElement {
         box-shadow: var(--ds-shadow-xl);
       }
 
-      .tab-icon {
-        width: 100%;
-        height: 100%;
-        display: block;
-        object-fit: contain;
-        border-radius: 16px;
+      .tab-mark {
+        display: grid;
+        place-items: center;
+        width: 52px;
+        height: 52px;
+        border-radius: 18px;
+        background:
+          radial-gradient(circle at top, rgba(255, 255, 255, 0.95), transparent 70%),
+          linear-gradient(
+            180deg,
+            rgba(255, 252, 247, 0.96),
+            rgba(244, 236, 225, 0.92)
+          );
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.65),
+          0 14px 34px -22px rgba(69, 49, 31, 0.42);
+      }
+
+      .tab-mark svg {
         filter: drop-shadow(var(--ds-tab-shadow));
       }
     `,
@@ -160,6 +173,7 @@ export class DsTab extends LitElement {
 
   override render() {
     const { tabOffsetY: offsetY, theme } = this.storeController.state;
+    const markColor = theme === 'dark' ? '#f3ede2' : '#b45309';
 
     return html`
       <style>
@@ -173,12 +187,9 @@ export class DsTab extends LitElement {
         title="PinFlow-Arbeitsbereich oeffnen (Strg+Umschalt+D)"
         aria-label="PinFlow-Arbeitsbereich oeffnen"
       >
-        <img
-          class="tab-icon"
-          src=${getThemeIconAsset(theme)}
-          alt="PinFlow"
-          aria-hidden="true"
-        />
+        <span class="tab-mark" aria-hidden="true">
+          ${logoSvg({ size: 34, color: markColor, variant: 'full' })}
+        </span>
       </button>
     `;
   }

@@ -11,7 +11,7 @@ import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { StoreController } from '../core/store-controller.js';
 import { themeStyles, utilityStyles } from '../styles/theme.js';
-import { getThemeIconAsset } from './logo/index.js';
+import { logoSvg } from './logo/index.js';
 
 // Import child components
 import './ds-header.js';
@@ -82,16 +82,16 @@ export class DsSidebar extends LitElement {
 
       .workspace-grip {
         position: absolute;
-        left: -18px;
+        left: -20px;
         top: 50%;
         transform: translateY(-50%);
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 44px;
-        height: 54px;
+        width: 48px;
+        height: 60px;
         border: 1px solid var(--ds-shell-border-soft);
-        border-radius: 18px 0 0 18px;
+        border-radius: 20px 0 0 20px;
         background: var(--ds-shell-surface-strong);
         box-shadow: var(--ds-shadow-lg);
         color: var(--ds-text-secondary);
@@ -110,15 +110,8 @@ export class DsSidebar extends LitElement {
       }
 
       .workspace-grip svg {
-        width: 14px;
-        height: 14px;
-      }
-
-      .workspace-grip-icon {
-        width: 24px;
-        height: 24px;
-        display: block;
-        object-fit: contain;
+        width: 22px;
+        height: 22px;
       }
 
       .sidebar-content {
@@ -269,6 +262,7 @@ export class DsSidebar extends LitElement {
   override render() {
     const { selectedElement, annotations, relayConnected, theme } =
       this.storeController.state;
+    const gripColor = theme === 'dark' ? '#f3ede2' : '#b45309';
 
     return html`
       <div class="sidebar-content">
@@ -278,12 +272,7 @@ export class DsSidebar extends LitElement {
           title="PinFlow einklappen"
           aria-label="PinFlow einklappen"
         >
-          <img
-            class="workspace-grip-icon"
-            src=${getThemeIconAsset(theme)}
-            alt=""
-            aria-hidden="true"
-          />
+          ${logoSvg({ size: 22, color: gripColor, variant: 'full' })}
         </button>
         <ds-header ?scrolled=${this.isScrolled}></ds-header>
 

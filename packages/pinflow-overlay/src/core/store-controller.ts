@@ -33,7 +33,6 @@ export class StoreController implements ReactiveController {
     this.host = host;
     this.host.addController(this);
     this._state = OverlayStore.getInstance().getState();
-    this.syncThemeAttribute(this._state.theme);
   }
 
   /**
@@ -41,6 +40,8 @@ export class StoreController implements ReactiveController {
    */
   hostConnected(): void {
     const store = OverlayStore.getInstance();
+
+    this.syncThemeAttribute(this._state.theme);
 
     this.unsubscribe = store.subscribe((state) => {
       this._state = state;

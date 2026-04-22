@@ -43,7 +43,7 @@ export class DsOverlay extends LitElement {
       }
 
       :host([mode='collapsed']) {
-        width: var(--ds-tab-width);
+        width: 72px;
       }
 
       :host([mode='expanded']) {

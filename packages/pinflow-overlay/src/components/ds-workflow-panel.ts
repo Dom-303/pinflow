@@ -92,7 +92,7 @@ export class DsWorkflowPanel extends LitElement {
 
       .status-overview {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 8px;
       }
 
@@ -398,6 +398,38 @@ export class DsWorkflowPanel extends LitElement {
     return status;
   }
 
+  private getContinuationLabel(continuation: 'automatic' | 'confirm' | 'manual') {
+    if (continuation === 'automatic') return 'Automatisch';
+    if (continuation === 'confirm') return 'Mit Freigabe';
+    return 'Manuell';
+  }
+
+  private getContinuationCopy(continuation: 'automatic' | 'confirm' | 'manual') {
+    if (continuation === 'automatic') {
+      return 'PinFlow zieht neue Batches nach, sobald wieder Platz frei wird.';
+    }
+    if (continuation === 'confirm') {
+      return 'PinFlow stellt den naechsten Batch bereit und wartet auf deine Freigabe.';
+    }
+    return 'Neue Aufgaben bleiben gesammelt, bis du den naechsten Batch bewusst ausloest.';
+  }
+
+  private formatBatchReleasedAt(value: string) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return 'Zeit unbekannt';
+    }
+
+    return new Intl.DateTimeFormat('de-DE', {
+      day: '2-digit',
+      month: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+      timeZone: 'UTC',
+    }).format(date);
+  }
+
   override render() {
     const { annotations, dispatchProjectDefaults, dispatchSession, dispatchBatches } =
       this.storeController.state;
@@ -526,6 +558,15 @@ export class DsWorkflowPanel extends LitElement {
                   : 'manuell'}
             </div>
           </div>
+          <div class="status-card">
+            <div class="status-label">Fortsetzung</div>
+            <div class="status-value">
+              ${this.getContinuationLabel(effective.continuation)}
+            </div>
+            <div class="status-note">
+              ${this.getContinuationCopy(effective.continuation)}
+            </div>
+          </div>
         </div>
 
         <div class="summary">
@@ -634,6 +675,10 @@ export class DsWorkflowPanel extends LitElement {
                           </div>
                         </div>
                         <div class="batch-meta">
+                          <span
+                            >Freigegeben
+                            ${this.formatBatchReleasedAt(batch.releasedAt)}</span
+                          >
                           <span>${batch.annotationIds.length} Aufgaben</span>
                           <span>${batch.completedCount} fertig</span>
                           ${batch.processingCount

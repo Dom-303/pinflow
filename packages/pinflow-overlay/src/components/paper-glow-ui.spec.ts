@@ -26,6 +26,7 @@ const mockState = {
     id: string;
     channel: string;
     annotationIds: string[];
+    releasedAt: string;
     status: string;
     queuedCount: number;
     processingCount: number;
@@ -207,6 +208,7 @@ describe('Paper Glow UI contract', () => {
         id: 'batch-1',
         channel: 'codex',
         annotationIds: ['note-1', 'note-2'],
+        releasedAt: '2026-04-23T09:30:00.000Z',
         status: 'running',
         queuedCount: 1,
         processingCount: 1,
@@ -270,10 +272,14 @@ describe('Paper Glow UI contract', () => {
     expect(workflowPanel.shadowRoot.textContent).toContain(
       'Queue-Status',
     );
+    expect(workflowPanel.shadowRoot.textContent).toContain('Fortsetzung');
+    expect(workflowPanel.shadowRoot.textContent).toContain('Automatisch');
     expect(workflowPanel.shadowRoot.textContent).toContain('Freigabe & Automatik');
     expect(workflowPanel.shadowRoot.textContent).toContain('Codex');
     expect(workflowPanel.shadowRoot.textContent).toContain('Letzte Batches');
     expect(workflowPanel.shadowRoot.textContent).toContain('Laeuft');
+    expect(workflowPanel.shadowRoot.textContent).toContain('Freigegeben');
+    expect(workflowPanel.shadowRoot.textContent).toContain('23.04., 09:30');
 
     const darkToggle = sidebar.shadowRoot.querySelector(
       'button[aria-label="Dunkelmodus aktivieren"]',

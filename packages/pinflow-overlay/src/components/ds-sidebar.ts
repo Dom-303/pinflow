@@ -461,9 +461,9 @@ export class DsSidebar extends LitElement {
               </p>
               <div class="overview-meta">
                 <span class="overview-pill"><strong>${annotations.length}</strong> Hinweise</span>
-                <span class="overview-pill"><strong>${relayConnected
-                  ? 'Live'
-                  : 'Offline'}</strong> Relay</span>
+                <span class="overview-pill"
+                  ><strong>${relayConnected ? 'Relay aktiv' : 'Relay offline'}</strong></span
+                >
               </div>
             </div>
             <div class="utility-column">

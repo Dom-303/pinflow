@@ -172,7 +172,7 @@ export class DsHeader extends LitElement {
           <div class="brand-copy">
             <div class="brand-meta">
               <span class="brand-kicker">Arbeitsbereich</span>
-              <span class="brand-status">Session live</span>
+              <span class="brand-status">Session aktiv</span>
             </div>
             <img
               class="brand-wordmark"
@@ -180,7 +180,7 @@ export class DsHeader extends LitElement {
               alt="PinFlow"
             />
             <span class="brand-subtext"
-              >Auswahl, Kommentare und Versand im aktuellen Flow</span
+              >Auswahl, Kommentare und Versand im aktuellen Arbeitsfluss</span
             >
           </div>
         </div>

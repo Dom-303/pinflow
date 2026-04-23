@@ -142,9 +142,9 @@ describe('Paper Glow UI contract', () => {
     expect(brandWordmark?.getAttribute('alt')).toBe('PinFlow');
     expect(brandWordmark?.getAttribute('src')).toContain('pinflow-horizontal');
     expect(header.shadowRoot.textContent).toContain('Arbeitsbereich');
-    expect(header.shadowRoot.textContent).toContain('Session live');
+    expect(header.shadowRoot.textContent).toContain('Session aktiv');
     expect(header.shadowRoot.textContent).toContain(
-      'Auswahl, Kommentare und Versand im aktuellen Flow',
+      'Auswahl, Kommentare und Versand im aktuellen Arbeitsfluss',
     );
     expect(header.scrolled).toBe(false);
     expect(closeButton).not.toBeNull();
@@ -443,6 +443,7 @@ describe('Paper Glow UI contract', () => {
     expect(sidebarText).toContain(
       'Verlauf, Antworten und Status in der aktuellen Session',
     );
+    expect(sidebarText).toContain('Relay aktiv');
     expect(sidebarText).toContain('Aktuell wichtig');
     expect(sidebarText).toContain('Element auswaehlen');
     expect(sidebarText).toContain(

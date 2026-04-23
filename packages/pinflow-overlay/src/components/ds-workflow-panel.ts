@@ -3,6 +3,7 @@ import { customElement, state } from 'lit/decorators.js';
 import { StoreController } from '../core/store-controller.js';
 import {
   analyzeDispatchQueue,
+  type EffectiveDispatchConfig,
   mergeDispatchConfig,
   summarizeQueue,
   type DispatchChannel,
@@ -455,6 +456,74 @@ export class DsWorkflowPanel extends LitElement {
     }).format(date);
   }
 
+  private getNextFlowNote(
+    effective: EffectiveDispatchConfig,
+    analysis: ReturnType<typeof analyzeDispatchQueue>,
+  ): { title: string; copy: string } | null {
+    if (effective.channel === 'queue_only') {
+      return {
+        title: 'Sammelt weiter',
+        copy: 'Wechsle auf Codex oder Claude, sobald die ersten Aufgaben rausgehen sollen.',
+      };
+    }
+
+    if (effective.paused) {
+      return {
+        title: 'Queue bleibt angehalten',
+        copy: 'Hebe die Pause auf, sobald neue Aufgaben wieder in den Flow gehen sollen.',
+      };
+    }
+
+    if (analysis.awaitingConfirmationIds.length > 0) {
+      return {
+        title: 'Naechster Batch bereit',
+        copy: 'Der naechste Batch liegt bereit. Pruefe ihn und gib ihn bewusst frei.',
+      };
+    }
+
+    if (
+      effective.mode === 'threshold' &&
+      !this.storeController.state.dispatchSession.flowActive &&
+      analysis.unreleasedWaitingIds.length > 0 &&
+      analysis.unreleasedWaitingIds.length < effective.threshold
+    ) {
+      const remaining = effective.threshold - analysis.unreleasedWaitingIds.length;
+      const outcome =
+        effective.continuation === 'confirm'
+          ? 'den ersten Batch zur Freigabe bereit'
+          : effective.continuation === 'automatic'
+            ? 'den ersten Batch automatisch frei'
+            : 'den ersten Batch fuer deinen manuellen Start vor';
+
+      return {
+        title: 'Schwelle fast erreicht',
+        copy: `Noch ${remaining} Aufgabe${remaining === 1 ? '' : 'n'}, dann stellt PinFlow ${outcome}.`,
+      };
+    }
+
+    if (
+      effective.continuation === 'automatic' &&
+      analysis.inFlightIds.length > 0 &&
+      analysis.unreleasedWaitingIds.length > 0
+    ) {
+      return {
+        title: 'Auto-Fortsetzung aktiv',
+        copy: `Sobald Kapazitaet frei wird, zieht PinFlow die naechsten ${
+          analysis.releasableIds.length || analysis.unreleasedWaitingIds.length
+        } Aufgaben automatisch nach.`,
+      };
+    }
+
+    if (effective.mode === 'manual' && analysis.unreleasedWaitingIds.length > 0) {
+      return {
+        title: 'Manueller Start',
+        copy: `Es warten ${analysis.unreleasedWaitingIds.length} Aufgaben auf deinen naechsten Batch.`,
+      };
+    }
+
+    return null;
+  }
+
   override render() {
     const { annotations, dispatchProjectDefaults, dispatchSession, dispatchBatches } =
       this.storeController.state;
@@ -494,6 +563,7 @@ export class DsWorkflowPanel extends LitElement {
             ? 'Bereit fuer den naechsten Versand'
             : 'Bereit zum Start';
     const latestBatch = dispatchBatches[0];
+    const nextFlowNote = this.getNextFlowNote(effective, analysis);
 
     return html`
       <div class="panel">
@@ -645,30 +715,14 @@ export class DsWorkflowPanel extends LitElement {
           </div>
         </div>
 
-        ${analysis.awaitingConfirmationIds.length > 0
+        ${nextFlowNote
           ? html`
               <div class="flow-note">
-                <div class="flow-note-title">Naechster Batch bereit</div>
-                <div class="flow-note-copy">
-                  Der naechste Batch liegt bereit. Pruefe ihn und gib ihn bewusst
-                  frei.
-                </div>
+                <div class="flow-note-title">${nextFlowNote.title}</div>
+                <div class="flow-note-copy">${nextFlowNote.copy}</div>
               </div>
             `
-          : effective.continuation === 'automatic' &&
-              analysis.inFlightIds.length > 0 &&
-              analysis.unreleasedWaitingIds.length > 0
-            ? html`
-                <div class="flow-note">
-                  <div class="flow-note-title">Auto-Fortsetzung aktiv</div>
-                  <div class="flow-note-copy">
-                    Sobald Kapazitaet frei wird, zieht PinFlow die naechsten
-                    ${analysis.releasableIds.length || analysis.unreleasedWaitingIds.length}
-                    Aufgaben automatisch nach.
-                  </div>
-                </div>
-              `
-            : nothing}
+          : nothing}
 
         ${this.settingsOpen
           ? html`

@@ -512,7 +512,61 @@ describe('Paper Glow UI contract', () => {
       'Neue Aufgaben bleiben gesammelt, bis du einen aktiven Kanal waehlst.',
     );
     expect(workflowText).toContain('Queue pausiert');
+    expect(workflowText).toContain('Sammelt weiter');
+    expect(workflowText).toContain(
+      'Wechsle auf Codex oder Claude, sobald die ersten Aufgaben rausgehen sollen.',
+    );
     expect(releaseButton.disabled).toBe(true);
+  });
+
+  it('renders threshold guidance before automatic confirmation starts', async () => {
+    mockState.annotations = [
+      { id: 'note-1', metadata: { id: 'note-1', status: 'queued' } },
+      { id: 'note-2', metadata: { id: 'note-2', status: 'queued' } },
+    ];
+    mockState.dispatchProjectDefaults = {
+      channel: 'codex',
+      mode: 'threshold',
+      threshold: 3,
+      concurrency: 2,
+      continuation: 'confirm',
+    };
+    mockState.dispatchSession = {
+      overrides: { mode: 'threshold', continuation: 'confirm' },
+      paused: false,
+      releasedAnnotationIds: [],
+      awaitingConfirmationIds: [],
+      flowActive: false,
+    };
+
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    render(html`<ds-sidebar></ds-sidebar>`, host);
+
+    const sidebar = host.querySelector('ds-sidebar') as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await sidebar.updateComplete;
+
+    const workflowPanel = sidebar.shadowRoot.querySelector(
+      'ds-workflow-panel',
+    ) as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await workflowPanel.updateComplete;
+
+    const workflowText =
+      workflowPanel.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+
+    expect(workflowText).toContain('Schwelle fast erreicht');
+    expect(workflowText).toContain(
+      'Noch 1 Aufgabe, dann stellt PinFlow den ersten Batch zur Freigabe bereit.',
+    );
+    expect(workflowText).toContain('Bereit fuer den naechsten Versand');
   });
 
   it('renders guided confirmation flow states when a batch awaits approval', async () => {

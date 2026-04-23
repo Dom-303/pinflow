@@ -119,6 +119,13 @@ export const themeStyles = css`
         rgba(255, 254, 251, 0.98) 0%,
         rgba(251, 246, 239, 0.96) 100%
       );
+    --ds-empty-surface:
+      linear-gradient(
+        180deg,
+        rgba(255, 253, 249, 0.94) 0%,
+        rgba(247, 241, 232, 0.9) 100%
+      );
+    --ds-empty-border: rgba(225, 213, 198, 0.92);
     --ds-note-surface: rgba(255, 250, 243, 0.58);
     --ds-status-ready-surface: rgba(255, 252, 247, 0.92);
     --ds-status-ready-border: rgba(225, 213, 198, 0.95);
@@ -300,6 +307,13 @@ export const themeStyles = css`
         rgba(37, 48, 58, 0.98) 0%,
         rgba(28, 35, 42, 0.97) 100%
       );
+    --ds-empty-surface:
+      linear-gradient(
+        180deg,
+        rgba(34, 42, 50, 0.96) 0%,
+        rgba(24, 31, 38, 0.95) 100%
+      );
+    --ds-empty-border: rgba(88, 102, 116, 0.92);
     --ds-note-surface: rgba(28, 35, 42, 0.72);
     --ds-status-ready-surface: rgba(37, 48, 58, 0.9);
     --ds-status-ready-border: rgba(88, 102, 116, 0.92);

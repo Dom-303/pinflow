@@ -230,8 +230,13 @@ export class DsAnnotationList extends LitElement {
       .empty-state {
         display: flex;
         flex-direction: column;
-        align-items: center;
+        align-items: flex-start;
+        gap: var(--ds-space-sm);
         padding: var(--ds-space-lg);
+        background: var(--ds-empty-surface);
+        border: 1px solid var(--ds-empty-border);
+        border-radius: calc(var(--ds-radius-lg) - 2px);
+        box-shadow: var(--ds-panel-shadow-soft);
         color: var(--ds-text-secondary);
         text-align: center;
       }
@@ -239,12 +244,24 @@ export class DsAnnotationList extends LitElement {
       .empty-state-icon {
         width: 32px;
         height: 32px;
-        margin-bottom: var(--ds-space-sm);
+        margin-bottom: 0;
         opacity: 0.5;
       }
 
+      .empty-state-title {
+        margin: 0;
+        font-size: var(--ds-font-size-md);
+        font-weight: var(--ds-font-weight-semibold);
+        color: var(--ds-text-primary);
+        letter-spacing: -0.02em;
+        text-align: left;
+      }
+
       .empty-state-text {
+        margin: 0;
         font-size: var(--ds-font-size-sm);
+        line-height: 1.55;
+        text-align: left;
       }
 
       /* Status-specific dot colors in header */
@@ -411,6 +428,36 @@ export class DsAnnotationList extends LitElement {
 
   override render() {
     const { annotations } = this.storeController.state;
+    if (annotations.length === 0) {
+      return html`
+        <div class="empty-state">
+          <svg
+            class="empty-state-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M6.75 7.5h10.5M6.75 12h10.5M6.75 16.5h6"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+            />
+            <path
+              d="M5.25 4.5h13.5a1.5 1.5 0 0 1 1.5 1.5v12a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V6a1.5 1.5 0 0 1 1.5-1.5Z"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <p class="empty-state-title">Noch keine Anmerkungen in dieser Session</p>
+          <p class="empty-state-text">
+            Markiere ein Element und starte rechts mit deiner ersten Aenderung.
+          </p>
+        </div>
+      `;
+    }
+
     const groups = this.groupByStatus(annotations);
 
     return html`

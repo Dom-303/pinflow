@@ -310,4 +310,50 @@ describe('Paper Glow UI contract', () => {
     expect(settingsText).toContain('Parallelitaet');
     expect(settingsText).toContain('Automatik-Schwelle');
   });
+
+  it('renders calm empty states in dark mode when no session items exist', async () => {
+    mockState.annotations = [];
+    mockState.dispatchBatches = [];
+    mockState.relayConnected = false;
+    mockState.theme = 'dark';
+
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    render(html`<ds-sidebar></ds-sidebar>`, host);
+
+    const sidebar = host.querySelector('ds-sidebar') as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await sidebar.updateComplete;
+
+    const list = sidebar.shadowRoot.querySelector(
+      'ds-annotation-list',
+    ) as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+    const workflowPanel = sidebar.shadowRoot.querySelector(
+      'ds-workflow-panel',
+    ) as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await workflowPanel.updateComplete;
+    await list.updateComplete;
+
+    const sidebarText = sidebar.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+    const workflowText =
+      workflowPanel.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+    const listText = list.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+
+    expect(sidebarText).toContain('Nicht verbunden');
+    expect(workflowText).toContain('Flow-Steuerung');
+    expect(listText).toContain('Noch keine Anmerkungen in dieser Session');
+    expect(listText).toContain(
+      'Markiere ein Element und starte rechts mit deiner ersten Aenderung.',
+    );
+  });
 });

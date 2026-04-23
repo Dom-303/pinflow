@@ -429,8 +429,8 @@ describe('Paper Glow UI contract', () => {
 
     expect(sidebarText).toContain('Arbeitsverlauf');
     expect(sidebarText).toContain('Anmerkungen (2)');
-    expect(listText).toContain('Bereit');
-    expect(listText).toContain('Erledigt');
+    expect(listText).toContain('Wartet auf Versand');
+    expect(listText).toContain('Uebergeben');
     expect(sidebarText).toContain(
       'Verlauf, Antworten und Status in der aktuellen Session',
     );
@@ -481,6 +481,47 @@ describe('Paper Glow UI contract', () => {
     expect(releaseButton.textContent).toContain('Naechsten Batch senden');
     releaseButton.click();
     expect(mockStore.releaseNextDispatchBatch).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders annotation items with guided lifecycle language', async () => {
+    const annotation = {
+      metadata: {
+        id: 'note-7',
+        status: 'processing',
+        timestamp: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+      },
+      context: {
+        userMessage: 'CTA klarer formulieren',
+      },
+      interaction: {
+        selectedElement: {
+          tagName: 'button',
+        },
+      },
+    };
+
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    render(html`<ds-annotation-item .annotation=${annotation}></ds-annotation-item>`, host);
+
+    const item = host.querySelector('ds-annotation-item') as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await item.updateComplete;
+
+    let itemText = item.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+    expect(itemText).toContain('In Bearbeitung');
+
+    const collapsedRow = item.shadowRoot.querySelector('.collapsed-row') as HTMLElement;
+    collapsedRow.click();
+    await item.updateComplete;
+
+    itemText = item.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+    expect(itemText).toContain('In Bearbeitung');
+    expect(itemText).toContain('PinFlow arbeitet gerade an dieser Aenderung.');
+    expect(itemText).toContain('vor');
   });
 
   it('renders session settings with project defaults and an empty override state', async () => {

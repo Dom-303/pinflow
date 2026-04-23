@@ -393,14 +393,31 @@ export class DsAnnotationItem extends LitElement {
         display: flex;
         align-items: center;
         justify-content: space-between;
+        gap: var(--ds-space-sm);
         padding: 10px 13px 12px;
         border-top: 1px solid var(--ds-chrome-divider);
         background: var(--ds-panel-surface-muted);
       }
 
+      .footer-meta {
+        display: flex;
+        align-items: center;
+        gap: var(--ds-space-sm);
+        min-width: 0;
+      }
+
       .timestamp {
         font-size: var(--ds-font-size-xs);
         color: var(--ds-text-tertiary);
+        white-space: nowrap;
+      }
+
+      .lifecycle-note {
+        font-size: var(--ds-font-size-xs);
+        color: var(--ds-text-secondary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       .source {
@@ -430,17 +447,34 @@ export class DsAnnotationItem extends LitElement {
   private getStatusLabel(status: string): string {
     switch (status) {
       case 'queued':
-        return 'Bereit';
+        return 'Wartet auf Versand';
       case 'processing':
-        return 'Laeuft';
+        return 'In Bearbeitung';
       case 'processed':
-        return 'Erledigt';
+        return 'Uebergeben';
       case 'failed':
-        return 'Fehler';
+        return 'Fehlgeschlagen';
       case 'archived':
-        return 'Archiv';
+        return 'Archiviert';
       default:
         return status;
+    }
+  }
+
+  private getStatusNote(status: string): string {
+    switch (status) {
+      case 'queued':
+        return 'PinFlow wartet auf den naechsten Versand fuer diese Aenderung.';
+      case 'processing':
+        return 'PinFlow arbeitet gerade an dieser Aenderung.';
+      case 'processed':
+        return 'Diese Aenderung wurde bereits an den Flow uebergeben.';
+      case 'failed':
+        return 'Diese Aenderung braucht Nacharbeit oder einen neuen Versuch.';
+      case 'archived':
+        return 'Diese Aenderung liegt nur noch im Verlauf.';
+      default:
+        return '';
     }
   }
 
@@ -763,6 +797,7 @@ export class DsAnnotationItem extends LitElement {
     const sourceTooltip = manifestEntry
       ? `${manifestEntry.file}:${manifestEntry.start.line}`
       : null;
+    const statusNote = this.getStatusNote(status);
 
     // Collapsed: component info + truncated text preview
     if (!this.expanded) {
@@ -834,7 +869,12 @@ export class DsAnnotationItem extends LitElement {
         ${this.renderActionBar()}
 
         <div class="card-footer">
-          <span class="timestamp">${this.formatTimestamp(timestamp)}</span>
+          <div class="footer-meta">
+            <span class="timestamp">${this.formatTimestamp(timestamp)}</span>
+            ${statusNote
+              ? html`<span class="lifecycle-note">${statusNote}</span>`
+              : nothing}
+          </div>
           ${sourceDisplay
             ? html`<span class="source" title=${sourceTooltip}
                 >${sourceDisplay}</span

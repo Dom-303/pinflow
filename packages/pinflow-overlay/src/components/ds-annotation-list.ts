@@ -27,11 +27,11 @@ const STATUS_ORDER: AnnotationStatus[] = [
 ];
 
 const STATUS_LABELS: Record<string, string> = {
-  queued: 'Bereit',
-  processing: 'Laeuft',
-  processed: 'Erledigt',
-  failed: 'Fehler',
-  archived: 'Archiv',
+  queued: 'Wartet auf Versand',
+  processing: 'In Bearbeitung',
+  processed: 'Uebergeben',
+  failed: 'Fehlgeschlagen',
+  archived: 'Archiviert',
 };
 
 /**

@@ -65,6 +65,7 @@ const mockState = {
 };
 
 const enableCapture = vi.fn();
+const disableCapture = vi.fn();
 
 vi.mock('../core/store-controller.js', () => ({
   StoreController: class {
@@ -77,6 +78,7 @@ vi.mock('../core/event-manager.js', () => ({
   EventManager: {
     getInstance: () => ({
       enableCapture,
+      disableCapture,
     }),
   },
 }));
@@ -85,6 +87,7 @@ import './ds-header.js';
 import './ds-sidebar.js';
 import './ds-annotation-input.js';
 import './ds-element-preview.js';
+import './ds-picker-overlay.js';
 import './ds-tab.js';
 import './ds-session-settings.js';
 
@@ -216,9 +219,32 @@ describe('Paper Glow UI contract', () => {
     expect(submitButton.textContent).toContain('Element waehlen');
     expect(submitButton.disabled).toBe(true);
 
+    mockState.mode = 'capturing';
+    input.requestUpdate();
+    await input.updateComplete;
+
+    inputText = input.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+    submitButton = input.shadowRoot.querySelector(
+      'button[aria-label="Anmerkung senden"]',
+    ) as HTMLButtonElement;
+
+    expect(inputText).toContain('Picker aktiv');
+    expect(inputText).toContain(
+      'Markiere jetzt das passende UI-Element im Vorschau-Canvas. PinFlow uebernimmt die Auswahl danach direkt in deinen Arbeitsbereich.',
+    );
+    expect(submitButton.textContent).toContain('Waehle im Canvas');
+    expect(submitButton.disabled).toBe(true);
+
+    mockState.mode = 'expanded';
     mockState.selectedElement = document.createElement('button');
     input.requestUpdate();
     await input.updateComplete;
+
+    inputText = input.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+    expect(inputText).toContain('Element markiert');
+    expect(inputText).toContain(
+      'Die Auswahl steht. Beschreibe jetzt die gewuenschte Aenderung fuer dieses Element.',
+    );
 
     const textarea = input.shadowRoot.querySelector(
       'textarea',
@@ -238,6 +264,30 @@ describe('Paper Glow UI contract', () => {
     );
     expect(submitButton.textContent).toContain('In Flow geben');
     expect(submitButton.disabled).toBe(false);
+  });
+
+  it('renders a guided picker overlay instruction state', async () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+
+    render(html`<ds-picker-overlay></ds-picker-overlay>`, host);
+
+    const picker = host.querySelector('ds-picker-overlay') as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await picker.updateComplete;
+
+    const pickerText = picker.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+
+    expect(pickerText).toContain('Picker aktiv');
+    expect(pickerText).toContain('Markiere jetzt dein Zielelement');
+    expect(pickerText).toContain(
+      'Klicke im Canvas auf die passende Stelle. PinFlow uebernimmt die Auswahl danach direkt in deinen Arbeitsbereich.',
+    );
+    expect(pickerText).toContain('ESC');
+    expect(pickerText).toContain('bricht ab');
   });
 
   it('renders composer feedback after submit success and failure', async () => {

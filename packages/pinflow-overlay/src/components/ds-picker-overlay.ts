@@ -62,17 +62,41 @@ export class DsPickerOverlay extends LitElement {
         top: var(--ds-space-lg);
         left: 50%;
         transform: translateX(-50%);
-        display: flex;
-        align-items: center;
-        gap: var(--ds-space-sm);
-        padding: 10px 16px;
+        display: grid;
+        gap: 4px;
+        min-width: min(420px, calc(100vw - 32px));
+        padding: 12px 18px;
         background: var(--ds-tooltip-surface);
         border: 1px solid var(--ds-panel-border);
-        border-radius: var(--ds-radius-full);
+        border-radius: calc(var(--ds-radius-lg) - 2px);
         font-size: var(--ds-font-size-sm);
         color: var(--ds-text-primary);
         box-shadow: var(--ds-panel-shadow);
         backdrop-filter: var(--ds-shell-blur);
+      }
+
+      .instruction-eyebrow {
+        font-size: var(--ds-font-size-xs);
+        font-weight: var(--ds-font-weight-medium);
+        color: var(--ds-text-tertiary);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .instruction-title {
+        font-size: var(--ds-font-size-md);
+        font-weight: var(--ds-font-weight-semibold);
+        color: var(--ds-text-primary);
+        letter-spacing: -0.02em;
+      }
+
+      .instruction-copy {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: var(--ds-space-xs);
+        color: var(--ds-text-secondary);
+        line-height: 1.45;
       }
 
       .instructions kbd {
@@ -162,7 +186,15 @@ export class DsPickerOverlay extends LitElement {
     return html`
       <div class="overlay">
         <div class="instructions">
-          Klicke auf ein Element zum Auswaehlen • <kbd>ESC</kbd> zum Abbrechen
+          <div class="instruction-eyebrow">Picker aktiv</div>
+          <div class="instruction-title">Markiere jetzt dein Zielelement</div>
+          <div class="instruction-copy">
+            Klicke im Canvas auf die passende Stelle. PinFlow uebernimmt die
+            Auswahl danach direkt in deinen Arbeitsbereich.
+            <span>•</span>
+            <kbd>ESC</kbd>
+            <span>bricht ab</span>
+          </div>
         </div>
 
         ${this.highlightRect

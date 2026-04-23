@@ -312,6 +312,7 @@ export class DsAnnotationInput extends LitElement {
     relayConnected: boolean,
     hasElement: boolean,
     hasInput: boolean,
+    isCapturing: boolean,
   ) {
     if (this.isSubmitting) {
       return {
@@ -331,6 +332,17 @@ export class DsAnnotationInput extends LitElement {
           'Verbinde PinFlow zuerst mit dem Relay, damit neue Aufgaben direkt in deinen Flow gehen koennen.',
         submitLabel: 'Wartet auf Relay',
         hint: 'Sobald Relay verbunden ist, kannst du direkt aus dem Overlay senden.',
+      };
+    }
+
+    if (isCapturing) {
+      return {
+        badge: 'Picker aktiv',
+        active: true,
+        copy:
+          'Markiere jetzt das passende UI-Element im Vorschau-Canvas. PinFlow uebernimmt die Auswahl danach direkt in deinen Arbeitsbereich.',
+        submitLabel: 'Waehle im Canvas',
+        hint: 'Klicke auf das Ziel im Canvas oder brich mit ESC ab.',
       };
     }
 
@@ -367,12 +379,11 @@ export class DsAnnotationInput extends LitElement {
 
     if (!hasInput) {
       return {
-        badge: 'Bereit zum Schreiben',
+        badge: 'Element markiert',
         active: true,
-        copy:
-          'Beschreibe jetzt die Aenderung fuer das markierte Element. PinFlow uebergibt sie danach direkt in den aktiven Flow.',
-        submitLabel: 'Aenderung senden',
-        hint: 'Mit Strg+Enter kannst du sofort senden.',
+        copy: 'Die Auswahl steht. Beschreibe jetzt die gewuenschte Aenderung fuer dieses Element.',
+        submitLabel: 'Aenderung formulieren',
+        hint: 'Mit dem Marker kannst du die Auswahl jederzeit wechseln.',
       };
     }
 
@@ -400,6 +411,8 @@ export class DsAnnotationInput extends LitElement {
     // Contextual placeholder based on state
     const placeholder = !relayConnected
       ? 'Verbinde mit Relay...'
+      : isCapturing
+        ? 'Markiere gerade ein Element im Canvas...'
       : !hasElement
         ? 'Waehle zuerst ein Element aus...'
         : 'Beschreibe die gewuenschte Aenderung...';
@@ -407,6 +420,7 @@ export class DsAnnotationInput extends LitElement {
       relayConnected,
       hasElement,
       hasInput,
+      isCapturing,
     );
 
     return html`
@@ -444,7 +458,9 @@ export class DsAnnotationInput extends LitElement {
               ?disabled=${isCapturing}
               title=${hasElement
                 ? 'Element ausgewaehlt - zum Wechseln klicken'
-                : 'Element markieren'}
+                : isCapturing
+                  ? 'Picker aktiv'
+                  : 'Element markieren'}
               aria-label="Element markieren"
             >
               <!-- Cursor with sparkles icon -->

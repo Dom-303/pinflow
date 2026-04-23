@@ -221,8 +221,8 @@ export class DsElementPreview extends LitElement {
       .empty-state {
         position: relative;
         display: grid;
-        gap: 10px;
-        padding: 16px;
+        gap: 8px;
+        padding: 14px;
         background: var(--ds-empty-surface);
         border: 1px solid var(--ds-empty-border);
         border-radius: calc(var(--ds-radius-lg) + 2px);
@@ -385,12 +385,8 @@ export class DsElementPreview extends LitElement {
           </svg>
           <p class="empty-title">Noch kein Element ausgewaehlt</p>
           <p class="empty-copy">
-            Markiere rechts ein Element, um Quelle, Eigenschaften und Status zu
-            sehen.
-          </p>
-          <p class="empty-copy">
-            Sobald du ein Element markierst, siehst du hier sofort Quelle,
-            Kontext und naechsten Schritt.
+            Markiere ein Element, damit PinFlow Quelle und Kontext direkt
+            verknuepfen kann.
           </p>
         </div>
       `;

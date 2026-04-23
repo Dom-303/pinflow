@@ -6,6 +6,9 @@
  *
  * @module @pinflow/transform/plugins/vite/vite-plugin
  */
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { createRequire } from 'node:module';
 import {
   createFilter,
   type Plugin,
@@ -23,7 +26,47 @@ import {
 } from '../../core/injector.registry.js';
 import { RelayControl } from '@pinflow/relay';
 
-const OVERLAY_INIT_MODULE_PATH = '/@pinflow/overlay-init.js';
+const OVERLAY_INIT_MODULE_BASE_PATH = '/@pinflow/overlay-init.js';
+const PINFLOW_DEV_CACHE_TAG = 'pinflow-ui-2026-04-23b';
+const OVERLAY_INIT_MODULE_PATH =
+  `${OVERLAY_INIT_MODULE_BASE_PATH}?v=${PINFLOW_DEV_CACHE_TAG}`;
+
+function isOverlayInitRequest(id: string): boolean {
+  return (
+    id === OVERLAY_INIT_MODULE_BASE_PATH ||
+    id.startsWith(`${OVERLAY_INIT_MODULE_BASE_PATH}?`)
+  );
+}
+
+function toViteFsPath(filePath: string): string {
+  return `/@fs${filePath.replace(/\\/g, '/')}`;
+}
+
+function resolveOverlayImport(rootContext?: string): string {
+  if (!rootContext) {
+    return '@pinflow/overlay';
+  }
+
+  try {
+    const requireFromRoot = createRequire(resolve(rootContext, 'package.json'));
+    const packageJsonPath = requireFromRoot.resolve('@pinflow/overlay/package.json');
+    const packageDir = dirname(packageJsonPath);
+    const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8')) as {
+      exports?: {
+        '.': {
+          import?: string;
+        };
+      };
+      module?: string;
+      main?: string;
+    };
+    const entryPoint =
+      packageJson.exports?.['.']?.import ?? packageJson.module ?? packageJson.main ?? 'index.js';
+    return toViteFsPath(resolve(packageDir, entryPoint));
+  } catch {
+    return '@pinflow/overlay';
+  }
+}
 
 /**
  * Build a JS preamble that sets relay + overlay globals on `window`.
@@ -224,7 +267,7 @@ export function pinflow(options: VitePluginOptions = {}): Plugin {
     },
 
     resolveId(id) {
-      if (id === OVERLAY_INIT_MODULE_PATH) {
+      if (isOverlayInitRequest(id)) {
         return OVERLAY_INIT_MODULE_PATH;
       }
 
@@ -232,12 +275,14 @@ export function pinflow(options: VitePluginOptions = {}): Plugin {
     },
 
     load(id) {
-      if (id !== OVERLAY_INIT_MODULE_PATH) {
+      if (!isOverlayInitRequest(id)) {
         return null;
       }
 
+      const overlayImportPath = resolveOverlayImport(rootContext);
+
       return [
-        `import { initOverlay } from '@pinflow/overlay';`,
+        `import { initOverlay } from ${JSON.stringify(overlayImportPath)};`,
         `initOverlay().catch(e => console.warn('[pinflow] Failed to load overlay:', e.message));`,
       ].join('\n');
     },

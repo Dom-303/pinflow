@@ -1,5 +1,5 @@
 import { LitElement, html, css, nothing } from 'lit';
-import { customElement, state } from 'lit/decorators.js';
+import { customElement } from 'lit/decorators.js';
 import { StoreController } from '../core/store-controller.js';
 import {
   analyzeDispatchQueue,
@@ -10,14 +10,10 @@ import {
   type DispatchMode,
 } from '../core/dispatch-config.js';
 import { themeStyles, utilityStyles } from '../styles/theme.js';
-import './ds-session-settings.js';
 
 @customElement('ds-workflow-panel')
 export class DsWorkflowPanel extends LitElement {
   private storeController = new StoreController(this);
-
-  @state()
-  private settingsOpen = false;
 
   static override styles = [
     themeStyles,
@@ -68,19 +64,6 @@ export class DsWorkflowPanel extends LitElement {
         font-size: var(--ds-font-size-xs);
         line-height: 1.45;
         max-width: 240px;
-      }
-
-      .settings-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 28px;
-        height: 28px;
-        border: 1px solid var(--ds-pill-border);
-        border-radius: 10px;
-        background: var(--ds-pill-surface);
-        color: var(--ds-text-secondary);
-        cursor: pointer;
       }
 
       .channel-group,
@@ -407,24 +390,12 @@ export class DsWorkflowPanel extends LitElement {
     });
   }
 
-  private handleProjectDefaultsChange(event: CustomEvent) {
-    this.storeController.store.updateDispatchProjectDefaults(event.detail);
-  }
-
   private togglePause() {
     this.storeController.store.toggleDispatchPaused();
   }
 
   private releaseNextBatch() {
     this.storeController.store.releaseNextDispatchBatch();
-  }
-
-  private toggleSettings() {
-    this.settingsOpen = !this.settingsOpen;
-  }
-
-  private resetSessionOverrides() {
-    this.storeController.store.clearDispatchSessionOverrides();
   }
 
   private getChannelLabel(channel: DispatchChannel) {
@@ -723,28 +694,6 @@ export class DsWorkflowPanel extends LitElement {
               Halte Session-Kanal, Queue-Status und Freigabe an einer Stelle im Blick.
             </div>
           </div>
-          <button
-            class="settings-btn"
-            @click=${this.toggleSettings}
-            aria-label="Workflow-Einstellungen"
-            title="Workflow-Einstellungen"
-          >
-            <svg viewBox="0 0 24 24" fill="none" width="14" height="14">
-              <path
-                d="M12 3v3m0 12v3M4.93 4.93l2.12 2.12m9.9 9.9l2.12 2.12M3 12h3m12 0h3M4.93 19.07l2.12-2.12m9.9-9.9l2.12-2.12"
-                stroke="currentColor"
-                stroke-width="1.8"
-                stroke-linecap="round"
-              />
-              <circle
-                cx="12"
-                cy="12"
-                r="3.2"
-                stroke="currentColor"
-                stroke-width="1.8"
-              />
-            </svg>
-          </button>
         </div>
 
         <div class="channel-group">
@@ -881,17 +830,6 @@ export class DsWorkflowPanel extends LitElement {
                 <div class="flow-note-title">${nextFlowNote.title}</div>
                 <div class="flow-note-copy">${nextFlowNote.copy}</div>
               </div>
-            `
-          : nothing}
-
-        ${this.settingsOpen
-          ? html`
-              <ds-session-settings
-                .projectDefaults=${dispatchProjectDefaults}
-                .sessionOverrides=${dispatchSession.overrides}
-                @project-defaults-change=${this.handleProjectDefaultsChange}
-                @reset-session-overrides=${this.resetSessionOverrides}
-              ></ds-session-settings>
             `
           : nothing}
 

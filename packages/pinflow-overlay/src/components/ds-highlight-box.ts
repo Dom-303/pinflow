@@ -31,10 +31,15 @@ export class DsHighlightBox extends LitElement {
 
       .highlight {
         position: absolute;
-        background: var(--ds-highlight);
+        background: color-mix(in srgb, var(--ds-highlight) 72%, transparent);
         border: 2px solid var(--ds-highlight-border);
         border-radius: var(--ds-radius-sm);
         transition: all 50ms ease-out;
+        box-shadow:
+          0 0 0 1px color-mix(in srgb, var(--ds-highlight-border) 34%, transparent),
+          0 0 0 4px color-mix(in srgb, var(--ds-highlight-border) 18%, transparent),
+          0 14px 34px color-mix(in srgb, var(--ds-highlight-border) 20%, transparent),
+          inset 0 0 0 1px rgba(255, 255, 255, 0.42);
       }
     `,
   ];

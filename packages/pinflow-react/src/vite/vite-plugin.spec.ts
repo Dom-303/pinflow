@@ -18,6 +18,7 @@ vi.mock('@pinflow/transform/plugins/vite', () => ({
 import { pinflow } from './vite-plugin.js';
 
 const LEGACY_BRAND = ['Dom', 'scribe'].join('');
+const REACT_INIT_PATH = '/@pinflow/react-init.js?v=pinflow-ui-2026-04-23b';
 
 describe('pinflow (react/vite)', () => {
   it('should rename the plugin to vite-plugin-pinflow-react', () => {
@@ -44,7 +45,16 @@ describe('pinflow (react/vite)', () => {
 
       const result = resolveId.call({}, '/@pinflow/react-init.js');
 
-      expect(result).toBe('/@pinflow/react-init.js');
+      expect(result).toBe(REACT_INIT_PATH);
+    });
+
+    it('should resolve cache-busted init requests to the current init module path', () => {
+      const plugin = pinflow();
+      const resolveId = plugin.resolveId as (id: string) => string | null;
+
+      const result = resolveId.call({}, '/@pinflow/react-init.js?v=older-build');
+
+      expect(result).toBe(REACT_INIT_PATH);
     });
 
     it('should return null for unrelated IDs', () => {
@@ -62,7 +72,7 @@ describe('pinflow (react/vite)', () => {
       const plugin = pinflow();
       const load = plugin.load as (id: string) => string | null;
 
-      const result = load.call({}, '/@pinflow/react-init.js');
+      const result = load.call({}, REACT_INIT_PATH);
 
       expect(result).toContain(`from '@pinflow/runtime'`);
       expect(result).toContain(`from '@pinflow/react'`);
@@ -75,7 +85,7 @@ describe('pinflow (react/vite)', () => {
       const plugin = pinflow();
       const load = plugin.load as (id: string) => string | null;
 
-      const result = load.call({}, '/@pinflow/react-init.js');
+      const result = load.call({}, REACT_INIT_PATH);
 
       expect(result).toContain('phase: 1');
       expect(result).toContain('debug: false');
@@ -92,7 +102,7 @@ describe('pinflow (react/vite)', () => {
       });
       const load = plugin.load as (id: string) => string | null;
 
-      const result = load.call({}, '/@pinflow/react-init.js');
+      const result = load.call({}, REACT_INIT_PATH);
 
       expect(result).toContain('phase: 2');
       expect(result).toContain('redactPII: false');
@@ -109,7 +119,7 @@ describe('pinflow (react/vite)', () => {
       });
       const load = plugin.load as (id: string) => string | null;
 
-      const result = load.call({}, '/@pinflow/react-init.js');
+      const result = load.call({}, REACT_INIT_PATH);
 
       expect(result).toContain("strategy: 'fiber'");
       expect(result).toContain('maxTreeDepth: 25');
@@ -120,7 +130,7 @@ describe('pinflow (react/vite)', () => {
       const plugin = pinflow({ debug: true });
       const load = plugin.load as (id: string) => string | null;
 
-      const result = load.call({}, '/@pinflow/react-init.js');
+      const result = load.call({}, REACT_INIT_PATH);
 
       // debug appears in both initialize() and createReactAdapter()
       const debugMatches = result.match(/debug: true/g);
@@ -137,7 +147,7 @@ describe('pinflow (react/vite)', () => {
       });
       const load = plugin.load as (id: string) => string | null;
 
-      const result = load.call({}, '/@pinflow/react-init.js');
+      const result = load.call({}, REACT_INIT_PATH);
 
       expect(result).toContain('new Map(Object.entries(_r)');
       expect(result).toContain('"MyComponent"');
@@ -149,7 +159,7 @@ describe('pinflow (react/vite)', () => {
       const plugin = pinflow();
       const load = plugin.load as (id: string) => string | null;
 
-      const result = load.call({}, '/@pinflow/react-init.js');
+      const result = load.call({}, REACT_INIT_PATH);
 
       expect(result).toContain('const _resolvers = new Map();');
     });
@@ -180,7 +190,7 @@ describe('pinflow (react/vite)', () => {
       expect(runtimeTag).toBeDefined();
       expect(runtimeTag?.injectTo).toBe('body');
       expect(runtimeTag?.children).toContain(
-        `import('/@pinflow/react-init.js');`,
+        `import('${REACT_INIT_PATH}');`,
       );
     });
 

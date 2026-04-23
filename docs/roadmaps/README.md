@@ -21,6 +21,8 @@ Core claim:
 2. [02-pinflow-overlay-ui.md](./02-pinflow-overlay-ui.md)
 3. [03-pinflow-agent-workflow.md](./03-pinflow-agent-workflow.md)
 4. [04-pinflow-platform-evolution.md](./04-pinflow-platform-evolution.md)
+5. [05-pinflow-cleanup-plan.md](./05-pinflow-cleanup-plan.md)
+6. [06-pinflow-finalization-checklist.md](./06-pinflow-finalization-checklist.md)
 
 ## Rename Strategy
 

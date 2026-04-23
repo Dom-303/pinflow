@@ -12,6 +12,8 @@ import type { Plugin, ResolvedConfig } from 'vite';
 import { type RawSourceMap } from 'source-map';
 import type { VitePluginOptions } from './types.js';
 
+const OVERLAY_INIT_PATH = '/@pinflow/overlay-init.js?v=pinflow-ui-2026-04-23b';
+
 /**
  * Minimal Plugin Context for hooks that need 'this' context
  */
@@ -448,13 +450,13 @@ describe('pinflow Vite plugin', () => {
       const resolveId = plugin.resolveId as (id: string) => string | null;
       const load = plugin.load as (id: string) => string | null;
 
-      expect(resolveId('/@pinflow/overlay-init.js')).toBe(
-        '/@pinflow/overlay-init.js',
+      expect(resolveId('/@pinflow/overlay-init.js')).toBe(OVERLAY_INIT_PATH);
+      expect(resolveId('/@pinflow/overlay-init.js?v=stale-build')).toBe(
+        OVERLAY_INIT_PATH,
       );
-      expect(load('/@pinflow/overlay-init.js')).toContain(
-        `from '@pinflow/overlay'`,
-      );
-      expect(load('/@pinflow/overlay-init.js')).toContain('initOverlay');
+      const moduleCode = load(OVERLAY_INIT_PATH);
+      expect(moduleCode).toContain('initOverlay');
+      expect(moduleCode).toContain('Failed to load overlay');
     });
 
     it('should inject the virtual overlay module and pass the configured theme', async () => {
@@ -489,7 +491,7 @@ describe('pinflow Vite plugin', () => {
           expect.objectContaining({
             tag: 'script',
             attrs: { type: 'module' },
-            children: `import('/@pinflow/overlay-init.js');`,
+            children: `import('${OVERLAY_INIT_PATH}');`,
           }),
         ]),
       );

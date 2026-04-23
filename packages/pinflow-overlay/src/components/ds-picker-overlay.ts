@@ -8,7 +8,6 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { StoreController } from '../core/store-controller.js';
-import { EventManager } from '../core/event-manager.js';
 import { themeStyles } from '../styles/theme.js';
 
 // Import child components
@@ -23,7 +22,6 @@ import './ds-tooltip.js';
 @customElement('ds-picker-overlay')
 export class DsPickerOverlay extends LitElement {
   private storeController = new StoreController(this);
-  private eventManager = EventManager.getInstance();
 
   @state()
   private highlightRect: DOMRect | null = null;
@@ -118,17 +116,30 @@ export class DsPickerOverlay extends LitElement {
 
   override connectedCallback() {
     super.connectedCallback();
-    this.addEventListener('pointermove', this.handlePointerMove);
-    this.addEventListener('click', this.handleClick);
+    window.addEventListener('pointermove', this.handlePointerMove, {
+      capture: true,
+    });
+    window.addEventListener('mousemove', this.handlePointerMove, {
+      capture: true,
+    });
+    window.addEventListener('click', this.handleClick, {
+      capture: true,
+    });
     document.addEventListener('keydown', this.handleKeyDown);
   }
 
   override disconnectedCallback() {
     super.disconnectedCallback();
-    this.removeEventListener('pointermove', this.handlePointerMove);
-    this.removeEventListener('click', this.handleClick);
+    window.removeEventListener('pointermove', this.handlePointerMove, {
+      capture: true,
+    });
+    window.removeEventListener('mousemove', this.handlePointerMove, {
+      capture: true,
+    });
+    window.removeEventListener('click', this.handleClick, {
+      capture: true,
+    });
     document.removeEventListener('keydown', this.handleKeyDown);
-    this.eventManager.disableCapture();
   }
 
   /**
@@ -139,15 +150,45 @@ export class DsPickerOverlay extends LitElement {
     const originalPointerEvents = this.style.pointerEvents;
     this.style.pointerEvents = 'none';
 
-    const element = this.eventManager.getElementAtPoint(x, y);
+    const element = document.elementFromPoint(x, y) as HTMLElement | null;
 
     this.style.pointerEvents = originalPointerEvents;
 
     return element;
   }
 
-  private handlePointerMove = (event: PointerEvent) => {
-    const element = this.getElementUnderPoint(event.clientX, event.clientY);
+  private resolveSelectableElement(element: HTMLElement | null): HTMLElement | null {
+    if (!element) return null;
+    const bridgedElement = element.closest('[data-ds]') as HTMLElement | null;
+
+    if (bridgedElement) {
+      return bridgedElement;
+    }
+
+    let current: HTMLElement | null = element;
+
+    while (current && current !== document.body) {
+      const rect = current.getBoundingClientRect();
+      const tagName = current.tagName.toLowerCase();
+
+      if (
+        tagName !== 'html' &&
+        tagName !== 'body' &&
+        rect.width >= 18 &&
+        rect.height >= 18
+      ) {
+        return current;
+      }
+
+      current = current.parentElement;
+    }
+
+    return null;
+  }
+
+  private handlePointerMove = (event: PointerEvent | MouseEvent) => {
+    const rawElement = this.getElementUnderPoint(event.clientX, event.clientY);
+    const element = this.resolveSelectableElement(rawElement);
 
     if (element) {
       this.storeController.store.setHoveredElement(element);
@@ -163,11 +204,12 @@ export class DsPickerOverlay extends LitElement {
     }
   };
 
-  private handleClick = async (event: PointerEvent) => {
+  private handleClick = async (event: PointerEvent | MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
 
-    const element = this.getElementUnderPoint(event.clientX, event.clientY);
+    const rawElement = this.getElementUnderPoint(event.clientX, event.clientY);
+    const element = this.resolveSelectableElement(rawElement);
 
     if (element) {
       await this.storeController.store.selectElement(element);
@@ -190,8 +232,9 @@ export class DsPickerOverlay extends LitElement {
           <div class="instruction-title">Markiere jetzt dein Zielelement</div>
           <div class="instruction-copy">
             Klicke im Canvas auf die passende Stelle. PinFlow uebernimmt die
-            Auswahl danach direkt in deinen Arbeitsbereich.
-            <span>•</span>
+            Auswahl danach direkt in deinen Arbeitsbereich. Der helle Rahmen
+            zeigt dir immer das aktuell getroffene Element.
+            <span>-</span>
             <kbd>ESC</kbd>
             <span>bricht ab</span>
           </div>

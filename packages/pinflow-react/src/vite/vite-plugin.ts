@@ -2,6 +2,9 @@
  * React-aware PinFlow Vite plugin
  * @module @pinflow/react/vite/vite-plugin
  */
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { createRequire } from 'node:module';
 import type { Plugin, IndexHtmlTransformResult, HtmlTagDescriptor } from 'vite';
 import { pinflow as basePinFlow } from '@pinflow/transform/plugins/vite';
 import type { PinFlowReactPluginOptions } from './types.js';
@@ -18,7 +21,43 @@ import type { PinFlowReactPluginOptions } from './types.js';
  * Direct `/node_modules/` paths bypass pre-bundling and create separate
  * module instances with separate singletons, which breaks runtime capture.
  */
-const INIT_MODULE_PATH = '/@pinflow/react-init.js';
+const INIT_MODULE_BASE_PATH = '/@pinflow/react-init.js';
+const PINFLOW_DEV_CACHE_TAG = 'pinflow-ui-2026-04-23b';
+const INIT_MODULE_PATH = `${INIT_MODULE_BASE_PATH}?v=${PINFLOW_DEV_CACHE_TAG}`;
+
+function isInitModuleRequest(id: string): boolean {
+  return id === INIT_MODULE_BASE_PATH || id.startsWith(`${INIT_MODULE_BASE_PATH}?`);
+}
+
+function toViteFsPath(filePath: string): string {
+  return `/@fs${filePath.replace(/\\/g, '/')}`;
+}
+
+function resolveOverlayImport(rootContext?: string): string {
+  if (!rootContext) {
+    return '@pinflow/overlay';
+  }
+
+  try {
+    const requireFromRoot = createRequire(resolve(rootContext, 'package.json'));
+    const packageJsonPath = requireFromRoot.resolve('@pinflow/overlay/package.json');
+    const packageDir = dirname(packageJsonPath);
+    const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8')) as {
+      exports?: {
+        '.': {
+          import?: string;
+        };
+      };
+      module?: string;
+      main?: string;
+    };
+    const entryPoint =
+      packageJson.exports?.['.']?.import ?? packageJson.module ?? packageJson.main ?? 'index.js';
+    return toViteFsPath(resolve(packageDir, entryPoint));
+  } catch {
+    return '@pinflow/overlay';
+  }
+}
 
 /**
  * PinFlow Vite plugin for React projects.
@@ -45,6 +84,7 @@ export function pinflow(options?: PinFlowReactPluginOptions): Plugin {
   const basePlugin = basePinFlow(options);
   const baseTransformIndexHtml = basePlugin.transformIndexHtml;
   const baseTransform = basePlugin.transform;
+  let rootContext: string | undefined;
   const baseResolveId =
     typeof basePlugin.resolveId === 'function' ? basePlugin.resolveId : null;
   const baseLoad =
@@ -52,18 +92,29 @@ export function pinflow(options?: PinFlowReactPluginOptions): Plugin {
 
   basePlugin.name = 'vite-plugin-pinflow-react';
 
+  const baseConfigResolved =
+    typeof basePlugin.configResolved === 'function'
+      ? basePlugin.configResolved
+      : null;
+
+  basePlugin.configResolved = function (config) {
+    rootContext = config.root;
+    return baseConfigResolved?.call(this, config);
+  };
+
   basePlugin.resolveId = function (id, ...args) {
-    if (id === INIT_MODULE_PATH) {
+    if (isInitModuleRequest(id)) {
       return INIT_MODULE_PATH;
     }
     return baseResolveId?.call(this, id, ...args) ?? null;
   };
 
   basePlugin.load = function (id, ...args) {
-    if (id === INIT_MODULE_PATH) {
+    if (isInitModuleRequest(id)) {
       const rt = options?.runtime ?? {};
       const cap = options?.capture ?? {};
       const debug = options?.debug ?? false;
+      const overlayImportPath = resolveOverlayImport(rootContext);
 
       // Build hookNameResolvers reconstruction if provided
       const resolversLine = cap.hookNameResolvers
@@ -99,7 +150,7 @@ export function pinflow(options?: PinFlowReactPluginOptions): Plugin {
         `// Uses bare specifier so Vite resolves to the same pre-bundled module instance`,
         `// that RuntimeManager uses, ensuring singleton sharing.`,
         `if (typeof window !== 'undefined' && window.__PINFLOW_OVERLAY_OPTIONS__) {`,
-        `  import('@pinflow/overlay').then(m => m.initOverlay()).catch(() => {});`,
+        `  import(${JSON.stringify(overlayImportPath)}).then(m => m.initOverlay()).catch(() => {});`,
         `}`,
       ].join('\n');
     }

@@ -8,8 +8,8 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { StoreController } from '../core/store-controller.js';
-import { EventManager } from '../core/event-manager.js';
 import { themeStyles, utilityStyles } from '../styles/theme.js';
+import type { DispatchChannel } from '../core/dispatch-config.js';
 
 /**
  * Annotation input component
@@ -29,6 +29,9 @@ export class DsAnnotationInput extends LitElement {
   @state()
   private submitState: 'idle' | 'success' | 'error' = 'idle';
 
+  @state()
+  private channelMenuOpen = false;
+
   static override styles = [
     themeStyles,
     utilityStyles,
@@ -40,96 +43,14 @@ export class DsAnnotationInput extends LitElement {
       .input-wrapper {
         background: var(--ds-shell-surface-strong);
         border: 1px solid var(--ds-shell-border-soft);
-        border-radius: var(--ds-radius-lg);
+        border-radius: 22px;
         overflow: hidden;
-        box-shadow: var(--ds-shadow-sm);
+        box-shadow: var(--ds-shadow-md);
         backdrop-filter: var(--ds-shell-blur);
         transition:
           border-color var(--ds-transition-fast),
           box-shadow var(--ds-transition-fast),
           transform var(--ds-transition-fast);
-      }
-
-      .composer-head {
-        display: grid;
-        gap: var(--ds-space-xs);
-        padding: var(--ds-space-md) var(--ds-space-md) var(--ds-space-sm);
-        border-bottom: 1px solid var(--ds-shell-border-muted);
-        background:
-          radial-gradient(
-            circle at top right,
-            var(--ds-shell-glow),
-            transparent 42%
-          ),
-          var(--ds-shell-surface-soft);
-      }
-
-      .composer-topline {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: var(--ds-space-sm);
-      }
-
-      .composer-title {
-        font-size: var(--ds-font-size-sm);
-        font-weight: var(--ds-font-weight-semibold);
-        color: var(--ds-text-primary);
-        letter-spacing: -0.02em;
-      }
-
-      .selection-state {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 4px 8px;
-        border-radius: var(--ds-radius-full);
-        border: 1px solid var(--ds-pill-border);
-        background: var(--ds-pill-surface);
-        color: var(--ds-text-secondary);
-        font-size: var(--ds-font-size-xs);
-      }
-
-      .selection-state::before {
-        content: '';
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: var(--ds-warning);
-      }
-
-      .selection-state.active::before {
-        background: var(--ds-success);
-      }
-
-      .composer-copy {
-        margin: 0;
-        color: var(--ds-text-secondary);
-        font-size: var(--ds-font-size-xs);
-        line-height: 1.45;
-      }
-
-      .composer-note {
-        display: grid;
-        gap: 4px;
-        margin-top: var(--ds-space-xs);
-        padding: 10px 12px;
-        border-radius: 14px;
-        border: 1px solid var(--ds-empty-border);
-        background: var(--ds-empty-surface);
-        box-shadow: var(--ds-panel-shadow-soft);
-      }
-
-      .composer-note-title {
-        color: var(--ds-text-primary);
-        font-size: var(--ds-font-size-sm);
-        font-weight: var(--ds-font-weight-semibold);
-      }
-
-      .composer-note-copy {
-        color: var(--ds-text-secondary);
-        font-size: var(--ds-font-size-xs);
-        line-height: 1.45;
       }
 
       .input-wrapper:focus-within {
@@ -138,71 +59,93 @@ export class DsAnnotationInput extends LitElement {
         transform: translateY(-1px);
       }
 
+      .composer-top {
+        display: flex;
+        justify-content: flex-end;
+        padding: 10px 12px 0;
+      }
+
+      .composer-state-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 10px;
+        border-radius: var(--ds-radius-full);
+        border: 1px solid var(--ds-pill-border);
+        background: var(--ds-pill-surface);
+        color: var(--ds-text-secondary);
+        font-size: var(--ds-font-size-xs);
+      }
+
+      .composer-state-pill::before {
+        content: '';
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--ds-warning);
+      }
+
+      .composer-state-pill.active::before {
+        background: var(--ds-success);
+      }
+
       .textarea-container.disabled {
         opacity: 0.5;
         pointer-events: none;
       }
 
-      /* Textarea area */
       .textarea-container {
-        padding: var(--ds-space-md);
-        padding-bottom: var(--ds-space-xs);
+        padding: 8px 14px 6px;
       }
 
       textarea {
         width: 100%;
-        min-height: 40px;
-        max-height: 120px;
+        min-height: 72px;
+        max-height: 180px;
         padding: 0;
         background: transparent;
         border: none;
         font-family: inherit;
-        font-size: var(--ds-font-size-sm);
+        font-size: 15px;
         color: var(--ds-text-primary);
         resize: none;
         outline: none;
-        line-height: 1.5;
+        line-height: 1.55;
       }
 
       textarea::placeholder {
         color: var(--ds-text-tertiary);
       }
 
-      /* Action bar */
       .action-bar {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: var(--ds-space-sm) var(--ds-space-md);
-        border-top: 1px solid var(--ds-border-secondary);
-        background: var(--ds-shell-surface-soft);
+        gap: 12px;
+        padding: 8px 12px 12px;
       }
 
       .action-group {
         display: flex;
         align-items: center;
-        gap: var(--ds-space-xs);
+        gap: 8px;
+        min-width: 0;
       }
 
-      .shortcut-hint {
-        color: var(--ds-text-tertiary);
-        font-size: var(--ds-font-size-xs);
-      }
-
-      /* Icon buttons in action bar */
       .action-btn {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 28px;
-        height: 28px;
+        width: 36px;
+        height: 36px;
         padding: 0;
-        background: transparent;
-        border: none;
-        border-radius: var(--ds-radius-md);
+        background: var(--ds-pill-surface);
+        border: 1px solid var(--ds-pill-border);
+        border-radius: 14px;
         color: var(--ds-text-secondary);
         cursor: pointer;
         transition: all var(--ds-transition-fast);
+        flex-shrink: 0;
       }
 
       .action-btn:hover:not(:disabled) {
@@ -225,26 +168,108 @@ export class DsAnnotationInput extends LitElement {
         height: 16px;
       }
 
-      /* Submit button - accent colored */
+      .menu-wrap {
+        position: relative;
+      }
+
+      .menu-btn {
+        position: relative;
+      }
+
+      .menu-btn::after {
+        content: '';
+        position: absolute;
+        right: 7px;
+        bottom: 7px;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--ds-brand-primary);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--ds-brand-primary) 18%, transparent);
+      }
+
+      .menu-panel {
+        position: absolute;
+        left: 0;
+        bottom: calc(100% + 10px);
+        display: grid;
+        gap: 4px;
+        min-width: 180px;
+        padding: 8px;
+        border-radius: 16px;
+        border: 1px solid var(--ds-panel-border);
+        background: var(--ds-card-surface-strong);
+        box-shadow: var(--ds-shadow-lg);
+        z-index: 3;
+      }
+
+      .menu-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 9px 10px;
+        border: 0;
+        border-radius: 12px;
+        background: transparent;
+        color: var(--ds-text-secondary);
+        font: inherit;
+        font-size: var(--ds-font-size-xs);
+        cursor: pointer;
+        text-align: left;
+      }
+
+      .menu-item:hover {
+        background: var(--ds-bg-hover);
+        color: var(--ds-text-primary);
+      }
+
+      .menu-item.active {
+        background: var(--ds-panel-surface-strong);
+        color: var(--ds-text-primary);
+      }
+
+      .menu-item-copy {
+        display: grid;
+        gap: 2px;
+      }
+
+      .menu-item-title {
+        font-weight: var(--ds-font-weight-medium);
+      }
+
+      .menu-item-note {
+        color: var(--ds-text-tertiary);
+        font-size: 10px;
+      }
+
+      .menu-check {
+        width: 14px;
+        height: 14px;
+        color: var(--ds-brand-primary);
+        flex-shrink: 0;
+      }
+
       .submit-btn {
-        display: inline-flex;
+        display: flex;
         align-items: center;
         justify-content: center;
-        gap: 6px;
-        min-width: 28px;
-        height: 30px;
-        padding: 0 10px;
+        width: 42px;
+        height: 42px;
+        padding: 0;
         background: var(--ds-brand-primary);
         border: none;
-        border-radius: var(--ds-radius-md);
+        border-radius: 50%;
         box-shadow: var(--ds-shadow-sm);
         color: var(--ds-bg-tertiary);
         cursor: pointer;
         transition: all var(--ds-transition-fast);
+        flex-shrink: 0;
       }
 
       .submit-btn:hover:not(:disabled) {
         background: var(--ds-brand-secondary);
+        transform: translateY(-1px);
       }
 
       .submit-btn:disabled {
@@ -256,22 +281,26 @@ export class DsAnnotationInput extends LitElement {
       }
 
       .submit-btn svg {
-        width: 14px;
-        height: 14px;
+        width: 18px;
+        height: 18px;
       }
 
-      .submit-label {
-        font-size: var(--ds-font-size-xs);
-        font-weight: var(--ds-font-weight-semibold);
-        letter-spacing: 0.01em;
-      }
-
-      /* Hint text */
-      .hint {
-        margin-top: var(--ds-space-xs);
+      .composer-foot {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 2px;
         font-size: var(--ds-font-size-xs);
         color: var(--ds-text-secondary);
-        text-align: center;
+      }
+
+      .composer-foot-copy {
+        flex: 1;
+        min-width: 0;
+        line-height: 1.35;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
     `,
   ];
@@ -299,9 +328,27 @@ export class DsAnnotationInput extends LitElement {
     if (this.submitState !== 'idle') {
       this.submitState = 'idle';
     }
-    const eventManager = EventManager.getInstance();
-    eventManager.enableCapture();
+    this.channelMenuOpen = false;
     this.storeController.store.enterCaptureMode();
+  }
+
+  private toggleChannelMenu() {
+    this.channelMenuOpen = !this.channelMenuOpen;
+  }
+
+  private handleOpenSettings() {
+    this.channelMenuOpen = false;
+    this.dispatchEvent(
+      new CustomEvent('open-settings', {
+        bubbles: true,
+        composed: true,
+      }),
+    );
+  }
+
+  private setChannel(channel: DispatchChannel) {
+    this.storeController.store.setDispatchSessionOverrides({ channel });
+    this.channelMenuOpen = false;
   }
 
   private async handleSubmit() {
@@ -341,9 +388,7 @@ export class DsAnnotationInput extends LitElement {
       return {
         badge: 'Sendet gerade',
         active: true,
-        copy: 'PinFlow uebergibt deine Aenderung gerade an den aktiven Flow.',
-        submitLabel: 'Sendet...',
-        hint: 'Der Auftrag wird gerade uebergeben.',
+        copy: 'Auftrag wird gerade uebergeben.',
       };
     }
 
@@ -351,10 +396,7 @@ export class DsAnnotationInput extends LitElement {
       return {
         badge: 'Relay offline',
         active: false,
-        copy:
-          'Verbinde PinFlow zuerst mit dem Relay, damit neue Aufgaben direkt in deinen Flow gehen koennen.',
-        submitLabel: 'Wartet auf Relay',
-        hint: 'Sobald Relay verbunden ist, kannst du direkt aus dem Overlay senden.',
+        copy: 'Relay verbinden, dann senden.',
       };
     }
 
@@ -362,10 +404,7 @@ export class DsAnnotationInput extends LitElement {
       return {
         badge: 'Picker aktiv',
         active: true,
-        copy:
-          'Markiere jetzt das passende UI-Element im Vorschau-Canvas. PinFlow uebernimmt die Auswahl danach direkt in deinen Arbeitsbereich.',
-        submitLabel: 'Waehle im Canvas',
-        hint: 'Klicke auf das Ziel im Canvas oder brich mit ESC ab.',
+        copy: 'Im Canvas ein Element markieren.',
       };
     }
 
@@ -373,9 +412,7 @@ export class DsAnnotationInput extends LitElement {
       return {
         badge: 'Im Flow',
         active: true,
-        copy: 'Dein Auftrag wurde uebergeben und taucht jetzt im Arbeitsverlauf auf.',
-        submitLabel: 'Uebergeben',
-        hint: 'Du kannst direkt die naechste Aenderung formulieren oder ein neues Element markieren.',
+        copy: 'Auftrag uebergeben. Direkt weiterschreiben.',
       };
     }
 
@@ -383,9 +420,7 @@ export class DsAnnotationInput extends LitElement {
       return {
         badge: 'Senden fehlgeschlagen',
         active: false,
-        copy: 'Der Auftrag konnte gerade nicht uebergeben werden. Pruefe Relay und versuche es erneut.',
-        submitLabel: 'Erneut versuchen',
-        hint: 'Dein Text bleibt erhalten, damit du ihn direkt noch einmal senden kannst.',
+        copy: 'Senden fehlgeschlagen. Direkt erneut versuchen.',
       };
     }
 
@@ -393,10 +428,7 @@ export class DsAnnotationInput extends LitElement {
       return {
         badge: 'Element waehlen',
         active: false,
-        copy:
-          'Markiere zuerst rechts ein UI-Element und formuliere danach die gewuenschte Aenderung.',
-        submitLabel: 'Element waehlen',
-        hint: 'Mit dem Marker waehlst du die Stelle aus, die du aendern willst.',
+        copy: 'Element waehlen und Aenderung schreiben.',
       };
     }
 
@@ -404,43 +436,23 @@ export class DsAnnotationInput extends LitElement {
       return {
         badge: 'Element markiert',
         active: true,
-        copy: 'Die Auswahl steht. Beschreibe jetzt die gewuenschte Aenderung fuer dieses Element.',
-        submitLabel: 'Aenderung formulieren',
-        hint: 'Mit dem Marker kannst du die Auswahl jederzeit wechseln.',
+        copy: 'Aenderung fuer das markierte Element schreiben.',
       };
     }
 
     return {
-      badge: 'Bereit zum Senden',
+      badge: 'Bereit',
       active: true,
-      copy:
-        'Die Aenderung geht direkt in den aktiven Flow. Mit Strg+Enter kannst du sofort senden.',
-      submitLabel: 'In Flow geben',
-      hint: 'Mit Strg+Enter senden',
+      copy: 'Kurz pruefen und senden.',
     };
-  }
-
-  private getComposerNote() {
-    if (this.submitState === 'success') {
-      return {
-        title: 'Naechster Schritt',
-        copy: 'Direkt die naechste Aenderung schreiben oder ein neues Element markieren.',
-      };
-    }
-
-    if (this.submitState === 'error') {
-      return {
-        title: 'Naechster Schritt',
-        copy: 'Relay pruefen oder den Auftrag direkt erneut uebergeben.',
-      };
-    }
-
-    return null;
   }
 
   override render() {
     const { selectedElement, relayConnected, mode } =
       this.storeController.state;
+    const activeChannel =
+      this.storeController.state.dispatchSession.overrides.channel ??
+      this.storeController.state.dispatchProjectDefaults.channel;
     const hasElement = !!selectedElement;
     const isCapturing = mode === 'capturing';
     const hasInput = !!this.inputValue.trim();
@@ -451,38 +463,32 @@ export class DsAnnotationInput extends LitElement {
 
     // Contextual placeholder based on state
     const placeholder = !relayConnected
-      ? 'Verbinde mit Relay...'
+      ? 'Relay verbinden ...'
       : isCapturing
-        ? 'Markiere gerade ein Element im Canvas...'
-      : !hasElement
-        ? 'Waehle zuerst ein Element aus...'
-        : 'Beschreibe die gewuenschte Aenderung...';
+        ? 'Element im Canvas markieren ...'
+        : !hasElement
+        ? 'Waehle zuerst ein Element ...'
+        : 'Aenderung oder Auftrag schreiben ...';
     const composerState = this.getComposerState(
       relayConnected,
       hasElement,
       hasInput,
       isCapturing,
     );
-    const composerNote = this.getComposerNote();
+    const flowLabel =
+      activeChannel === 'queue_only'
+        ? 'Nur sammeln'
+        : activeChannel === 'claude'
+          ? 'Claude'
+          : 'Codex';
 
     return html`
       <div class="input-wrapper">
-        <div class="composer-head">
-          <div class="composer-topline">
-            <span class="composer-title">Kommentar und Auftrag</span>
-            <span class="selection-state ${composerState.active ? 'active' : ''}"
-              >${composerState.badge}</span
-            >
-          </div>
-          <p class="composer-copy">${composerState.copy}</p>
-          ${composerNote
-            ? html`
-                <div class="composer-note">
-                  <div class="composer-note-title">${composerNote.title}</div>
-                  <div class="composer-note-copy">${composerNote.copy}</div>
-                </div>
-              `
-            : null}
+        <div class="composer-top">
+          <span
+            class="composer-state-pill ${composerState.active ? 'active' : ''}"
+            >${composerState.badge}</span
+          >
         </div>
 
         <div class="textarea-container ${isDisabled ? 'disabled' : ''}">
@@ -497,11 +503,7 @@ export class DsAnnotationInput extends LitElement {
         </div>
 
         <div class="action-bar">
-          <div class="shortcut-hint">Strg+Enter</div>
-
-          <!-- Right-side actions: capture + submit -->
           <div class="action-group">
-            <!-- Capture element button - always enabled except during capture -->
             <button
               class="action-btn ${hasElement ? 'active' : ''}"
               @click=${this.handleCapture}
@@ -531,12 +533,98 @@ export class DsAnnotationInput extends LitElement {
               </svg>
             </button>
 
-            <!-- Submit button -->
+            <div class="menu-wrap">
+              ${this.channelMenuOpen
+                ? html`
+                    <div class="menu-panel" role="menu" aria-label="Agent wählen">
+                      ${[
+                        ['codex', 'Codex', 'Direkt mit Codex arbeiten'],
+                        ['claude', 'Claude', 'Mit Claude weiterschicken'],
+                        ['queue_only', 'Nur sammeln', 'Erst sammeln, später versenden'],
+                      ].map(
+                        ([value, label, note]) => html`
+                          <button
+                            class="menu-item ${activeChannel === value ? 'active' : ''}"
+                            @click=${() => this.setChannel(value as DispatchChannel)}
+                            role="menuitemradio"
+                            aria-checked=${activeChannel === value}
+                          >
+                            <span class="menu-item-copy">
+                              <span class="menu-item-title">${label}</span>
+                              <span class="menu-item-note">${note}</span>
+                            </span>
+                            ${activeChannel === value
+                              ? html`
+                                  <svg
+                                    class="menu-check"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    aria-hidden="true"
+                                  >
+                                    <path
+                                      d="m5 12 4.5 4.5L19 7"
+                                      stroke="currentColor"
+                                      stroke-width="2.2"
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                    />
+                                  </svg>
+                                `
+                              : null}
+                          </button>
+                        `,
+                      )}
+                    </div>
+                  `
+                : null}
+
+              <button
+                class="action-btn menu-btn"
+                @click=${this.toggleChannelMenu}
+                title=${`Agent: ${flowLabel}`}
+                aria-label="Agent waehlen"
+              >
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path
+                    d="M12 3.5c3.9 0 7 2.86 7 6.4 0 2.1-1.12 3.95-2.85 5.12v3.48l-2.72-1.72c-.47.08-.95.12-1.43.12-3.9 0-7-2.86-7-6.4s3.1-6.4 7-6.4Z"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M9.25 10.2h.01M12 10.2h.01M14.75 10.2h.01"
+                    stroke="currentColor"
+                    stroke-width="2.2"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <button
+              class="action-btn"
+              @click=${this.handleOpenSettings}
+              title="Einstellungen oeffnen"
+              aria-label="Einstellungen oeffnen"
+            >
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M10.5 4.5h3l.8 2.14 2.26.94 2.03-.84 2.12 2.12-.85 2.02.94 2.27 2.2.85v3l-2.13.8-.94 2.26.85 2.03-2.12 2.12-2.02-.85-2.27.94-.85 2.2h-3l-.8-2.13-2.26-.94-2.03.85-2.12-2.12.85-2.02-.94-2.27-2.2-.85v-3l2.13-.8.94-2.26-.85-2.03 2.12-2.12 2.02.85 2.27-.94.85-2.2Z"
+                  stroke="currentColor"
+                  stroke-width="1.4"
+                  stroke-linejoin="round"
+                />
+                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="action-group">
             <button
               class="submit-btn"
               @click=${this.handleSubmit}
               ?disabled=${!canSubmit}
-              title="Anmerkung senden (Strg+Enter)"
+              title="Anmerkung senden"
               aria-label="Anmerkung senden"
             >
               <svg viewBox="0 0 24 24" fill="none">
@@ -548,12 +636,13 @@ export class DsAnnotationInput extends LitElement {
                   stroke-linejoin="round"
                 />
               </svg>
-              <span class="submit-label">${composerState.submitLabel}</span>
             </button>
           </div>
         </div>
       </div>
-      <div class="hint">${composerState.hint}</div>
+      <div class="composer-foot">
+        <span class="composer-foot-copy">${composerState.copy}</span>
+      </div>
     `;
   }
 }

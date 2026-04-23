@@ -22,8 +22,6 @@ export class DsSessionSettings extends LitElement {
     css`
       :host {
         display: block;
-        padding-top: var(--ds-space-sm);
-        border-top: 1px solid var(--ds-chrome-divider);
       }
 
       .section {

@@ -159,8 +159,9 @@ code {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.2rem;
-  height: 2.2rem;
+  width: 2.7rem;
+  height: 2.7rem;
+  padding: 0.22rem;
   border-radius: 10px;
   background:
     radial-gradient(circle at top, rgba(255, 255, 255, 0.9), transparent 70%),
@@ -168,14 +169,13 @@ code {
   border: 1px solid rgba(115, 95, 78, 0.14);
   box-shadow: var(--shadow-sm);
   flex-shrink: 0;
-  overflow: hidden;
 }
 
 .sidebar-logo-icon {
   width: 100%;
   height: 100%;
   display: block;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
 }
 
@@ -1309,7 +1309,7 @@ img {
 }
 
 /* Broken image styling */
-img[alt] {
+img[alt]:not([alt='']) {
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -1318,7 +1318,7 @@ img[alt] {
   min-height: 180px;
 }
 
-img[alt]::before {
+img[alt]:not([alt=''])::before {
   content: '🖼️ ' attr(alt);
   display: flex;
   align-items: center;

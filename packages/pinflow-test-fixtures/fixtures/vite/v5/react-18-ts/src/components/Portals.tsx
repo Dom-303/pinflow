@@ -70,42 +70,42 @@ export function Portals() {
   return (
     <div className="portals">
       <section>
-        <h4>Modal Portal</h4>
+        <h4>Modal ueber Portal</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
-          <button onClick={() => setIsModalOpen(true)}>Open Modal</button>
+          <button onClick={() => setIsModalOpen(true)}>Modal oeffnen</button>
           <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-            <h2>Modal Title</h2>
-            <p>This content is rendered via createPortal()</p>
-            <button onClick={() => setIsModalOpen(false)}>Close</button>
+            <h2>Modal-Titel</h2>
+            <p>Dieser Inhalt wird ueber `createPortal()` gerendert.</p>
+            <button onClick={() => setIsModalOpen(false)}>Schliessen</button>
           </Modal>
         </div>
       </section>
 
       <section>
-        <h4>Tooltip Portal</h4>
+        <h4>Tooltip ueber Portal</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
-          <Tooltip text="This is a tooltip rendered via portal">
-            <span className="tooltip-example">Hover me for tooltip</span>
+          <Tooltip text="Dieser Tooltip wird ueber ein Portal gerendert">
+            <span className="tooltip-example">Hover fuer Tooltip</span>
           </Tooltip>
         </div>
       </section>
 
       <section>
-        <h4>Direct Portal (No Wrapper Component)</h4>
+        <h4>Direktes Portal ohne Wrapper-Komponente</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <button onClick={() => setIsDirectPortalOpen(!isDirectPortalOpen)}>
-            {isDirectPortalOpen ? 'Hide' : 'Show'} Direct Portal
+            {isDirectPortalOpen ? 'Direktes Portal ausblenden' : 'Direktes Portal anzeigen'}
           </button>
           <div className="nested-portal-container">
             {isDirectPortalOpen &&
               createPortal(
                 <div className="portaled-content">
-                  <p>Direct portal without wrapper component</p>
+                  <p>Direktes Portal ohne Wrapper-Komponente</p>
                   <button onClick={() => setIsDirectPortalOpen(false)}>
-                    Close Portal
+                    Portal schliessen
                   </button>
                 </div>,
                 document.getElementById('portal-root') || document.body,

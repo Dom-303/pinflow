@@ -25,60 +25,60 @@ export function EventHandlers() {
   return (
     <div className="event-handlers">
       <section>
-        <h4>onClick Handler</h4>
+        <h4>Klick-Handler</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
-          <button onClick={handleClick}>Clicked {clicks} times</button>
+          <button onClick={handleClick}>Bereits {clicks} Mal geklickt</button>
         </div>
       </section>
 
       <section>
-        <h4>onChange Handler</h4>
+        <h4>Eingabe-Handler</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
-          <p>Current value: {inputValue || '(empty)'}</p>
+          <p>Aktueller Wert: {inputValue || '(leer)'}</p>
           <input
             type="text"
             value={inputValue}
             onChange={handleChange}
-            placeholder="Type something"
+            placeholder="Hier etwas eingeben"
           />
         </div>
       </section>
 
       <section>
-        <h4>onSubmit Handler (Form)</h4>
+        <h4>Formular absenden</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <form onSubmit={handleSubmit}>
             <div className="form-row">
-              <input type="text" name="username" placeholder="Username" />
-              <button type="submit">Submit</button>
+              <input type="text" name="username" placeholder="Benutzername" />
+              <button type="submit">Absenden</button>
             </div>
           </form>
-          {submitted && <div>Form submitted!</div>}
+          {submitted && <div>Formular wurde abgesendet.</div>}
         </div>
       </section>
 
       <section>
-        <h4>onMouseEnter Handler</h4>
+        <h4>Hover fuer Konsolenhinweis</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <button onMouseEnter={() => console.log('hover')}>
-            Hover me (check console)
+            Hover ausloesen (Konsole pruefen)
           </button>
         </div>
       </section>
 
       <section>
-        <h4>onFocus & onBlur Handlers</h4>
+        <h4>Fokus- und Blur-Handler</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <input
             type="text"
             onFocus={() => console.log('focused')}
             onBlur={() => console.log('blurred')}
-            placeholder="Focus/blur (check console)"
+            placeholder="Fokus/Blur testen (Konsole pruefen)"
           />
         </div>
       </section>

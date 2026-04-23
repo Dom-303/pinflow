@@ -20,15 +20,15 @@ function ClientOnlyContent() {
 
   // This pattern prevents hydration mismatches
   if (!mounted) {
-    return <div className="client-only-placeholder">Loading...</div>;
+    return <div className="client-only-placeholder">Lade client-seitigen Inhalt...</div>;
   }
 
   return (
     <div className="client-only-content">
-      <p>This content only renders on the client</p>
-      <p>Window width: {window.innerWidth}</p>
+      <p>Dieser Inhalt wird nur im Client gerendert.</p>
+      <p>Fensterbreite: {window.innerWidth}</p>
       <button onClick={() => alert('Client-side interaction')}>
-        Client Button
+        Client-Button
       </button>
     </div>
   );
@@ -39,12 +39,12 @@ function WindowCheck() {
 
   return (
     <div className="window-check">
-      <p>Running on: {isClient ? 'Client' : 'Server'}</p>
+      <p>Laufzeit: {isClient ? 'Client' : 'Server'}</p>
       {isClient && (
         <div>
-          <p>User Agent: {window.navigator.userAgent.substring(0, 50)}...</p>
+          <p>User-Agent: {window.navigator.userAgent.substring(0, 50)}...</p>
           <p>
-            Screen: {window.screen.width}x{window.screen.height}
+            Bildschirm: {window.screen.width}x{window.screen.height}
           </p>
         </div>
       )}
@@ -62,9 +62,9 @@ function HydrationSafeTimestamp() {
   return (
     <div className="hydration-safe-timestamp">
       {timestamp === null ? (
-        <div>Timestamp will appear after hydration</div>
+        <div>Zeitstempel erscheint nach der Hydration</div>
       ) : (
-        <div>Client timestamp: {new Date(timestamp).toISOString()}</div>
+        <div>Client-Zeitstempel: {new Date(timestamp).toISOString()}</div>
       )}
     </div>
   );
@@ -84,10 +84,10 @@ function DynamicImportCheck() {
 
   return (
     <div className="dynamic-import-check">
-      <p>LocalStorage available: {hasLocalStorage ? 'Yes' : 'No'}</p>
+      <p>LocalStorage verfuegbar: {hasLocalStorage ? 'Ja' : 'Nein'}</p>
       {hasLocalStorage && (
         <button onClick={() => localStorage.setItem('test', 'value')}>
-          Set LocalStorage
+          LocalStorage setzen
         </button>
       )}
     </div>
@@ -98,7 +98,7 @@ export function SSRHydration() {
   return (
     <div className="ssr-hydration">
       <section className="section">
-        <h4>Client-Only Content</h4>
+        <h4>Client-only-Inhalt</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <ClientOnlyContent />
@@ -106,7 +106,7 @@ export function SSRHydration() {
       </section>
 
       <section className="section">
-        <h4>Window Check</h4>
+        <h4>Fensterpruefung</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <WindowCheck />
@@ -114,7 +114,7 @@ export function SSRHydration() {
       </section>
 
       <section className="section">
-        <h4>Hydration-Safe Timestamp</h4>
+        <h4>Hydration-sicherer Zeitstempel</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <HydrationSafeTimestamp />
@@ -122,7 +122,7 @@ export function SSRHydration() {
       </section>
 
       <section className="section">
-        <h4>Browser API Checks</h4>
+        <h4>Browser-API-Pruefungen</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <DynamicImportCheck />

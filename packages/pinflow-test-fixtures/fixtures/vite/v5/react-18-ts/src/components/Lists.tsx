@@ -10,16 +10,16 @@
 import { CaptureIcon } from './CaptureIcon';
 
 export function Lists() {
-  const items = ['Item 1', 'Item 2', 'Item 3'];
+  const items = ['Eintrag 1', 'Eintrag 2', 'Eintrag 3'];
   const nested = [
-    { id: 1, name: 'Group 1', children: ['A', 'B'] },
-    { id: 2, name: 'Group 2', children: ['C', 'D'] },
+    { id: 1, name: 'Gruppe 1', children: ['A', 'B'] },
+    { id: 2, name: 'Gruppe 2', children: ['C', 'D'] },
   ];
 
   return (
     <div className="lists">
       <section>
-        <h4>Simple List with .map()</h4>
+        <h4>Einfache Liste mit .map()</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <ul>
@@ -31,7 +31,7 @@ export function Lists() {
       </section>
 
       <section>
-        <h4>List with Object Keys</h4>
+        <h4>Liste mit Objektschluesseln</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <ul>
@@ -43,7 +43,7 @@ export function Lists() {
       </section>
 
       <section>
-        <h4>Nested Lists</h4>
+        <h4>Verschachtelte Listen</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <ul>
@@ -62,7 +62,7 @@ export function Lists() {
       </section>
 
       <section>
-        <h4>List with Div Elements</h4>
+        <h4>Liste mit div-Elementen</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <div>

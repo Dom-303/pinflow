@@ -60,4 +60,34 @@ describe('pinflow visible fixture copy', () => {
     expect(nuxtConfig).toContain('pinflow: {');
     expect(nuxtConfig).not.toContain(LEGACY_BRAND);
   });
+
+  it('localizes the most visible React preview components to natural German copy', () => {
+    const basic = readFixture('vite/v5/react-18-ts/src/components/BasicElements.tsx');
+    const lists = readFixture('vite/v5/react-18-ts/src/components/Lists.tsx');
+    const events = readFixture('vite/v5/react-18-ts/src/components/EventHandlers.tsx');
+    const portals = readFixture('vite/v5/react-18-ts/src/components/Portals.tsx');
+    const ssr = readFixture('vite/v5/react-18-ts/src/components/SSRHydration.tsx');
+
+    expect(basic).toContain('Blockelement');
+    expect(basic).toContain('Texteingabe');
+    expect(basic).toContain('Beschriftetes Formular');
+    expect(basic).toContain('Dies ist ein Button');
+
+    expect(lists).toContain('Einfache Liste mit .map()');
+    expect(lists).toContain('Liste mit Objektschluesseln');
+    expect(lists).toContain('Verschachtelte Listen');
+
+    expect(events).toContain('Klick-Handler');
+    expect(events).toContain('Formular absenden');
+    expect(events).toContain('Hover fuer Konsolenhinweis');
+
+    expect(portals).toContain('Modal ueber Portal');
+    expect(portals).toContain('Tooltip ueber Portal');
+    expect(portals).toContain('Direktes Portal ohne Wrapper-Komponente');
+
+    expect(ssr).toContain('Client-only-Inhalt');
+    expect(ssr).toContain('Fensterpruefung');
+    expect(ssr).toContain('Hydration-sicherer Zeitstempel');
+    expect(ssr).toContain('Browser-API-Pruefungen');
+  });
 });

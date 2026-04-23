@@ -141,6 +141,22 @@ export class DsSessionSettings extends LitElement {
         background: var(--ds-brand-primary);
       }
 
+      .effective-state {
+        display: grid;
+        gap: 8px;
+        padding: 10px;
+        border-radius: 14px;
+        border: 1px solid var(--ds-panel-border);
+        background: var(--ds-card-surface);
+        box-shadow: var(--ds-shadow-sm);
+      }
+
+      .effective-title {
+        color: var(--ds-text-primary);
+        font-size: var(--ds-font-size-sm);
+        font-weight: var(--ds-font-weight-semibold);
+      }
+
       .session-overrides {
         display: grid;
         gap: 8px;
@@ -271,6 +287,14 @@ export class DsSessionSettings extends LitElement {
     const continuationLabel = this.getContinuationLabel(
       this.projectDefaults.continuation,
     );
+    const effectiveChannel = this.sessionOverrides.channel ?? this.projectDefaults.channel;
+    const effectiveMode = this.sessionOverrides.mode ?? this.projectDefaults.mode;
+    const effectiveContinuation =
+      this.sessionOverrides.continuation ?? this.projectDefaults.continuation;
+    const effectiveThreshold =
+      this.sessionOverrides.threshold ?? this.projectDefaults.threshold;
+    const effectiveConcurrency =
+      this.sessionOverrides.concurrency ?? this.projectDefaults.concurrency;
 
     return html`
       <div class="section">
@@ -360,6 +384,30 @@ export class DsSessionSettings extends LitElement {
           ${hasSessionOverrides
             ? 'Aktive Session-Anpassungen uebersteuern nur diese laufende Sitzung.'
             : 'Keine Session-Anpassungen aktiv.'}
+        </div>
+        <div class="effective-state">
+          <div class="effective-title">Wirkt gerade</div>
+          <div class="summary-strip">
+            <span class="summary-pill">
+              <strong>${hasSessionOverrides ? 'Session-Regeln aktiv' : 'Projektstandard aktiv'}</strong>
+            </span>
+            <span class="summary-pill"
+              ><strong>${this.getChannelLabel(effectiveChannel)}</strong> Kanal</span
+            >
+            <span class="summary-pill"
+              ><strong>${this.getModeLabel(effectiveMode)}</strong> Versand</span
+            >
+            <span class="summary-pill"
+              ><strong>${effectiveConcurrency}</strong> Parallelitaet</span
+            >
+            <span class="summary-pill"
+              ><strong>${effectiveThreshold}</strong> Schwelle</span
+            >
+            <span class="summary-pill"
+              ><strong>${this.getContinuationLabel(effectiveContinuation)}</strong>
+              Fortsetzung</span
+            >
+          </div>
         </div>
         ${hasSessionOverrides
           ? html`

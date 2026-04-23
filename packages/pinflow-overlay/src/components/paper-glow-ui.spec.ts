@@ -454,6 +454,9 @@ describe('Paper Glow UI contract', () => {
     expect(workflowPanel.shadowRoot.textContent).toContain('Fortsetzung');
     expect(workflowPanel.shadowRoot.textContent).toContain('Automatisch');
     expect(workflowPanel.shadowRoot.textContent).toContain('Freigabe & Automatik');
+    expect(workflowPanel.shadowRoot.textContent).toContain('Wirksam jetzt');
+    expect(workflowPanel.shadowRoot.textContent).toContain('Codex, Manuell, 3');
+    expect(workflowPanel.shadowRoot.textContent).toContain('parallel, Fortsetzung automatisch.');
     expect(workflowPanel.shadowRoot.textContent).toContain('Codex');
     expect(workflowPanel.shadowRoot.textContent).toContain('Letzter Lauf');
     expect(workflowPanel.shadowRoot.textContent).toContain('Letzte Batches');
@@ -550,6 +553,8 @@ describe('Paper Glow UI contract', () => {
     expect(settingsText).toContain('Session-Verhalten');
     expect(settingsText).toContain('Session folgt Projektstandard');
     expect(settingsText).toContain('Keine Session-Anpassungen aktiv');
+    expect(settingsText).toContain('Wirkt gerade');
+    expect(settingsText).toContain('Projektstandard aktiv');
     expect(settingsText).toContain('Parallelitaet');
     expect(settingsText).toContain('Automatik-Schwelle');
   });
@@ -581,6 +586,7 @@ describe('Paper Glow UI contract', () => {
     const settingsText =
       settings.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
     expect(settingsText).toContain('Aktive Session-Anpassungen');
+    expect(settingsText).toContain('Session-Regeln aktiv');
     expect(settingsText).toContain('Claude');
     expect(settingsText).toContain('Ab Schwelle');
     expect(settingsText).toContain('Freigeben');

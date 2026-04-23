@@ -91,6 +91,28 @@ export class DsWorkflowPanel extends LitElement {
         gap: 8px;
       }
 
+      .effective-now {
+        display: grid;
+        gap: 6px;
+        padding: 12px;
+        border-radius: 14px;
+        border: 1px solid var(--ds-panel-border);
+        background: var(--ds-card-surface-strong);
+        box-shadow: var(--ds-shadow-sm);
+      }
+
+      .effective-now-title {
+        color: var(--ds-text-primary);
+        font-size: var(--ds-font-size-sm);
+        font-weight: var(--ds-font-weight-semibold);
+      }
+
+      .effective-now-copy {
+        color: var(--ds-text-secondary);
+        font-size: var(--ds-font-size-xs);
+        line-height: 1.45;
+      }
+
       .status-overview {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -684,6 +706,18 @@ export class DsWorkflowPanel extends LitElement {
             <div class="status-note">
               ${this.getContinuationCopy(effective.continuation)}
             </div>
+          </div>
+        </div>
+
+        <div class="effective-now">
+          <div class="effective-now-title">Wirksam jetzt</div>
+          <div class="effective-now-copy">
+            ${this.getChannelLabel(effective.channel)}, ${this.getModeLabel(effective.mode)}, ${effective.concurrency}
+            parallel, Fortsetzung ${effective.continuation === 'automatic'
+              ? 'automatisch'
+              : effective.continuation === 'confirm'
+                ? 'mit Freigabe'
+                : 'manuell'}.
           </div>
         </div>
 

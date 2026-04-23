@@ -259,6 +259,10 @@ export class OverlayStore {
 
   releaseNextDispatchBatch(): string[] {
     const effective = this.getEffectiveDispatchConfig();
+    if (effective.paused || effective.channel === 'queue_only') {
+      return [];
+    }
+
     const analysis = analyzeDispatchQueue(this.state.annotations, {
       releasedAnnotationIds: this.state.dispatchSession.releasedAnnotationIds,
       awaitingConfirmationIds:

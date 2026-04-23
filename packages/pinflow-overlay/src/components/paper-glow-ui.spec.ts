@@ -422,4 +422,55 @@ describe('Paper Glow UI contract', () => {
       'Markiere ein Element und starte rechts mit deiner ersten Aenderung.',
     );
   });
+
+  it('renders safe collecting states for queue-only and paused sessions', async () => {
+    mockState.annotations = [{ id: 'note-queue', metadata: { status: 'queued' } }];
+    mockState.dispatchProjectDefaults = {
+      channel: 'queue_only',
+      mode: 'manual',
+      threshold: 3,
+      concurrency: 3,
+      continuation: 'automatic',
+    };
+    mockState.dispatchSession = {
+      overrides: { channel: 'queue_only' },
+      paused: true,
+      releasedAnnotationIds: [],
+      awaitingConfirmationIds: [],
+      flowActive: false,
+    };
+
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    render(html`<ds-sidebar></ds-sidebar>`, host);
+
+    const sidebar = host.querySelector('ds-sidebar') as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await sidebar.updateComplete;
+
+    const workflowPanel = sidebar.shadowRoot.querySelector(
+      'ds-workflow-panel',
+    ) as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await workflowPanel.updateComplete;
+
+    const workflowText =
+      workflowPanel.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+    const releaseButton = workflowPanel.shadowRoot.querySelector(
+      '.dispatch-btn',
+    ) as HTMLButtonElement;
+
+    expect(workflowText).toContain('Sammelt Aufgaben ohne Versand');
+    expect(workflowText).toContain(
+      'Neue Aufgaben bleiben gesammelt, bis du einen aktiven Kanal waehlst.',
+    );
+    expect(workflowText).toContain('Queue pausiert');
+    expect(releaseButton.disabled).toBe(true);
+  });
 });

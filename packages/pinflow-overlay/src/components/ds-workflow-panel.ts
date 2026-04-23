@@ -391,14 +391,22 @@ export class DsWorkflowPanel extends LitElement {
       concurrency: effective.concurrency,
     });
     const nextActionLabel =
-      analysis.awaitingConfirmationIds.length > 0
-        ? `Batch freigeben (${analysis.awaitingConfirmationIds.length})`
-        : `Naechsten Batch senden (${analysis.releasableIds.length})`;
+      effective.channel === 'queue_only'
+        ? 'Sammelmodus aktiv'
+        : effective.paused
+          ? 'Queue pausiert'
+          : analysis.awaitingConfirmationIds.length > 0
+            ? `Batch freigeben (${analysis.awaitingConfirmationIds.length})`
+            : `Naechsten Batch senden (${analysis.releasableIds.length})`;
     const nextActionDisabled =
-      analysis.awaitingConfirmationIds.length === 0 &&
-      analysis.releasableIds.length === 0;
+      effective.channel === 'queue_only' ||
+      effective.paused ||
+      (analysis.awaitingConfirmationIds.length === 0 &&
+        analysis.releasableIds.length === 0);
     const activeStatus = effective.paused
       ? 'Queue pausiert'
+      : effective.channel === 'queue_only'
+        ? 'Sammelt Aufgaben ohne Versand'
       : analysis.awaitingConfirmationIds.length > 0
         ? 'Wartet auf Freigabe'
         : analysis.inFlightIds.length > 0
@@ -466,7 +474,9 @@ export class DsWorkflowPanel extends LitElement {
             <div class="status-label">Session-Kanal</div>
             <div class="status-value">${this.getChannelLabel(effective.channel)}</div>
             <div class="status-note">
-              Session-weit aktiv fuer neue Annotationen und den naechsten Batch.
+              ${effective.channel === 'queue_only'
+                ? 'Neue Aufgaben bleiben gesammelt, bis du einen aktiven Kanal waehlst.'
+                : 'Session-weit aktiv fuer neue Annotationen und den naechsten Batch.'}
             </div>
           </div>
           <div class="status-card">
@@ -484,7 +494,9 @@ export class DsWorkflowPanel extends LitElement {
             <div class="status-label">Live-Status</div>
             <div class="status-value">${activeStatus}</div>
             <div class="status-note">
-              ${effective.concurrency} parallel, Fortsetzung ${effective.continuation ===
+              ${effective.channel === 'queue_only'
+                ? 'Sammelt Aufgaben ohne Versand. '
+                : ''}${effective.concurrency} parallel, Fortsetzung ${effective.continuation ===
               'automatic'
                 ? 'automatisch'
                 : effective.continuation === 'confirm'

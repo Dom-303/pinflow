@@ -138,6 +138,49 @@ describe('OverlayStore dispatch progression', () => {
     ]);
   });
 
+  it('does not release queued work while queue-only mode is active', () => {
+    const store = OverlayStore.getInstance();
+
+    store.updateDispatchProjectDefaults({
+      channel: 'queue_only',
+      mode: 'manual',
+      concurrency: 2,
+    });
+
+    store.setAnnotations([
+      annotation('ann-1', 'queued'),
+      annotation('ann-2', 'queued'),
+    ]);
+
+    const released = store.releaseNextDispatchBatch();
+
+    expect(released).toEqual([]);
+    expect(store.getState().dispatchSession.releasedAnnotationIds).toEqual([]);
+    expect(store.getState().dispatchBatches).toEqual([]);
+  });
+
+  it('does not release queued work while the queue is paused', () => {
+    const store = OverlayStore.getInstance();
+
+    store.updateDispatchProjectDefaults({
+      channel: 'codex',
+      mode: 'manual',
+      concurrency: 2,
+    });
+    store.setDispatchPaused(true);
+
+    store.setAnnotations([
+      annotation('ann-1', 'queued'),
+      annotation('ann-2', 'queued'),
+    ]);
+
+    const released = store.releaseNextDispatchBatch();
+
+    expect(released).toEqual([]);
+    expect(store.getState().dispatchSession.releasedAnnotationIds).toEqual([]);
+    expect(store.getState().dispatchBatches).toEqual([]);
+  });
+
   it('records released batches and keeps their progress in sync with annotations', () => {
     const store = OverlayStore.getInstance();
 

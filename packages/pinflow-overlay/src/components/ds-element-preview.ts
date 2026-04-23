@@ -230,6 +230,14 @@ export class DsElementPreview extends LitElement {
         color: var(--ds-text-secondary);
       }
 
+      .empty-eyebrow {
+        font-size: 11px;
+        font-weight: var(--ds-font-weight-medium);
+        color: var(--ds-text-tertiary);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
       .empty-icon {
         width: 34px;
         height: 34px;
@@ -249,6 +257,27 @@ export class DsElementPreview extends LitElement {
         margin: 0;
         font-size: var(--ds-font-size-sm);
         line-height: 1.55;
+      }
+
+      .selection-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 9px;
+        background: var(--ds-pill-surface);
+        border: 1px solid var(--ds-pill-border);
+        border-radius: var(--ds-radius-full);
+        color: var(--ds-text-secondary);
+        font-size: var(--ds-font-size-xs);
+        box-shadow: var(--ds-shadow-sm);
+      }
+
+      .selection-status::before {
+        content: '';
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--ds-success);
       }
     `,
   ];
@@ -318,6 +347,7 @@ export class DsElementPreview extends LitElement {
     if (!selectedElement) {
       return html`
         <div class="empty-state">
+          <div class="empty-eyebrow">Elementaufnahme bereit</div>
           <svg
             class="empty-icon"
             viewBox="0 0 24 24"
@@ -358,6 +388,10 @@ export class DsElementPreview extends LitElement {
             Markiere rechts ein Element, um Quelle, Eigenschaften und Status zu
             sehen.
           </p>
+          <p class="empty-copy">
+            Sobald du ein Element markierst, siehst du hier sofort Quelle,
+            Kontext und naechsten Schritt.
+          </p>
         </div>
       `;
     }
@@ -389,6 +423,7 @@ export class DsElementPreview extends LitElement {
         <div class="element-header">
           <div class="element-primary">
             <span class="section-label">Auswahl</span>
+            <span class="selection-status">Auswahl bestaetigt</span>
             <div class="identity-row">
               <span class="tag-name">&lt;${tagName}&gt;</span>
               ${componentName
@@ -402,6 +437,7 @@ export class DsElementPreview extends LitElement {
                     <span class="source-location" title="${sourcePath.full}"
                       >${sourcePath.display}</span
                     >
+                    <span class="selection-status">Quelle verknuepft</span>
                   </div>
                 `
               : null}

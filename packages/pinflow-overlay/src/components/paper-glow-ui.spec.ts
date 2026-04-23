@@ -562,8 +562,12 @@ describe('Paper Glow UI contract', () => {
 
     let previewText = preview.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
     expect(previewText).toContain('Noch kein Element ausgewaehlt');
+    expect(previewText).toContain('Elementaufnahme bereit');
     expect(previewText).toContain(
       'Markiere rechts ein Element, um Quelle, Eigenschaften und Status zu sehen.',
+    );
+    expect(previewText).toContain(
+      'Sobald du ein Element markierst, siehst du hier sofort Quelle, Kontext und naechsten Schritt.',
     );
 
     mockState.selectedElement = document.createElement('button');
@@ -582,11 +586,13 @@ describe('Paper Glow UI contract', () => {
 
     previewText = preview.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
     expect(previewText).toContain('Auswahl');
+    expect(previewText).toContain('Auswahl bestaetigt');
     expect(previewText).toContain('<button>');
     expect(previewText).toContain('Quelle');
     expect(previewText).toContain('PrimaryButton.tsx:42');
     expect(previewText).toContain('2 Eigenschaften');
     expect(previewText).toContain('1 Statusfeld');
+    expect(previewText).toContain('Quelle verknuepft');
 
     const dismissButton = preview.shadowRoot.querySelector(
       'button[aria-label="Elementauswahl aufheben"]',

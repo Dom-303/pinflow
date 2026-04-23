@@ -60,7 +60,7 @@ const components: ComponentConfig[] = [
   },
   {
     id: 'children-manipulation',
-    title: 'Children Manipulation',
+    title: 'Children API',
     description:
       'Verschachtelte Child-Strukturen fuer Auswahlpfade und Komponentenauflosung.',
     component: ChildrenManipulation,
@@ -74,7 +74,7 @@ const components: ComponentConfig[] = [
   },
   {
     id: 'conditional-rendering',
-    title: 'Conditional Rendering',
+    title: 'Bedingtes Rendering',
     description:
       'Wechselnde Renderpfade fuer Zustandswechsel, Sichtbarkeit und Ausnahmen.',
     component: ConditionalRendering,
@@ -88,14 +88,14 @@ const components: ComponentConfig[] = [
   },
   {
     id: 'deeply-nested',
-    title: 'Deeply Nested',
+    title: 'Tiefe Hierarchien',
     description:
       'Komplexe Tiefe fuer robustes Element-Picking und Komponentenauflosung.',
     component: DeeplyNested,
   },
   {
     id: 'dynamic-content',
-    title: 'Dynamic Content',
+    title: 'Dynamische Inhalte',
     description:
       'Lebendige Inhalte fuer Annotationen an wechselnden UI-Stellen.',
     component: DynamicContent,
@@ -114,7 +114,7 @@ const components: ComponentConfig[] = [
   },
   {
     id: 'event-handlers',
-    title: 'Event Handlers',
+    title: 'Event-Handler',
     description: 'Interaktive Teststrecke fuer Klicks, Fokus und Delegation.',
     component: EventHandlers,
   },
@@ -186,27 +186,27 @@ const components: ComponentConfig[] = [
   },
   {
     id: 's-s-r-hydration',
-    title: 'SSR Hydration',
+    title: 'SSR & Hydration',
     description:
       'Hydrationsfaelle fuer serverseitig gerenderte Komponenten und Overlay-Start.',
     component: SSRHydration,
   },
   {
     id: 's-v-g-elements',
-    title: 'SVG Elements',
+    title: 'SVG-Elemente',
     description:
       'Vektorbasierte UI-Bausteine fuer Auswahl- und Tooltip-Flows.',
     component: SVGElements,
   },
   {
     id: 'self-closing',
-    title: 'Self Closing',
+    title: 'Self-Closing Tags',
     description: 'Kompakte Syntaxfaelle fuer Parser und Komponentenauflosung.',
     component: SelfClosing,
   },
   {
     id: 'smoke-test',
-    title: 'Smoke Test',
+    title: 'Smoke-Test',
     description: 'Schneller Gesamtcheck fuer PinFlow-Verhalten in der Vorschau.',
     component: SmokeTest,
   },
@@ -256,7 +256,7 @@ function HomeIntro() {
           />
         </div>
         <div className="preview-home-hero-copy">
-          <span className="preview-kicker">Preview Einstieg</span>
+          <span className="preview-kicker">PinFlow Vorschau</span>
           <h1 className="page-title">PinFlow</h1>
           <p className="page-description">
             Vorschau fuer reale UI-Muster links, eigentliche Arbeitsflaeche
@@ -289,14 +289,14 @@ function HomeIntro() {
             </p>
           </article>
           <article>
-            <strong>Kommentarfluss testen</strong>
+            <strong>Annotationen pruefen</strong>
             <p>
               Die rechte PinFlow-Flaeche ist der eigentliche Arbeitsbereich fuer
               Annotationen, Queue und Versand.
             </p>
           </article>
           <article>
-            <strong>Technische Sonderfaelle pruefen</strong>
+            <strong>Technische Randfaelle pruefen</strong>
             <p>
               Advanced Hooks, Portals, SSR und andere Muster bleiben bewusst
               in der Navigation, damit die Demo fachlich aussagekraeftig bleibt.
@@ -364,7 +364,7 @@ export function App() {
           ) : (
             <>
               <header className="page-header">
-                <div className="preview-kicker">Preview-Demo</div>
+                <div className="preview-kicker">PinFlow Vorschau</div>
                 <h1 className="page-title">{currentComponent.title}</h1>
                 <p className="page-description">{currentComponent.description}</p>
                 <div className="preview-callout">

@@ -27,17 +27,22 @@ describe('pinflow visible preview branding', () => {
     const viteConfig = readFixture('vite.config.ts');
 
     expect(navigation).toContain('PinFlow Vorschau');
-    expect(navigation).toContain('React-Demo fuer Auswahl, Mapping und Kommentare');
+    expect(navigation).toContain('React-Demo fuer Auswahl, Mapping und Annotationen');
     expect(navigation).toContain('pinflow-icon-light.png');
     expect(navigation).toContain('Home');
-    expect(navigation).toContain('Children-Komposition');
-    expect(navigation).toContain('Laufzeit & Rendering');
+    expect(navigation).toContain('Children API');
+    expect(navigation).toContain('Bedingtes Rendering');
+    expect(navigation).toContain('Rendering & Laufzeit');
+    expect(navigation).toContain('Smoke-Test');
     expect(app).toContain('Linke Seite');
     expect(app).toContain('Vorschau-Demo');
     expect(app).toContain('Rechte Seite');
     expect(app).toContain('PinFlow-Arbeitsbereich');
     expect(app).toContain('Diese linke Seite bleibt bewusst eine Vorschau');
     expect(app).toContain('Klicke auf das halb sichtbare PinFlow-Logo');
+    expect(app).toContain('PinFlow Vorschau');
+    expect(app).toContain('Annotationen pruefen');
+    expect(app).toContain('Technische Randfaelle pruefen');
     expect(app).toContain('pinflow-stacked-light.png');
     expect(app).not.toContain('codeToUiImage');
     expect(app).not.toContain('uiToCodeImage');

@@ -12,7 +12,7 @@ export interface NavItem {
 }
 
 export const navItems: NavItem[] = [
-  { id: 'home', label: 'Home', section: 'Uebersicht' },
+  { id: 'home', label: 'Home', section: 'Vorschau' },
   { id: 'advanced-hooks', label: 'Advanced Hooks', section: 'React-Muster' },
   { id: 'basic-elements', label: 'Grundelemente', section: 'React-Muster' },
   {
@@ -98,9 +98,9 @@ export function Navigation({ activeItem, onNavigate }: NavigationProps) {
             <img className="sidebar-logo-icon" src={pinflowIcon} alt="" />
           </span>
           <div className="sidebar-brand-copy">
-            <span className="sidebar-logo-text">PinFlow Demo</span>
+            <span className="sidebar-logo-text">PinFlow Vorschau</span>
             <span className="sidebar-logo-subtext">
-              Vorschau fuer Auswahl, Mapping und Kommentare
+              React-Demo fuer Auswahl, Mapping und Kommentare
             </span>
           </div>
         </div>

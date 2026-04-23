@@ -320,6 +320,46 @@ code {
   gap: 1.5rem;
 }
 
+.preview-rail {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.preview-rail-card {
+  display: grid;
+  gap: 0.5rem;
+  padding: 1rem 1.1rem;
+  border-radius: 22px;
+  background: rgba(255, 252, 247, 0.78);
+  border: 1px solid rgba(115, 95, 78, 0.12);
+  box-shadow: var(--shadow-sm);
+}
+
+.preview-rail-card strong {
+  color: var(--color-text-primary);
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+}
+
+.preview-rail-card p {
+  color: var(--color-text-secondary);
+}
+
+.preview-rail-label {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  padding: 0.28rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(15, 118, 110, 0.08);
+  color: var(--color-text-accent);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .preview-home-hero {
   display: grid;
   gap: 1.35rem;
@@ -359,6 +399,7 @@ code {
   display: grid;
   gap: 0.9rem;
   padding: 0.5rem 0.35rem 0.2rem;
+  max-width: 46rem;
 }
 
 .preview-home-section {
@@ -1610,6 +1651,7 @@ fieldset .form-group label {
 }
 
 @media (max-width: 1120px) {
+  .preview-rail,
   .preview-home-points,
   .preview-home-placeholders {
     grid-template-columns: 1fr;

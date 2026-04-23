@@ -228,6 +228,25 @@ const components: ComponentConfig[] = [
 function HomeIntro() {
   return (
     <section className="preview-home">
+      <section className="preview-rail">
+        <article className="preview-rail-card">
+          <span className="preview-rail-label">Linke Seite</span>
+          <strong>Vorschau-Demo</strong>
+          <p>
+            Diese linke Seite bleibt bewusst eine Vorschau fuer echte React-
+            Muster, Auswahlpfade und Mapping-Faelle.
+          </p>
+        </article>
+        <article className="preview-rail-card">
+          <span className="preview-rail-label">Rechte Seite</span>
+          <strong>PinFlow-Arbeitsbereich</strong>
+          <p>
+            Der eigentliche Arbeitsbereich fuer Annotationen, Queue und
+            Agenten-Flow liegt rechts und wird ueber den Launcher geoeffnet.
+          </p>
+        </article>
+      </section>
+
       <article className="preview-home-hero">
         <div className="preview-home-hero-art">
           <img
@@ -237,11 +256,12 @@ function HomeIntro() {
           />
         </div>
         <div className="preview-home-hero-copy">
-          <span className="preview-kicker">Home</span>
+          <span className="preview-kicker">Preview Einstieg</span>
           <h1 className="page-title">PinFlow</h1>
           <p className="page-description">
-            Visuelle Arbeitsoberflaeche fuer Feedback, UI-Auswahl und
-            agentische Umsetzung direkt am laufenden Frontend.
+            Vorschau fuer reale UI-Muster links, eigentliche Arbeitsflaeche
+            rechts. So bleibt Test-Coverage sichtbar, ohne den Produktbereich
+            zu verwischen.
           </p>
           <div className="preview-callout">
             <strong>Wichtig:</strong> Die eigentliche PinFlow-Arbeitsflaeche
@@ -299,8 +319,8 @@ function HomeIntro() {
             <span className="placeholder-label">Demo</span>
             <strong>PinFlow Demo-Visual wird aktualisiert</strong>
             <p>
-              Hier kommt spaeter die neue Vorschau-Grafik fuer den Live-Canvas
-              hinein.
+              Hier kommt spaeter die neue Vorschau-Grafik fuer den linken
+              Demo-Canvas hinein.
             </p>
           </article>
           <article className="placeholder-card">
@@ -344,13 +364,13 @@ export function App() {
           ) : (
             <>
               <header className="page-header">
-                <div className="preview-kicker">Demo-Canvas</div>
+                <div className="preview-kicker">Preview-Demo</div>
                 <h1 className="page-title">{currentComponent.title}</h1>
                 <p className="page-description">{currentComponent.description}</p>
                 <div className="preview-callout">
-                  <strong>Hinweis:</strong> Die rechte PinFlow-Flaeche ist der
-                  eigentliche Arbeitsbereich. Die linke Seite bleibt bewusst ein
-                  technischer Demo-Canvas fuer echte UI-Muster.
+                  <strong>Hinweis:</strong> Die linke Seite bleibt bewusst eine
+                  Vorschau fuer echte UI-Muster. Die rechte PinFlow-Flaeche ist
+                  der eigentliche Arbeitsbereich.
                 </div>
               </header>
 

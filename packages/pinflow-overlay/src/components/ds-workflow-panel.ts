@@ -468,6 +468,50 @@ export class DsWorkflowPanel extends LitElement {
     return 'Der letzte Lauf steht bereit und wartet auf seinen naechsten Schritt.';
   }
 
+  private getBatchFollowUp(batch: {
+    status: string;
+    failedCount: number;
+    queuedCount: number;
+    processingCount: number;
+  }): { title: string; copy: string } | null {
+    if (batch.status === 'running') {
+      return {
+        title: 'Naechster Schritt',
+        copy: 'Lauf beobachten, bis neue Kapazitaet oder Ergebnisse sichtbar werden.',
+      };
+    }
+
+    if (batch.status === 'mixed') {
+      return {
+        title: 'Naechster Schritt',
+        copy: 'Fehler pruefen und verbleibende Aufgaben erneut anstossen.',
+      };
+    }
+
+    if (batch.status === 'failed') {
+      return {
+        title: 'Naechster Schritt',
+        copy: 'Fehlerbild pruefen und den Batch danach bewusst neu starten.',
+      };
+    }
+
+    if (batch.status === 'completed') {
+      return {
+        title: 'Naechster Schritt',
+        copy: 'Naechsten Batch freigeben oder den Flow automatisch weiterlaufen lassen.',
+      };
+    }
+
+    if (batch.status === 'queued') {
+      return {
+        title: 'Naechster Schritt',
+        copy: 'Batch freigeben, sobald du ihn bewusst starten willst.',
+      };
+    }
+
+    return null;
+  }
+
   private getContinuationLabel(continuation: 'automatic' | 'confirm' | 'manual') {
     if (continuation === 'automatic') return 'Automatisch';
     if (continuation === 'confirm') return 'Mit Freigabe';
@@ -607,6 +651,9 @@ export class DsWorkflowPanel extends LitElement {
             ? 'Bereit fuer den naechsten Versand'
             : 'Bereit zum Start';
     const latestBatch = dispatchBatches[0];
+    const latestBatchFollowUp = latestBatch
+      ? this.getBatchFollowUp(latestBatch)
+      : null;
     const nextFlowNote = this.getNextFlowNote(effective, analysis);
 
     return html`
@@ -807,6 +854,18 @@ export class DsWorkflowPanel extends LitElement {
                   <div class="flow-note-copy">
                     ${this.getBatchStatusCopy(latestBatch.status)}
                   </div>
+                  ${latestBatchFollowUp
+                    ? html`
+                        <div class="flow-note">
+                          <div class="flow-note-title">
+                            ${latestBatchFollowUp.title}
+                          </div>
+                          <div class="flow-note-copy">
+                            ${latestBatchFollowUp.copy}
+                          </div>
+                        </div>
+                      `
+                    : nothing}
                   <div class="batch-summary-meta">
                     <span
                       >Freigegeben

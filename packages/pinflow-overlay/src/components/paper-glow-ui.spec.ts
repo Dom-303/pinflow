@@ -461,6 +461,10 @@ describe('Paper Glow UI contract', () => {
     expect(workflowPanel.shadowRoot.textContent).toContain('Letzter Lauf');
     expect(workflowPanel.shadowRoot.textContent).toContain('Letzte Batches');
     expect(workflowPanel.shadowRoot.textContent).toContain('Laeuft');
+    expect(workflowPanel.shadowRoot.textContent).toContain('Naechster Schritt');
+    expect(workflowPanel.shadowRoot.textContent).toContain(
+      'Lauf beobachten, bis neue Kapazitaet oder Ergebnisse sichtbar werden.',
+    );
     expect(workflowPanel.shadowRoot.textContent).toContain('Freigegeben');
     expect(workflowPanel.shadowRoot.textContent).toContain('23.04., 09:30');
 
@@ -640,6 +644,10 @@ describe('Paper Glow UI contract', () => {
       'Ein Teil des letzten Laufs ist fertig, einzelne Aufgaben brauchen noch Nacharbeit.',
     );
     expect(workflowText).toContain('1 Fehler');
+    expect(workflowText).toContain('Naechster Schritt');
+    expect(workflowText).toContain(
+      'Fehler pruefen und verbleibende Aufgaben erneut anstossen.',
+    );
     expect(workflowText).toContain('Claude');
   });
 

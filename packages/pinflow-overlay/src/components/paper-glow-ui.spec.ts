@@ -648,7 +648,70 @@ describe('Paper Glow UI contract', () => {
     expect(workflowText).toContain(
       'Fehler pruefen und verbleibende Aufgaben erneut anstossen.',
     );
+    expect(workflowText).toContain('Nacharbeit im Blick');
+    expect(workflowText).toContain(
+      '1 Aufgabe aus den letzten 1 Batch braucht Nacharbeit oder erneuten Versand.',
+    );
     expect(workflowText).toContain('Claude');
+  });
+
+  it('renders batch history notes for failed and completed runs', async () => {
+    mockState.annotations = [
+      { id: 'note-1', metadata: { status: 'failed' } },
+      { id: 'note-2', metadata: { status: 'processed' } },
+    ];
+    mockState.dispatchBatches = [
+      {
+        id: 'batch-failed',
+        channel: 'codex',
+        annotationIds: ['note-1'],
+        releasedAt: '2026-04-23T14:10:00.000Z',
+        status: 'failed',
+        queuedCount: 0,
+        processingCount: 0,
+        completedCount: 0,
+        failedCount: 1,
+      },
+      {
+        id: 'batch-completed',
+        channel: 'claude',
+        annotationIds: ['note-2'],
+        releasedAt: '2026-04-23T13:20:00.000Z',
+        status: 'completed',
+        queuedCount: 0,
+        processingCount: 0,
+        completedCount: 1,
+        failedCount: 0,
+      },
+    ];
+
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    render(html`<ds-sidebar></ds-sidebar>`, host);
+
+    const sidebar = host.querySelector('ds-sidebar') as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await sidebar.updateComplete;
+
+    const workflowPanel = sidebar.shadowRoot.querySelector(
+      'ds-workflow-panel',
+    ) as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await workflowPanel.updateComplete;
+
+    const workflowText =
+      workflowPanel.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+
+    expect(workflowText).toContain(
+      'Batch nicht erfolgreich. Fehler pruefen und bewusst erneut starten.',
+    );
+    expect(workflowText).toContain('Ohne offene Nacharbeit abgeschlossen.');
   });
 
   it('renders a guided inspector state for empty and selected elements', async () => {

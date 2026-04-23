@@ -512,6 +512,62 @@ export class DsWorkflowPanel extends LitElement {
     return null;
   }
 
+  private getBatchHistoryNote(batch: {
+    status: string;
+    failedCount: number;
+  }) {
+    if (batch.status === 'failed') {
+      return 'Batch nicht erfolgreich. Fehler pruefen und bewusst erneut starten.';
+    }
+
+    if (batch.status === 'mixed') {
+      return 'Teilerfolg. Offene Fehler und verbleibende Aufgaben nachziehen.';
+    }
+
+    if (batch.status === 'completed') {
+      return 'Ohne offene Nacharbeit abgeschlossen.';
+    }
+
+    if (batch.status === 'running') {
+      return 'Verarbeitung laeuft aktuell.';
+    }
+
+    if (batch.status === 'queued') {
+      return 'Bereit zur bewussten Freigabe.';
+    }
+
+    return null;
+  }
+
+  private getAttentionSummary(
+    batches: Array<{
+      status: string;
+      failedCount: number;
+    }>,
+  ): { title: string; copy: string } | null {
+    const needsAttention = batches.filter(
+      (batch) => batch.status === 'failed' || batch.status === 'mixed',
+    );
+
+    if (needsAttention.length === 0) {
+      return null;
+    }
+
+    const failedTasks = needsAttention.reduce(
+      (sum, batch) => sum + batch.failedCount,
+      0,
+    );
+
+    return {
+      title: 'Nacharbeit im Blick',
+      copy: `${failedTasks} Aufgabe${failedTasks === 1 ? '' : 'n'} aus den letzten ${
+        needsAttention.length
+      } Batch${needsAttention.length === 1 ? '' : 'es'} ${
+        failedTasks === 1 ? 'braucht' : 'brauchen'
+      } Nacharbeit oder erneuten Versand.`,
+    };
+  }
+
   private getContinuationLabel(continuation: 'automatic' | 'confirm' | 'manual') {
     if (continuation === 'automatic') return 'Automatisch';
     if (continuation === 'confirm') return 'Mit Freigabe';
@@ -654,6 +710,7 @@ export class DsWorkflowPanel extends LitElement {
     const latestBatchFollowUp = latestBatch
       ? this.getBatchFollowUp(latestBatch)
       : null;
+    const attentionSummary = this.getAttentionSummary(dispatchBatches.slice(0, 3));
     const nextFlowNote = this.getNextFlowNote(effective, analysis);
 
     return html`
@@ -884,6 +941,14 @@ export class DsWorkflowPanel extends LitElement {
                       : nothing}
                   </div>
                 </div>
+                ${attentionSummary
+                  ? html`
+                      <div class="flow-note">
+                        <div class="flow-note-title">${attentionSummary.title}</div>
+                        <div class="flow-note-copy">${attentionSummary.copy}</div>
+                      </div>
+                    `
+                  : nothing}
                 <div class="eyebrow">Letzte Batches</div>
                 <div class="batch-list">
                   ${dispatchBatches.slice(0, 3).map(
@@ -917,6 +982,13 @@ export class DsWorkflowPanel extends LitElement {
                             ? html`<span>${batch.failedCount} Fehler</span>`
                             : nothing}
                         </div>
+                        ${this.getBatchHistoryNote(batch)
+                          ? html`
+                              <div class="status-note">
+                                ${this.getBatchHistoryNote(batch)}
+                              </div>
+                            `
+                          : nothing}
                       </div>
                     `,
                   )}

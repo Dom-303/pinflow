@@ -42,6 +42,28 @@ export default defineConfig({
     minify: true,
   },
   resolve: {
-    preserveSymlinks: true,
+    preserveSymlinks: false,
+  },
+  esbuild: {
+    tsconfigRaw: {
+      compilerOptions: {
+        experimentalDecorators: true,
+        useDefineForClassFields: false,
+      },
+    },
+  },
+  optimizeDeps: {
+    exclude: [
+      '@pinflow/core',
+      '@pinflow/runtime',
+      '@pinflow/react',
+      '@pinflow/relay',
+      '@pinflow/manifest',
+      '@pinflow/overlay',
+      'lit',
+      'lit-html',
+      'lit/decorators.js',
+      '@lit/reactive-element',
+    ],
   },
 });

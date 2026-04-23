@@ -155,6 +155,9 @@ function ensureNpmrc(
  * 2. **node_modules/@pinflow** and **node_modules/@pinflow** — force a
  *    fresh fetch of the canonical and legacy scopes rather than reusing
  *    cached copies.
+ * 3. **node_modules/.vite** — Vite prebundles workspace packages into
+ *    optimized deps. When PinFlow package internals change without a
+ *    package version bump, that cache can keep serving stale overlay code.
  */
 function purgeStaleArtifacts(fixturePath: string): void {
   const lockPath = join(fixturePath, 'package-lock.json');
@@ -167,6 +170,11 @@ function purgeStaleArtifacts(fixturePath: string): void {
     if (existsSync(scopeDir)) {
       rmSync(scopeDir, { recursive: true });
     }
+  }
+
+  const viteCacheDir = join(fixturePath, 'node_modules', '.vite');
+  if (existsSync(viteCacheDir)) {
+    rmSync(viteCacheDir, { recursive: true });
   }
 }
 

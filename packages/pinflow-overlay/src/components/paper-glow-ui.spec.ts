@@ -240,6 +240,70 @@ describe('Paper Glow UI contract', () => {
     expect(submitButton.disabled).toBe(false);
   });
 
+  it('renders composer feedback after submit success and failure', async () => {
+    mockState.relayConnected = true;
+    mockState.selectedElement = document.createElement('button');
+
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+
+    render(html`<ds-annotation-input></ds-annotation-input>`, host);
+
+    const input = host.querySelector('ds-annotation-input') as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await input.updateComplete;
+
+    const textarea = input.shadowRoot.querySelector(
+      'textarea',
+    ) as HTMLTextAreaElement;
+    let submitButton = input.shadowRoot.querySelector(
+      'button[aria-label="Anmerkung senden"]',
+    ) as HTMLButtonElement;
+
+    textarea.value = 'Headline praeziser machen';
+    textarea.dispatchEvent(new Event('input'));
+    await input.updateComplete;
+
+    submitButton.click();
+    await Promise.resolve();
+    await input.updateComplete;
+
+    let inputText = input.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+    expect(inputText).toContain('Im Flow');
+    expect(inputText).toContain(
+      'Dein Auftrag wurde uebergeben und taucht jetzt im Arbeitsverlauf auf.',
+    );
+    submitButton = input.shadowRoot.querySelector(
+      'button[aria-label="Anmerkung senden"]',
+    ) as HTMLButtonElement;
+    expect(submitButton.textContent).toContain('Uebergeben');
+
+    mockStore.submitAnnotation.mockRejectedValueOnce(new Error('boom'));
+    textarea.value = 'CTA nachschaerfen';
+    textarea.dispatchEvent(new Event('input'));
+    await input.updateComplete;
+
+    submitButton = input.shadowRoot.querySelector(
+      'button[aria-label="Anmerkung senden"]',
+    ) as HTMLButtonElement;
+    submitButton.click();
+    await Promise.resolve();
+    await input.updateComplete;
+
+    inputText = input.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+    expect(inputText).toContain('Senden fehlgeschlagen');
+    expect(inputText).toContain(
+      'Der Auftrag konnte gerade nicht uebergeben werden. Pruefe Relay und versuche es erneut.',
+    );
+    submitButton = input.shadowRoot.querySelector(
+      'button[aria-label="Anmerkung senden"]',
+    ) as HTMLButtonElement;
+    expect(submitButton.textContent).toContain('Erneut versuchen');
+  });
+
   it('renders the collapsed launcher with theme-aware PinFlow assets', async () => {
     mockState.mode = 'collapsed';
     mockState.theme = 'dark';

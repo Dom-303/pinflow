@@ -26,6 +26,9 @@ export class DsAnnotationInput extends LitElement {
   @state()
   private isSubmitting = false;
 
+  @state()
+  private submitState: 'idle' | 'success' | 'error' = 'idle';
+
   static override styles = [
     themeStyles,
     utilityStyles,
@@ -253,6 +256,9 @@ export class DsAnnotationInput extends LitElement {
   private handleInput(event: Event) {
     const textarea = event.target as HTMLTextAreaElement;
     this.inputValue = textarea.value;
+    if (this.submitState !== 'idle') {
+      this.submitState = 'idle';
+    }
 
     // Auto-resize
     textarea.style.height = 'auto';
@@ -267,6 +273,9 @@ export class DsAnnotationInput extends LitElement {
   }
 
   private handleCapture() {
+    if (this.submitState !== 'idle') {
+      this.submitState = 'idle';
+    }
     const eventManager = EventManager.getInstance();
     eventManager.enableCapture();
     this.storeController.store.enterCaptureMode();
@@ -284,6 +293,7 @@ export class DsAnnotationInput extends LitElement {
     try {
       await this.storeController.store.submitAnnotation(this.inputValue.trim());
       this.inputValue = '';
+      this.submitState = 'success';
 
       // Reset textarea height
       const textarea = this.shadowRoot?.querySelector('textarea');
@@ -291,6 +301,7 @@ export class DsAnnotationInput extends LitElement {
         textarea.style.height = 'auto';
       }
     } catch (error) {
+      this.submitState = 'error';
       console.error('[pinflow] Failed to submit annotation:', error);
     } finally {
       this.isSubmitting = false;
@@ -320,6 +331,26 @@ export class DsAnnotationInput extends LitElement {
           'Verbinde PinFlow zuerst mit dem Relay, damit neue Aufgaben direkt in deinen Flow gehen koennen.',
         submitLabel: 'Wartet auf Relay',
         hint: 'Sobald Relay verbunden ist, kannst du direkt aus dem Overlay senden.',
+      };
+    }
+
+    if (this.submitState === 'success') {
+      return {
+        badge: 'Im Flow',
+        active: true,
+        copy: 'Dein Auftrag wurde uebergeben und taucht jetzt im Arbeitsverlauf auf.',
+        submitLabel: 'Uebergeben',
+        hint: 'Du kannst direkt die naechste Aenderung formulieren oder ein neues Element markieren.',
+      };
+    }
+
+    if (this.submitState === 'error') {
+      return {
+        badge: 'Senden fehlgeschlagen',
+        active: false,
+        copy: 'Der Auftrag konnte gerade nicht uebergeben werden. Pruefe Relay und versuche es erneut.',
+        submitLabel: 'Erneut versuchen',
+        hint: 'Dein Text bleibt erhalten, damit du ihn direkt noch einmal senden kannst.',
       };
     }
 

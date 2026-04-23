@@ -246,6 +246,14 @@ function HomeIntro() {
             Agenten-Flow liegt rechts und wird ueber den Launcher geoeffnet.
           </p>
         </article>
+        <article className="preview-rail-card preview-rail-card-accent">
+          <span className="preview-rail-label">Naechster Schritt</span>
+          <strong>Launcher oeffnen</strong>
+          <p>
+            Nutze das halb sichtbare PinFlow-Logo am rechten Rand, um direkt in
+            Kommentare, Queue und Versand zu springen.
+          </p>
+        </article>
       </section>
 
       <article className="preview-home-hero">
@@ -263,12 +271,18 @@ function HomeIntro() {
             src={pinflowWordmarkSloganLight}
             alt="PinFlow - Pin it. Flow it. Ship it."
           />
+          <h1 className="preview-home-title">Vorschau links. Workflow rechts.</h1>
           <h1 className="page-title">PinFlow</h1>
           <p className="page-description">
             Vorschau fuer reale UI-Muster links, eigentliche Arbeitsflaeche
             rechts. So bleibt Test-Coverage sichtbar, ohne den Produktbereich
             zu verwischen.
           </p>
+          <div className="preview-home-actions" aria-label="Schnellstart">
+            <span>UI-Muster pruefen</span>
+            <span>Launcher oeffnen</span>
+            <span>Queue testen</span>
+          </div>
           <div className="preview-callout">
             <strong>Wichtig:</strong> Die eigentliche PinFlow-Arbeitsflaeche
             liegt rechts. Klicke auf das halb sichtbare PinFlow-Logo am rechten
@@ -276,6 +290,42 @@ function HomeIntro() {
           </div>
         </div>
       </article>
+
+      <section className="preview-home-section preview-home-section-flow">
+        <div className="preview-home-section-head">
+          <h2>So nutzt du diese Vorschau</h2>
+          <p>
+            Die Vorschau bleibt absichtlich technisch aussagekraeftig, aber der
+            eigentliche Produktfluss ist klar in drei Schritten organisiert.
+          </p>
+        </div>
+        <div className="preview-home-flow">
+          <article>
+            <span className="preview-flow-step">1</span>
+            <strong>Canvas pruefen</strong>
+            <p>
+              Navigiere links durch echte React-Muster und markiere die Stelle,
+              an der du eine Aenderung oder Rueckmeldung brauchst.
+            </p>
+          </article>
+          <article>
+            <span className="preview-flow-step">2</span>
+            <strong>Workspace oeffnen</strong>
+            <p>
+              Oeffne rechts den PinFlow-Arbeitsbereich, um Kontext, Kommentar
+              und Versandmodus fuer die gewaehlte Stelle zu steuern.
+            </p>
+          </article>
+          <article>
+            <span className="preview-flow-step">3</span>
+            <strong>Flow ausloesen</strong>
+            <p>
+              Entscheide, ob du sammelst, sofort versendest oder die Queue den
+              naechsten Batch automatisch weiterzieht.
+            </p>
+          </article>
+        </div>
+      </section>
 
       <section className="preview-home-section">
         <div className="preview-home-section-head">

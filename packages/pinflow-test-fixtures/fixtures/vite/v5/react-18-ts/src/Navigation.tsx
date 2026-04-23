@@ -110,9 +110,10 @@ export function Navigation({ activeItem, onNavigate }: NavigationProps) {
             <img className="sidebar-logo-icon" src={pinflowIcon} alt="" />
           </span>
           <div className="sidebar-brand-copy">
+            <span className="sidebar-brand-tag">Vorschau-Canvas</span>
             <span className="sidebar-logo-text">PinFlow Vorschau</span>
             <span className="sidebar-logo-subtext">
-              React-Demo fuer Auswahl, Mapping und Annotationen
+              React-Canvas fuer Auswahl, Mapping und Annotationen
             </span>
           </div>
         </div>

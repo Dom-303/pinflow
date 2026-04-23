@@ -49,12 +49,13 @@ export class DsContextPanel extends LitElement {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 2px 2px 4px;
-        border-radius: var(--ds-radius-sm);
+        padding: 6px 8px;
+        border-radius: 10px;
         cursor: pointer;
         transition:
           color var(--ds-transition-fast),
-          background var(--ds-transition-fast);
+          background var(--ds-transition-fast),
+          border-color var(--ds-transition-fast);
       }
 
       .section-header:hover {
@@ -76,7 +77,7 @@ export class DsContextPanel extends LitElement {
         font-size: var(--ds-font-size-xs);
         color: var(--ds-text-tertiary);
         background: var(--ds-pill-surface);
-        border: 1px solid var(--ds-shell-border-muted);
+        border: 1px solid var(--ds-pill-border);
         padding: 1px 7px;
         border-radius: var(--ds-radius-full);
       }
@@ -108,9 +109,10 @@ export class DsContextPanel extends LitElement {
         gap: var(--ds-space-sm);
         align-items: start;
         padding: 7px 10px;
-        background: var(--ds-panel-surface-muted);
-        border: 1px solid var(--ds-panel-border);
+        background: var(--ds-card-surface);
+        border: 1px solid var(--ds-panel-border-strong);
         border-radius: 10px;
+        box-shadow: var(--ds-shadow-sm);
         font-size: var(--ds-font-size-xs);
       }
 

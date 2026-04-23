@@ -159,6 +159,30 @@ export class DsElementPreview extends LitElement {
         min-width: 0;
       }
 
+      .context-summary {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .context-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 9px;
+        background: var(--ds-pill-surface);
+        border: 1px solid var(--ds-pill-border);
+        border-radius: var(--ds-radius-full);
+        color: var(--ds-text-secondary);
+        font-size: var(--ds-font-size-xs);
+        box-shadow: var(--ds-shadow-sm);
+      }
+
+      .context-pill strong {
+        color: var(--ds-text-primary);
+        font-weight: var(--ds-font-weight-semibold);
+      }
+
       .source-label {
         font-size: var(--ds-font-size-xs);
         color: var(--ds-text-tertiary);
@@ -195,9 +219,36 @@ export class DsElementPreview extends LitElement {
       }
 
       .empty-state {
-        padding: 14px;
-        font-size: var(--ds-font-size-sm);
+        position: relative;
+        display: grid;
+        gap: 10px;
+        padding: 16px;
+        background: var(--ds-empty-surface);
+        border: 1px solid var(--ds-empty-border);
+        border-radius: calc(var(--ds-radius-lg) + 2px);
+        box-shadow: var(--ds-shadow-md);
         color: var(--ds-text-secondary);
+      }
+
+      .empty-icon {
+        width: 34px;
+        height: 34px;
+        color: var(--ds-text-tertiary);
+        opacity: 0.72;
+      }
+
+      .empty-title {
+        margin: 0;
+        font-size: var(--ds-font-size-md);
+        font-weight: var(--ds-font-weight-semibold);
+        color: var(--ds-text-primary);
+        letter-spacing: -0.02em;
+      }
+
+      .empty-copy {
+        margin: 0;
+        font-size: var(--ds-font-size-sm);
+        line-height: 1.55;
       }
     `,
   ];
@@ -265,7 +316,50 @@ export class DsElementPreview extends LitElement {
       this.storeController.state;
 
     if (!selectedElement) {
-      return html`<div class="empty-state">Kein Element ausgewaehlt</div>`;
+      return html`
+        <div class="empty-state">
+          <svg
+            class="empty-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M8.5 5.75h7a1.75 1.75 0 0 1 1.75 1.75v7"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="m6 18 4.2-4.2a1.5 1.5 0 0 1 2.12 0L14 15.5"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="m12.5 12.5 1.18-1.18a1.5 1.5 0 0 1 2.12 0L18 13.5"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M6.25 4.5h11.5A1.75 1.75 0 0 1 19.5 6.25v11.5a1.75 1.75 0 0 1-1.75 1.75H6.25A1.75 1.75 0 0 1 4.5 17.75V6.25A1.75 1.75 0 0 1 6.25 4.5Z"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linejoin="round"
+            />
+            <circle cx="9" cy="9" r="1.25" fill="currentColor" />
+          </svg>
+          <p class="empty-title">Noch kein Element ausgewaehlt</p>
+          <p class="empty-copy">
+            Markiere rechts ein Element, um Quelle, Eigenschaften und Status zu
+            sehen.
+          </p>
+        </div>
+      `;
     }
 
     const tagName = selectedElement.tagName.toLowerCase();
@@ -279,6 +373,8 @@ export class DsElementPreview extends LitElement {
       string,
       unknown
     >;
+    const propsCount = Object.keys(props).length;
+    const stateCount = Object.keys(state).length;
 
     // Format source location - compact display with full path on hover
     const fullSourcePath = manifestEntry
@@ -306,6 +402,25 @@ export class DsElementPreview extends LitElement {
                     <span class="source-location" title="${sourcePath.full}"
                       >${sourcePath.display}</span
                     >
+                  </div>
+                `
+              : null}
+            ${(propsCount || stateCount)
+              ? html`
+                  <div class="context-summary">
+                    ${propsCount
+                      ? html`<span class="context-pill"
+                          ><strong>${propsCount}</strong> Eigenschaften</span
+                        >`
+                      : null}
+                    ${stateCount
+                      ? html`<span class="context-pill"
+                          ><strong>${stateCount}</strong>
+                          ${stateCount === 1
+                            ? 'Statusfeld'
+                            : 'Statusfelder'}</span
+                        >`
+                      : null}
                   </div>
                 `
               : null}

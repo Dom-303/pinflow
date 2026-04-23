@@ -9,6 +9,7 @@ const mockStore = {
   setMode: vi.fn(),
   setTheme: vi.fn(),
   toggleTheme: vi.fn(),
+  clearSelection: vi.fn(),
   setDispatchSessionOverrides: vi.fn(),
   updateDispatchProjectDefaults: vi.fn(),
   clearDispatchSessionOverrides: vi.fn(),
@@ -35,6 +36,17 @@ const mockState = {
   mode: 'expanded',
   theme: 'light' as const,
   tabOffsetY: 50,
+  runtimeContext: null as null | {
+    componentProps?: Record<string, unknown>;
+    componentState?: Record<string, unknown>;
+  },
+  manifestEntry: null as
+    | null
+    | {
+        id: string;
+        file: string;
+        start: { line: number | null; column: number | null };
+      },
   dispatchProjectDefaults: {
     channel: 'codex' as const,
     mode: 'manual' as const,
@@ -71,6 +83,7 @@ vi.mock('../core/event-manager.js', () => ({
 import './ds-header.js';
 import './ds-sidebar.js';
 import './ds-annotation-input.js';
+import './ds-element-preview.js';
 import './ds-tab.js';
 import './ds-session-settings.js';
 
@@ -83,6 +96,8 @@ describe('Paper Glow UI contract', () => {
     mockState.relayConnected = false;
     mockState.mode = 'expanded';
     mockState.theme = 'light';
+    mockState.runtimeContext = null;
+    mockState.manifestEntry = null;
     mockState.dispatchProjectDefaults = {
       channel: 'codex',
       mode: 'manual',
@@ -309,6 +324,55 @@ describe('Paper Glow UI contract', () => {
     expect(settingsText).toContain('Session folgt Projektstandard');
     expect(settingsText).toContain('Parallelitaet');
     expect(settingsText).toContain('Automatik-Schwelle');
+  });
+
+  it('renders a guided inspector state for empty and selected elements', async () => {
+    mockState.theme = 'dark';
+
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    render(html`<ds-element-preview></ds-element-preview>`, host);
+
+    const preview = host.querySelector('ds-element-preview') as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await preview.updateComplete;
+
+    let previewText = preview.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+    expect(previewText).toContain('Noch kein Element ausgewaehlt');
+    expect(previewText).toContain(
+      'Markiere rechts ein Element, um Quelle, Eigenschaften und Status zu sehen.',
+    );
+
+    mockState.selectedElement = document.createElement('button');
+    mockState.runtimeContext = {
+      componentProps: { variant: 'primary', disabled: false },
+      componentState: { busy: true },
+    };
+    mockState.manifestEntry = {
+      id: 'entry1234',
+      file: 'src/components/PrimaryButton.tsx',
+      start: { line: 42, column: 3 },
+    };
+
+    preview.requestUpdate();
+    await preview.updateComplete;
+
+    previewText = preview.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+    expect(previewText).toContain('Auswahl');
+    expect(previewText).toContain('<button>');
+    expect(previewText).toContain('Quelle');
+    expect(previewText).toContain('PrimaryButton.tsx:42');
+    expect(previewText).toContain('2 Eigenschaften');
+    expect(previewText).toContain('1 Statusfeld');
+
+    const dismissButton = preview.shadowRoot.querySelector(
+      'button[aria-label="Elementauswahl aufheben"]',
+    ) as HTMLButtonElement;
+    dismissButton.click();
+    expect(mockStore.clearSelection).toHaveBeenCalledTimes(1);
   });
 
   it('renders calm empty states in dark mode when no session items exist', async () => {

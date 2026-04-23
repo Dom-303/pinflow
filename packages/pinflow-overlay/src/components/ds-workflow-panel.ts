@@ -45,7 +45,7 @@ export class DsWorkflowPanel extends LitElement {
 
       .title-group {
         display: grid;
-        gap: 2px;
+        gap: 4px;
       }
 
       .eyebrow {
@@ -60,6 +60,13 @@ export class DsWorkflowPanel extends LitElement {
         font-size: 14px;
         font-weight: var(--ds-font-weight-semibold);
         color: var(--ds-text-primary);
+      }
+
+      .panel-copy {
+        color: var(--ds-text-secondary);
+        font-size: var(--ds-font-size-xs);
+        line-height: 1.45;
+        max-width: 240px;
       }
 
       .settings-btn {
@@ -81,6 +88,40 @@ export class DsWorkflowPanel extends LitElement {
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
+      }
+
+      .status-overview {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .status-card {
+        display: grid;
+        gap: 4px;
+        padding: 10px;
+        border-radius: 14px;
+        border: 1px solid var(--ds-panel-border);
+        background: var(--ds-card-surface);
+        box-shadow: var(--ds-shadow-sm);
+      }
+
+      .status-label {
+        color: var(--ds-text-tertiary);
+        font-size: var(--ds-font-size-xs);
+        letter-spacing: 0.02em;
+      }
+
+      .status-value {
+        color: var(--ds-text-primary);
+        font-size: var(--ds-font-size-sm);
+        font-weight: var(--ds-font-weight-semibold);
+      }
+
+      .status-note {
+        color: var(--ds-text-secondary);
+        font-size: var(--ds-font-size-xs);
+        line-height: 1.4;
       }
 
       .channel-btn,
@@ -215,6 +256,23 @@ export class DsWorkflowPanel extends LitElement {
         font-size: var(--ds-font-size-xs);
       }
 
+      .batch-status[data-status='running'] {
+        color: var(--ds-text-primary);
+        border-color: rgba(199, 149, 100, 0.4);
+      }
+
+      .batch-status[data-status='completed'] {
+        color: var(--ds-success);
+      }
+
+      .batch-status[data-status='failed'] {
+        color: var(--ds-error);
+      }
+
+      .batch-status[data-status='queued'] {
+        color: var(--ds-warning);
+      }
+
       .batch-meta {
         display: flex;
         flex-wrap: wrap;
@@ -255,6 +313,30 @@ export class DsWorkflowPanel extends LitElement {
     this.storeController.store.clearDispatchSessionOverrides();
   }
 
+  private getChannelLabel(channel: DispatchChannel) {
+    return channel === 'queue_only'
+      ? 'Nur sammeln'
+      : channel === 'claude'
+        ? 'Claude'
+        : 'Codex';
+  }
+
+  private getModeLabel(mode: DispatchMode) {
+    return mode === 'immediate'
+      ? 'Sofort'
+      : mode === 'threshold'
+        ? 'Ab Schwelle'
+        : 'Manuell';
+  }
+
+  private getBatchStatusLabel(status: string) {
+    if (status === 'running') return 'Laeuft';
+    if (status === 'completed') return 'Fertig';
+    if (status === 'failed') return 'Fehler';
+    if (status === 'queued') return 'Bereit';
+    return status;
+  }
+
   override render() {
     const { annotations, dispatchProjectDefaults, dispatchSession, dispatchBatches } =
       this.storeController.state;
@@ -276,6 +358,15 @@ export class DsWorkflowPanel extends LitElement {
     const nextActionDisabled =
       analysis.awaitingConfirmationIds.length === 0 &&
       analysis.releasableIds.length === 0;
+    const activeStatus = effective.paused
+      ? 'Queue pausiert'
+      : analysis.awaitingConfirmationIds.length > 0
+        ? 'Wartet auf Freigabe'
+        : analysis.inFlightIds.length > 0
+          ? 'Bearbeitet Aufgaben'
+          : summary.waiting > 0
+            ? 'Bereit fuer den naechsten Versand'
+            : 'Keine offenen Aufgaben';
 
     return html`
       <div class="panel">
@@ -283,6 +374,10 @@ export class DsWorkflowPanel extends LitElement {
           <div class="title-group">
             <div class="eyebrow">Workflow</div>
             <div class="title">Queue und Versand</div>
+            <div class="panel-copy">
+              Waehle den aktiven Kanal, beobachte den Live-Status und gib
+              Batches kontrolliert frei.
+            </div>
           </div>
           <button
             class="settings-btn"
@@ -328,10 +423,43 @@ export class DsWorkflowPanel extends LitElement {
           )}
         </div>
 
+        <div class="status-overview">
+          <div class="status-card">
+            <div class="status-label">Aktiver Kanal</div>
+            <div class="status-value">${this.getChannelLabel(effective.channel)}</div>
+            <div class="status-note">
+              Session-weit aktiv fuer neue Annotationen und den naechsten Batch.
+            </div>
+          </div>
+          <div class="status-card">
+            <div class="status-label">Versandmodus</div>
+            <div class="status-value">${this.getModeLabel(effective.mode)}</div>
+            <div class="status-note">
+              ${effective.mode === 'threshold'
+                ? `Automatisch ab ${effective.threshold} offenen Aufgaben.`
+                : effective.mode === 'immediate'
+                  ? 'Neue Aufgaben werden direkt in die Queue gegeben.'
+                  : 'Neue Aufgaben bleiben gesammelt, bis du freigibst.'}
+            </div>
+          </div>
+          <div class="status-card">
+            <div class="status-label">Live-Status</div>
+            <div class="status-value">${activeStatus}</div>
+            <div class="status-note">
+              ${effective.concurrency} parallel, Fortsetzung ${effective.continuation ===
+              'automatic'
+                ? 'automatisch'
+                : effective.continuation === 'confirm'
+                  ? 'mit Freigabe'
+                  : 'manuell'}
+            </div>
+          </div>
+        </div>
+
         <div class="summary">
-          <span class="summary-pill"><strong>${summary.waiting}</strong> Wartend</span>
-          <span class="summary-pill"><strong>${summary.active}</strong> Aktiv</span>
-          <span class="summary-pill"><strong>${summary.completed}</strong> Fertig</span>
+          <span class="summary-pill"><strong>${summary.waiting}</strong> Bereit</span>
+          <span class="summary-pill"><strong>${summary.active}</strong> In Arbeit</span>
+          <span class="summary-pill"><strong>${summary.completed}</strong> Erledigt</span>
           ${analysis.awaitingConfirmationIds.length
             ? html`<span class="summary-pill"
                 ><strong>${analysis.awaitingConfirmationIds.length}</strong>
@@ -395,8 +523,15 @@ export class DsWorkflowPanel extends LitElement {
                     (batch) => html`
                       <div class="batch-item">
                         <div class="batch-row">
-                          <div class="batch-channel">${batch.channel}</div>
-                          <div class="batch-status">${batch.status}</div>
+                          <div class="batch-channel">
+                            ${this.getChannelLabel(batch.channel as DispatchChannel)}
+                          </div>
+                          <div
+                            class="batch-status"
+                            data-status=${batch.status}
+                          >
+                            ${this.getBatchStatusLabel(batch.status)}
+                          </div>
                         </div>
                         <div class="batch-meta">
                           <span>${batch.annotationIds.length} Aufgaben</span>

@@ -210,9 +210,15 @@ describe('Paper Glow UI contract', () => {
     expect(sidebar.shadowRoot.querySelector('.status-dot.connected')).not.toBeNull();
     expect(sidebar.shadowRoot.querySelector('ds-annotation-input')).not.toBeNull();
     expect(workflowPanel.shadowRoot.textContent).toContain('Queue und Versand');
+    expect(workflowPanel.shadowRoot.textContent).toContain(
+      'Aktiver Kanal',
+    );
+    expect(workflowPanel.shadowRoot.textContent).toContain(
+      'Versandmodus',
+    );
     expect(workflowPanel.shadowRoot.textContent).toContain('Codex');
     expect(workflowPanel.shadowRoot.textContent).toContain('Letzte Batches');
-    expect(workflowPanel.shadowRoot.textContent).toContain('running');
+    expect(workflowPanel.shadowRoot.textContent).toContain('Laeuft');
 
     const darkToggle = sidebar.shadowRoot.querySelector(
       'button[aria-label="Dunkelmodus aktivieren"]',

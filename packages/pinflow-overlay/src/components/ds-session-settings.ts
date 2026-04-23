@@ -43,6 +43,12 @@ export class DsSessionSettings extends LitElement {
         text-transform: uppercase;
       }
 
+      .section-copy {
+        color: var(--ds-text-tertiary);
+        font-size: var(--ds-font-size-xs);
+        line-height: 1.45;
+      }
+
       .grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -153,6 +159,10 @@ export class DsSessionSettings extends LitElement {
     return html`
       <div class="section">
         <div class="section-title">Projektstandard</div>
+        <div class="section-copy">
+          Diese Werte gelten fuer das Projekt, solange du sie nicht aktiv
+          aenderst.
+        </div>
         <div class="grid">
           <label>
             Versand
@@ -167,7 +177,7 @@ export class DsSessionSettings extends LitElement {
           </label>
 
           <label>
-            Parallel
+            Parallelitaet
             <select
               .value=${String(this.projectDefaults.concurrency)}
               @change=${this.handleProjectConcurrencyChange}
@@ -180,7 +190,7 @@ export class DsSessionSettings extends LitElement {
           </label>
 
           <label>
-            Schwelle
+            Automatik-Schwelle
             <select
               .value=${String(this.projectDefaults.threshold)}
               @change=${this.handleProjectThresholdChange}
@@ -216,7 +226,7 @@ export class DsSessionSettings extends LitElement {
         ${hasSessionOverrides
           ? html`
               <button class="reset-btn" @click=${this.handleResetSession}>
-                Session-Override zuruecksetzen
+                Session-Overrides zuruecksetzen
               </button>
             `
           : null}

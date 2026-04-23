@@ -326,6 +326,10 @@ describe('Paper Glow UI contract', () => {
     expect(inputText).toContain(
       'Dein Auftrag wurde uebergeben und taucht jetzt im Arbeitsverlauf auf.',
     );
+    expect(inputText).toContain('Naechster Schritt');
+    expect(inputText).toContain(
+      'Direkt die naechste Aenderung schreiben oder ein neues Element markieren.',
+    );
     submitButton = input.shadowRoot.querySelector(
       'button[aria-label="Anmerkung senden"]',
     ) as HTMLButtonElement;
@@ -348,10 +352,15 @@ describe('Paper Glow UI contract', () => {
     expect(inputText).toContain(
       'Der Auftrag konnte gerade nicht uebergeben werden. Pruefe Relay und versuche es erneut.',
     );
+    expect(inputText).toContain('Naechster Schritt');
+    expect(inputText).toContain(
+      'Relay pruefen oder den Auftrag direkt erneut uebergeben.',
+    );
     submitButton = input.shadowRoot.querySelector(
       'button[aria-label="Anmerkung senden"]',
     ) as HTMLButtonElement;
     expect(submitButton.textContent).toContain('Erneut versuchen');
+    expect(submitButton.disabled).toBe(false);
   });
 
   it('renders the collapsed launcher with theme-aware PinFlow assets', async () => {

@@ -109,6 +109,29 @@ export class DsAnnotationInput extends LitElement {
         line-height: 1.45;
       }
 
+      .composer-note {
+        display: grid;
+        gap: 4px;
+        margin-top: var(--ds-space-xs);
+        padding: 10px 12px;
+        border-radius: 14px;
+        border: 1px solid var(--ds-empty-border);
+        background: var(--ds-empty-surface);
+        box-shadow: var(--ds-panel-shadow-soft);
+      }
+
+      .composer-note-title {
+        color: var(--ds-text-primary);
+        font-size: var(--ds-font-size-sm);
+        font-weight: var(--ds-font-weight-semibold);
+      }
+
+      .composer-note-copy {
+        color: var(--ds-text-secondary);
+        font-size: var(--ds-font-size-xs);
+        line-height: 1.45;
+      }
+
       .input-wrapper:focus-within {
         border-color: var(--ds-brand-primary);
         box-shadow: var(--ds-highlight-glow);
@@ -397,6 +420,24 @@ export class DsAnnotationInput extends LitElement {
     };
   }
 
+  private getComposerNote() {
+    if (this.submitState === 'success') {
+      return {
+        title: 'Naechster Schritt',
+        copy: 'Direkt die naechste Aenderung schreiben oder ein neues Element markieren.',
+      };
+    }
+
+    if (this.submitState === 'error') {
+      return {
+        title: 'Naechster Schritt',
+        copy: 'Relay pruefen oder den Auftrag direkt erneut uebergeben.',
+      };
+    }
+
+    return null;
+  }
+
   override render() {
     const { selectedElement, relayConnected, mode } =
       this.storeController.state;
@@ -422,6 +463,7 @@ export class DsAnnotationInput extends LitElement {
       hasInput,
       isCapturing,
     );
+    const composerNote = this.getComposerNote();
 
     return html`
       <div class="input-wrapper">
@@ -433,6 +475,14 @@ export class DsAnnotationInput extends LitElement {
             >
           </div>
           <p class="composer-copy">${composerState.copy}</p>
+          ${composerNote
+            ? html`
+                <div class="composer-note">
+                  <div class="composer-note-title">${composerNote.title}</div>
+                  <div class="composer-note-copy">${composerNote.copy}</div>
+                </div>
+              `
+            : null}
         </div>
 
         <div class="textarea-container ${isDisabled ? 'disabled' : ''}">

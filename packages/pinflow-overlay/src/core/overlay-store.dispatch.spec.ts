@@ -181,6 +181,50 @@ describe('OverlayStore dispatch progression', () => {
     expect(store.getState().dispatchBatches).toEqual([]);
   });
 
+  it('stages the next confirmation batch after a confirmed batch completes', () => {
+    const store = OverlayStore.getInstance();
+
+    store.updateDispatchProjectDefaults({
+      mode: 'threshold',
+      threshold: 2,
+      continuation: 'confirm',
+      concurrency: 1,
+    });
+
+    store.setAnnotations([
+      annotation('ann-1', 'queued'),
+      annotation('ann-2', 'queued'),
+    ]);
+
+    expect(store.getState().dispatchSession.awaitingConfirmationIds).toEqual([
+      'ann-1',
+    ]);
+
+    expect(store.releaseNextDispatchBatch()).toEqual(['ann-1']);
+    expect(store.getState().dispatchSession.releasedAnnotationIds).toEqual([
+      'ann-1',
+    ]);
+
+    store.setAnnotations([
+      annotation('ann-1', 'processing'),
+      annotation('ann-2', 'queued'),
+      annotation('ann-3', 'queued'),
+    ]);
+
+    expect(store.getState().dispatchSession.awaitingConfirmationIds).toEqual([]);
+
+    store.setAnnotations([
+      annotation('ann-1', 'processed'),
+      annotation('ann-2', 'queued'),
+      annotation('ann-3', 'queued'),
+    ]);
+
+    expect(store.getState().dispatchSession.awaitingConfirmationIds).toEqual([
+      'ann-2',
+    ]);
+    expect(store.getState().dispatchSession.flowActive).toBe(true);
+  });
+
   it('records released batches and keeps their progress in sync with annotations', () => {
     const store = OverlayStore.getInstance();
 

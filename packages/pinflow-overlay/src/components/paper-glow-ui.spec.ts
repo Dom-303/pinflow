@@ -473,4 +473,59 @@ describe('Paper Glow UI contract', () => {
     expect(workflowText).toContain('Queue pausiert');
     expect(releaseButton.disabled).toBe(true);
   });
+
+  it('renders guided confirmation flow states when a batch awaits approval', async () => {
+    mockState.annotations = [
+      { id: 'note-1', metadata: { id: 'note-1', status: 'queued' } },
+      { id: 'note-2', metadata: { id: 'note-2', status: 'queued' } },
+    ];
+    mockState.dispatchProjectDefaults = {
+      channel: 'codex',
+      mode: 'threshold',
+      threshold: 2,
+      concurrency: 1,
+      continuation: 'confirm',
+    };
+    mockState.dispatchSession = {
+      overrides: { mode: 'threshold', continuation: 'confirm' },
+      paused: false,
+      releasedAnnotationIds: [],
+      awaitingConfirmationIds: ['note-1'],
+      flowActive: true,
+    };
+
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    render(html`<ds-sidebar></ds-sidebar>`, host);
+
+    const sidebar = host.querySelector('ds-sidebar') as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await sidebar.updateComplete;
+
+    const workflowPanel = sidebar.shadowRoot.querySelector(
+      'ds-workflow-panel',
+    ) as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await workflowPanel.updateComplete;
+
+    const workflowText =
+      workflowPanel.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+    const releaseButton = workflowPanel.shadowRoot.querySelector(
+      '.dispatch-btn',
+    ) as HTMLButtonElement;
+
+    expect(workflowText).toContain('Wartet auf Freigabe');
+    expect(workflowText).toContain('Naechster Batch bereit');
+    expect(workflowText).toContain(
+      'Der naechste Batch liegt bereit. Pruefe ihn und gib ihn bewusst frei.',
+    );
+    expect(releaseButton.textContent).toContain('Batch freigeben (1)');
+    expect(releaseButton.disabled).toBe(false);
+  });
 });

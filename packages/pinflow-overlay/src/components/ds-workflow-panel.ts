@@ -231,6 +231,28 @@ export class DsWorkflowPanel extends LitElement {
         gap: 8px;
       }
 
+      .flow-note {
+        display: grid;
+        gap: 4px;
+        padding: 12px;
+        border-radius: 14px;
+        border: 1px solid var(--ds-empty-border);
+        background: var(--ds-empty-surface);
+        box-shadow: var(--ds-panel-shadow-soft);
+      }
+
+      .flow-note-title {
+        color: var(--ds-text-primary);
+        font-size: var(--ds-font-size-sm);
+        font-weight: var(--ds-font-weight-semibold);
+      }
+
+      .flow-note-copy {
+        color: var(--ds-text-secondary);
+        font-size: var(--ds-font-size-xs);
+        line-height: 1.45;
+      }
+
       .batch-empty {
         display: grid;
         gap: 6px;
@@ -555,6 +577,31 @@ export class DsWorkflowPanel extends LitElement {
             </button>
           </div>
         </div>
+
+        ${analysis.awaitingConfirmationIds.length > 0
+          ? html`
+              <div class="flow-note">
+                <div class="flow-note-title">Naechster Batch bereit</div>
+                <div class="flow-note-copy">
+                  Der naechste Batch liegt bereit. Pruefe ihn und gib ihn bewusst
+                  frei.
+                </div>
+              </div>
+            `
+          : effective.continuation === 'automatic' &&
+              analysis.inFlightIds.length > 0 &&
+              analysis.unreleasedWaitingIds.length > 0
+            ? html`
+                <div class="flow-note">
+                  <div class="flow-note-title">Auto-Fortsetzung aktiv</div>
+                  <div class="flow-note-copy">
+                    Sobald Kapazitaet frei wird, zieht PinFlow die naechsten
+                    ${analysis.releasableIds.length || analysis.unreleasedWaitingIds.length}
+                    Aufgaben automatisch nach.
+                  </div>
+                </div>
+              `
+            : nothing}
 
         ${this.settingsOpen
           ? html`

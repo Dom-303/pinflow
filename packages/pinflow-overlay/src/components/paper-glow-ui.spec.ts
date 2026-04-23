@@ -306,7 +306,7 @@ describe('Paper Glow UI contract', () => {
       settings.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
     expect(settingsText).toContain('Projektstandard');
     expect(settingsText).toContain('Session-Verhalten');
-    expect(settingsText).toContain('Session nutzt Projektstandard');
+    expect(settingsText).toContain('Session folgt Projektstandard');
     expect(settingsText).toContain('Parallelitaet');
     expect(settingsText).toContain('Automatik-Schwelle');
   });
@@ -351,6 +351,8 @@ describe('Paper Glow UI contract', () => {
 
     expect(sidebarText).toContain('Nicht verbunden');
     expect(workflowText).toContain('Flow-Steuerung');
+    expect(workflowText).toContain('Bereit zum Start');
+    expect(workflowText).toContain('Bereit fuer den ersten Batch');
     expect(listText).toContain('Noch keine Anmerkungen in dieser Session');
     expect(listText).toContain(
       'Markiere ein Element und starte rechts mit deiner ersten Aenderung.',

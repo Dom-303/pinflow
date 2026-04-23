@@ -233,11 +233,12 @@ export class DsWorkflowPanel extends LitElement {
 
       .batch-empty {
         display: grid;
-        gap: 4px;
+        gap: 6px;
         padding: 12px;
         border-radius: 14px;
-        border: 1px dashed var(--ds-panel-border);
-        background: var(--ds-panel-surface-muted);
+        border: 1px dashed var(--ds-empty-border);
+        background: var(--ds-empty-surface);
+        box-shadow: var(--ds-panel-shadow-soft);
       }
 
       .batch-empty-title {
@@ -404,7 +405,7 @@ export class DsWorkflowPanel extends LitElement {
           ? 'Bearbeitet Aufgaben'
           : summary.waiting > 0
             ? 'Bereit fuer den naechsten Versand'
-            : 'Keine offenen Aufgaben';
+            : 'Bereit zum Start';
 
     return html`
       <div class="panel">
@@ -596,10 +597,10 @@ export class DsWorkflowPanel extends LitElement {
               <div class="batch-log">
                 <div class="eyebrow">Letzte Batches</div>
                 <div class="batch-empty">
-                  <div class="batch-empty-title">Noch keine Batches freigegeben</div>
+                  <div class="batch-empty-title">Bereit fuer den ersten Batch</div>
                   <div class="batch-empty-copy">
-                    Sobald du Aufgaben versendest oder freigibst, erscheint hier
-                    der letzte Lauf mit Kanal, Status und Fortschritt.
+                    Sobald du die ersten Aufgaben freigibst oder versendest,
+                    siehst du hier Kanal, Status und Fortschritt des letzten Laufs.
                   </div>
                 </div>
               </div>

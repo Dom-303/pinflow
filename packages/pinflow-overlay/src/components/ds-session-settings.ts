@@ -323,7 +323,7 @@ export class DsSessionSettings extends LitElement {
         <div class="session-state ${hasSessionOverrides ? 'active' : ''}">
           ${hasSessionOverrides
             ? 'Session-Overrides sind aktiv'
-            : 'Session nutzt Projektstandard'}
+            : 'Session folgt Projektstandard'}
         </div>
         ${hasSessionOverrides
           ? html`

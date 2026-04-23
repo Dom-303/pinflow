@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Navigation } from './Navigation';
 import pinflowStackedLight from '../../../../../../../assets/pinflow-stacked-light.png';
+import pinflowWordmarkSloganLight from '../../../../../../../assets/pinflow-wordmark-slogan-light.png';
 import {
   AdvancedHooks,
   BasicElements,
@@ -257,6 +258,11 @@ function HomeIntro() {
         </div>
         <div className="preview-home-hero-copy">
           <span className="preview-kicker">PinFlow Vorschau</span>
+          <img
+            className="preview-home-wordmark"
+            src={pinflowWordmarkSloganLight}
+            alt="PinFlow - Pin it. Flow it. Ship it."
+          />
           <h1 className="page-title">PinFlow</h1>
           <p className="page-description">
             Vorschau fuer reale UI-Muster links, eigentliche Arbeitsflaeche

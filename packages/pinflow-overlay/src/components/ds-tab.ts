@@ -8,7 +8,7 @@ import { LitElement, html, css } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { StoreController } from '../core/store-controller.js';
 import { themeStyles } from '../styles/theme.js';
-import { logoSvg } from './logo/index.js';
+import { getThemeIconAsset } from './logo/index.js';
 
 /** Minimum px of movement before we treat it as a drag instead of a click. */
 const DRAG_THRESHOLD = 4;
@@ -90,9 +90,14 @@ export class DsTab extends LitElement {
         box-shadow:
           inset 0 1px 0 rgba(255, 255, 255, 0.65),
           0 14px 34px -22px rgba(69, 49, 31, 0.42);
+        overflow: hidden;
       }
 
-      .tab-mark svg {
+      .tab-mark img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
         filter: drop-shadow(var(--ds-tab-shadow));
       }
     `,
@@ -173,7 +178,6 @@ export class DsTab extends LitElement {
 
   override render() {
     const { tabOffsetY: offsetY, theme } = this.storeController.state;
-    const markColor = theme === 'dark' ? '#f3ede2' : '#b45309';
 
     return html`
       <style>
@@ -188,7 +192,7 @@ export class DsTab extends LitElement {
         aria-label="PinFlow-Arbeitsbereich oeffnen"
       >
         <span class="tab-mark" aria-hidden="true">
-          ${logoSvg({ size: 34, color: markColor, variant: 'full' })}
+          <img src=${getThemeIconAsset(theme)} alt="PinFlow" />
         </span>
       </button>
     `;

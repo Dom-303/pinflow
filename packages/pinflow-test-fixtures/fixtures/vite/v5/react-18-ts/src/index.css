@@ -402,6 +402,14 @@ code {
   max-width: 44rem;
 }
 
+.preview-home-wordmark {
+  width: min(25rem, 100%);
+  height: auto;
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 24px rgba(180, 83, 9, 0.08));
+}
+
 .preview-home-section {
   display: grid;
   gap: 1rem;

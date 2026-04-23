@@ -11,7 +11,7 @@ import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { StoreController } from '../core/store-controller.js';
 import { themeStyles, utilityStyles } from '../styles/theme.js';
-import { logoSvg } from './logo/index.js';
+import { getThemeIconAsset } from './logo/index.js';
 
 // Import child components
 import './ds-header.js';
@@ -112,6 +112,15 @@ export class DsSidebar extends LitElement {
       .workspace-grip svg {
         width: 22px;
         height: 22px;
+      }
+
+      .workspace-grip img {
+        width: 28px;
+        height: 28px;
+        display: block;
+        object-fit: cover;
+        border-radius: 10px;
+        box-shadow: var(--ds-shadow-sm);
       }
 
       .sidebar-content {
@@ -313,7 +322,6 @@ export class DsSidebar extends LitElement {
   override render() {
     const { selectedElement, annotations, relayConnected, theme } =
       this.storeController.state;
-    const gripColor = theme === 'dark' ? '#f3ede2' : '#b45309';
 
     return html`
       <div class="sidebar-content">
@@ -323,7 +331,7 @@ export class DsSidebar extends LitElement {
           title="PinFlow einklappen"
           aria-label="PinFlow einklappen"
         >
-          ${logoSvg({ size: 22, color: gripColor, variant: 'full' })}
+          <img src=${getThemeIconAsset(theme)} alt="PinFlow" />
         </button>
         <ds-header ?scrolled=${this.isScrolled}></ds-header>
 

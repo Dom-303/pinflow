@@ -44,6 +44,7 @@ describe('pinflow visible preview branding', () => {
     expect(app).toContain('Annotationen pruefen');
     expect(app).toContain('Technische Randfaelle pruefen');
     expect(app).toContain('pinflow-stacked-light.png');
+    expect(app).toContain('pinflow-wordmark-slogan-light.png');
     expect(app).not.toContain('codeToUiImage');
     expect(app).not.toContain('uiToCodeImage');
     expect(viteConfig).toContain("initialMode: 'collapsed'");

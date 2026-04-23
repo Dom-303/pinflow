@@ -71,6 +71,7 @@ vi.mock('../core/event-manager.js', () => ({
 import './ds-header.js';
 import './ds-sidebar.js';
 import './ds-annotation-input.js';
+import './ds-tab.js';
 
 describe('Paper Glow UI contract', () => {
   beforeEach(() => {
@@ -154,6 +155,29 @@ describe('Paper Glow UI contract', () => {
     captureButton.click();
     expect(enableCapture).toHaveBeenCalledTimes(1);
     expect(mockStore.enterCaptureMode).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders the collapsed launcher with theme-aware PinFlow assets', async () => {
+    mockState.mode = 'collapsed';
+    mockState.theme = 'dark';
+
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    render(html`<ds-tab></ds-tab>`, host);
+
+    const tab = host.querySelector('ds-tab') as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await tab.updateComplete;
+
+    const brandImage = tab.shadowRoot.querySelector(
+      '.tab-mark img',
+    ) as HTMLImageElement | null;
+    expect(brandImage).not.toBeNull();
+    expect(brandImage?.getAttribute('alt')).toBe('PinFlow');
+    expect(brandImage?.getAttribute('src')).toContain('pinflow-icon-dark');
   });
 
   it('renders the sidebar shell from deterministic store state', async () => {

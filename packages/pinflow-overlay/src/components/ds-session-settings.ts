@@ -55,6 +55,29 @@ export class DsSessionSettings extends LitElement {
         gap: 10px;
       }
 
+      .summary-strip {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .summary-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--ds-pill-border);
+        background: var(--ds-pill-surface);
+        color: var(--ds-text-secondary);
+        font-size: var(--ds-font-size-xs);
+      }
+
+      .summary-pill strong {
+        color: var(--ds-text-primary);
+        font-weight: var(--ds-font-weight-semibold);
+      }
+
       label {
         display: grid;
         gap: 6px;
@@ -70,12 +93,48 @@ export class DsSessionSettings extends LitElement {
         border-radius: 10px;
         color: var(--ds-text-primary);
         font: inherit;
+        transition:
+          border-color var(--ds-transition-fast),
+          background var(--ds-transition-fast);
+      }
+
+      select:hover {
+        border-color: var(--ds-panel-border-strong);
+      }
+
+      select:focus-visible {
+        outline: 2px solid color-mix(in srgb, var(--ds-brand-primary) 45%, transparent);
+        outline-offset: 2px;
       }
 
       .session-note {
         font-size: var(--ds-font-size-xs);
         color: var(--ds-text-tertiary);
         line-height: 1.45;
+      }
+
+      .session-state {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 10px;
+        border-radius: 14px;
+        border: 1px solid var(--ds-panel-border);
+        background: var(--ds-panel-surface);
+        color: var(--ds-text-secondary);
+        font-size: var(--ds-font-size-xs);
+      }
+
+      .session-state::before {
+        content: '';
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--ds-text-tertiary);
+      }
+
+      .session-state.active::before {
+        background: var(--ds-brand-primary);
       }
 
       .reset-btn {
@@ -90,6 +149,16 @@ export class DsSessionSettings extends LitElement {
         font: inherit;
         font-size: var(--ds-font-size-xs);
         cursor: pointer;
+        transition:
+          border-color var(--ds-transition-fast),
+          color var(--ds-transition-fast),
+          background var(--ds-transition-fast);
+      }
+
+      .reset-btn:hover {
+        color: var(--ds-text-primary);
+        background: var(--ds-panel-surface-strong);
+        border-color: var(--ds-panel-border-strong);
       }
     `,
   ];
@@ -155,6 +224,18 @@ export class DsSessionSettings extends LitElement {
   override render() {
     const hasSessionOverrides =
       Object.values(this.sessionOverrides ?? {}).filter(Boolean).length > 0;
+    const modeLabel =
+      this.projectDefaults.mode === 'immediate'
+        ? 'Sofort'
+        : this.projectDefaults.mode === 'threshold'
+          ? 'Ab Schwelle'
+          : 'Manuell';
+    const continuationLabel =
+      this.projectDefaults.continuation === 'automatic'
+        ? 'Automatisch'
+        : this.projectDefaults.continuation === 'confirm'
+          ? 'Freigeben'
+          : 'Manuell';
 
     return html`
       <div class="section">
@@ -162,6 +243,18 @@ export class DsSessionSettings extends LitElement {
         <div class="section-copy">
           Diese Werte gelten fuer das Projekt, solange du sie nicht aktiv
           aenderst.
+        </div>
+        <div class="summary-strip">
+          <span class="summary-pill"><strong>${modeLabel}</strong> Versand</span>
+          <span class="summary-pill"
+            ><strong>${this.projectDefaults.concurrency}</strong> Parallelitaet</span
+          >
+          <span class="summary-pill"
+            ><strong>${this.projectDefaults.threshold}</strong> Schwelle</span
+          >
+          <span class="summary-pill"
+            ><strong>${continuationLabel}</strong> Fortsetzung</span
+          >
         </div>
         <div class="grid">
           <label>
@@ -222,6 +315,11 @@ export class DsSessionSettings extends LitElement {
           Aktive Kanal- und Versandwechsel gelten zuerst fuer diese laufende
           Session. Die Projektdefaults bleiben erhalten, bis du sie hier oben
           aenderst.
+        </div>
+        <div class="session-state ${hasSessionOverrides ? 'active' : ''}">
+          ${hasSessionOverrides
+            ? 'Session-Overrides sind aktiv'
+            : 'Keine Session-Overrides aktiv'}
         </div>
         ${hasSessionOverrides
           ? html`

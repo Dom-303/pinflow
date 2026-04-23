@@ -214,6 +214,27 @@ export class DsWorkflowPanel extends LitElement {
         gap: 8px;
       }
 
+      .batch-empty {
+        display: grid;
+        gap: 4px;
+        padding: 12px;
+        border-radius: 14px;
+        border: 1px dashed var(--ds-panel-border);
+        background: var(--ds-panel-surface-muted);
+      }
+
+      .batch-empty-title {
+        color: var(--ds-text-primary);
+        font-size: var(--ds-font-size-sm);
+        font-weight: var(--ds-font-weight-semibold);
+      }
+
+      .batch-empty-copy {
+        color: var(--ds-text-secondary);
+        font-size: var(--ds-font-size-xs);
+        line-height: 1.45;
+      }
+
       .batch-list {
         display: grid;
         gap: 8px;
@@ -552,7 +573,18 @@ export class DsWorkflowPanel extends LitElement {
                 </div>
               </div>
             `
-          : nothing}
+          : html`
+              <div class="batch-log">
+                <div class="eyebrow">Letzte Batches</div>
+                <div class="batch-empty">
+                  <div class="batch-empty-title">Noch keine Batches freigegeben</div>
+                  <div class="batch-empty-copy">
+                    Sobald du Aufgaben versendest oder freigibst, erscheint hier
+                    der letzte Lauf mit Kanal, Status und Fortschritt.
+                  </div>
+                </div>
+              </div>
+            `}
       </div>
     `;
   }

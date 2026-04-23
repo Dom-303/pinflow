@@ -72,6 +72,7 @@ import './ds-header.js';
 import './ds-sidebar.js';
 import './ds-annotation-input.js';
 import './ds-tab.js';
+import './ds-session-settings.js';
 
 describe('Paper Glow UI contract', () => {
   beforeEach(() => {
@@ -275,5 +276,34 @@ describe('Paper Glow UI contract', () => {
     expect(releaseButton.textContent).toContain('Naechsten Batch senden');
     releaseButton.click();
     expect(mockStore.releaseNextDispatchBatch).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders session settings with project defaults and an empty override state', async () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    render(
+      html`<ds-session-settings
+        .projectDefaults=${mockState.dispatchProjectDefaults}
+        .sessionOverrides=${{}}
+      ></ds-session-settings>`,
+      host,
+    );
+
+    const settings = host.querySelector(
+      'ds-session-settings',
+    ) as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await settings.updateComplete;
+
+    const settingsText =
+      settings.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+    expect(settingsText).toContain('Projektstandard');
+    expect(settingsText).toContain('Session');
+    expect(settingsText).toContain('Keine Session-Overrides aktiv');
+    expect(settingsText).toContain('Parallelitaet');
+    expect(settingsText).toContain('Automatik-Schwelle');
   });
 });

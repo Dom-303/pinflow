@@ -120,6 +120,16 @@ export const themeStyles = css`
         rgba(251, 246, 239, 0.96) 100%
       );
     --ds-note-surface: rgba(255, 250, 243, 0.58);
+    --ds-status-ready-surface: rgba(255, 252, 247, 0.92);
+    --ds-status-ready-border: rgba(225, 213, 198, 0.95);
+    --ds-status-running-surface: rgba(255, 245, 227, 0.94);
+    --ds-status-running-border: rgba(233, 189, 112, 0.55);
+    --ds-status-done-surface: rgba(238, 248, 243, 0.96);
+    --ds-status-done-border: rgba(108, 196, 152, 0.42);
+    --ds-status-error-surface: rgba(255, 241, 239, 0.96);
+    --ds-status-error-border: rgba(239, 68, 68, 0.3);
+    --ds-status-archived-surface: rgba(247, 241, 232, 0.88);
+    --ds-status-archived-border: rgba(209, 198, 185, 0.9);
     --ds-response-surface:
       linear-gradient(
         180deg,
@@ -291,6 +301,16 @@ export const themeStyles = css`
         rgba(28, 35, 42, 0.97) 100%
       );
     --ds-note-surface: rgba(28, 35, 42, 0.72);
+    --ds-status-ready-surface: rgba(37, 48, 58, 0.9);
+    --ds-status-ready-border: rgba(88, 102, 116, 0.92);
+    --ds-status-running-surface: rgba(63, 52, 25, 0.88);
+    --ds-status-running-border: rgba(214, 158, 46, 0.52);
+    --ds-status-done-surface: rgba(29, 55, 47, 0.88);
+    --ds-status-done-border: rgba(52, 211, 153, 0.34);
+    --ds-status-error-surface: rgba(72, 33, 33, 0.88);
+    --ds-status-error-border: rgba(248, 113, 113, 0.38);
+    --ds-status-archived-surface: rgba(31, 39, 47, 0.88);
+    --ds-status-archived-border: rgba(90, 103, 117, 0.82);
     --ds-response-surface:
       linear-gradient(
         180deg,

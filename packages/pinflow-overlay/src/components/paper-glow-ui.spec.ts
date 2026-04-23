@@ -216,12 +216,23 @@ describe('Paper Glow UI contract', () => {
       shadowRoot: ShadowRoot;
       updateComplete: Promise<unknown>;
     };
+    const annotationList = sidebar.shadowRoot.querySelector(
+      'ds-annotation-list',
+    ) as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
     const sidebarText = sidebar.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
 
     await workflowPanel.updateComplete;
+    await annotationList.updateComplete;
+    const listText =
+      annotationList.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
 
     expect(sidebarText).toContain('Arbeitsverlauf');
     expect(sidebarText).toContain('Anmerkungen (2)');
+    expect(listText).toContain('Bereit');
+    expect(listText).toContain('Erledigt');
     expect(sidebarText).toContain(
       'Letzte Hinweise, Status und Antworten',
     );

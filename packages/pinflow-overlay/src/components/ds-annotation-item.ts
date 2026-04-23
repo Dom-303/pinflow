@@ -190,6 +190,35 @@ export class DsAnnotationItem extends LitElement {
         font-size: var(--ds-font-size-xs);
         color: var(--ds-text-secondary);
         flex-shrink: 0;
+        font-weight: var(--ds-font-weight-medium);
+      }
+
+      .status[data-status='queued'] {
+        background: var(--ds-status-ready-surface);
+        border-color: var(--ds-status-ready-border);
+      }
+
+      .status[data-status='processing'] {
+        background: var(--ds-status-running-surface);
+        border-color: var(--ds-status-running-border);
+        color: var(--ds-text-primary);
+      }
+
+      .status[data-status='processed'] {
+        background: var(--ds-status-done-surface);
+        border-color: var(--ds-status-done-border);
+        color: var(--ds-text-primary);
+      }
+
+      .status[data-status='failed'] {
+        background: var(--ds-status-error-surface);
+        border-color: var(--ds-status-error-border);
+        color: var(--ds-text-primary);
+      }
+
+      .status[data-status='archived'] {
+        background: var(--ds-status-archived-surface);
+        border-color: var(--ds-status-archived-border);
       }
 
       .status-dot {
@@ -401,15 +430,15 @@ export class DsAnnotationItem extends LitElement {
   private getStatusLabel(status: string): string {
     switch (status) {
       case 'queued':
-        return 'Offen';
+        return 'Bereit';
       case 'processing':
-        return 'In Arbeit';
+        return 'Laeuft';
       case 'processed':
         return 'Erledigt';
       case 'failed':
-        return 'Fehlgeschlagen';
+        return 'Fehler';
       case 'archived':
-        return 'Archiviert';
+        return 'Archiv';
       default:
         return status;
     }
@@ -566,7 +595,7 @@ export class DsAnnotationItem extends LitElement {
 
   private renderStatus(status: string) {
     return html`
-      <div class="status">
+        <div class="status" data-status=${status}>
         <span class="status-dot ${status}"></span>
         <span>${this.getStatusLabel(status)}</span>
       </div>

@@ -27,11 +27,11 @@ const STATUS_ORDER: AnnotationStatus[] = [
 ];
 
 const STATUS_LABELS: Record<string, string> = {
-  queued: 'Offen',
-  processing: 'In Arbeit',
+  queued: 'Bereit',
+  processing: 'Laeuft',
   processed: 'Erledigt',
-  failed: 'Fehlgeschlagen',
-  archived: 'Archiviert',
+  failed: 'Fehler',
+  archived: 'Archiv',
 };
 
 /**
@@ -70,6 +70,34 @@ export class DsAnnotationList extends LitElement {
         border-radius: calc(var(--ds-radius-lg) - 2px);
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.54);
         overflow: hidden;
+      }
+
+      .status-group[data-status='queued'] .status-count {
+        background: var(--ds-status-ready-surface);
+        border-color: var(--ds-status-ready-border);
+      }
+
+      .status-group[data-status='processing'] .status-count {
+        background: var(--ds-status-running-surface);
+        border-color: var(--ds-status-running-border);
+        color: var(--ds-text-primary);
+      }
+
+      .status-group[data-status='processed'] .status-count {
+        background: var(--ds-status-done-surface);
+        border-color: var(--ds-status-done-border);
+        color: var(--ds-text-primary);
+      }
+
+      .status-group[data-status='failed'] .status-count {
+        background: var(--ds-status-error-surface);
+        border-color: var(--ds-status-error-border);
+        color: var(--ds-text-primary);
+      }
+
+      .status-group[data-status='archived'] .status-count {
+        background: var(--ds-status-archived-surface);
+        border-color: var(--ds-status-archived-border);
       }
 
       .status-header {
@@ -334,7 +362,7 @@ export class DsAnnotationList extends LitElement {
     const pageItems = annotations.slice(start, start + PAGE_SIZE);
 
     return html`
-      <div class="status-group">
+      <div class="status-group" data-status=${status}>
         <button
           class="status-header ${isEmpty ? 'empty' : ''} ${isOpen
             ? 'open'

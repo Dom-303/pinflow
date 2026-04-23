@@ -1,5 +1,5 @@
-import { RuntimeManager } from '@pinflow/runtime';
-import { createReactAdapter } from '@pinflow/react';
+import { RuntimeManager } from '../../../../../pinflow-runtime/src/index.ts';
+import { createReactAdapter } from '../../../../../pinflow-react/src/index.ts';
 
 const resolvers = new Map();
 
@@ -25,7 +25,7 @@ RuntimeManager.getInstance()
   );
 
 if (typeof window !== 'undefined' && window.__PINFLOW_OVERLAY_OPTIONS__) {
-  import('./pinflow-local-overlay-init.ts?v=pinflow-ui-2026-04-23b').catch(
+  import('./pinflow-local-overlay-init.ts?v=pinflow-ui-2026-04-24a').catch(
     () => {},
   );
 }

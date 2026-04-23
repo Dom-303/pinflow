@@ -312,6 +312,31 @@ export class DsSidebar extends LitElement {
         box-shadow: var(--ds-shadow-sm);
       }
 
+      .workspace-focus {
+        display: grid;
+        gap: 6px;
+        padding: 12px;
+        border-radius: 18px;
+        background: var(--ds-card-surface-strong);
+        border: 1px solid var(--ds-panel-border-strong);
+        box-shadow: var(--ds-shadow-sm);
+      }
+
+      .workspace-focus-title {
+        margin: 0;
+        font-size: var(--ds-font-size-md);
+        font-weight: var(--ds-font-weight-semibold);
+        color: var(--ds-text-primary);
+        letter-spacing: -0.02em;
+      }
+
+      .workspace-focus-copy {
+        margin: 0;
+        color: var(--ds-text-secondary);
+        font-size: var(--ds-font-size-xs);
+        line-height: 1.45;
+      }
+
       .composer-title {
         margin: 0;
         font-size: var(--ds-font-size-md);
@@ -372,9 +397,46 @@ export class DsSidebar extends LitElement {
     this.storeController.store.setMode('collapsed');
   }
 
+  private getWorkspaceFocus(
+    relayConnected: boolean,
+    hasElement: boolean,
+    annotationCount: number,
+  ) {
+    if (!relayConnected) {
+      return {
+        title: 'Relay verbinden',
+        copy: 'PinFlow braucht zuerst eine aktive Relay-Verbindung, bevor neue Aufgaben in den Flow gehen koennen.',
+      };
+    }
+
+    if (!hasElement) {
+      return {
+        title: 'Element auswaehlen',
+        copy: 'Markiere zuerst ein passendes UI-Element, damit PinFlow Kontext und Auftrag verbinden kann.',
+      };
+    }
+
+    if (annotationCount === 0) {
+      return {
+        title: 'Ersten Auftrag uebergeben',
+        copy: 'Die Auswahl steht. Formuliere jetzt die erste Aenderung und gib sie direkt in deinen Flow.',
+      };
+    }
+
+    return {
+      title: 'Flow weiterziehen',
+      copy: 'Nutze Verlauf, Workflow und Composer zusammen, um die naechste Aenderung bewusst weiter in den Flow zu geben.',
+    };
+  }
+
   override render() {
     const { selectedElement, annotations, relayConnected, theme } =
       this.storeController.state;
+    const workspaceFocus = this.getWorkspaceFocus(
+      relayConnected,
+      !!selectedElement,
+      annotations.length,
+    );
 
     return html`
       <div class="sidebar-content">
@@ -460,6 +522,12 @@ export class DsSidebar extends LitElement {
 
         <!-- Fixed action zone -->
         <div class="action-zone ${this.hasMoreBelow ? 'has-more' : ''}">
+          <div class="workspace-focus">
+            <div class="section-title">Aktuell wichtig</div>
+            <h3 class="workspace-focus-title">${workspaceFocus.title}</h3>
+            <p class="workspace-focus-copy">${workspaceFocus.copy}</p>
+          </div>
+
           <!-- Selected element (only shown when element is selected) -->
           ${selectedElement
             ? html`<ds-element-preview></ds-element-preview>`

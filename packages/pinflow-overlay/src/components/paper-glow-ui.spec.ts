@@ -443,6 +443,11 @@ describe('Paper Glow UI contract', () => {
     expect(sidebarText).toContain(
       'Verlauf, Antworten und Status in der aktuellen Session',
     );
+    expect(sidebarText).toContain('Aktuell wichtig');
+    expect(sidebarText).toContain('Element auswaehlen');
+    expect(sidebarText).toContain(
+      'Markiere zuerst ein passendes UI-Element, damit PinFlow Kontext und Auftrag verbinden kann.',
+    );
     expect(sidebarText).toContain('Naechster Schritt');
     expect(sidebarText).toContain('Aenderung formulieren');
     expect(sidebarText).toContain(
@@ -823,6 +828,11 @@ describe('Paper Glow UI contract', () => {
     expect(listText).toContain('Noch keine Anmerkungen in dieser Session');
     expect(listText).toContain(
       'Markiere ein Element und starte rechts mit deiner ersten Aenderung.',
+    );
+    expect(sidebarText).toContain('Aktuell wichtig');
+    expect(sidebarText).toContain('Relay verbinden');
+    expect(sidebarText).toContain(
+      'PinFlow braucht zuerst eine aktive Relay-Verbindung, bevor neue Aufgaben in den Flow gehen koennen.',
     );
   });
 

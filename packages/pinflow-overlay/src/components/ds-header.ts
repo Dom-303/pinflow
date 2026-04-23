@@ -81,6 +81,7 @@ export class DsHeader extends LitElement {
         align-items: center;
         gap: 8px;
         min-height: 14px;
+        flex-wrap: wrap;
       }
 
       .brand-kicker {
@@ -102,6 +103,28 @@ export class DsHeader extends LitElement {
         color: var(--ds-text-tertiary);
         line-height: 1.45;
         max-width: 220px;
+      }
+
+      .brand-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 2px 7px;
+        border-radius: var(--ds-radius-full);
+        background: var(--ds-note-surface);
+        border: 1px solid var(--ds-pill-border);
+        color: var(--ds-text-secondary);
+        font-size: 10px;
+        font-weight: var(--ds-font-weight-medium);
+      }
+
+      .brand-status::before {
+        content: '';
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--ds-brand-primary);
+        box-shadow: 0 0 0 4px color-mix(in srgb, var(--ds-brand-primary) 18%, transparent);
       }
 
       .btn-icon {
@@ -149,6 +172,7 @@ export class DsHeader extends LitElement {
           <div class="brand-copy">
             <div class="brand-meta">
               <span class="brand-kicker">Arbeitsbereich</span>
+              <span class="brand-status">Session live</span>
             </div>
             <img
               class="brand-wordmark"
@@ -156,7 +180,7 @@ export class DsHeader extends LitElement {
               alt="PinFlow"
             />
             <span class="brand-subtext"
-              >Visuelle Auswahl, Kommentare und Versand</span
+              >Auswahl, Kommentare und Versand im aktuellen Flow</span
             >
           </div>
         </div>

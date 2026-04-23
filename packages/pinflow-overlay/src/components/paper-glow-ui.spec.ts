@@ -123,8 +123,9 @@ describe('Paper Glow UI contract', () => {
     expect(brandWordmark?.getAttribute('alt')).toBe('PinFlow');
     expect(brandWordmark?.getAttribute('src')).toContain('pinflow-horizontal');
     expect(header.shadowRoot.textContent).toContain('Arbeitsbereich');
+    expect(header.shadowRoot.textContent).toContain('Session live');
     expect(header.shadowRoot.textContent).toContain(
-      'Visuelle Auswahl, Kommentare und Versand',
+      'Auswahl, Kommentare und Versand im aktuellen Flow',
     );
     expect(header.scrolled).toBe(false);
     expect(closeButton).not.toBeNull();
@@ -235,23 +236,26 @@ describe('Paper Glow UI contract', () => {
     expect(listText).toContain('Bereit');
     expect(listText).toContain('Erledigt');
     expect(sidebarText).toContain(
-      'Letzte Hinweise, Status und Antworten',
+      'Verlauf, Antworten und Status in der aktuellen Session',
     );
     expect(sidebarText).toContain('Naechster Schritt');
     expect(sidebarText).toContain('Aenderung formulieren');
     expect(sidebarText).toContain(
-      'Markiere ein Element, beschreibe die Aenderung und sende sie direkt in deinen Arbeitsfluss.',
+      'Markiere ein Element, beschreibe die Aenderung und uebergib sie direkt an deinen Flow.',
     );
     expect(sidebarText).toContain('Verbunden');
+    expect(sidebarText).toContain('Arbeitsmodus');
+    expect(sidebarText).toContain('Schnellzugriff');
     expect(sidebar.shadowRoot.querySelector('.status-dot.connected')).not.toBeNull();
     expect(sidebar.shadowRoot.querySelector('ds-annotation-input')).not.toBeNull();
-    expect(workflowPanel.shadowRoot.textContent).toContain('Queue und Versand');
+    expect(workflowPanel.shadowRoot.textContent).toContain('Flow-Steuerung');
     expect(workflowPanel.shadowRoot.textContent).toContain(
-      'Aktiver Kanal',
+      'Session-Kanal',
     );
     expect(workflowPanel.shadowRoot.textContent).toContain(
-      'Versandmodus',
+      'Queue-Status',
     );
+    expect(workflowPanel.shadowRoot.textContent).toContain('Freigabe & Automatik');
     expect(workflowPanel.shadowRoot.textContent).toContain('Codex');
     expect(workflowPanel.shadowRoot.textContent).toContain('Letzte Batches');
     expect(workflowPanel.shadowRoot.textContent).toContain('Laeuft');
@@ -301,8 +305,8 @@ describe('Paper Glow UI contract', () => {
     const settingsText =
       settings.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
     expect(settingsText).toContain('Projektstandard');
-    expect(settingsText).toContain('Session');
-    expect(settingsText).toContain('Keine Session-Overrides aktiv');
+    expect(settingsText).toContain('Session-Verhalten');
+    expect(settingsText).toContain('Session nutzt Projektstandard');
     expect(settingsText).toContain('Parallelitaet');
     expect(settingsText).toContain('Automatik-Schwelle');
   });

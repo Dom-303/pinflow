@@ -29,7 +29,7 @@ export class DsWorkflowPanel extends LitElement {
       .panel {
         display: grid;
         gap: 12px;
-        padding: 12px;
+        padding: 13px;
         background: var(--ds-panel-surface);
         border: 1px solid var(--ds-panel-border);
         border-radius: calc(var(--ds-radius-lg) - 2px);
@@ -94,6 +94,23 @@ export class DsWorkflowPanel extends LitElement {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 8px;
+      }
+
+      .control-stack {
+        display: grid;
+        gap: 8px;
+        padding: 10px;
+        border-radius: 16px;
+        background: var(--ds-panel-surface-muted);
+        border: 1px solid var(--ds-panel-border);
+      }
+
+      .control-stack-title {
+        color: var(--ds-text-tertiary);
+        font-size: 11px;
+        font-weight: var(--ds-font-weight-medium);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
       }
 
       .status-card {
@@ -394,10 +411,9 @@ export class DsWorkflowPanel extends LitElement {
         <div class="header">
           <div class="title-group">
             <div class="eyebrow">Workflow</div>
-            <div class="title">Queue und Versand</div>
+            <div class="title">Flow-Steuerung</div>
             <div class="panel-copy">
-              Waehle den aktiven Kanal, beobachte den Live-Status und gib
-              Batches kontrolliert frei.
+              Halte Session-Kanal, Queue-Status und Freigabe an einer Stelle im Blick.
             </div>
           </div>
           <button
@@ -446,14 +462,14 @@ export class DsWorkflowPanel extends LitElement {
 
         <div class="status-overview">
           <div class="status-card">
-            <div class="status-label">Aktiver Kanal</div>
+            <div class="status-label">Session-Kanal</div>
             <div class="status-value">${this.getChannelLabel(effective.channel)}</div>
             <div class="status-note">
               Session-weit aktiv fuer neue Annotationen und den naechsten Batch.
             </div>
           </div>
           <div class="status-card">
-            <div class="status-label">Versandmodus</div>
+            <div class="status-label">Queue-Status</div>
             <div class="status-value">${this.getModeLabel(effective.mode)}</div>
             <div class="status-note">
               ${effective.mode === 'threshold'
@@ -494,34 +510,37 @@ export class DsWorkflowPanel extends LitElement {
             : nothing}
         </div>
 
-        <div class="controls">
-          <div class="control-pill">
-            Versand
-            <select class="mode-select" .value=${effective.mode} @change=${this.handleModeChange}>
-              <option value="manual">Manuell</option>
-              <option value="immediate">Sofort</option>
-              <option value="threshold">Ab Schwelle</option>
-            </select>
+        <div class="control-stack">
+          <div class="control-stack-title">Freigabe & Automatik</div>
+          <div class="controls">
+            <div class="control-pill">
+              Versand
+              <select class="mode-select" .value=${effective.mode} @change=${this.handleModeChange}>
+                <option value="manual">Manuell</option>
+                <option value="immediate">Sofort</option>
+                <option value="threshold">Ab Schwelle</option>
+              </select>
+            </div>
+
+            <div class="control-pill">
+              <strong>${effective.concurrency}</strong> parallel
+            </div>
+
+            <button
+              class="pause-btn ${effective.paused ? 'active' : ''}"
+              @click=${this.togglePause}
+            >
+              ${effective.paused ? 'Queue pausiert' : 'Queue aktiv'}
+            </button>
+
+            <button
+              class="dispatch-btn"
+              ?disabled=${nextActionDisabled}
+              @click=${this.releaseNextBatch}
+            >
+              ${nextActionLabel}
+            </button>
           </div>
-
-          <div class="control-pill">
-            <strong>${effective.concurrency}</strong> parallel
-          </div>
-
-          <button
-            class="pause-btn ${effective.paused ? 'active' : ''}"
-            @click=${this.togglePause}
-          >
-            ${effective.paused ? 'Queue pausiert' : 'Queue aktiv'}
-          </button>
-
-          <button
-            class="dispatch-btn"
-            ?disabled=${nextActionDisabled}
-            @click=${this.releaseNextBatch}
-          >
-            ${nextActionLabel}
-          </button>
         </div>
 
         ${this.settingsOpen

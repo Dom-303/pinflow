@@ -29,6 +29,10 @@ export class DsSessionSettings extends LitElement {
       .section {
         display: grid;
         gap: 10px;
+        padding: 10px;
+        border-radius: 16px;
+        background: var(--ds-panel-surface-muted);
+        border: 1px solid var(--ds-panel-border);
       }
 
       .section + .section {
@@ -310,7 +314,7 @@ export class DsSessionSettings extends LitElement {
       </div>
 
       <div class="section">
-        <div class="section-title">Session</div>
+        <div class="section-title">Session-Verhalten</div>
         <div class="session-note">
           Aktive Kanal- und Versandwechsel gelten zuerst fuer diese laufende
           Session. Die Projektdefaults bleiben erhalten, bis du sie hier oben
@@ -319,7 +323,7 @@ export class DsSessionSettings extends LitElement {
         <div class="session-state ${hasSessionOverrides ? 'active' : ''}">
           ${hasSessionOverrides
             ? 'Session-Overrides sind aktiv'
-            : 'Keine Session-Overrides aktiv'}
+            : 'Session nutzt Projektstandard'}
         </div>
         ${hasSessionOverrides
           ? html`

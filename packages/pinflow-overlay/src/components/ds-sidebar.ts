@@ -147,11 +147,15 @@ export class DsSidebar extends LitElement {
       }
 
       .content-header {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: var(--ds-space-md);
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 12px;
         margin-bottom: 14px;
+        padding: 12px;
+        background: var(--ds-panel-surface);
+        border: 1px solid var(--ds-panel-border);
+        border-radius: 18px;
+        box-shadow: var(--ds-shadow-sm);
       }
 
       .title-group {
@@ -172,7 +176,51 @@ export class DsSidebar extends LitElement {
         color: var(--ds-text-secondary);
         font-size: var(--ds-font-size-xs);
         line-height: 1.45;
-        max-width: 220px;
+        max-width: 260px;
+      }
+
+      .overview-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 4px;
+      }
+
+      .overview-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 8px;
+        border-radius: 999px;
+        background: var(--ds-pill-surface);
+        border: 1px solid var(--ds-pill-border);
+        color: var(--ds-text-secondary);
+        font-size: 11px;
+      }
+
+      .overview-pill strong {
+        color: var(--ds-text-primary);
+        font-weight: var(--ds-font-weight-semibold);
+      }
+
+      .utility-column {
+        display: grid;
+        gap: 8px;
+        justify-items: end;
+      }
+
+      .utility-block {
+        display: grid;
+        gap: 5px;
+        justify-items: end;
+      }
+
+      .utility-label {
+        font-size: 10px;
+        font-weight: var(--ds-font-weight-medium);
+        color: var(--ds-text-tertiary);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
       }
 
       .theme-switch {
@@ -257,6 +305,11 @@ export class DsSidebar extends LitElement {
       .composer-intro {
         display: grid;
         gap: 4px;
+        padding: 12px;
+        border-radius: 18px;
+        background: var(--ds-panel-surface);
+        border: 1px solid var(--ds-panel-border);
+        box-shadow: var(--ds-shadow-sm);
       }
 
       .composer-title {
@@ -342,49 +395,64 @@ export class DsSidebar extends LitElement {
               <div class="section-title">Arbeitsverlauf</div>
               <h2 class="content-title">Anmerkungen (${annotations.length})</h2>
               <p class="content-copy">
-                Letzte Hinweise, Status und Antworten
+                Verlauf, Antworten und Status in der aktuellen Session
               </p>
+              <div class="overview-meta">
+                <span class="overview-pill"><strong>${annotations.length}</strong> Hinweise</span>
+                <span class="overview-pill"><strong>${relayConnected
+                  ? 'Live'
+                  : 'Offline'}</strong> Relay</span>
+              </div>
             </div>
-            <div class="theme-switch" aria-label="Farbschema">
-              <button
-                class="theme-option ${theme === 'light' ? 'active' : ''}"
-                @click=${() => this.handleThemeChange('light')}
-                aria-label="Hellmodus aktivieren"
-                title="Hellmodus aktivieren"
-              >
-                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <circle
-                    cx="12"
-                    cy="12"
-                    r="4"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                  />
-                  <path
-                    d="M12 2v2.5M12 19.5V22M4.93 4.93l1.77 1.77M17.3 17.3l1.77 1.77M2 12h2.5M19.5 12H22M4.93 19.07l1.77-1.77M17.3 6.7l1.77-1.77"
-                    stroke="currentColor"
-                    stroke-width="1.6"
-                    stroke-linecap="round"
-                  />
-                </svg>
-                Hell
-              </button>
-              <button
-                class="theme-option ${theme === 'dark' ? 'active' : ''}"
-                @click=${() => this.handleThemeChange('dark')}
-                aria-label="Dunkelmodus aktivieren"
-                title="Dunkelmodus aktivieren"
-              >
-                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path
-                    d="M20 15.5A8.5 8.5 0 118.5 4a7 7 0 0011.5 11.5z"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-                Dunkel
-              </button>
+            <div class="utility-column">
+              <div class="utility-block">
+                <div class="utility-label">Arbeitsmodus</div>
+                <div class="theme-switch" aria-label="Farbschema">
+                  <button
+                    class="theme-option ${theme === 'light' ? 'active' : ''}"
+                    @click=${() => this.handleThemeChange('light')}
+                    aria-label="Hellmodus aktivieren"
+                    title="Hellmodus aktivieren"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="4"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                      />
+                      <path
+                        d="M12 2v2.5M12 19.5V22M4.93 4.93l1.77 1.77M17.3 17.3l1.77 1.77M2 12h2.5M19.5 12H22M4.93 19.07l1.77-1.77M17.3 6.7l1.77-1.77"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                      />
+                    </svg>
+                    Hell
+                  </button>
+                  <button
+                    class="theme-option ${theme === 'dark' ? 'active' : ''}"
+                    @click=${() => this.handleThemeChange('dark')}
+                    aria-label="Dunkelmodus aktivieren"
+                    title="Dunkelmodus aktivieren"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path
+                        d="M20 15.5A8.5 8.5 0 118.5 4a7 7 0 0011.5 11.5z"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    Dunkel
+                  </button>
+                </div>
+              </div>
+              <div class="utility-block">
+                <div class="utility-label">Schnellzugriff</div>
+                <span class="overview-pill"><strong>Strg+Enter</strong> Senden</span>
+              </div>
             </div>
           </div>
           ${html`<ds-annotation-list></ds-annotation-list>`}
@@ -401,8 +469,8 @@ export class DsSidebar extends LitElement {
             <div class="section-title">Naechster Schritt</div>
             <h3 class="composer-title">Aenderung formulieren</h3>
             <p class="composer-copy">
-              Markiere ein Element, beschreibe die Aenderung und sende sie
-              direkt in deinen Arbeitsfluss.
+              Markiere ein Element, beschreibe die Aenderung und uebergib sie
+              direkt an deinen Flow.
             </p>
           </div>
 

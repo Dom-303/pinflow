@@ -139,10 +139,31 @@ export class DsSidebar extends LitElement {
 
       .content-header {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: space-between;
         gap: var(--ds-space-md);
         margin-bottom: 14px;
+      }
+
+      .title-group {
+        display: grid;
+        gap: 4px;
+      }
+
+      .content-title {
+        font-size: var(--ds-font-size-lg);
+        font-weight: var(--ds-font-weight-semibold);
+        color: var(--ds-text-primary);
+        letter-spacing: -0.03em;
+        margin: 0;
+      }
+
+      .content-copy {
+        margin: 0;
+        color: var(--ds-text-secondary);
+        font-size: var(--ds-font-size-xs);
+        line-height: 1.45;
+        max-width: 220px;
       }
 
       .theme-switch {
@@ -224,15 +245,45 @@ export class DsSidebar extends LitElement {
         box-shadow: var(--ds-shell-shadow-float);
       }
 
+      .composer-intro {
+        display: grid;
+        gap: 4px;
+      }
+
+      .composer-title {
+        margin: 0;
+        font-size: var(--ds-font-size-md);
+        font-weight: var(--ds-font-weight-semibold);
+        color: var(--ds-text-primary);
+        letter-spacing: -0.02em;
+      }
+
+      .composer-copy {
+        margin: 0;
+        color: var(--ds-text-secondary);
+        font-size: var(--ds-font-size-xs);
+        line-height: 1.45;
+      }
+
       /* Status bar - right-aligned */
       .status-bar {
         display: flex;
         align-items: center;
-        justify-content: flex-end;
+        justify-content: space-between;
         gap: var(--ds-space-xs);
         font-size: var(--ds-font-size-xs);
         color: var(--ds-text-tertiary);
         letter-spacing: 0.01em;
+      }
+
+      .status-connection {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--ds-space-xs);
+      }
+
+      .status-shortcut {
+        color: var(--ds-text-tertiary);
       }
 
       .status-dot {
@@ -279,7 +330,13 @@ export class DsSidebar extends LitElement {
         <!-- Scrollable annotations area -->
         <div class="main-content" @scroll=${this.handleScroll}>
           <div class="content-header">
-            <div class="section-title">Anmerkungen (${annotations.length})</div>
+            <div class="title-group">
+              <div class="section-title">Arbeitsverlauf</div>
+              <h2 class="content-title">Anmerkungen (${annotations.length})</h2>
+              <p class="content-copy">
+                Letzte Hinweise, Status und Antworten
+              </p>
+            </div>
             <div class="theme-switch" aria-label="Farbschema">
               <button
                 class="theme-option ${theme === 'light' ? 'active' : ''}"
@@ -332,6 +389,15 @@ export class DsSidebar extends LitElement {
             ? html`<ds-element-preview></ds-element-preview>`
             : null}
 
+          <div class="composer-intro">
+            <div class="section-title">Naechster Schritt</div>
+            <h3 class="composer-title">Aenderung formulieren</h3>
+            <p class="composer-copy">
+              Markiere ein Element, beschreibe die Aenderung und sende sie
+              direkt in deinen Arbeitsfluss.
+            </p>
+          </div>
+
           <ds-workflow-panel></ds-workflow-panel>
 
           <!-- Annotation input with integrated capture button -->
@@ -339,12 +405,15 @@ export class DsSidebar extends LitElement {
 
           <!-- Status bar -->
           <div class="status-bar">
-            <span
-              class="status-dot ${relayConnected
-                ? 'connected'
-                : 'disconnected'}"
-            ></span>
-            <span>${relayConnected ? 'Verbunden' : 'Nicht verbunden'}</span>
+            <span class="status-connection">
+              <span
+                class="status-dot ${relayConnected
+                  ? 'connected'
+                  : 'disconnected'}"
+              ></span>
+              <span>${relayConnected ? 'Verbunden' : 'Nicht verbunden'}</span>
+            </span>
+            <span class="status-shortcut">Strg+Enter senden</span>
           </div>
         </div>
       </div>

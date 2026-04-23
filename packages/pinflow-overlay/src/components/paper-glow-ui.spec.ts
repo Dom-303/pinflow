@@ -120,6 +120,10 @@ describe('Paper Glow UI contract', () => {
     expect(brandWordmark).not.toBeNull();
     expect(brandWordmark?.getAttribute('alt')).toBe('PinFlow');
     expect(brandWordmark?.getAttribute('src')).toContain('pinflow-horizontal');
+    expect(header.shadowRoot.textContent).toContain('Arbeitsbereich');
+    expect(header.shadowRoot.textContent).toContain(
+      'Visuelle Auswahl, Kommentare und Versand',
+    );
     expect(header.scrolled).toBe(false);
     expect(closeButton).not.toBeNull();
     expect(closeButton?.querySelector('svg path')).not.toBeNull();
@@ -188,11 +192,21 @@ describe('Paper Glow UI contract', () => {
       shadowRoot: ShadowRoot;
       updateComplete: Promise<unknown>;
     };
+    const sidebarText = sidebar.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
 
     await workflowPanel.updateComplete;
 
-    expect(sidebar.shadowRoot.textContent).toContain('Anmerkungen (2)');
-    expect(sidebar.shadowRoot.textContent).toContain('Verbunden');
+    expect(sidebarText).toContain('Arbeitsverlauf');
+    expect(sidebarText).toContain('Anmerkungen (2)');
+    expect(sidebarText).toContain(
+      'Letzte Hinweise, Status und Antworten',
+    );
+    expect(sidebarText).toContain('Naechster Schritt');
+    expect(sidebarText).toContain('Aenderung formulieren');
+    expect(sidebarText).toContain(
+      'Markiere ein Element, beschreibe die Aenderung und sende sie direkt in deinen Arbeitsfluss.',
+    );
+    expect(sidebarText).toContain('Verbunden');
     expect(sidebar.shadowRoot.querySelector('.status-dot.connected')).not.toBeNull();
     expect(sidebar.shadowRoot.querySelector('ds-annotation-input')).not.toBeNull();
     expect(workflowPanel.shadowRoot.textContent).toContain('Queue und Versand');

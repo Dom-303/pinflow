@@ -47,6 +47,65 @@ export class DsAnnotationInput extends LitElement {
           transform var(--ds-transition-fast);
       }
 
+      .composer-head {
+        display: grid;
+        gap: var(--ds-space-xs);
+        padding: var(--ds-space-md) var(--ds-space-md) var(--ds-space-sm);
+        border-bottom: 1px solid var(--ds-shell-border-muted);
+        background:
+          radial-gradient(
+            circle at top right,
+            var(--ds-shell-glow),
+            transparent 42%
+          ),
+          var(--ds-shell-surface-soft);
+      }
+
+      .composer-topline {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--ds-space-sm);
+      }
+
+      .composer-title {
+        font-size: var(--ds-font-size-sm);
+        font-weight: var(--ds-font-weight-semibold);
+        color: var(--ds-text-primary);
+        letter-spacing: -0.02em;
+      }
+
+      .selection-state {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 8px;
+        border-radius: var(--ds-radius-full);
+        border: 1px solid var(--ds-pill-border);
+        background: var(--ds-pill-surface);
+        color: var(--ds-text-secondary);
+        font-size: var(--ds-font-size-xs);
+      }
+
+      .selection-state::before {
+        content: '';
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--ds-warning);
+      }
+
+      .selection-state.active::before {
+        background: var(--ds-success);
+      }
+
+      .composer-copy {
+        margin: 0;
+        color: var(--ds-text-secondary);
+        font-size: var(--ds-font-size-xs);
+        line-height: 1.45;
+      }
+
       .input-wrapper:focus-within {
         border-color: var(--ds-brand-primary);
         box-shadow: var(--ds-highlight-glow);
@@ -61,7 +120,7 @@ export class DsAnnotationInput extends LitElement {
       /* Textarea area */
       .textarea-container {
         padding: var(--ds-space-md);
-        padding-bottom: var(--ds-space-sm);
+        padding-bottom: var(--ds-space-xs);
       }
 
       textarea {
@@ -97,6 +156,11 @@ export class DsAnnotationInput extends LitElement {
         display: flex;
         align-items: center;
         gap: var(--ds-space-xs);
+      }
+
+      .shortcut-hint {
+        color: var(--ds-text-tertiary);
+        font-size: var(--ds-font-size-xs);
       }
 
       /* Icon buttons in action bar */
@@ -137,12 +201,13 @@ export class DsAnnotationInput extends LitElement {
 
       /* Submit button - accent colored */
       .submit-btn {
-        display: flex;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 28px;
-        height: 28px;
-        padding: 0;
+        gap: 6px;
+        min-width: 28px;
+        height: 30px;
+        padding: 0 10px;
         background: var(--ds-brand-primary);
         border: none;
         border-radius: var(--ds-radius-md);
@@ -167,6 +232,12 @@ export class DsAnnotationInput extends LitElement {
       .submit-btn svg {
         width: 14px;
         height: 14px;
+      }
+
+      .submit-label {
+        font-size: var(--ds-font-size-xs);
+        font-weight: var(--ds-font-weight-semibold);
+        letter-spacing: 0.01em;
       }
 
       /* Hint text */
@@ -246,9 +317,23 @@ export class DsAnnotationInput extends LitElement {
       : !hasElement
         ? 'Waehle zuerst ein Element aus...'
         : 'Beschreibe die gewuenschte Aenderung...';
+    const selectionText = hasElement ? 'Element ausgewaehlt' : 'Keine Auswahl';
+    const helperCopy = hasElement
+      ? 'Beschreibe die gewuenschte Aenderung fuer das markierte UI-Element.'
+      : 'Waehle zuerst ein UI-Element aus und beschreibe dann die gewuenschte Aenderung.';
 
     return html`
       <div class="input-wrapper">
+        <div class="composer-head">
+          <div class="composer-topline">
+            <span class="composer-title">Kommentar und Auftrag</span>
+            <span class="selection-state ${hasElement ? 'active' : ''}"
+              >${selectionText}</span
+            >
+          </div>
+          <p class="composer-copy">${helperCopy}</p>
+        </div>
+
         <div class="textarea-container ${isDisabled ? 'disabled' : ''}">
           <textarea
             placeholder=${placeholder}
@@ -261,8 +346,7 @@ export class DsAnnotationInput extends LitElement {
         </div>
 
         <div class="action-bar">
-          <!-- Spacer for future left-side actions -->
-          <div class="action-group"></div>
+          <div class="shortcut-hint">Strg+Enter</div>
 
           <!-- Right-side actions: capture + submit -->
           <div class="action-group">
@@ -311,6 +395,7 @@ export class DsAnnotationInput extends LitElement {
                   stroke-linejoin="round"
                 />
               </svg>
+              <span class="submit-label">Senden</span>
             </button>
           </div>
         </div>

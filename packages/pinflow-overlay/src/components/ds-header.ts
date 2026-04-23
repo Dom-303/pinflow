@@ -56,7 +56,7 @@ export class DsHeader extends LitElement {
 
       .brand-copy {
         display: grid;
-        gap: 1px;
+        gap: 4px;
       }
 
       .brand-logo {
@@ -76,18 +76,32 @@ export class DsHeader extends LitElement {
         object-fit: contain;
       }
 
-      .brand-name {
-        font-size: 17px;
-        font-weight: var(--ds-font-weight-semibold);
-        letter-spacing: -0.03em;
-        color: var(--ds-text-primary);
+      .brand-meta {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 14px;
+      }
+
+      .brand-kicker {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px 7px;
+        border-radius: var(--ds-radius-full);
+        background: var(--ds-pill-surface);
+        border: 1px solid var(--ds-pill-border);
+        color: var(--ds-text-secondary);
+        font-size: 10px;
+        font-weight: var(--ds-font-weight-medium);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
       }
 
       .brand-subtext {
         font-size: var(--ds-font-size-xs);
         color: var(--ds-text-tertiary);
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
+        line-height: 1.45;
+        max-width: 220px;
       }
 
       .btn-icon {
@@ -133,12 +147,17 @@ export class DsHeader extends LitElement {
             alt="PinFlow Logo"
           />
           <div class="brand-copy">
+            <div class="brand-meta">
+              <span class="brand-kicker">Arbeitsbereich</span>
+            </div>
             <img
               class="brand-wordmark"
               src=${getThemeWordmarkAsset(theme)}
               alt="PinFlow"
             />
-            <span class="brand-subtext">Arbeitsbereich</span>
+            <span class="brand-subtext"
+              >Visuelle Auswahl, Kommentare und Versand</span
+            >
           </div>
         </div>
 

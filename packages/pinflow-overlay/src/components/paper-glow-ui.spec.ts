@@ -175,6 +175,71 @@ describe('Paper Glow UI contract', () => {
     expect(mockStore.enterCaptureMode).toHaveBeenCalledTimes(1);
   });
 
+  it('renders guided composer states for offline, selection and ready-to-send moments', async () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+
+    render(html`<ds-annotation-input></ds-annotation-input>`, host);
+
+    const input = host.querySelector('ds-annotation-input') as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await input.updateComplete;
+
+    let inputText = input.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+    let submitButton = input.shadowRoot.querySelector(
+      'button[aria-label="Anmerkung senden"]',
+    ) as HTMLButtonElement;
+
+    expect(inputText).toContain('Relay offline');
+    expect(inputText).toContain(
+      'Verbinde PinFlow zuerst mit dem Relay, damit neue Aufgaben direkt in deinen Flow gehen koennen.',
+    );
+    expect(submitButton.textContent).toContain('Wartet auf Relay');
+    expect(submitButton.disabled).toBe(true);
+
+    mockState.relayConnected = true;
+    input.requestUpdate();
+    await input.updateComplete;
+
+    inputText = input.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+    submitButton = input.shadowRoot.querySelector(
+      'button[aria-label="Anmerkung senden"]',
+    ) as HTMLButtonElement;
+
+    expect(inputText).toContain('Element waehlen');
+    expect(inputText).toContain(
+      'Markiere zuerst rechts ein UI-Element und formuliere danach die gewuenschte Aenderung.',
+    );
+    expect(submitButton.textContent).toContain('Element waehlen');
+    expect(submitButton.disabled).toBe(true);
+
+    mockState.selectedElement = document.createElement('button');
+    input.requestUpdate();
+    await input.updateComplete;
+
+    const textarea = input.shadowRoot.querySelector(
+      'textarea',
+    ) as HTMLTextAreaElement;
+    textarea.value = 'CTA klarer formulieren';
+    textarea.dispatchEvent(new Event('input'));
+    await input.updateComplete;
+
+    inputText = input.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+    submitButton = input.shadowRoot.querySelector(
+      'button[aria-label="Anmerkung senden"]',
+    ) as HTMLButtonElement;
+
+    expect(inputText).toContain('Bereit zum Senden');
+    expect(inputText).toContain(
+      'Die Aenderung geht direkt in den aktiven Flow. Mit Strg+Enter kannst du sofort senden.',
+    );
+    expect(submitButton.textContent).toContain('In Flow geben');
+    expect(submitButton.disabled).toBe(false);
+  });
+
   it('renders the collapsed launcher with theme-aware PinFlow assets', async () => {
     mockState.mode = 'collapsed';
     mockState.theme = 'dark';

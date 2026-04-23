@@ -297,19 +297,74 @@ export class DsAnnotationInput extends LitElement {
     }
   }
 
+  private getComposerState(
+    relayConnected: boolean,
+    hasElement: boolean,
+    hasInput: boolean,
+  ) {
+    if (this.isSubmitting) {
+      return {
+        badge: 'Sendet gerade',
+        active: true,
+        copy: 'PinFlow uebergibt deine Aenderung gerade an den aktiven Flow.',
+        submitLabel: 'Sendet...',
+        hint: 'Der Auftrag wird gerade uebergeben.',
+      };
+    }
+
+    if (!relayConnected) {
+      return {
+        badge: 'Relay offline',
+        active: false,
+        copy:
+          'Verbinde PinFlow zuerst mit dem Relay, damit neue Aufgaben direkt in deinen Flow gehen koennen.',
+        submitLabel: 'Wartet auf Relay',
+        hint: 'Sobald Relay verbunden ist, kannst du direkt aus dem Overlay senden.',
+      };
+    }
+
+    if (!hasElement) {
+      return {
+        badge: 'Element waehlen',
+        active: false,
+        copy:
+          'Markiere zuerst rechts ein UI-Element und formuliere danach die gewuenschte Aenderung.',
+        submitLabel: 'Element waehlen',
+        hint: 'Mit dem Marker waehlst du die Stelle aus, die du aendern willst.',
+      };
+    }
+
+    if (!hasInput) {
+      return {
+        badge: 'Bereit zum Schreiben',
+        active: true,
+        copy:
+          'Beschreibe jetzt die Aenderung fuer das markierte Element. PinFlow uebergibt sie danach direkt in den aktiven Flow.',
+        submitLabel: 'Aenderung senden',
+        hint: 'Mit Strg+Enter kannst du sofort senden.',
+      };
+    }
+
+    return {
+      badge: 'Bereit zum Senden',
+      active: true,
+      copy:
+        'Die Aenderung geht direkt in den aktiven Flow. Mit Strg+Enter kannst du sofort senden.',
+      submitLabel: 'In Flow geben',
+      hint: 'Mit Strg+Enter senden',
+    };
+  }
+
   override render() {
     const { selectedElement, relayConnected, mode } =
       this.storeController.state;
     const hasElement = !!selectedElement;
     const isCapturing = mode === 'capturing';
+    const hasInput = !!this.inputValue.trim();
 
     // Input is disabled if not connected OR no element selected
     const isDisabled = !relayConnected || !hasElement;
-    const canSubmit =
-      this.inputValue.trim() &&
-      hasElement &&
-      relayConnected &&
-      !this.isSubmitting;
+    const canSubmit = hasInput && hasElement && relayConnected && !this.isSubmitting;
 
     // Contextual placeholder based on state
     const placeholder = !relayConnected
@@ -317,21 +372,22 @@ export class DsAnnotationInput extends LitElement {
       : !hasElement
         ? 'Waehle zuerst ein Element aus...'
         : 'Beschreibe die gewuenschte Aenderung...';
-    const selectionText = hasElement ? 'Element ausgewaehlt' : 'Keine Auswahl';
-    const helperCopy = hasElement
-      ? 'Beschreibe die gewuenschte Aenderung fuer das markierte UI-Element.'
-      : 'Waehle zuerst ein UI-Element aus und beschreibe dann die gewuenschte Aenderung.';
+    const composerState = this.getComposerState(
+      relayConnected,
+      hasElement,
+      hasInput,
+    );
 
     return html`
       <div class="input-wrapper">
         <div class="composer-head">
           <div class="composer-topline">
             <span class="composer-title">Kommentar und Auftrag</span>
-            <span class="selection-state ${hasElement ? 'active' : ''}"
-              >${selectionText}</span
+            <span class="selection-state ${composerState.active ? 'active' : ''}"
+              >${composerState.badge}</span
             >
           </div>
-          <p class="composer-copy">${helperCopy}</p>
+          <p class="composer-copy">${composerState.copy}</p>
         </div>
 
         <div class="textarea-container ${isDisabled ? 'disabled' : ''}">
@@ -395,14 +451,12 @@ export class DsAnnotationInput extends LitElement {
                   stroke-linejoin="round"
                 />
               </svg>
-              <span class="submit-label">Senden</span>
+              <span class="submit-label">${composerState.submitLabel}</span>
             </button>
           </div>
         </div>
       </div>
-      ${hasElement
-        ? html`<div class="hint">Mit Strg+Enter senden</div>`
-        : null}
+      <div class="hint">${composerState.hint}</div>
     `;
   }
 }

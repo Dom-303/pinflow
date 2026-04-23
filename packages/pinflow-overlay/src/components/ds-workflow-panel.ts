@@ -231,6 +231,31 @@ export class DsWorkflowPanel extends LitElement {
         gap: 8px;
       }
 
+      .batch-summary {
+        display: grid;
+        gap: 6px;
+        padding: 12px;
+        border-radius: 14px;
+        border: 1px solid var(--ds-panel-border);
+        background: var(--ds-card-surface-strong);
+        box-shadow: var(--ds-shadow-sm);
+      }
+
+      .batch-summary-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .batch-summary-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        color: var(--ds-text-secondary);
+        font-size: var(--ds-font-size-xs);
+      }
+
       .flow-note {
         display: grid;
         gap: 4px;
@@ -468,6 +493,7 @@ export class DsWorkflowPanel extends LitElement {
           : summary.waiting > 0
             ? 'Bereit fuer den naechsten Versand'
             : 'Bereit zum Start';
+    const latestBatch = dispatchBatches[0];
 
     return html`
       <div class="panel">
@@ -658,6 +684,34 @@ export class DsWorkflowPanel extends LitElement {
         ${dispatchBatches.length
           ? html`
               <div class="batch-log">
+                <div class="eyebrow">Letzter Lauf</div>
+                <div class="batch-summary">
+                  <div class="batch-summary-row">
+                    <div class="batch-channel">
+                      ${this.getChannelLabel(latestBatch.channel as DispatchChannel)}
+                    </div>
+                    <div class="batch-status" data-status=${latestBatch.status}>
+                      ${this.getBatchStatusLabel(latestBatch.status)}
+                    </div>
+                  </div>
+                  <div class="batch-summary-meta">
+                    <span
+                      >Freigegeben
+                      ${this.formatBatchReleasedAt(latestBatch.releasedAt)}</span
+                    >
+                    <span>${latestBatch.annotationIds.length} Aufgaben</span>
+                    <span>${latestBatch.completedCount} fertig</span>
+                    ${latestBatch.processingCount
+                      ? html`<span>${latestBatch.processingCount} aktiv</span>`
+                      : nothing}
+                    ${latestBatch.queuedCount
+                      ? html`<span>${latestBatch.queuedCount} wartend</span>`
+                      : nothing}
+                    ${latestBatch.failedCount
+                      ? html`<span>${latestBatch.failedCount} Fehler</span>`
+                      : nothing}
+                  </div>
+                </div>
                 <div class="eyebrow">Letzte Batches</div>
                 <div class="batch-list">
                   ${dispatchBatches.slice(0, 3).map(

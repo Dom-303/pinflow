@@ -141,6 +141,21 @@ export class DsSessionSettings extends LitElement {
         background: var(--ds-brand-primary);
       }
 
+      .session-overrides {
+        display: grid;
+        gap: 8px;
+        padding: 10px;
+        border-radius: 14px;
+        border: 1px solid var(--ds-panel-border);
+        background: var(--ds-panel-surface);
+      }
+
+      .session-overrides-title {
+        color: var(--ds-text-primary);
+        font-size: var(--ds-font-size-sm);
+        font-weight: var(--ds-font-weight-semibold);
+      }
+
       .reset-btn {
         display: inline-flex;
         align-items: center;
@@ -225,21 +240,37 @@ export class DsSessionSettings extends LitElement {
     );
   }
 
+  private getModeLabel(mode: DispatchMode) {
+    return mode === 'immediate'
+      ? 'Sofort'
+      : mode === 'threshold'
+        ? 'Ab Schwelle'
+        : 'Manuell';
+  }
+
+  private getContinuationLabel(mode: DispatchContinuationMode) {
+    return mode === 'automatic'
+      ? 'Automatisch'
+      : mode === 'confirm'
+        ? 'Freigeben'
+        : 'Manuell';
+  }
+
+  private getChannelLabel(channel?: 'codex' | 'claude' | 'queue_only') {
+    return channel === 'queue_only'
+      ? 'Nur sammeln'
+      : channel === 'claude'
+        ? 'Claude'
+        : 'Codex';
+  }
+
   override render() {
     const hasSessionOverrides =
       Object.values(this.sessionOverrides ?? {}).filter(Boolean).length > 0;
-    const modeLabel =
-      this.projectDefaults.mode === 'immediate'
-        ? 'Sofort'
-        : this.projectDefaults.mode === 'threshold'
-          ? 'Ab Schwelle'
-          : 'Manuell';
-    const continuationLabel =
-      this.projectDefaults.continuation === 'automatic'
-        ? 'Automatisch'
-        : this.projectDefaults.continuation === 'confirm'
-          ? 'Freigeben'
-          : 'Manuell';
+    const modeLabel = this.getModeLabel(this.projectDefaults.mode);
+    const continuationLabel = this.getContinuationLabel(
+      this.projectDefaults.continuation,
+    );
 
     return html`
       <div class="section">
@@ -325,6 +356,56 @@ export class DsSessionSettings extends LitElement {
             ? 'Session-Overrides sind aktiv'
             : 'Session folgt Projektstandard'}
         </div>
+        <div class="session-note">
+          ${hasSessionOverrides
+            ? 'Aktive Session-Anpassungen uebersteuern nur diese laufende Sitzung.'
+            : 'Keine Session-Anpassungen aktiv.'}
+        </div>
+        ${hasSessionOverrides
+          ? html`
+              <div class="session-overrides">
+                <div class="session-overrides-title">
+                  Aktive Session-Anpassungen
+                </div>
+                <div class="summary-strip">
+                  ${this.sessionOverrides.channel
+                    ? html`<span class="summary-pill"
+                        ><strong
+                          >${this.getChannelLabel(this.sessionOverrides.channel)}</strong
+                        >
+                        Kanal</span
+                      >`
+                    : null}
+                  ${this.sessionOverrides.mode
+                    ? html`<span class="summary-pill"
+                        ><strong>${this.getModeLabel(this.sessionOverrides.mode)}</strong>
+                        Versand</span
+                      >`
+                    : null}
+                  ${this.sessionOverrides.continuation
+                    ? html`<span class="summary-pill"
+                        ><strong
+                          >${this.getContinuationLabel(this.sessionOverrides.continuation)}</strong
+                        >
+                        Fortsetzung</span
+                      >`
+                    : null}
+                  ${this.sessionOverrides.threshold
+                    ? html`<span class="summary-pill"
+                        ><strong>${this.sessionOverrides.threshold}</strong>
+                        Schwelle</span
+                      >`
+                    : null}
+                  ${this.sessionOverrides.concurrency
+                    ? html`<span class="summary-pill"
+                        ><strong>${this.sessionOverrides.concurrency}</strong>
+                        Parallelitaet</span
+                      >`
+                    : null}
+                </div>
+              </div>
+            `
+          : null}
         ${hasSessionOverrides
           ? html`
               <button class="reset-btn" @click=${this.handleResetSession}>

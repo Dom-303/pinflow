@@ -276,6 +276,7 @@ describe('Paper Glow UI contract', () => {
     expect(workflowPanel.shadowRoot.textContent).toContain('Automatisch');
     expect(workflowPanel.shadowRoot.textContent).toContain('Freigabe & Automatik');
     expect(workflowPanel.shadowRoot.textContent).toContain('Codex');
+    expect(workflowPanel.shadowRoot.textContent).toContain('Letzter Lauf');
     expect(workflowPanel.shadowRoot.textContent).toContain('Letzte Batches');
     expect(workflowPanel.shadowRoot.textContent).toContain('Laeuft');
     expect(workflowPanel.shadowRoot.textContent).toContain('Freigegeben');
@@ -328,8 +329,42 @@ describe('Paper Glow UI contract', () => {
     expect(settingsText).toContain('Projektstandard');
     expect(settingsText).toContain('Session-Verhalten');
     expect(settingsText).toContain('Session folgt Projektstandard');
+    expect(settingsText).toContain('Keine Session-Anpassungen aktiv');
     expect(settingsText).toContain('Parallelitaet');
     expect(settingsText).toContain('Automatik-Schwelle');
+  });
+
+  it('renders active session adjustments as a compact summary', async () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    render(
+      html`<ds-session-settings
+        .projectDefaults=${mockState.dispatchProjectDefaults}
+        .sessionOverrides=${{
+          channel: 'claude',
+          mode: 'threshold',
+          continuation: 'confirm',
+        }}
+      ></ds-session-settings>`,
+      host,
+    );
+
+    const settings = host.querySelector(
+      'ds-session-settings',
+    ) as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await settings.updateComplete;
+
+    const settingsText =
+      settings.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+    expect(settingsText).toContain('Aktive Session-Anpassungen');
+    expect(settingsText).toContain('Claude');
+    expect(settingsText).toContain('Ab Schwelle');
+    expect(settingsText).toContain('Freigeben');
+    expect(settingsText).toContain('Session-Overrides zuruecksetzen');
   });
 
   it('renders a guided inspector state for empty and selected elements', async () => {

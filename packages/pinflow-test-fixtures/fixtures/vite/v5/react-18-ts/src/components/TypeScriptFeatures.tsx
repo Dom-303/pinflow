@@ -48,7 +48,7 @@ function ThemedComponent({ theme, children }: ThemedComponentProps) {
 export function TypeScriptFeatures() {
   const users: User[] = [
     { id: 1, name: 'Alice', email: 'alice@example.com' },
-    { id: 2, name: 'Bob' }, // No email (optional)
+    { id: 2, name: 'Bob' },
     { id: 3, name: 'Charlie', email: 'charlie@example.com' },
   ];
 
@@ -58,14 +58,14 @@ export function TypeScriptFeatures() {
   return (
     <div className="typescript-features">
       <section>
-        <h4>Generic Component</h4>
+        <h4>Generische Komponente</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <GenericList
             items={users}
             renderItem={(user) => (
               <div>
-                {user.name} - {user.email ?? 'No email'}
+                {user.name} - {user.email ?? 'Keine E-Mail'}
               </div>
             )}
           />
@@ -77,9 +77,9 @@ export function TypeScriptFeatures() {
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <div>
-            <p>First user email: {users[0]?.email ?? 'N/A'}</p>
-            <p>Nullable value: {nullableValue ?? 'Default'}</p>
-            <p>Undefined value: {undefinedValue ?? 'Default'}</p>
+            <p>Erste Benutzer-E-Mail: {users[0]?.email ?? 'k. A.'}</p>
+            <p>Nullable-Wert: {nullableValue ?? 'Standardwert'}</p>
+            <p>Undefined-Wert: {undefinedValue ?? 'Standardwert'}</p>
           </div>
         </div>
       </section>
@@ -88,9 +88,9 @@ export function TypeScriptFeatures() {
         <h4>Union Types (Theme)</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
-          <ThemedComponent theme="light">Light theme content</ThemedComponent>
-          <ThemedComponent theme="dark">Dark theme content</ThemedComponent>
-          <ThemedComponent theme="auto">Auto theme content</ThemedComponent>
+          <ThemedComponent theme="light">Inhalt fuer Light Theme</ThemedComponent>
+          <ThemedComponent theme="dark">Inhalt fuer Dark Theme</ThemedComponent>
+          <ThemedComponent theme="auto">Inhalt fuer automatisches Theme</ThemedComponent>
         </div>
       </section>
 

@@ -37,8 +37,8 @@ function UseRefExample() {
   return (
     <div className="use-ref-example">
       <div className="input-group">
-        <input ref={inputRef} placeholder="Will be focused" />
-        <button onClick={focusInput}>Focus Input</button>
+        <input ref={inputRef} placeholder="Wird per Ref fokussiert" />
+        <button onClick={focusInput}>Eingabe fokussieren</button>
       </div>
 
       <div
@@ -49,10 +49,10 @@ function UseRefExample() {
           height: '100px',
         }}
       >
-        Measured div
+        Gemessenes div
       </div>
-      <button onClick={measureDiv}>Measure Div</button>
-      {measurement && <p>Dimensions: {measurement}</p>}
+      <button onClick={measureDiv}>div vermessen</button>
+      {measurement && <p>Abmessungen: {measurement}</p>}
     </div>
   );
 }
@@ -69,9 +69,9 @@ function CallbackRefExample() {
   return (
     <div className="callback-ref-example">
       <div ref={callbackRef} className="demo-box demo-box-red">
-        This element uses a callback ref
+        Dieses Element nutzt einen Callback Ref
         <br />
-        Measured height: {height}px
+        Gemessene Hoehe: {height}px
       </div>
     </div>
   );
@@ -118,14 +118,14 @@ function ForwardRefExample() {
   return (
     <div className="forward-ref-example">
       <div className="form-group">
-        <CustomInput ref={inputRef} placeholder="Custom input with ref" />
+        <CustomInput ref={inputRef} placeholder="Eigene Eingabe mit Ref" />
         <div>
-          <button onClick={() => inputRef.current?.focus()}>Focus</button>
-          <button onClick={() => inputRef.current?.clear()}>Clear</button>
-          <button onClick={handleGetValue}>Get Value</button>
+          <button onClick={() => inputRef.current?.focus()}>Fokus</button>
+          <button onClick={() => inputRef.current?.clear()}>Leeren</button>
+          <button onClick={handleGetValue}>Wert lesen</button>
         </div>
       </div>
-      {value && <p>Value: {value}</p>}
+      {value && <p>Wert: {value}</p>}
     </div>
   );
 }
@@ -152,19 +152,19 @@ function MultipleRefsExample() {
   return (
     <div className="multiple-refs-example">
       <div ref={setRefs} className="demo-box demo-box-green">
-        This element has multiple refs combined
+        Dieses Element kombiniert mehrere Refs
         <br />
-        Height from callback: {callbackHeight}px
+        Hoehe aus Callback: {callbackHeight}px
       </div>
       <button onClick={() => console.log('Ref1:', ref1.current)}>
-        Log ref1
+        ref1 in Konsole ausgeben
       </button>
     </div>
   );
 }
 
 function DynamicRefExample() {
-  const [items] = useState(['Item 1', 'Item 2', 'Item 3']);
+  const [items] = useState(['Eintrag 1', 'Eintrag 2', 'Eintrag 3']);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
 
@@ -187,7 +187,7 @@ function DynamicRefExample() {
       <div>
         {items.map((_, index) => (
           <button key={index} onClick={() => focusItem(index)}>
-            Focus Item {index + 1}
+            Eintrag {index + 1} fokussieren
           </button>
         ))}
       </div>
@@ -223,7 +223,7 @@ export function RefPatterns() {
       </section>
 
       <section>
-        <h4>Multiple Refs (Combined)</h4>
+        <h4>Mehrere Refs (kombiniert)</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <MultipleRefsExample />
@@ -231,7 +231,7 @@ export function RefPatterns() {
       </section>
 
       <section>
-        <h4>Dynamic Refs (Array)</h4>
+        <h4>Dynamische Refs (Array)</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <DynamicRefExample />

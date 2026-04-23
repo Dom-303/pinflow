@@ -25,7 +25,7 @@ const AnotherLazyComponent = lazy(() =>
 function LoadingFallback() {
   return (
     <div className="loading-fallback">
-      <p>Loading component...</p>
+      <p>Komponente wird geladen...</p>
     </div>
   );
 }
@@ -33,8 +33,8 @@ function LoadingFallback() {
 function NestedSuspense() {
   return (
     <div className="nested-suspense">
-      <h4>Nested Suspense Boundary</h4>
-      <Suspense fallback={<div>Loading nested...</div>}>
+      <h4>Verschachtelte Suspense-Boundary</h4>
+      <Suspense fallback={<div>Verschachtelte Komponente wird geladen...</div>}>
         <AnotherLazyComponent />
       </Suspense>
     </div>
@@ -48,11 +48,11 @@ export function LazyLoading() {
   return (
     <div className="lazy-loading">
       <section>
-        <h4>Basic Lazy Component with Suspense</h4>
+        <h4>Lazy Component mit Suspense</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <button onClick={() => setShowLazy(!showLazy)}>
-            {showLazy ? 'Hide' : 'Show'} Lazy Component
+            {showLazy ? 'Verbergen' : 'Anzeigen'}: Lazy Component
           </button>
           {showLazy && (
             <Suspense fallback={<LoadingFallback />}>
@@ -63,16 +63,16 @@ export function LazyLoading() {
       </section>
 
       <section>
-        <h4>Nested Suspense Boundaries</h4>
+        <h4>Verschachtelte Suspense-Boundaries</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <button onClick={() => setShowNested(!showNested)}>
-            {showNested ? 'Hide' : 'Show'} Nested Suspense
+            {showNested ? 'Verbergen' : 'Anzeigen'}: Nested Suspense
           </button>
           {showNested && (
-            <Suspense fallback={<div>Loading outer...</div>}>
+            <Suspense fallback={<div>Aeussere Boundary wird geladen...</div>}>
               <div className="outer-suspense">
-                <p>Outer Suspense Content</p>
+                <p>Inhalt der aeusseren Suspense-Boundary</p>
                 <NestedSuspense />
               </div>
             </Suspense>
@@ -81,10 +81,10 @@ export function LazyLoading() {
       </section>
 
       <section>
-        <h4>Multiple Lazy Components (Same Boundary)</h4>
+        <h4>Mehrere Lazy Components</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
-          <Suspense fallback={<div>Loading multiple...</div>}>
+          <Suspense fallback={<div>Mehrere Komponenten werden geladen...</div>}>
             <div className="multiple-lazy">
               <LazyComponent />
               <AnotherLazyComponent />

@@ -30,20 +30,20 @@ function DataProvider<T>({ data, children }: DataProviderProps<T>) {
 
 export function RenderProps() {
   const items = [
-    { id: 1, name: 'Item 1' },
-    { id: 2, name: 'Item 2' },
+    { id: 1, name: 'Eintrag 1' },
+    { id: 2, name: 'Eintrag 2' },
   ];
 
   return (
     <div className="render-props">
       <section>
-        <h4>Basic Render Prop</h4>
+        <h4>Grundlegende Render Prop</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <MouseTracker
             render={(x, y) => (
               <div>
-                Mouse position: {x}, {y}
+                Mausposition: {x}, {y}
               </div>
             )}
           />
@@ -51,7 +51,7 @@ export function RenderProps() {
       </section>
 
       <section>
-        <h4>Children as Function (Render Prop)</h4>
+        <h4>Children als Funktion</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <DataProvider data={items}>

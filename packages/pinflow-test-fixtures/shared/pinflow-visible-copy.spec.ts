@@ -80,6 +80,21 @@ describe('pinflow visible fixture copy', () => {
     const edgeCases = readFixture(
       'vite/v5/react-18-ts/src/components/EdgeCases.tsx',
     );
+    const errorBoundaries = readFixture(
+      'vite/v5/react-18-ts/src/components/ErrorBoundaries.tsx',
+    );
+    const lazyLoading = readFixture(
+      'vite/v5/react-18-ts/src/components/LazyLoading.tsx',
+    );
+    const refPatterns = readFixture(
+      'vite/v5/react-18-ts/src/components/RefPatterns.tsx',
+    );
+    const renderProps = readFixture(
+      'vite/v5/react-18-ts/src/components/RenderProps.tsx',
+    );
+    const typescriptFeatures = readFixture(
+      'vite/v5/react-18-ts/src/components/TypeScriptFeatures.tsx',
+    );
 
     expect(basic).toContain('Blockelement');
     expect(basic).toContain('Texteingabe');
@@ -122,5 +137,25 @@ describe('pinflow visible fixture copy', () => {
     expect(edgeCases).toContain('Null- und Undefined-Rueckgaben');
     expect(edgeCases).toContain('Leeres Fragment');
     expect(edgeCases).toContain('Inline-Null/Undefined/Boolean');
+
+    expect(errorBoundaries).toContain('Grundlegende Error Boundary');
+    expect(errorBoundaries).toContain('Error Boundary mit eigener Fallback-UI');
+    expect(errorBoundaries).toContain('Fehler gezielt ausloesen');
+
+    expect(lazyLoading).toContain('Lazy Component mit Suspense');
+    expect(lazyLoading).toContain('Verschachtelte Suspense-Boundaries');
+    expect(lazyLoading).toContain('Mehrere Lazy Components');
+
+    expect(refPatterns).toContain('Eingabe fokussieren');
+    expect(refPatterns).toContain('Callback Ref');
+    expect(refPatterns).toContain('Dynamische Refs (Array)');
+
+    expect(renderProps).toContain('Grundlegende Render Prop');
+    expect(renderProps).toContain('Children als Funktion');
+    expect(renderProps).toContain('Mausposition');
+
+    expect(typescriptFeatures).toContain('Generische Komponente');
+    expect(typescriptFeatures).toContain('Optional Chaining & Nullish Coalescing');
+    expect(typescriptFeatures).toContain('Type Narrowing');
   });
 });

@@ -31,7 +31,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo);
+    console.error('Fehler von Error Boundary abgefangen:', error, errorInfo);
   }
 
   render() {
@@ -39,10 +39,10 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
       return (
         this.props.fallback || (
           <div className="error-fallback">
-            <h4>Something went wrong</h4>
-            <p>Error: {this.state.error?.message}</p>
+            <h4>Etwas ist schiefgelaufen</h4>
+            <p>Fehler: {this.state.error?.message}</p>
             <button onClick={() => this.setState({ hasError: false })}>
-              Try again
+              Erneut versuchen
             </button>
           </div>
         )
@@ -55,12 +55,12 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 
 function ThrowingComponent({ shouldThrow }: { shouldThrow: boolean }) {
   if (shouldThrow) {
-    throw new Error('Intentional error from ThrowingComponent');
+    throw new Error('Absichtlich ausgeloester Fehler aus ThrowingComponent');
   }
 
   return (
     <div className="throwing-component">
-      <p>This component is not throwing an error</p>
+      <p>Diese Komponente wirft aktuell keinen Fehler.</p>
     </div>
   );
 }
@@ -70,7 +70,7 @@ function ConditionalError() {
 
   return (
     <div className="conditional-error">
-      <button onClick={() => setThrowError(true)}>Trigger Error</button>
+      <button onClick={() => setThrowError(true)}>Fehler ausloesen</button>
       <ErrorBoundary>
         <ThrowingComponent shouldThrow={throwError} />
       </ErrorBoundary>
@@ -84,60 +84,60 @@ export function ErrorBoundaries() {
   return (
     <div className="error-boundaries">
       <section>
-        <h4>Basic Error Boundary (Default Fallback)</h4>
+        <h4>Grundlegende Error Boundary</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
-          <p>Safe content wrapped in error boundary:</p>
+          <p>Sicherer Inhalt innerhalb einer Error Boundary:</p>
           <ErrorBoundary>
             <div className="safe-content">
-              <p>This content is inside an error boundary</p>
-              <button>Safe Button</button>
+              <p>Dieser Inhalt liegt geschuetzt in einer Error Boundary.</p>
+              <button>Sicherer Button</button>
             </div>
           </ErrorBoundary>
         </div>
       </section>
 
       <section>
-        <h4>Error Boundary with Custom Fallback UI</h4>
+        <h4>Error Boundary mit eigener Fallback-UI</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
-          <p>Error boundary with custom fallback message:</p>
+          <p>Error Boundary mit eigener Fallback-Nachricht:</p>
           <ErrorBoundary
             fallback={
               <div className="custom-fallback">
-                <h5>Custom Error Fallback</h5>
-                <p>Please contact support</p>
+                <h5>Eigener Error-Fallback</h5>
+                <p>Bitte den Support kontaktieren.</p>
               </div>
             }
           >
             <div className="more-safe-content">
-              <p>Another section with error protection</p>
+              <p>Weiterer Bereich mit Fehlerabsicherung.</p>
             </div>
           </ErrorBoundary>
         </div>
       </section>
 
       <section>
-        <h4>Conditional Error Triggering</h4>
+        <h4>Fehler gezielt ausloesen</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
-          <p>Click button to trigger an error and test error boundary:</p>
+          <p>Per Klick einen Fehler ausloesen und die Error Boundary pruefen:</p>
           <ConditionalError key={reset} />
-          <button onClick={() => setReset((r) => r + 1)}>Reset All</button>
+          <button onClick={() => setReset((r) => r + 1)}>Alles zuruecksetzen</button>
         </div>
       </section>
 
       <section>
-        <h4>Nested Error Boundaries</h4>
+        <h4>Verschachtelte Error Boundaries</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
-          <p>Multiple error boundaries nested inside each other:</p>
+          <p>Mehrere Error Boundaries ineinander verschachtelt:</p>
           <ErrorBoundary>
             <div className="outer-boundary">
-              <p>Outer error boundary</p>
+              <p>Aeussere Error Boundary</p>
               <ErrorBoundary>
                 <div className="inner-boundary">
-                  <p>Inner error boundary</p>
+                  <p>Innere Error Boundary</p>
                 </div>
               </ErrorBoundary>
             </div>

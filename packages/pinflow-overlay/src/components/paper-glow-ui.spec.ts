@@ -367,6 +367,56 @@ describe('Paper Glow UI contract', () => {
     expect(settingsText).toContain('Session-Overrides zuruecksetzen');
   });
 
+  it('renders mixed batch outcomes as a guided partial-success state', async () => {
+    mockState.annotations = [
+      { id: 'note-1', metadata: { status: 'processed' } },
+      { id: 'note-2', metadata: { status: 'failed' } },
+    ];
+    mockState.dispatchBatches = [
+      {
+        id: 'batch-mixed',
+        channel: 'claude',
+        annotationIds: ['note-1', 'note-2'],
+        releasedAt: '2026-04-23T13:45:00.000Z',
+        status: 'mixed',
+        queuedCount: 0,
+        processingCount: 0,
+        completedCount: 1,
+        failedCount: 1,
+      },
+    ];
+
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    render(html`<ds-sidebar></ds-sidebar>`, host);
+
+    const sidebar = host.querySelector('ds-sidebar') as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await sidebar.updateComplete;
+
+    const workflowPanel = sidebar.shadowRoot.querySelector(
+      'ds-workflow-panel',
+    ) as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await workflowPanel.updateComplete;
+
+    const workflowText =
+      workflowPanel.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+
+    expect(workflowText).toContain('Teilerfolg');
+    expect(workflowText).toContain(
+      'Ein Teil des letzten Laufs ist fertig, einzelne Aufgaben brauchen noch Nacharbeit.',
+    );
+    expect(workflowText).toContain('1 Fehler');
+    expect(workflowText).toContain('Claude');
+  });
+
   it('renders a guided inspector state for empty and selected elements', async () => {
     mockState.theme = 'dark';
 

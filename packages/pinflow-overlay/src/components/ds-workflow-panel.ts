@@ -356,6 +356,11 @@ export class DsWorkflowPanel extends LitElement {
         color: var(--ds-error);
       }
 
+      .batch-status[data-status='mixed'] {
+        color: var(--ds-warning);
+        border-color: rgba(233, 189, 112, 0.55);
+      }
+
       .batch-status[data-status='queued'] {
         color: var(--ds-warning);
       }
@@ -420,8 +425,25 @@ export class DsWorkflowPanel extends LitElement {
     if (status === 'running') return 'Laeuft';
     if (status === 'completed') return 'Fertig';
     if (status === 'failed') return 'Fehler';
+    if (status === 'mixed') return 'Teilerfolg';
     if (status === 'queued') return 'Bereit';
     return status;
+  }
+
+  private getBatchStatusCopy(status: string) {
+    if (status === 'mixed') {
+      return 'Ein Teil des letzten Laufs ist fertig, einzelne Aufgaben brauchen noch Nacharbeit.';
+    }
+    if (status === 'failed') {
+      return 'Der letzte Lauf braucht Aufmerksamkeit, bevor du den naechsten Batch weiterziehst.';
+    }
+    if (status === 'completed') {
+      return 'Der letzte Lauf ist abgeschlossen und bereit fuer den naechsten Schritt.';
+    }
+    if (status === 'running') {
+      return 'Der aktuelle Lauf arbeitet noch und aktualisiert sich waehrend der Verarbeitung.';
+    }
+    return 'Der letzte Lauf steht bereit und wartet auf seinen naechsten Schritt.';
   }
 
   private getContinuationLabel(continuation: 'automatic' | 'confirm' | 'manual') {
@@ -747,6 +769,9 @@ export class DsWorkflowPanel extends LitElement {
                     <div class="batch-status" data-status=${latestBatch.status}>
                       ${this.getBatchStatusLabel(latestBatch.status)}
                     </div>
+                  </div>
+                  <div class="flow-note-copy">
+                    ${this.getBatchStatusCopy(latestBatch.status)}
                   </div>
                   <div class="batch-summary-meta">
                     <span

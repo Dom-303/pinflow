@@ -34,10 +34,10 @@ export function MemberExpressions() {
   return (
     <div className="member-expressions">
       <section>
-        <h4>Simple Member Expression (UI.Button)</h4>
+        <h4>Einfacher Member Expression (UI.Button)</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
-          <UI.Button>Click Me</UI.Button>
+          <UI.Button>Klick mich</UI.Button>
         </div>
       </section>
 
@@ -45,18 +45,18 @@ export function MemberExpressions() {
         <h4>Member Expression Input (UI.Input)</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
-          <UI.Input placeholder="Enter text" />
+          <UI.Input placeholder="Text eingeben" />
         </div>
       </section>
 
       <section>
-        <h4>Nested Member Expressions (Card.Header, Card.Body, Card.Footer)</h4>
+        <h4>Verschachtelte Member Expressions</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <div className="card">
-            <Card.Header>Card Title</Card.Header>
-            <Card.Body>Card content goes here</Card.Body>
-            <Card.Footer>Card footer</Card.Footer>
+            <Card.Header>Kartentitel</Card.Header>
+            <Card.Body>Karteninhalt steht hier</Card.Body>
+            <Card.Footer>Kartenfuss</Card.Footer>
           </div>
         </div>
       </section>

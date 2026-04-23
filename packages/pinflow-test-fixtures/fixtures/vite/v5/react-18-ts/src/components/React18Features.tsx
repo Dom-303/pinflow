@@ -28,12 +28,12 @@ function TransitionExample() {
 
   return (
     <div className="transition-example">
-      <p>Count: {count}</p>
+      <p>Anzahl: {count}</p>
       <button onClick={handleClick} disabled={isPending}>
-        {isPending ? 'Loading...' : 'Update (with transition)'}
+        {isPending ? 'Laedt...' : 'Aktualisieren (mit Transition)'}
       </button>
-      <p>Items generated: {items.length}</p>
-      {isPending && <div className="pending-indicator">Updating...</div>}
+      <p>Elemente erzeugt: {items.length}</p>
+      {isPending && <div className="pending-indicator">Aktualisierung laeuft...</div>}
     </div>
   );
 }
@@ -44,7 +44,7 @@ function DeferredValueExample() {
 
   const items = Array.from(
     { length: 100 },
-    (_, i) => `Item ${i}: ${deferredInput}`,
+    (_, i) => `Eintrag ${i}: ${deferredInput}`,
   );
 
   return (
@@ -53,10 +53,10 @@ function DeferredValueExample() {
         type="text"
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        placeholder="Type to filter..."
+        placeholder="Zum Filtern tippen..."
       />
-      <p>Current input: {input}</p>
-      <p>Deferred input: {deferredInput}</p>
+      <p>Aktuelle Eingabe: {input}</p>
+      <p>Verzoegerte Eingabe: {deferredInput}</p>
       <div className="deferred-list">
         {items.slice(0, 10).map((item, i) => (
           <div key={i}>{item}</div>
@@ -74,18 +74,18 @@ function UseIdExample() {
   return (
     <div className="use-id-example">
       <div className="form-group">
-        <label htmlFor={id1}>First Name:</label>
+        <label htmlFor={id1}>Vorname:</label>
         <input id={id1} type="text" />
       </div>
       <div className="form-group">
-        <label htmlFor={id2}>Last Name:</label>
+        <label htmlFor={id2}>Nachname:</label>
         <input id={id2} type="text" />
       </div>
       <div className="form-group">
-        <label htmlFor={id3}>Email:</label>
+        <label htmlFor={id3}>E-Mail:</label>
         <input id={id3} type="email" />
       </div>
-      <p>Generated IDs are SSR-safe and unique</p>
+      <p>Generierte IDs sind SSR-sicher und eindeutig</p>
     </div>
   );
 }
@@ -96,13 +96,13 @@ function NestedUseIdExample() {
   return (
     <div className="nested-use-id">
       <fieldset>
-        <legend id={`${parentId}-legend`}>Personal Info</legend>
+        <legend id={`${parentId}-legend`}>Persoenliche Daten</legend>
         <div className="form-group">
           <label htmlFor={`${parentId}-name`}>Name:</label>
           <input id={`${parentId}-name`} type="text" />
         </div>
         <div className="form-group">
-          <label htmlFor={`${parentId}-age`}>Age:</label>
+          <label htmlFor={`${parentId}-age`}>Alter:</label>
           <input id={`${parentId}-age`} type="number" />
         </div>
       </fieldset>
@@ -138,7 +138,7 @@ export function React18Features() {
       </section>
 
       <section>
-        <h4>Nested useId (with prefixes)</h4>
+        <h4>Verschachteltes useId (mit Praefixen)</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <NestedUseIdExample />

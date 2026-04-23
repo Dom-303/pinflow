@@ -17,7 +17,7 @@ export function SVGElements() {
   return (
     <div className="svg-elements">
       <section>
-        <h4>Basic SVG Shapes</h4>
+        <h4>Grundlegende SVG-Formen</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <svg width="200" height="200" className="basic-svg">
@@ -44,7 +44,7 @@ export function SVGElements() {
       </section>
 
       <section>
-        <h4>SVG Path Elements</h4>
+        <h4>SVG-Pfade</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <svg width="200" height="100" className="path-svg">
@@ -66,7 +66,7 @@ export function SVGElements() {
       </section>
 
       <section>
-        <h4>Dynamic SVG (State-Driven)</h4>
+        <h4>Dynamisches SVG (zustandsgetrieben)</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <div className="dynamic-svg">
@@ -91,7 +91,7 @@ export function SVGElements() {
       </section>
 
       <section>
-        <h4>SVG Groups (g element)</h4>
+        <h4>SVG-Gruppen (g-Element)</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <svg width="200" height="200" className="grouped-svg">
@@ -108,19 +108,19 @@ export function SVGElements() {
       </section>
 
       <section>
-        <h4>SVG Text Element</h4>
+        <h4>SVG-Text</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <svg width="200" height="50" className="text-svg">
             <text x="10" y="30" fill="black" fontSize="20" className="svg-text">
-              SVG Text
+              SVG-Text
             </text>
           </svg>
         </div>
       </section>
 
       <section>
-        <h4>SVG Defs & Use (Reusable Elements)</h4>
+        <h4>SVG Defs & Use</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <svg width="200" height="100" className="defs-svg">

@@ -15,7 +15,6 @@ export function Styling() {
   const [color, setColor] = useState('blue');
   const [size, setSize] = useState(16);
 
-  // Inline style object
   const dynamicStyle: CSSProperties = {
     color: color,
     fontSize: `${size}px`,
@@ -27,31 +26,29 @@ export function Styling() {
     transition: 'all var(--transition-normal)',
   };
 
-  // Utility-first large className (simulating Tailwind)
   const utilityClasses =
     'flex items-center justify-between p-4 mb-2 bg-gray-100 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200';
 
   return (
     <div className="styling">
-      {/* Inline styles with dynamic values */}
       <section>
-        <h4>Inline Styles (Dynamic)</h4>
+        <h4>Inline Styles (dynamisch)</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <div style={dynamicStyle} className="dynamic-styled">
-            Dynamic styled element
+            Dynamisch gestyltes Element
           </div>
           <div>
             <label>
-              Color:
+              Farbe:
               <select value={color} onChange={(e) => setColor(e.target.value)}>
-                <option value="blue">Blue</option>
-                <option value="red">Red</option>
-                <option value="green">Green</option>
+                <option value="blue">Blau</option>
+                <option value="red">Rot</option>
+                <option value="green">Gruen</option>
               </select>
             </label>
             <label>
-              Size:
+              Groesse:
               <input
                 type="range"
                 min="10"
@@ -64,9 +61,8 @@ export function Styling() {
         </div>
       </section>
 
-      {/* Direct inline styles */}
       <section>
-        <h4>Direct Inline Styles</h4>
+        <h4>Direkte Inline Styles</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <div
@@ -79,44 +75,41 @@ export function Styling() {
             }}
             className="direct-inline"
           >
-            <p style={{ margin: 0, fontWeight: 'bold' }}>Bold text</p>
+            <p style={{ margin: 0, fontWeight: 'bold' }}>Fetter Text</p>
             <span
               style={{ color: 'var(--color-accent-purple)', fontSize: '14px' }}
             >
-              Purple span
+              Violettes span
             </span>
           </div>
         </div>
       </section>
 
-      {/* Large utility className strings */}
       <section>
-        <h4>Utility-First Classes (simulating Tailwind)</h4>
+        <h4>Utility-First-Klassen</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <div className={`demo-box demo-box-blue ${utilityClasses}`}>
-            <span>Item with many utility classes</span>
+            <span>Element mit vielen Utility-Klassen</span>
             <button>Button</button>
           </div>
         </div>
       </section>
 
-      {/* Conditional classes */}
       <section>
-        <h4>Conditional Classes</h4>
+        <h4>Bedingte Klassen</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <div
             className={`demo-box demo-box-green conditional-box ${color === 'red' ? 'is-red' : 'not-red'} ${size > 20 ? 'is-large' : 'is-small'}`}
           >
-            Conditional class element
+            Element mit bedingten Klassen
           </div>
         </div>
       </section>
 
-      {/* Array join pattern */}
       <section>
-        <h4>Array Join Pattern</h4>
+        <h4>Array-Join-Pattern</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <div
@@ -131,14 +124,13 @@ export function Styling() {
               .filter(Boolean)
               .join(' ')}
           >
-            Array-joined classes
+            Klassen per Array zusammengefuegt
           </div>
         </div>
       </section>
 
-      {/* Style composition */}
       <section>
-        <h4>Style Composition</h4>
+        <h4>Style-Komposition</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <div
@@ -149,7 +141,7 @@ export function Styling() {
             }}
             className="composed-styles"
           >
-            Composed styles
+            Zusammengesetzte Styles
           </div>
         </div>
       </section>

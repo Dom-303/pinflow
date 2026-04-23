@@ -9,7 +9,7 @@ import { CaptureIcon } from './CaptureIcon';
 
 // Memoized component
 const MemoizedChild = memo(({ count }: { count: number }) => {
-  return <p>Count: {count}</p>;
+  return <p>Anzahl: {count}</p>;
 });
 MemoizedChild.displayName = 'MemoizedChild';
 
@@ -38,7 +38,7 @@ function CallbackParent() {
   return (
     <div className="callback-parent">
       <MemoizedChild count={count} />
-      <button onClick={increment}>Increment</button>
+      <button onClick={increment}>Erhoehen</button>
     </div>
   );
 }
@@ -53,7 +53,7 @@ export function Memo() {
   return (
     <div className="memo">
       <section>
-        <h4>React.memo with useCallback</h4>
+        <h4>React.memo mit useCallback</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <CallbackParent />
@@ -61,12 +61,12 @@ export function Memo() {
       </section>
 
       <section>
-        <h4>forwardRef Pattern</h4>
+        <h4>forwardRef-Pattern</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <div className="input-group">
-            <ForwardRefInput ref={inputRef} placeholder="Forward ref input" />
-            <button onClick={focusInput}>Focus Input</button>
+            <ForwardRefInput ref={inputRef} placeholder="Forward-Ref-Eingabe" />
+            <button onClick={focusInput}>Eingabe fokussieren</button>
           </div>
         </div>
       </section>

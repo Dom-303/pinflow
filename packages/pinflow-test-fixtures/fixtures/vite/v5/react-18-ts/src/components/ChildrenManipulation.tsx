@@ -64,7 +64,7 @@ function ChildCounter({ children }: ChildCounterProps) {
 
   return (
     <div className="child-counter">
-      <p>Number of children: {count}</p>
+      <p>Anzahl der Children: {count}</p>
       {children}
     </div>
   );
@@ -79,7 +79,7 @@ function OnlyChild({ children }: OnlyChildProps) {
 
   return (
     <div className="only-child">
-      <p>This component accepts exactly one child:</p>
+      <p>Diese Komponente akzeptiert genau ein Child:</p>
       {onlyChild}
     </div>
   );
@@ -121,7 +121,7 @@ function ChildrenEnhancer({ children, enhance = true }: EnhancerProps) {
       {Children.map(children, (child) => {
         if (isValidElement(child) && child.type === 'button') {
           return cloneElement(child, {
-            onClick: () => console.log('Enhanced button clicked'),
+            onClick: () => console.log('Erweiterter Button wurde geklickt'),
             className: `${child.props.className || ''} enhanced-button`,
           });
         }
@@ -139,9 +139,9 @@ export function ChildrenManipulation() {
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <ChildrenMapWrapper>
-            <div>First child</div>
-            <div>Second child</div>
-            <div>Third child</div>
+            <div>Erstes Child</div>
+            <div>Zweites Child</div>
+            <div>Drittes Child</div>
           </ChildrenMapWrapper>
         </div>
       </section>
@@ -151,7 +151,7 @@ export function ChildrenManipulation() {
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <CloneWithProps>
-            <div className="original">Original element</div>
+            <div className="original">Originalelement</div>
           </CloneWithProps>
         </div>
       </section>
@@ -173,7 +173,7 @@ export function ChildrenManipulation() {
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <OnlyChild>
-            <div>This is the only child</div>
+            <div>Das ist das einzige Child</div>
           </OnlyChild>
         </div>
       </section>
@@ -183,24 +183,24 @@ export function ChildrenManipulation() {
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <ListWithSeparator separator=" | ">
-            <span>Item 1</span>
-            <span>Item 2</span>
-            <span>Item 3</span>
-            <span>Item 4</span>
+            <span>Eintrag 1</span>
+            <span>Eintrag 2</span>
+            <span>Eintrag 3</span>
+            <span>Eintrag 4</span>
           </ListWithSeparator>
         </div>
       </section>
 
       <section>
-        <h4>Children Enhancer (selective cloning)</h4>
+        <h4>Buttons gezielt erweitern</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
-          <p>Regular div</p>
+          <p>Normales div</p>
           <ChildrenEnhancer enhance={true}>
-            <div>Regular div</div>
-            <button>Will be enhanced</button>
-            <span>Regular span</span>
-            <button>Another enhanced button</button>
+            <div>Normales div</div>
+            <button>Wird erweitert</button>
+            <span>Normales span</span>
+            <button>Noch ein erweiterter Button</button>
           </ChildrenEnhancer>
         </div>
       </section>

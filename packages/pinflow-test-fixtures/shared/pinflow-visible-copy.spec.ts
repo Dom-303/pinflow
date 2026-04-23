@@ -95,6 +95,25 @@ describe('pinflow visible fixture copy', () => {
     const typescriptFeatures = readFixture(
       'vite/v5/react-18-ts/src/components/TypeScriptFeatures.tsx',
     );
+    const advancedHooks = readFixture(
+      'vite/v5/react-18-ts/src/components/AdvancedHooks.tsx',
+    );
+    const childrenApi = readFixture(
+      'vite/v5/react-18-ts/src/components/ChildrenManipulation.tsx',
+    );
+    const memo = readFixture('vite/v5/react-18-ts/src/components/Memo.tsx');
+    const memberExpressions = readFixture(
+      'vite/v5/react-18-ts/src/components/MemberExpressions.tsx',
+    );
+    const react18 = readFixture(
+      'vite/v5/react-18-ts/src/components/React18Features.tsx',
+    );
+    const styling = readFixture(
+      'vite/v5/react-18-ts/src/components/Styling.tsx',
+    );
+    const svg = readFixture(
+      'vite/v5/react-18-ts/src/components/SVGElements.tsx',
+    );
 
     expect(basic).toContain('Blockelement');
     expect(basic).toContain('Texteingabe');
@@ -157,5 +176,33 @@ describe('pinflow visible fixture copy', () => {
     expect(typescriptFeatures).toContain('Generische Komponente');
     expect(typescriptFeatures).toContain('Optional Chaining & Nullish Coalescing');
     expect(typescriptFeatures).toContain('Type Narrowing');
+
+    expect(advancedHooks).toContain('Custom Hook mit JSX-Rueckgabe');
+    expect(advancedHooks).toContain('useLayoutEffect im Vergleich zu useEffect');
+    expect(advancedHooks).toContain('Besonderes Eingabefeld');
+
+    expect(childrenApi).toContain('Children.map');
+    expect(childrenApi).toContain('List with Separator');
+    expect(childrenApi).toContain('Buttons gezielt erweitern');
+
+    expect(memo).toContain('React.memo mit useCallback');
+    expect(memo).toContain('forwardRef-Pattern');
+    expect(memo).toContain('Eingabe fokussieren');
+
+    expect(memberExpressions).toContain('Einfacher Member Expression');
+    expect(memberExpressions).toContain('Verschachtelte Member Expressions');
+    expect(memberExpressions).toContain('Kartentitel');
+
+    expect(react18).toContain('Elemente erzeugt');
+    expect(react18).toContain('Aktuelle Eingabe');
+    expect(react18).toContain('Generierte IDs sind SSR-sicher und eindeutig');
+
+    expect(styling).toContain('Inline Styles (dynamisch)');
+    expect(styling).toContain('Utility-First-Klassen');
+    expect(styling).toContain('Style-Komposition');
+
+    expect(svg).toContain('Grundlegende SVG-Formen');
+    expect(svg).toContain('Dynamisches SVG (zustandsgetrieben)');
+    expect(svg).toContain('SVG Defs & Use');
   });
 });

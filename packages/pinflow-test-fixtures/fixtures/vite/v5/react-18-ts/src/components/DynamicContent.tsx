@@ -16,7 +16,7 @@ export function DynamicContent() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate async data loading
+    // Simuliert asynchrones Laden
     const timer = setTimeout(() => {
       setItems(['Dynamischer Eintrag 1', 'Dynamischer Eintrag 2', 'Dynamischer Eintrag 3']);
       setLoading(false);
@@ -56,7 +56,7 @@ export function DynamicContent() {
           <CaptureIcon />
           <div className="list-group">
             {loading ? (
-              <div>Laedt...</div>
+              <div>Laedt Eintraege...</div>
             ) : (
               <>
                 <ul>
@@ -80,16 +80,16 @@ export function DynamicContent() {
           <CaptureIcon />
           {count > 5 && (
             <div className="high-count-message">
-              Die Anzahl ist groesser als 5!
+              Die Anzahl ist groesser als 5.
             </div>
           )}
           {count < 0 && (
             <div className="negative-count-message">
-              Die Anzahl ist negativ!
+              Die Anzahl ist negativ.
             </div>
           )}
           {count >= 0 && count <= 5 && (
-            <div>Die Anzahl liegt zwischen 0 und 5</div>
+            <div>Die Anzahl liegt zwischen 0 und 5.</div>
           )}
         </div>
       </section>

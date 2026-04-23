@@ -43,7 +43,7 @@ function ThemedButton() {
       className={`themed-button ${context.theme}`}
       onClick={context.toggleTheme}
     >
-      Toggle Theme (current: {context.theme})
+      Theme wechseln (aktuell: {context.theme})
     </button>
   );
 }
@@ -64,10 +64,10 @@ function UserDisplay() {
       {user ? (
         <>
           <p>Name: {user.name}</p>
-          <p>Role: {user.role}</p>
+          <p>Rolle: {user.role}</p>
         </>
       ) : (
-        <p>No user logged in</p>
+        <p>Kein Benutzer angemeldet</p>
       )}
     </div>
   );
@@ -79,7 +79,7 @@ function UserConsumerExample() {
     <UserContext.Consumer>
       {(user) => (
         <div className="user-consumer">
-          {user ? `Logged in as ${user.name}` : 'Guest'}
+          {user ? `Angemeldet als ${user.name}` : 'Gast'}
         </div>
       )}
     </UserContext.Consumer>
@@ -95,7 +95,7 @@ function NestedContextExample() {
 
   return (
     <div className="nested-context">
-      <p>Language: {lang}</p>
+      <p>Sprache: {lang}</p>
       <p>Theme: {theme?.theme}</p>
     </div>
   );
@@ -108,7 +108,7 @@ export function Context() {
     <div className="context">
       <ThemeProvider>
         <section>
-          <h4>Theme Context (useContext Hook)</h4>
+          <h4>Theme Context (useContext-Hook)</h4>
           <div className="demo-box capture-widget">
             <CaptureIcon />
             <ThemedButton />
@@ -117,7 +117,7 @@ export function Context() {
 
         <UserContext.Provider value={currentUser}>
           <section>
-            <h4>User Context (Provider & Consumer)</h4>
+            <h4>Benutzerkontext (Provider & Consumer)</h4>
             <div className="demo-box capture-widget">
               <CaptureIcon />
               <UserDisplay />
@@ -127,7 +127,7 @@ export function Context() {
 
           <LanguageContext.Provider value="es">
             <section>
-              <h4>Nested Contexts (Multiple Providers)</h4>
+              <h4>Verschachtelte Kontexte (mehrere Provider)</h4>
               <div className="demo-box capture-widget">
                 <CaptureIcon />
                 <NestedContextExample />
@@ -137,7 +137,7 @@ export function Context() {
 
           <UserContext.Provider value={{ name: 'Bob', role: 'user' }}>
             <section>
-              <h4>Nested Provider (Different Value)</h4>
+              <h4>Verschachtelter Provider (anderer Wert)</h4>
               <div className="demo-box capture-widget">
                 <CaptureIcon />
                 <UserDisplay />

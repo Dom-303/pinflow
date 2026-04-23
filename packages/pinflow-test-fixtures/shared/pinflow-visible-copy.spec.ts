@@ -67,6 +67,19 @@ describe('pinflow visible fixture copy', () => {
     const events = readFixture('vite/v5/react-18-ts/src/components/EventHandlers.tsx');
     const portals = readFixture('vite/v5/react-18-ts/src/components/Portals.tsx');
     const ssr = readFixture('vite/v5/react-18-ts/src/components/SSRHydration.tsx');
+    const conditional = readFixture(
+      'vite/v5/react-18-ts/src/components/ConditionalRendering.tsx',
+    );
+    const dynamic = readFixture(
+      'vite/v5/react-18-ts/src/components/DynamicContent.tsx',
+    );
+    const context = readFixture('vite/v5/react-18-ts/src/components/Context.tsx');
+    const compound = readFixture(
+      'vite/v5/react-18-ts/src/components/CompoundComponents.tsx',
+    );
+    const edgeCases = readFixture(
+      'vite/v5/react-18-ts/src/components/EdgeCases.tsx',
+    );
 
     expect(basic).toContain('Blockelement');
     expect(basic).toContain('Texteingabe');
@@ -89,5 +102,25 @@ describe('pinflow visible fixture copy', () => {
     expect(ssr).toContain('Fensterpruefung');
     expect(ssr).toContain('Hydration-sicherer Zeitstempel');
     expect(ssr).toContain('Browser-API-Pruefungen');
+
+    expect(conditional).toContain('Modusabhaengige Darstellung');
+    expect(conditional).toContain('Inhalt umschalten');
+    expect(conditional).toContain('Modus wechseln');
+
+    expect(dynamic).toContain('Zaehler mit useState');
+    expect(dynamic).toContain('Dynamische Liste mit useEffect');
+    expect(dynamic).toContain('Zustandsabhaengige Hinweise');
+
+    expect(context).toContain('Theme Context (useContext-Hook)');
+    expect(context).toContain('Benutzerkontext');
+    expect(context).toContain('Verschachtelte Kontexte');
+
+    expect(compound).toContain('Tabs (Compound Component)');
+    expect(compound).toContain('Karte (Slot-Pattern)');
+    expect(compound).toContain('Polymorphe Komponente (as-Prop)');
+
+    expect(edgeCases).toContain('Null- und Undefined-Rueckgaben');
+    expect(edgeCases).toContain('Leeres Fragment');
+    expect(edgeCases).toContain('Inline-Null/Undefined/Boolean');
   });
 });

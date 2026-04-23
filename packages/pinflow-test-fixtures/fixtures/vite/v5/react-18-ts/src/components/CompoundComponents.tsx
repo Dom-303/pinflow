@@ -185,45 +185,45 @@ export function CompoundComponents() {
               <Tabs.Button value="tab3">Tab 3</Tabs.Button>
             </Tabs.List>
             <Tabs.Panel value="tab1">
-              <p>Content for Tab 1</p>
+              <p>Inhalt fuer Tab 1</p>
             </Tabs.Panel>
             <Tabs.Panel value="tab2">
-              <p>Content for Tab 2</p>
+              <p>Inhalt fuer Tab 2</p>
             </Tabs.Panel>
             <Tabs.Panel value="tab3">
-              <p>Content for Tab 3</p>
+              <p>Inhalt fuer Tab 3</p>
             </Tabs.Panel>
           </Tabs>
         </div>
       </section>
 
       <section>
-        <h4>Card (Slot Pattern)</h4>
+        <h4>Karte (Slot-Pattern)</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <Card>
             <Card.Header>
-              <h3>Card Title</h3>
+              <h3>Kartentitel</h3>
             </Card.Header>
             <Card.Body>
-              <p>This is the card body content.</p>
+              <p>Das ist der Inhaltsbereich der Karte.</p>
             </Card.Body>
             <Card.Footer>
-              <button>Action</button>
+              <button>Aktion</button>
             </Card.Footer>
           </Card>
         </div>
       </section>
 
       <section>
-        <h4>Polymorphic Component (as prop)</h4>
+        <h4>Polymorphe Komponente (as-Prop)</h4>
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <div>
-            <Box>Default div Box</Box>
-            <Box as="article">Article Box</Box>
+            <Box>Standard-Box als div</Box>
+            <Box as="article">Box als article</Box>
             <Box as="button" onClick={() => console.log('clicked')}>
-              Button Box
+              Box als Button
             </Box>
           </div>
         </div>
@@ -234,14 +234,14 @@ export function CompoundComponents() {
         <div className="demo-box capture-widget">
           <CaptureIcon />
           <Accordion>
-            <Accordion.Item id="item1" title="Section 1">
-              <p>Content for section 1</p>
+            <Accordion.Item id="item1" title="Abschnitt 1">
+              <p>Inhalt fuer Abschnitt 1</p>
             </Accordion.Item>
-            <Accordion.Item id="item2" title="Section 2">
-              <p>Content for section 2</p>
+            <Accordion.Item id="item2" title="Abschnitt 2">
+              <p>Inhalt fuer Abschnitt 2</p>
             </Accordion.Item>
-            <Accordion.Item id="item3" title="Section 3">
-              <p>Content for section 3</p>
+            <Accordion.Item id="item3" title="Abschnitt 3">
+              <p>Inhalt fuer Abschnitt 3</p>
             </Accordion.Item>
           </Accordion>
         </div>

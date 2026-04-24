@@ -57,6 +57,12 @@ nx integration pinflow-test-fixtures
 nx e2e pinflow-test-fixtures
 # Skip env vars: SKIP_SETUP=1, SKIP_PUBLISH=1, SKIP_INSTALL=1
 
+# Preview overlay regression guard (requires a running preview or
+# pre-installed fixture + chromium — install once with:
+#   cd packages/pinflow-test-fixtures && pnpm exec playwright install chromium
+# )
+pnpm pinflow:preview:e2e
+
 # Local registry pipeline
 pnpm release:local          # build → version → sync-dist → publish to Verdaccio
 pnpm pipeline:full           # publish → install fixtures → integration + e2e

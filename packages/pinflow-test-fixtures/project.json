@@ -55,6 +55,13 @@
         "cwd": "{projectRoot}"
       }
     },
+    "preview-e2e": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "corepack pnpm exec playwright test preview-overlay-boot.spec.ts",
+        "cwd": "{projectRoot}"
+      }
+    },
     "build": {
       "executor": "nx:noop"
     },

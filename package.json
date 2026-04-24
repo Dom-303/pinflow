@@ -24,6 +24,7 @@
     "registry:install": "npx tsx packages/pinflow-test-fixtures/scripts/install-fixture.ts",
     "pinflow:preview": "corepack pnpm exec tsx scripts/pinflow-preview.ts",
     "pinflow:preview:vite-react": "corepack pnpm exec tsx scripts/pinflow-preview.ts --fixture vite-v5-react-18-ts --port 4301",
+    "pinflow:preview:e2e": "nx preview-e2e pinflow-test-fixtures",
     "pipeline:full": "pnpm run registry:publish && pnpm run registry:install && nx run-many -t integration,e2e -p pinflow-test-fixtures",
     "pipeline:integration": "nx integration pinflow-test-fixtures",
     "pipeline:e2e": "pnpm run registry:publish && pnpm run registry:install && nx e2e pinflow-test-fixtures"

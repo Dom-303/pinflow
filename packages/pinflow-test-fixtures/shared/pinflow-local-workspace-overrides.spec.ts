@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { rewritePinflowInitImports } from './pinflow-local-workspace-overrides.js';
+import {
+  pinflowLocalPreviewViteConfig,
+  rewritePinflowInitImports,
+} from './pinflow-local-workspace-overrides.js';
 
 describe('rewritePinflowInitImports', () => {
   it('rewrites html-level overlay and react init imports to local workspace modules', () => {
@@ -33,6 +36,40 @@ describe('rewritePinflowInitImports', () => {
     );
     expect(result).toContain(
       `import('/pinflow-local-overlay-init.ts?v=pinflow-ui-test').catch(function(){})`,
+    );
+  });
+});
+
+describe('pinflowLocalPreviewViteConfig', () => {
+  it('disables preserveSymlinks so pnpm peer resolution works', () => {
+    const config = pinflowLocalPreviewViteConfig();
+
+    expect(config.resolve.preserveSymlinks).toBe(false);
+  });
+
+  it('forces esbuild to use legacy decorators for lit @customElement', () => {
+    const config = pinflowLocalPreviewViteConfig();
+
+    expect(config.esbuild.tsconfigRaw.compilerOptions.experimentalDecorators).toBe(true);
+    expect(config.esbuild.tsconfigRaw.compilerOptions.useDefineForClassFields).toBe(false);
+  });
+
+  it('excludes workspace + lit packages from prebundling', () => {
+    const config = pinflowLocalPreviewViteConfig();
+
+    expect(config.optimizeDeps.exclude).toEqual(
+      expect.arrayContaining([
+        '@pinflow/core',
+        '@pinflow/runtime',
+        '@pinflow/react',
+        '@pinflow/relay',
+        '@pinflow/manifest',
+        '@pinflow/overlay',
+        'lit',
+        'lit-html',
+        'lit/decorators.js',
+        '@lit/reactive-element',
+      ]),
     );
   });
 });

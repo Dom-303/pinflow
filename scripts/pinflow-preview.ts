@@ -1,4 +1,4 @@
-import { execSync, spawn } from 'child_process';
+import { execSync, spawn, type ChildProcess } from 'child_process';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
@@ -7,6 +7,7 @@ import {
   PINFLOW_PREVIEW_REGISTRY_PORT,
   PINFLOW_PREVIEW_REGISTRY_URL,
   type PinflowPreviewOptions,
+  type PinflowPreviewStep,
 } from '../packages/pinflow-test-fixtures/shared/pinflow-preview.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -147,6 +148,126 @@ function runCommand(command: string, cwd: string): void {
   });
 }
 
+interface SmokeProbe {
+  readonly label: string;
+  readonly path: string;
+  readonly mustContain?: string;
+}
+
+const PREVIEW_READY_TIMEOUT_MS = 30_000;
+const PREVIEW_READY_POLL_MS = 500;
+
+function getPreviewSmokeProbes(): SmokeProbe[] {
+  const overlaySrc = `/@fs${resolve(
+    workspaceRoot,
+    'packages/pinflow-overlay/src/components/ds-overlay.ts',
+  )}`;
+
+  return [
+    { label: 'root page', path: '/' },
+    { label: 'overlay init shim', path: '/pinflow-local-overlay-init.ts' },
+    {
+      label: 'overlay root component (decorators transformed)',
+      path: overlaySrc,
+      mustContain: '__decorateClass',
+    },
+  ];
+}
+
+async function waitForDevServer(port: number): Promise<void> {
+  const startedAt = Date.now();
+  const baseUrl = `http://127.0.0.1:${port}/`;
+
+  while (Date.now() - startedAt < PREVIEW_READY_TIMEOUT_MS) {
+    try {
+      const response = await fetch(baseUrl);
+      if (response.ok) {
+        return;
+      }
+    } catch {
+      // Server not yet listening.
+    }
+    await new Promise((resolveDelay) =>
+      setTimeout(resolveDelay, PREVIEW_READY_POLL_MS),
+    );
+  }
+
+  throw new Error(
+    `PinFlow preview dev server did not become ready on port ${port} within ${PREVIEW_READY_TIMEOUT_MS / 1000}s.`,
+  );
+}
+
+async function runPreviewSmokeCheck(port: number): Promise<void> {
+  const probes = getPreviewSmokeProbes();
+  const failures: string[] = [];
+
+  for (const probe of probes) {
+    const url = `http://127.0.0.1:${port}${probe.path}`;
+
+    try {
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        failures.push(`${probe.label}: HTTP ${response.status} on ${probe.path}`);
+        continue;
+      }
+
+      if (probe.mustContain) {
+        const body = await response.text();
+        if (!body.includes(probe.mustContain)) {
+          failures.push(
+            `${probe.label}: expected body to contain "${probe.mustContain}" (path: ${probe.path})`,
+          );
+        }
+      }
+    } catch (error) {
+      failures.push(
+        `${probe.label}: request failed — ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  }
+
+  if (failures.length === 0) {
+    console.log('[pinflow-preview] smoke check passed');
+    return;
+  }
+
+  console.warn(
+    '[pinflow-preview] smoke check FAILED — overlay preview likely broken:',
+  );
+  for (const failure of failures) {
+    console.warn(`  - ${failure}`);
+  }
+  console.warn(
+    '[pinflow-preview] dev server is still running; inspect logs above.',
+  );
+}
+
+function startDevStep(step: PinflowPreviewStep): ChildProcess {
+  console.log(`[pinflow-preview] ${step.label}: ${step.command}`);
+
+  const child = spawn('sh', ['-c', step.command], {
+    cwd: step.cwd,
+    stdio: 'inherit',
+    env: { ...process.env, FORCE_COLOR: '0' },
+  });
+
+  const forwardSignal = (signal: NodeJS.Signals) => {
+    if (!child.killed) {
+      child.kill(signal);
+    }
+  };
+
+  process.on('SIGINT', () => forwardSignal('SIGINT'));
+  process.on('SIGTERM', () => forwardSignal('SIGTERM'));
+
+  child.on('exit', (code) => {
+    process.exit(code ?? 0);
+  });
+
+  return child;
+}
+
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
 
@@ -154,8 +275,10 @@ async function main(): Promise<void> {
   await ensurePreviewRegistry();
 
   const plan = buildPreviewPlan(options, workspaceRoot);
+  const prepSteps = plan.steps.filter((step) => step.label !== 'dev');
+  const devStep = plan.steps.find((step) => step.label === 'dev');
 
-  for (const step of plan.steps) {
+  for (const step of prepSteps) {
     console.log(`[pinflow-preview] ${step.label}: ${step.command}`);
     runCommand(step.command, step.cwd);
   }
@@ -165,6 +288,21 @@ async function main(): Promise<void> {
       `[pinflow-preview] Ready. Start the fixture manually in ${plan.fixturePath}`,
     );
     return;
+  }
+
+  if (!devStep) {
+    return;
+  }
+
+  startDevStep(devStep);
+
+  try {
+    await waitForDevServer(plan.port);
+    await runPreviewSmokeCheck(plan.port);
+  } catch (error) {
+    console.warn(
+      `[pinflow-preview] smoke check skipped — ${error instanceof Error ? error.message : String(error)}`,
+    );
   }
 }
 

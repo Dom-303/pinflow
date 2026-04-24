@@ -1,7 +1,10 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { pinflow } from '@pinflow/react/vite';
-import { rewritePinflowInitImports } from '../../../../shared/pinflow-local-workspace-overrides.js';
+import {
+  pinflowLocalPreviewViteConfig,
+  rewritePinflowInitImports,
+} from '../../../../shared/pinflow-local-workspace-overrides.js';
 
 const PINFLOW_DEV_CACHE_TAG = 'pinflow-ui-2026-04-24a';
 
@@ -41,29 +44,5 @@ export default defineConfig({
     outDir: 'dist',
     minify: true,
   },
-  resolve: {
-    preserveSymlinks: false,
-  },
-  esbuild: {
-    tsconfigRaw: {
-      compilerOptions: {
-        experimentalDecorators: true,
-        useDefineForClassFields: false,
-      },
-    },
-  },
-  optimizeDeps: {
-    exclude: [
-      '@pinflow/core',
-      '@pinflow/runtime',
-      '@pinflow/react',
-      '@pinflow/relay',
-      '@pinflow/manifest',
-      '@pinflow/overlay',
-      'lit',
-      'lit-html',
-      'lit/decorators.js',
-      '@lit/reactive-element',
-    ],
-  },
+  ...pinflowLocalPreviewViteConfig(),
 });

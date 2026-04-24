@@ -78,7 +78,7 @@ describe('installFixture', () => {
       workspaceRoot,
       registryUrl: 'http://127.0.0.1:4874',
       registryPort: 4874,
-      log: () => {},
+      log: vi.fn(),
       force: true,
     });
 

@@ -46,11 +46,17 @@ export const test = base.extend<object, { _serverPool: void }>({
    * when the worker exits.
    */
   _serverPool: [
+    // eslint-disable-next-line no-empty-pattern -- Playwright's extend API requires an empty destructure to opt out of dependent fixtures.
     async ({}, use) => {
       await use();
-      await Promise.all(
-        [...servers.values()].map((s) => s.close().catch(() => {})),
-      );
+      const silentClose = async (handle: DevServerHandle) => {
+        try {
+          await handle.close();
+        } catch {
+          // ignore shutdown failures — teardown is best-effort
+        }
+      };
+      await Promise.all([...servers.values()].map(silentClose));
       servers.clear();
     },
     { scope: 'worker', auto: true },

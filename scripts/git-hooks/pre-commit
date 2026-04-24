@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Preview-pipeline guard — addressed to the coding agent.
+# Preview-pipeline heads-up for the coding agent.
 #
-# Prints an instruction block when staged files touch
-# preview-critical paths. Exit is always 0 (never blocks a commit).
-# The user doesn't need to act on this; the AI coding agent running
-# the commit does.
+# When staged files touch preview-critical paths, print a short
+# context note so the AI agent driving the commit knows what area
+# it's in. This is informational — no instructions, no blockers,
+# no "you must". Exit is always 0.
 #
 # Activate with: pnpm hooks:install  (sets core.hooksPath once).
 # Deactivate with: git config --unset core.hooksPath
@@ -43,23 +43,15 @@ fi
 
 YELLOW='\033[0;33m'
 CYAN='\033[0;36m'
-BOLD='\033[1m'
 RESET='\033[0m'
 
-printf "\n${YELLOW}═══════════════════════════════════════════════════════════════${RESET}\n"
-printf "${BOLD}${YELLOW}[pinflow preview guard — ATTENTION CODING AGENT]${RESET}\n\n"
-printf "You (the AI coding agent running this commit) just staged changes\n"
-printf "to preview-critical files:\n\n"
+printf "\n${YELLOW}[pinflow preview heads-up for the coding agent]${RESET}\n"
+printf "You are editing preview-critical files:\n"
 for file in "${hits[@]}"; do
   printf "  ${CYAN}%s${RESET}\n" "$file"
 done
-printf "\n${BOLD}Before reporting this commit as done, you MUST:${RESET}\n"
-printf "  1. Run: ${CYAN}pnpm pinflow:preview:e2e${RESET}\n"
-printf "  2. Include the result in your reply to the user.\n"
-printf "  3. If the e2e fails, ${BOLD}do not${RESET} mark the task complete.\n"
-printf "     The overlay preview is broken; fix before proceeding.\n\n"
-printf "Context the agent should read before editing these files:\n"
-printf "  ${CYAN}.claude/rules/preview-pipeline.md${RESET}\n"
-printf "${YELLOW}═══════════════════════════════════════════════════════════════${RESET}\n\n"
+printf "Carry on with the task. When you're at a natural stopping\n"
+printf "point, ${CYAN}pnpm pinflow:preview:e2e${RESET} (~3s) quickly confirms the\n"
+printf "overlay still boots. Context: ${CYAN}.claude/rules/preview-pipeline.md${RESET}\n\n"
 
 exit 0

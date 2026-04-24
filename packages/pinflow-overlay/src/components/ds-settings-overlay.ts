@@ -4,6 +4,8 @@ import type {
   DispatchProjectDefaults,
   DispatchSessionOverrides,
 } from '../core/dispatch-config.js';
+import { StoreController } from '../core/store-controller.js';
+import type { OverlayTheme } from '../core/types.js';
 import { themeStyles, utilityStyles } from '../styles/theme.js';
 import './ds-session-settings.js';
 import './ds-workflow-panel.js';
@@ -11,6 +13,8 @@ import './ds-annotation-list.js';
 
 @customElement('ds-settings-overlay')
 export class DsSettingsOverlay extends LitElement {
+  private storeController = new StoreController(this);
+
   @property({ type: Object })
   projectDefaults!: DispatchProjectDefaults;
 
@@ -27,48 +31,46 @@ export class DsSettingsOverlay extends LitElement {
       :host {
         position: absolute;
         inset: 0;
+        width: auto;
         display: block;
-        z-index: 30;
+        z-index: 4;
+        border-radius: 24px;
+        overflow: hidden;
       }
 
       .backdrop {
         position: absolute;
         inset: 0;
-        background:
-          radial-gradient(circle at top, rgba(255, 255, 255, 0.82), transparent 45%),
-          color-mix(in srgb, var(--ds-shell-surface) 88%, rgba(248, 241, 231, 0.92));
-        backdrop-filter: blur(18px);
+        z-index: 0;
+        background: var(--ds-bg-primary);
+        backdrop-filter: blur(10px);
       }
 
       .sheet {
         position: absolute;
-        inset: 14px;
+        inset: 0;
+        z-index: 1;
         display: grid;
-        grid-template-rows: auto auto 1fr;
+        grid-template-rows: auto auto minmax(0, 1fr);
         gap: 10px;
-        padding: 16px;
+        padding: 18px 22px 20px;
         border-radius: 24px;
-        border: 1px solid var(--ds-shell-border-soft);
-        background:
-          linear-gradient(
-            180deg,
-            color-mix(in srgb, var(--ds-shell-surface-strong) 94%, white) 0%,
-            color-mix(in srgb, var(--ds-shell-surface) 96%, rgba(255, 255, 255, 0.78)) 100%
-          );
-        box-shadow: var(--ds-shadow-xl);
+        border: 0;
+        background: var(--ds-bg-primary);
+        box-shadow: none;
         overflow: hidden;
       }
 
       .sheet-header {
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         justify-content: space-between;
-        gap: 16px;
+        gap: 12px;
       }
 
       .sheet-copy {
         display: grid;
-        gap: 4px;
+        gap: 3px;
         max-width: 300px;
       }
 
@@ -81,7 +83,7 @@ export class DsSettingsOverlay extends LitElement {
       }
 
       .title {
-        font-size: 20px;
+        font-size: 18px;
         line-height: 1.05;
         letter-spacing: -0.03em;
         font-weight: var(--ds-font-weight-semibold);
@@ -94,27 +96,29 @@ export class DsSettingsOverlay extends LitElement {
         line-height: 1.4;
       }
 
-      .tab-bar {
+      .settings-nav {
         display: flex;
         align-items: center;
-        gap: 8px;
-        padding: 4px;
-        border-radius: 16px;
+        justify-content: space-between;
+        gap: 7px;
+        padding: 5px;
+        border-radius: 15px;
         border: 1px solid var(--ds-panel-border);
-        background: var(--ds-panel-surface);
-        box-shadow: var(--ds-shadow-sm);
+        background: var(--ds-panel-surface-muted);
       }
 
       .tab-btn {
+        position: relative;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 8px;
-        min-width: 44px;
-        height: 40px;
+        flex: 1 1 0;
+        min-width: 0;
+        height: 36px;
         padding: 0 14px;
-        border: 0;
-        border-radius: 12px;
+        border: 1px solid transparent;
+        border-radius: 10px;
         background: transparent;
         color: var(--ds-text-secondary);
         font: inherit;
@@ -129,17 +133,30 @@ export class DsSettingsOverlay extends LitElement {
       .tab-btn:hover {
         color: var(--ds-text-primary);
         background: var(--ds-bg-hover);
+        border-color: var(--ds-panel-border);
       }
 
       .tab-btn.active {
         background: var(--ds-card-surface-strong);
         color: var(--ds-text-primary);
-        box-shadow: var(--ds-shadow-sm);
+        border-color: var(--ds-panel-border-strong);
+      }
+
+      .tab-btn.active::after {
+        content: '';
+        position: absolute;
+        left: 50%;
+        bottom: 5px;
+        width: 14px;
+        height: 2px;
+        border-radius: 999px;
+        background: var(--ds-text-primary);
+        transform: translateX(-50%);
       }
 
       .tab-btn svg {
-        width: 16px;
-        height: 16px;
+        width: 17px;
+        height: 17px;
       }
 
       .close-btn {
@@ -172,7 +189,24 @@ export class DsSettingsOverlay extends LitElement {
 
       .sheet-body {
         min-height: 0;
-        overflow: hidden;
+        overflow-y: auto;
+        padding: 2px 2px 0 0;
+        scrollbar-width: thin;
+        scrollbar-color: color-mix(in srgb, var(--ds-text-tertiary) 34%, transparent)
+          transparent;
+      }
+
+      .sheet-body::-webkit-scrollbar {
+        width: 4px;
+      }
+
+      .sheet-body::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .sheet-body::-webkit-scrollbar-thumb {
+        background: color-mix(in srgb, var(--ds-text-tertiary) 30%, transparent);
+        border-radius: 999px;
       }
 
       .tab-panel {
@@ -189,82 +223,250 @@ export class DsSettingsOverlay extends LitElement {
         height: 100%;
         min-height: 0;
         padding: 2px;
-        overflow: hidden;
+        overflow: visible;
       }
 
       .workspace-stack {
         display: grid;
-        gap: 10px;
+        gap: 9px;
         height: 100%;
         align-content: start;
       }
 
-      .selection-section {
+      .settings-card {
         display: grid;
-        gap: 8px;
-        padding: 11px;
-        border-radius: 16px;
+        border-radius: 13px;
         border: 1px solid var(--ds-panel-border);
         background: var(--ds-panel-surface-muted);
+        overflow: hidden;
       }
 
-      .selection-head {
+      .settings-card[open] {
+        background: var(--ds-panel-surface);
+        border-color: var(--ds-panel-border-strong);
+      }
+
+      .settings-card-summary {
+        list-style: none;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        min-height: 46px;
+        padding: 11px 12px;
+        cursor: pointer;
+        transition:
+          background var(--ds-transition-fast),
+          color var(--ds-transition-fast);
+      }
+
+      .settings-card-summary:hover {
+        background: var(--ds-bg-hover);
+      }
+
+      .settings-card-summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .settings-card-copy {
         display: grid;
-        gap: 4px;
+        gap: 3px;
+        min-width: 0;
       }
 
-      .selection-title {
+      .settings-card-title {
         color: var(--ds-text-primary);
-        font-size: var(--ds-font-size-sm);
+        font-size: 13px;
         font-weight: var(--ds-font-weight-semibold);
       }
 
-      .selection-copy {
+      .settings-card-note {
         color: var(--ds-text-secondary);
-        font-size: var(--ds-font-size-xs);
-        line-height: 1.4;
+        font-size: 10.5px;
+        line-height: 1.35;
       }
 
-      .selection-modes {
-        display: flex;
+      .settings-card-chevron {
+        width: 17px;
+        height: 17px;
+        color: var(--ds-text-tertiary);
+        flex-shrink: 0;
+        transition: transform var(--ds-transition-fast);
+      }
+
+      .settings-card[open] .settings-card-chevron {
+        transform: rotate(180deg);
+      }
+
+      .settings-card-body {
+        display: grid;
         gap: 8px;
-        flex-wrap: wrap;
+        padding: 12px;
+        border-top: 1px solid var(--ds-panel-border);
       }
 
-      .selection-pill {
+      .settings-card:not([open]) .settings-card-title {
+        color: var(--ds-text-secondary);
+      }
+
+      .settings-card:not([open]) .settings-card-note {
+        color: var(--ds-text-tertiary);
+      }
+
+      .segmented-control {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+        padding: 4px;
+        border-radius: 14px;
+        border: 1px solid var(--ds-panel-border);
+        background: var(--ds-pill-surface);
+      }
+
+      .segment-option {
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 6px;
-        padding: 8px 10px;
-        border-radius: 999px;
-        border: 1px solid var(--ds-pill-border);
-        background: var(--ds-pill-surface);
+        height: 32px;
+        padding: 0 10px;
+        border-radius: 10px;
+        border: 1px solid transparent;
+        background: transparent;
         color: var(--ds-text-secondary);
         font-size: var(--ds-font-size-xs);
       }
 
-      .selection-pill.active {
+      .segment-option.active {
         background: var(--ds-card-surface-strong);
+        border-color: var(--ds-panel-border-strong);
+        color: var(--ds-text-primary);
+      }
+
+      .segment-option.muted {
+        opacity: 0.58;
+      }
+
+      .segment-option strong {
+        font-weight: var(--ds-font-weight-semibold);
+      }
+
+      .segment-option small {
+        color: var(--ds-text-tertiary);
+      }
+
+      .theme-toggle {
+        display: grid;
+      }
+
+      .theme-option {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        height: 32px;
+        border: 1px solid transparent;
+        border-radius: 10px;
+        background: transparent;
+        color: var(--ds-text-secondary);
+        font: inherit;
+        font-size: var(--ds-font-size-xs);
+        cursor: pointer;
+        transition:
+          background var(--ds-transition-fast),
+          border-color var(--ds-transition-fast),
+          color var(--ds-transition-fast),
+          box-shadow var(--ds-transition-fast);
+      }
+
+      .theme-option.active {
+        background: var(--ds-card-surface-strong);
+        border-color: var(--ds-panel-border-strong);
         color: var(--ds-text-primary);
         box-shadow: var(--ds-shadow-sm);
       }
 
-      .selection-pill.muted {
-        opacity: 0.58;
-      }
-
-      .selection-pill strong {
-        font-weight: var(--ds-font-weight-semibold);
-      }
-
-      .selection-pill small {
-        color: var(--ds-text-tertiary);
+      .theme-option svg {
+        width: 15px;
+        height: 15px;
       }
 
       .panel-frame {
         height: 100%;
         min-height: 0;
-        overflow: hidden;
+        overflow: visible;
+      }
+
+      :host([theme='light']) .settings-card,
+      :host([theme='light']) .settings-nav {
+        background: rgba(255, 253, 250, 0.72);
+      }
+
+      :host([theme='light']) .settings-card[open],
+      :host([theme='light']) .tab-btn.active {
+        background: rgba(255, 254, 251, 0.96);
+      }
+
+      :host([theme='dark']) .sheet {
+        background: #050403;
+      }
+
+      :host([theme='dark']) .settings-nav {
+        background: #070605;
+        border-color: rgba(36, 28, 22, 0.92);
+      }
+
+      :host([theme='dark']) .tab-btn {
+        color: #817366;
+      }
+
+      :host([theme='dark']) .tab-btn:hover {
+        background: #0e0b09;
+        border-color: rgba(48, 37, 29, 0.82);
+        color: #d7cabc;
+      }
+
+      :host([theme='dark']) .tab-btn.active {
+        background: #12100d;
+        border-color: rgba(72, 53, 37, 0.88);
+        color: #fff7eb;
+      }
+
+      :host([theme='dark']) .settings-card {
+        background: #080706;
+        border-color: rgba(38, 30, 24, 0.9);
+      }
+
+      :host([theme='dark']) .settings-card[open] {
+        background: #0d0b09;
+        border-color: rgba(62, 47, 35, 0.88);
+      }
+
+      :host([theme='dark']) .settings-card-summary:hover {
+        background: #100d0a;
+      }
+
+      :host([theme='dark']) .settings-card-body {
+        border-top-color: rgba(42, 33, 26, 0.86);
+      }
+
+      :host([theme='dark']) .segmented-control {
+        background: #0b0907;
+        border-color: rgba(42, 33, 26, 0.86);
+      }
+
+      :host([theme='dark']) .segment-option.active,
+      :host([theme='dark']) .theme-option.active {
+        background: #17120d;
+        border-color: rgba(72, 53, 37, 0.88);
+      }
+
+      :host([theme='dark']) .settings-card-title {
+        color: #f6ecdf;
+      }
+
+      :host([theme='dark']) .settings-card-note {
+        color: #988878;
       }
     `,
   ];
@@ -282,7 +484,13 @@ export class DsSettingsOverlay extends LitElement {
     );
   }
 
+  private setTheme(theme: OverlayTheme) {
+    this.storeController.store.setTheme(theme);
+  }
+
   override render() {
+    const { theme } = this.storeController.state;
+
     return html`
       <div class="backdrop" @click=${this.handleClose}></div>
       <section class="sheet" aria-label="PinFlow Einstellungen">
@@ -306,8 +514,7 @@ export class DsSettingsOverlay extends LitElement {
           </button>
         </div>
 
-        <div class="sheet-body">
-          <div class="tab-bar" role="tablist" aria-label="Einstellungsbereiche">
+        <nav class="settings-nav" role="tablist" aria-label="Einstellungsbereiche">
             <button
               class="tab-btn ${this.activeTab === 'workspace' ? 'active' : ''}"
               @click=${() => this.selectTab('workspace')}
@@ -358,28 +565,91 @@ export class DsSettingsOverlay extends LitElement {
                 />
               </svg>
             </button>
-          </div>
+        </nav>
 
+        <div class="sheet-body scrollable">
           <div
             class="tab-panel ${this.activeTab === 'workspace' ? 'active' : ''}"
             role="tabpanel"
           >
             <div class="panel-surface workspace-stack">
-              <div class="selection-section">
-                <div class="selection-head">
-                  <div class="selection-title">Elementwahl</div>
-                  <div class="selection-copy">
-                    Rahmenbasierte Elementwahl ist aktiv. Ausschnitt-Modus kann spaeter
-                    dazukommen.
+              <details class="settings-card">
+                <summary class="settings-card-summary">
+                  <span class="settings-card-copy">
+                    <span class="settings-card-title">Elementwahl</span>
+                    <span class="settings-card-note">
+                      Aktiver Auswahlmodus fuer neue Markierungen.
+                    </span>
+                  </span>
+                  <svg class="settings-card-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </summary>
+                <div class="settings-card-body">
+                  <div class="segmented-control">
+                    <span class="segment-option active"><strong>Element</strong></span>
+                    <span class="segment-option muted"
+                      ><strong>Ausschnitt</strong><small>später</small></span
+                    >
                   </div>
                 </div>
-                <div class="selection-modes">
-                  <span class="selection-pill active"><strong>Element</strong></span>
-                  <span class="selection-pill muted"
-                    ><strong>Ausschnitt</strong><small>später</small></span
-                  >
+              </details>
+
+              <details class="settings-card">
+                <summary class="settings-card-summary">
+                  <span class="settings-card-copy">
+                    <span class="settings-card-title">Darstellung</span>
+                    <span class="settings-card-note">
+                      Helle oder dunkle Arbeitsflaeche.
+                    </span>
+                  </span>
+                  <svg class="settings-card-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </summary>
+                <div class="settings-card-body">
+                  <div class="segmented-control theme-toggle" role="group" aria-label="Darstellung">
+                    <button
+                      class="theme-option ${theme === 'light' ? 'active' : ''}"
+                      @click=${() => this.setTheme('light')}
+                      aria-pressed=${theme === 'light'}
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <circle
+                          cx="12"
+                          cy="12"
+                          r="4"
+                          stroke="currentColor"
+                          stroke-width="1.8"
+                        />
+                        <path
+                          d="M12 3v2M12 19v2M5.64 5.64l1.42 1.42M16.94 16.94l1.42 1.42M3 12h2M19 12h2M5.64 18.36l1.42-1.42M16.94 7.06l1.42-1.42"
+                          stroke="currentColor"
+                          stroke-width="1.8"
+                          stroke-linecap="round"
+                        />
+                      </svg>
+                      Hell
+                    </button>
+                    <button
+                      class="theme-option ${theme === 'dark' ? 'active' : ''}"
+                      @click=${() => this.setTheme('dark')}
+                      aria-pressed=${theme === 'dark'}
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path
+                          d="M20.25 14.35A7.85 7.85 0 0 1 9.65 3.75 8.25 8.25 0 1 0 20.25 14.35Z"
+                          stroke="currentColor"
+                          stroke-width="1.8"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                      Dunkel
+                    </button>
+                  </div>
                 </div>
-              </div>
+              </details>
 
               <ds-session-settings
                 .projectDefaults=${this.projectDefaults}
@@ -402,7 +672,7 @@ export class DsSettingsOverlay extends LitElement {
             role="tabpanel"
           >
             <div class="panel-frame">
-              <ds-annotation-list></ds-annotation-list>
+              <ds-annotation-list variant="list"></ds-annotation-list>
             </div>
           </div>
         </div>

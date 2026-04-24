@@ -6,7 +6,7 @@
  */
 
 import { LitElement, html, css, nothing } from 'lit';
-import { customElement, state } from 'lit/decorators.js';
+import { customElement, property, state } from 'lit/decorators.js';
 import type { Annotation, AnnotationStatus } from '@pinflow/core';
 import { AnnotationStatusEnum } from '@pinflow/core';
 import { StoreController } from '../core/store-controller.js';
@@ -43,6 +43,9 @@ const STATUS_LABELS: Record<string, string> = {
 export class DsAnnotationList extends LitElement {
   private storeController = new StoreController(this);
 
+  @property({ reflect: true })
+  variant: 'grouped' | 'list' = 'grouped';
+
   @state()
   private openStatuses: Set<string> = new Set();
 
@@ -60,15 +63,64 @@ export class DsAnnotationList extends LitElement {
       .accordion {
         display: flex;
         flex-direction: column;
+        gap: 9px;
+      }
+
+      .plain-list {
+        display: grid;
+        gap: 9px;
+      }
+
+      .plain-item {
+        display: grid;
+        gap: 6px;
+        padding: 11px 12px;
+        border: 1px solid var(--ds-panel-border);
+        border-radius: 13px;
+        background: var(--ds-panel-surface-muted);
+      }
+
+      .plain-item-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         gap: 10px;
+      }
+
+      .plain-title {
+        min-width: 0;
+        color: var(--ds-text-primary);
+        font-size: var(--ds-font-size-sm);
+        font-weight: var(--ds-font-weight-semibold);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .plain-meta {
+        color: var(--ds-text-secondary);
+        font-size: var(--ds-font-size-xs);
+        line-height: 1.4;
+      }
+
+      .plain-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+        padding: 4px 8px;
+        border: 1px solid var(--ds-pill-border);
+        border-radius: 999px;
+        background: var(--ds-pill-surface);
+        color: var(--ds-text-secondary);
+        font-size: var(--ds-font-size-xs);
       }
 
       /* ======== Status group ======== */
       .status-group {
         background: var(--ds-panel-surface-muted);
         border: 1px solid var(--ds-panel-border);
-        border-radius: calc(var(--ds-radius-lg) - 2px);
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.54);
+        border-radius: 13px;
         overflow: hidden;
       }
 
@@ -104,10 +156,11 @@ export class DsAnnotationList extends LitElement {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 12px 14px;
+        min-height: 46px;
+        padding: 11px 12px;
         background: transparent;
         border: none;
-        border-radius: calc(var(--ds-radius-lg) - 2px);
+        border-radius: 13px;
         width: 100%;
         cursor: pointer;
         transition:
@@ -119,8 +172,7 @@ export class DsAnnotationList extends LitElement {
       }
 
       .status-header.open {
-        border-radius: calc(var(--ds-radius-lg) - 2px)
-          calc(var(--ds-radius-lg) - 2px) 0 0;
+        border-radius: 13px 13px 0 0;
         border-bottom: 1px solid var(--ds-chrome-divider);
       }
 
@@ -174,7 +226,7 @@ export class DsAnnotationList extends LitElement {
       .group-content {
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 9px;
         padding: 10px 10px 12px;
       }
 
@@ -235,8 +287,7 @@ export class DsAnnotationList extends LitElement {
         padding: var(--ds-space-lg);
         background: var(--ds-empty-surface);
         border: 1px solid var(--ds-empty-border);
-        border-radius: calc(var(--ds-radius-lg) - 2px);
-        box-shadow: var(--ds-panel-shadow-soft);
+        border-radius: 13px;
         color: var(--ds-text-secondary);
         text-align: center;
       }
@@ -286,6 +337,37 @@ export class DsAnnotationList extends LitElement {
       }
       .header-dot.archived {
         background: var(--ds-text-tertiary);
+      }
+
+      :host([theme='light']) .status-group {
+        background: rgba(255, 253, 250, 0.72);
+      }
+
+      :host([theme='dark']) .status-group,
+      :host([theme='dark']) .empty-state,
+      :host([theme='dark']) .plain-item {
+        background: #080706;
+        border-color: rgba(38, 30, 24, 0.9);
+      }
+
+      :host([theme='dark']) .status-header:hover {
+        background: #100d0a;
+      }
+
+      :host([theme='dark']) .status-header.open {
+        border-bottom-color: rgba(42, 33, 26, 0.86);
+      }
+
+      :host([theme='dark']) .status-count,
+      :host([theme='dark']) .page-btn,
+      :host([theme='dark']) .plain-status {
+        background: #12100d;
+        border-color: rgba(50, 38, 29, 0.76);
+      }
+
+      :host([theme='dark']) .empty-state-text,
+      :host([theme='dark']) .plain-meta {
+        color: #988878;
       }
     `,
   ];
@@ -426,6 +508,49 @@ export class DsAnnotationList extends LitElement {
     `;
   }
 
+  private getAnnotationId(annotation: Annotation): string | null {
+    return (
+      annotation.metadata?.id ??
+      (annotation as Annotation & { id?: string }).id ??
+      null
+    );
+  }
+
+  private getPlainTitle(annotation: Annotation): string {
+    return (
+      annotation.context?.userMessage?.trim() ||
+      this.getAnnotationId(annotation) ||
+      'Anmerkung'
+    );
+  }
+
+  private getPlainMeta(annotation: Annotation): string {
+    const status =
+      STATUS_LABELS[annotation.metadata?.status] ??
+      annotation.metadata?.status ??
+      'Status offen';
+    const id = this.getAnnotationId(annotation);
+
+    return id ? `${status} · ${id}` : status;
+  }
+
+  private renderPlainListItem(annotation: Annotation) {
+    const status = annotation.metadata?.status ?? 'queued';
+
+    return html`
+      <article class="plain-item">
+        <div class="plain-item-row">
+          <div class="plain-title">${this.getPlainTitle(annotation)}</div>
+          <span class="plain-status">
+            <span class="header-dot ${status}"></span>
+            ${STATUS_LABELS[status] ?? status}
+          </span>
+        </div>
+        <div class="plain-meta">${this.getPlainMeta(annotation)}</div>
+      </article>
+    `;
+  }
+
   override render() {
     const { annotations } = this.storeController.state;
     if (annotations.length === 0) {
@@ -459,6 +584,14 @@ export class DsAnnotationList extends LitElement {
     }
 
     const groups = this.groupByStatus(annotations);
+
+    if (this.variant === 'list') {
+      return html`
+        <div class="plain-list">
+          ${annotations.map((annotation) => this.renderPlainListItem(annotation))}
+        </div>
+      `;
+    }
 
     return html`
       <div class="accordion">

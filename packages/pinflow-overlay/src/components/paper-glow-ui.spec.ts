@@ -169,19 +169,30 @@ describe('Paper Glow UI contract', () => {
     const settingsButton = header.shadowRoot.querySelector(
       'button[aria-label="Einstellungen oeffnen"]',
     ) as HTMLButtonElement | null;
+    const themeButton = header.shadowRoot.querySelector(
+      'button[aria-label="Darstellung wechseln"]',
+    ) as HTMLButtonElement | null;
     const closeButton = header.shadowRoot.querySelector(
       'button[aria-label="Seitenleiste schliessen"]',
     );
+    const brandIcon = header.shadowRoot.querySelector(
+      '.brand-logo-img',
+    ) as HTMLImageElement | null;
 
     expect(brandWordmark).not.toBeNull();
     expect(brandWordmark?.textContent).toBe('PinFlow');
-    expect(header.shadowRoot.textContent).toContain('Arbeitsbereich');
+    expect(brandIcon).not.toBeNull();
+    expect(brandIcon?.getAttribute('src')).toContain('pinflow-icon-light');
+    expect(header.shadowRoot.textContent).not.toContain('Arbeitsbereich');
     expect(header.shadowRoot.textContent).toContain('Session aktiv');
     expect(header.shadowRoot.textContent).not.toContain('Auswahl, Kommentare');
     expect(header.scrolled).toBe(false);
     expect(settingsButton).not.toBeNull();
+    expect(themeButton).not.toBeNull();
     expect(closeButton).not.toBeNull();
     expect(closeButton?.querySelector('svg path')).not.toBeNull();
+    themeButton?.click();
+    expect(mockStore.toggleTheme).toHaveBeenCalledTimes(1);
   });
 
   it('renders German-first annotation input copy', async () => {
@@ -205,9 +216,6 @@ describe('Paper Glow UI contract', () => {
     const agentButton = input.shadowRoot.querySelector(
       'button[aria-label="Agent waehlen"]',
     ) as HTMLButtonElement;
-    const settingsButton = input.shadowRoot.querySelector(
-      'button[aria-label="Einstellungen oeffnen"]',
-    ) as HTMLButtonElement;
     const submitButton = input.shadowRoot.querySelector(
       'button[aria-label="Anmerkung senden"]',
     ) as HTMLButtonElement;
@@ -219,9 +227,25 @@ describe('Paper Glow UI contract', () => {
     expect(input.shadowRoot.textContent).not.toContain('Auswahl Kein Element');
     expect(input.shadowRoot.textContent).not.toContain('Flow Codex');
     expect(input.shadowRoot.textContent).not.toContain('Strg+Enter');
+    expect(input.shadowRoot.textContent).not.toContain(
+      'Element waehlen und Aenderung schreiben.',
+    );
     expect(agentButton).not.toBeNull();
-    expect(settingsButton).not.toBeNull();
+    expect(agentButton.textContent?.replace(/\s+/g, ' ').trim()).toContain('Codex');
+    expect(
+      input.shadowRoot.querySelector('button[aria-label="Einstellungen oeffnen"]'),
+    ).toBeNull();
     expect(submitButton).not.toBeNull();
+    agentButton.click();
+    await input.updateComplete;
+    const menuPanel = input.shadowRoot.querySelector('.menu-panel') as HTMLElement;
+    const menuText = input.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+    expect(menuPanel).not.toBeNull();
+    expect(getComputedStyle(menuPanel).zIndex).toBe('20');
+    expect(menuText).toContain('Weitergabe');
+    expect(menuText).toContain('Codex');
+    expect(menuText).toContain('Claude');
+    expect(menuText).toContain('Nur sammeln');
     captureButton.click();
     expect(mockStore.enterCaptureMode).toHaveBeenCalledTimes(1);
   });
@@ -245,7 +269,6 @@ describe('Paper Glow UI contract', () => {
     ) as HTMLButtonElement;
 
     expect(inputText).toContain('Relay offline');
-    expect(inputText).toContain('Relay verbinden, dann senden.');
     expect(submitButton.disabled).toBe(true);
 
     mockState.relayConnected = true;
@@ -258,7 +281,6 @@ describe('Paper Glow UI contract', () => {
     ) as HTMLButtonElement;
 
     expect(inputText).toContain('Element waehlen');
-    expect(inputText).toContain('Element waehlen und Aenderung schreiben.');
     expect(submitButton.disabled).toBe(true);
 
     mockState.mode = 'capturing';
@@ -271,7 +293,6 @@ describe('Paper Glow UI contract', () => {
     ) as HTMLButtonElement;
 
     expect(inputText).toContain('Picker aktiv');
-    expect(inputText).toContain('Im Canvas ein Element markieren.');
     expect(submitButton.disabled).toBe(true);
 
     mockState.mode = 'expanded';
@@ -281,7 +302,6 @@ describe('Paper Glow UI contract', () => {
 
     inputText = input.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
     expect(inputText).toContain('Element markiert');
-    expect(inputText).toContain('Aenderung fuer das markierte Element schreiben.');
 
     const textarea = input.shadowRoot.querySelector(
       'textarea',
@@ -296,7 +316,6 @@ describe('Paper Glow UI contract', () => {
     ) as HTMLButtonElement;
 
     expect(inputText).toContain('Bereit');
-    expect(inputText).toContain('Kurz pruefen und senden.');
     expect(submitButton.disabled).toBe(false);
   });
 
@@ -331,11 +350,13 @@ describe('Paper Glow UI contract', () => {
 
     const pickerText = picker.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
 
-    expect(pickerText).toContain('Picker aktiv');
-    expect(pickerText).toContain('Markiere jetzt dein Zielelement');
-    expect(pickerText).toContain('Der helle Rahmen zeigt dir immer das aktuell getroffene Element.');
+    expect(pickerText).toContain('ESC zum Beenden');
+    expect(pickerText).not.toContain('Markiere jetzt dein Zielelement');
+    expect(pickerText).not.toContain('Der helle Rahmen zeigt dir immer das aktuell getroffene Element.');
     expect(pickerText).toContain('ESC');
-    expect(pickerText).toContain('bricht ab');
+
+    const pickerNotice = picker.shadowRoot.querySelector('.picker-toast');
+    expect(pickerNotice).not.toBeNull();
 
     window.dispatchEvent(
       new MouseEvent('mousemove', {
@@ -357,6 +378,53 @@ describe('Paper Glow UI contract', () => {
       }),
     );
     expect(mockStore.selectElement).toHaveBeenCalledWith(target);
+  });
+
+  it('ignores PinFlow overlay hosts while hit-testing picker targets', async () => {
+    const host = document.createElement('div');
+    const blockingOverlay = document.createElement('ds-overlay');
+    const target = document.createElement('button');
+    document.body.append(blockingOverlay, host);
+
+    target.setAttribute('data-ds', 'entry-73');
+    Object.defineProperty(target, 'getBoundingClientRect', {
+      value: () =>
+        ({
+          top: 80,
+          left: 90,
+          width: 160,
+          height: 48,
+        }) as DOMRect,
+    });
+    Object.defineProperty(document, 'elementFromPoint', {
+      configurable: true,
+      value: vi.fn(() =>
+        blockingOverlay.style.pointerEvents === 'none'
+          ? target
+          : blockingOverlay,
+      ),
+    });
+
+    render(html`<ds-picker-overlay></ds-picker-overlay>`, host);
+
+    const picker = host.querySelector('ds-picker-overlay') as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await picker.updateComplete;
+
+    window.dispatchEvent(
+      new MouseEvent('mousemove', {
+        bubbles: true,
+        clientX: 100,
+        clientY: 100,
+      }),
+    );
+    await picker.updateComplete;
+
+    expect(mockStore.setHoveredElement).toHaveBeenCalledWith(target);
+    expect(picker.shadowRoot.querySelector('ds-highlight-box')).not.toBeNull();
   });
 
   it('renders composer feedback after submit success and failure', async () => {
@@ -392,7 +460,6 @@ describe('Paper Glow UI contract', () => {
 
     let inputText = input.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
     expect(inputText).toContain('Im Flow');
-    expect(inputText).toContain('Auftrag uebergeben. Direkt weiterschreiben.');
     submitButton = input.shadowRoot.querySelector(
       'button[aria-label="Anmerkung senden"]',
     ) as HTMLButtonElement;
@@ -412,7 +479,6 @@ describe('Paper Glow UI contract', () => {
 
     inputText = input.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
     expect(inputText).toContain('Senden fehlgeschlagen');
-    expect(inputText).toContain('Senden fehlgeschlagen. Direkt erneut versuchen.');
     submitButton = input.shadowRoot.querySelector(
       'button[aria-label="Anmerkung senden"]',
     ) as HTMLButtonElement;
@@ -434,14 +500,25 @@ describe('Paper Glow UI contract', () => {
 
     await tab.updateComplete;
 
-    const brandMark = tab.shadowRoot.querySelector('.tab-mark svg');
+    const brandMark = tab.shadowRoot.querySelector('.tab-mark svg') as SVGElement | null;
     expect(brandMark).not.toBeNull();
+    expect(getComputedStyle(brandMark as Element).width).toBe('52px');
+    expect(getComputedStyle(tab.shadowRoot.querySelector('.tab-mark') as Element).transform)
+      .toContain('scaleX(-1)');
   });
 
   it('renders the sidebar shell from deterministic store state', async () => {
     mockState.annotations = [
-      { id: 'note-1', metadata: { status: 'queued' } },
-      { id: 'note-2', metadata: { status: 'processed' } },
+      {
+        id: 'note-1',
+        metadata: { id: 'note-1', status: 'processing' },
+        context: { userMessage: 'Hero-Text kuerzen' },
+      },
+      {
+        id: 'note-2',
+        metadata: { id: 'note-2', status: 'processed' },
+        context: { userMessage: 'CTA schaerfen' },
+      },
     ];
     mockState.dispatchBatches = [
       {
@@ -486,16 +563,43 @@ describe('Paper Glow UI contract', () => {
     const drawers = Array.from(
       sidebar.shadowRoot.querySelectorAll('.context-drawer'),
     ) as HTMLElement[];
+    const queueDrawers = Array.from(
+      sidebar.shadowRoot.querySelectorAll('.queue-drawer'),
+    ) as HTMLElement[];
+    const activeRunPanel = sidebar.shadowRoot.querySelector(
+      '.active-run-panel',
+    ) as HTMLElement | null;
+    const resizeHandle = sidebar.shadowRoot.querySelector(
+      '.composer-resize-handle',
+    ) as HTMLElement | null;
 
     expect(workspaceTop).not.toBeNull();
     expect(composerDock).not.toBeNull();
     expect(elementPreview).not.toBeNull();
     expect(input).not.toBeNull();
+    expect(resizeHandle).not.toBeNull();
     expect(drawers).toHaveLength(1);
+    expect(drawers[0].hasAttribute('open')).toBe(false);
+    expect(
+      drawers[0].querySelector('.context-summary')?.textContent?.replace(/\s+/g, ' ').trim(),
+    ).toBe('Auswahl');
+    expect(queueDrawers).toHaveLength(1);
+    expect(queueDrawers[0].hasAttribute('open')).toBe(false);
+    expect(
+      queueDrawers[0].querySelector('.queue-summary')?.textContent?.replace(/\s+/g, ' ').trim(),
+    ).toBe('Warteliste');
+    expect(sidebar.shadowRoot.querySelector('.active-run-drawer')).toBeNull();
+    expect(activeRunPanel).not.toBeNull();
+    const activeRunText = activeRunPanel?.textContent?.replace(/\s+/g, ' ') ?? '';
+    expect(activeRunText).toContain('Aktiver Lauf');
+    expect(activeRunText).toContain('Hero-Text kuerzen');
+    expect(activeRunText).toContain('CTA schaerfen');
     expect(sidebarText).toContain('Auswahl');
+    expect(sidebarText).toContain('Warteliste');
+    expect(sidebarText).toContain('Aktiver Lauf');
     expect(sidebarText).not.toContain('Verlauf');
     expect(sidebarText).not.toContain('Arbeitsfluss');
-    expect(sidebarText).toContain('Kommentar und Auftrag');
+    expect(sidebarText).not.toContain('Kommentar und Auftrag');
     expect(
       Boolean(
         workspaceTop.compareDocumentPosition(composerDock) &
@@ -505,12 +609,47 @@ describe('Paper Glow UI contract', () => {
     expect(workspaceTop?.contains(elementPreview)).toBe(true);
     expect(input.parentElement).toBe(composerDock);
 
+    Object.defineProperty(sidebar, 'getBoundingClientRect', {
+      configurable: true,
+      value: () =>
+        ({
+          top: 0,
+          bottom: 760,
+          height: 760,
+        }) as DOMRect,
+    });
+    resizeHandle?.dispatchEvent(
+      new PointerEvent('pointerdown', {
+        bubbles: true,
+        clientY: 560,
+        pointerId: 1,
+      }),
+    );
+    window.dispatchEvent(
+      new PointerEvent('pointermove', {
+        bubbles: true,
+        clientY: 500,
+        pointerId: 1,
+      }),
+    );
+    window.dispatchEvent(
+      new PointerEvent('pointerup', {
+        bubbles: true,
+        pointerId: 1,
+      }),
+    );
+    await sidebar.updateComplete;
+    expect((sidebar as HTMLElement).style.getPropertyValue('--composer-height')).toBe(
+      '260px',
+    );
+
     const settingsOverlay = await openSettingsOverlay(sidebar);
     const overlayText =
       settingsOverlay.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
     expect(overlayText).toContain('Arbeitsbereich anpassen');
     expect(settingsOverlay.shadowRoot.querySelector('ds-workflow-panel')).not.toBeNull();
     expect(settingsOverlay.shadowRoot.querySelector('ds-annotation-list')).not.toBeNull();
+    expect(settingsOverlay.shadowRoot.querySelector('.sheet')).not.toBeNull();
   });
 
   it('opens workspace settings as a dedicated full-surface overlay', async () => {
@@ -534,6 +673,14 @@ describe('Paper Glow UI contract', () => {
     expect(
       settingsOverlay.shadowRoot.querySelectorAll('.tab-btn'),
     ).toHaveLength(3);
+    expect(settingsOverlay.shadowRoot.querySelector('.settings-nav')).not.toBeNull();
+    expect(settingsOverlay.shadowRoot.querySelector('.sheet-body.scrollable')).not.toBeNull();
+    expect(settingsOverlay.shadowRoot.querySelector('.backdrop')).not.toBeNull();
+    expect(
+      Array.from(settingsOverlay.shadowRoot.querySelectorAll('.settings-card')).every(
+        (card) => !(card as HTMLDetailsElement).open,
+      ),
+    ).toBe(true);
 
     const embeddedSettings = settingsOverlay.shadowRoot.querySelector(
       'ds-session-settings',
@@ -627,6 +774,11 @@ describe('Paper Glow UI contract', () => {
     expect(settingsText).toContain('Projektstandard aktiv');
     expect(settingsText).toContain('Parallelitaet');
     expect(settingsText).toContain('Automatik-Schwelle');
+    expect(
+      Array.from(settings.shadowRoot.querySelectorAll('.section')).every(
+        (section) => !(section as HTMLDetailsElement).open,
+      ),
+    ).toBe(true);
   });
 
   it('renders active session adjustments as a compact summary', async () => {

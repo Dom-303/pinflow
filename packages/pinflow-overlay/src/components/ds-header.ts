@@ -8,7 +8,7 @@ import { LitElement, html, css } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { StoreController } from '../core/store-controller.js';
 import { themeStyles, utilityStyles } from '../styles/theme.js';
-import { logoSvg } from './logo/index.js';
+import { getThemeIconAsset } from './logo/index.js';
 
 /**
  * Sidebar header component
@@ -28,7 +28,7 @@ export class DsHeader extends LitElement {
     css`
       :host {
         display: block;
-        padding: 14px 16px 10px;
+        padding: 10px 12px 9px;
         background: var(--ds-shell-surface);
         backdrop-filter: var(--ds-shell-blur);
         border-bottom: 1px solid var(--ds-shell-border-muted);
@@ -43,77 +43,62 @@ export class DsHeader extends LitElement {
 
       .header-row {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: space-between;
-        gap: 12px;
+        gap: 10px;
       }
 
       .brand {
         display: flex;
         align-items: center;
-        gap: var(--ds-space-sm);
+        gap: 8px;
         min-width: 0;
+        padding-top: 1px;
       }
 
       .brand-copy {
-        display: grid;
-        gap: 6px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
         min-width: 0;
       }
 
       .brand-logo-badge {
         display: grid;
         place-items: center;
-        width: 34px;
-        height: 34px;
+        width: 30px;
+        height: 30px;
         flex-shrink: 0;
-        border-radius: 12px;
-        background:
-          radial-gradient(circle at top, rgba(255, 255, 255, 0.92), transparent 70%),
-          linear-gradient(180deg, rgba(255, 252, 247, 0.94), rgba(242, 234, 224, 0.92));
-        border: 1px solid var(--ds-shell-border-soft);
-        box-shadow: var(--ds-shadow-sm);
+        border-radius: 9px;
+        background: transparent;
       }
 
-      .brand-logo-badge svg {
-        filter: drop-shadow(var(--ds-tab-shadow));
+      .brand-logo-img {
+        display: block;
+        width: 28px;
+        height: 28px;
+        object-fit: contain;
+        border-radius: 8px;
       }
 
       .brand-wordmark {
-        font-size: 1.02rem;
+        font-size: 0.98rem;
         line-height: 1;
-        letter-spacing: -0.04em;
+        letter-spacing: 0;
         font-weight: 700;
         color: var(--ds-text-primary);
       }
 
       .brand-meta {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        min-height: 14px;
-        flex-wrap: wrap;
-      }
-
-      .brand-kicker {
         display: inline-flex;
         align-items: center;
-        padding: 2px 7px;
-        border-radius: var(--ds-radius-full);
-        background: var(--ds-pill-surface);
-        border: 1px solid var(--ds-pill-border);
-        color: var(--ds-text-secondary);
-        font-size: 10px;
-        font-weight: var(--ds-font-weight-medium);
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
       }
 
       .brand-status {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        padding: 2px 7px;
+        padding: 3px 7px;
         border-radius: var(--ds-radius-full);
         background: var(--ds-note-surface);
         border: 1px solid var(--ds-pill-border);
@@ -134,19 +119,20 @@ export class DsHeader extends LitElement {
       .header-actions {
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 5px;
+        padding-top: 0;
       }
 
       .btn-icon {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 34px;
-        height: 34px;
+        width: 28px;
+        height: 28px;
         padding: 0;
         background: var(--ds-shell-surface-quiet);
         border: 1px solid var(--ds-shell-border-soft);
-        border-radius: var(--ds-radius-md);
+        border-radius: 9px;
         color: var(--ds-text-secondary);
         cursor: pointer;
         transition: all var(--ds-transition-fast);
@@ -159,8 +145,8 @@ export class DsHeader extends LitElement {
       }
 
       .btn-icon svg {
-        width: 17px;
-        height: 17px;
+        width: 15px;
+        height: 15px;
       }
     `,
   ];
@@ -178,23 +164,68 @@ export class DsHeader extends LitElement {
     );
   }
 
+  private handleToggleTheme() {
+    this.storeController.store.toggleTheme();
+  }
+
   override render() {
+    const { theme } = this.storeController.state;
+    const isDark = theme === 'dark';
+
     return html`
       <div class="header-row">
         <div class="brand">
           <span class="brand-logo-badge" aria-hidden="true">
-            ${logoSvg({ size: 24, variant: 'full' })}
+            <img
+              class="brand-logo-img"
+              src=${getThemeIconAsset(theme)}
+              alt=""
+              width="28"
+              height="28"
+            />
           </span>
           <div class="brand-copy">
+            <span class="brand-wordmark">PinFlow</span>
             <div class="brand-meta">
-              <span class="brand-kicker">Arbeitsbereich</span>
               <span class="brand-status">Session aktiv</span>
             </div>
-            <span class="brand-wordmark">PinFlow</span>
           </div>
         </div>
 
         <div class="header-actions">
+          <button
+            class="btn-icon"
+            @click=${this.handleToggleTheme}
+            title=${isDark ? 'Light Mode aktivieren' : 'Dark Mode aktivieren'}
+            aria-label="Darstellung wechseln"
+          >
+            ${isDark
+              ? html`<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="4"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                  />
+                  <path
+                    d="M12 2.75v2M12 19.25v2M4.45 4.45l1.42 1.42M18.13 18.13l1.42 1.42M2.75 12h2M19.25 12h2M4.45 19.55l1.42-1.42M18.13 5.87l1.42-1.42"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                  />
+                </svg>`
+              : html`<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path
+                    d="M20.25 14.35A7.85 7.85 0 0 1 9.65 3.75 8.25 8.25 0 1 0 20.25 14.35Z"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>`}
+          </button>
+
           <button
             class="btn-icon"
             @click=${this.handleOpenSettings}
@@ -203,17 +234,18 @@ export class DsHeader extends LitElement {
           >
             <svg viewBox="0 0 24 24" fill="none">
               <path
-                d="M10.5 4.5h3l.8 2.14 2.26.94 2.03-.84 2.12 2.12-.85 2.02.94 2.27 2.2.85v3l-2.13.8-.94 2.26.85 2.03-2.12 2.12-2.02-.85-2.27.94-.85 2.2h-3l-.8-2.13-2.26-.94-2.03.85-2.12-2.12.85-2.02-.94-2.27-2.2-.85v-3l2.13-.8.94-2.26-.85-2.03 2.12-2.12 2.02.85 2.27-.94.85-2.2Z"
+                d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.51a2 2 0 0 1 1-1.72l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2Z"
                 stroke="currentColor"
-                stroke-width="1.5"
+                stroke-width="1.7"
+                stroke-linecap="round"
                 stroke-linejoin="round"
               />
               <circle
                 cx="12"
                 cy="12"
-                r="3.2"
+                r="3"
                 stroke="currentColor"
-                stroke-width="1.8"
+                stroke-width="1.7"
               />
             </svg>
           </button>

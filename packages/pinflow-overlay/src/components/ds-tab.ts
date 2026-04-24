@@ -34,7 +34,7 @@ export class DsTab extends LitElement {
       :host {
         display: block;
         position: absolute;
-        right: -2px;
+        right: 0;
         /* top is set dynamically via inline style */
         transform: translateY(-50%);
         z-index: 3;
@@ -44,19 +44,18 @@ export class DsTab extends LitElement {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 70px;
-        height: 74px;
-        padding: 0 10px 0 0;
-        background: var(--ds-shell-surface-strong);
-        border: 1px solid var(--ds-shell-border-soft);
-        border-radius: 24px 0 0 24px;
-        box-shadow: var(--ds-panel-shadow);
+        width: 54px;
+        height: 56px;
+        padding: 0;
+        background: transparent;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
         cursor: pointer;
         touch-action: none; /* prevent scroll while dragging */
         transition:
-          transform var(--ds-transition-fast),
-          box-shadow var(--ds-transition-fast),
-          background var(--ds-transition-fast);
+          transform 180ms ease,
+          opacity 180ms ease;
       }
 
       :host(.dragging) .tab {
@@ -65,35 +64,46 @@ export class DsTab extends LitElement {
 
       .tab:focus-visible {
         outline: 2px solid var(--ds-brand-primary);
-        outline-offset: 2px;
-        border-radius: var(--ds-radius-md);
+        outline-offset: 3px;
+        border-radius: 14px 0 0 14px;
       }
 
       .tab:hover {
-        transform: translateX(-4px);
-        box-shadow: var(--ds-shadow-xl);
+        transform: translateX(-3px);
       }
 
       .tab-mark {
         display: grid;
         place-items: center;
-        width: 46px;
-        height: 46px;
-        border-radius: 16px;
-        background:
-          radial-gradient(circle at top, rgba(255, 255, 255, 0.95), transparent 70%),
-          linear-gradient(
-            180deg,
-            rgba(255, 252, 247, 0.96),
-            rgba(244, 236, 225, 0.92)
-          );
-        box-shadow:
-          inset 0 1px 0 rgba(255, 255, 255, 0.65),
-          0 14px 34px -22px rgba(69, 49, 31, 0.42);
+        width: 54px;
+        height: 54px;
+        border-radius: 0;
+        background: transparent;
+        transform: scaleX(-1);
+        transform-origin: center;
+        transition:
+          transform 180ms ease,
+          filter 180ms ease;
       }
 
       .tab-mark svg {
-        filter: drop-shadow(var(--ds-tab-shadow));
+        display: block;
+        width: 52px;
+        height: 52px;
+        filter:
+          drop-shadow(0 10px 18px rgba(66, 39, 16, 0.24))
+          drop-shadow(0 1px 0 rgba(255, 226, 166, 0.26));
+        transition: filter 180ms ease;
+      }
+
+      .tab:hover .tab-mark {
+        transform: scaleX(-1) scale(1.035);
+      }
+
+      .tab:hover .tab-mark svg {
+        filter:
+          drop-shadow(0 14px 24px rgba(66, 39, 16, 0.28))
+          drop-shadow(0 1px 0 rgba(255, 229, 170, 0.32));
       }
     `,
   ];
@@ -187,7 +197,12 @@ export class DsTab extends LitElement {
         aria-label="PinFlow-Arbeitsbereich oeffnen"
       >
         <span class="tab-mark" aria-hidden="true">
-          ${logoSvg({ size: 30, variant: 'full' })}
+          ${logoSvg({
+            size: 52,
+            variant: 'full',
+            color: 'var(--ds-brand-primary)',
+            dimensional: true,
+          })}
         </span>
       </button>
     `;

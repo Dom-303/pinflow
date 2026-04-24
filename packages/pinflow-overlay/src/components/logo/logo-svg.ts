@@ -81,6 +81,12 @@ export interface LogoOptions {
    * - 'auto': select based on size threshold (default)
    */
   variant?: LogoVariant;
+
+  /**
+   * Use the warm dimensional PinFlow mark treatment instead of a flat fill.
+   * Keeps the logo itself frameless while adding subtle material depth.
+   */
+  dimensional?: boolean;
 }
 
 /**
@@ -154,10 +160,14 @@ export function logoSvg(options: LogoOptions): TemplateResult {
     color = 'var(--ds-brand-primary)',
     className,
     variant = 'auto',
+    dimensional = false,
   } = options;
 
   // Generate unique mask ID for this instance
-  const maskId = `ds-logo-mask-${++instanceCounter}`;
+  const instanceId = ++instanceCounter;
+  const maskId = `ds-logo-mask-${instanceId}`;
+  const gradientId = `ds-logo-gradient-${instanceId}`;
+  const shineId = `ds-logo-shine-${instanceId}`;
 
   // Determine which variant to use
   const useSimplified =
@@ -167,6 +177,26 @@ export function logoSvg(options: LogoOptions): TemplateResult {
   // Select paths and mask based on variant
   const dPath = useSimplified ? SIMPLIFIED.dPath : FULL.dPath;
   const maskContent = useSimplified ? simplifiedMask(maskId) : fullMask(maskId);
+  const detail = useSimplified ? SIMPLIFIED : FULL;
+  const detailContent = useSimplified
+    ? svg`
+        <path d="${CURSOR_PATH}" fill="#fffaf2" />
+      `
+    : svg`
+        <path d="${CURSOR_PATH}" fill="#fffaf2" />
+        <path
+          d="${CLICK_LINE_PATH}"
+          stroke="#fffaf2"
+          stroke-width="${FULL.strokeWidth}"
+          stroke-linecap="round"
+        />
+        <path
+          d="${SPARKLE_PATHS}"
+          stroke="#fff3dc"
+          stroke-width="${FULL.strokeWidth}"
+          stroke-linecap="round"
+        />
+      `;
 
   return html`
     <svg
@@ -177,8 +207,55 @@ export function logoSvg(options: LogoOptions): TemplateResult {
       class="${className || ''}"
       aria-hidden="true"
     >
-      <defs>${maskContent}</defs>
-      <path d="${dPath}" fill="${color}" mask="url(#${maskId})" />
+      <defs>
+        ${maskContent}
+        ${dimensional
+          ? svg`
+              <linearGradient
+                id="${gradientId}"
+                x1="8"
+                y1="8"
+                x2="58"
+                y2="58"
+                gradientUnits="userSpaceOnUse"
+              >
+                <stop offset="0" stop-color="#ffe09a" />
+                <stop offset="0.32" stop-color="#e8a24f" />
+                <stop offset="0.72" stop-color="#b56d2e" />
+                <stop offset="1" stop-color="#6f431b" />
+              </linearGradient>
+              <radialGradient
+                id="${shineId}"
+                cx="19"
+                cy="13"
+                r="32"
+                gradientUnits="userSpaceOnUse"
+              >
+                <stop offset="0" stop-color="#fff7d8" stop-opacity="0.78" />
+                <stop offset="0.5" stop-color="#ffd891" stop-opacity="0.22" />
+                <stop offset="1" stop-color="#ffd891" stop-opacity="0" />
+              </radialGradient>
+            `
+          : null}
+      </defs>
+      ${dimensional
+        ? svg`
+            <path d="${dPath}" fill="url(#${gradientId})" />
+            <path
+              d="${dPath}"
+              fill="url(#${shineId})"
+              opacity="0.88"
+            />
+            <g
+              transform="${detail.cursorTransform}"
+              style="filter: drop-shadow(0 1px 1px rgba(93, 50, 17, 0.28));"
+            >
+              ${detailContent}
+            </g>
+          `
+        : svg`
+            <path d="${dPath}" fill="${color}" mask="url(#${maskId})" />
+          `}
     </svg>
   `;
 }

@@ -25,12 +25,95 @@ export class DsWorkflowPanel extends LitElement {
 
       .panel {
         display: grid;
-        gap: 12px;
-        padding: 13px;
-        background: var(--ds-panel-surface);
+        gap: 10px;
+        padding: 0;
+        background: transparent;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+      }
+
+      .flow-section {
+        display: grid;
+        border-radius: 13px;
         border: 1px solid var(--ds-panel-border);
-        border-radius: calc(var(--ds-radius-lg) - 2px);
-        box-shadow: var(--ds-shadow-sm);
+        background: var(--ds-panel-surface-muted);
+        overflow: hidden;
+      }
+
+      .flow-section[open] {
+        background: var(--ds-panel-surface);
+        border-color: var(--ds-panel-border-strong);
+      }
+
+      .flow-summary {
+        list-style: none;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        min-height: 50px;
+        padding: 12px;
+        cursor: pointer;
+        transition: background var(--ds-transition-fast);
+      }
+
+      .flow-summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .flow-summary:hover {
+        background: var(--ds-bg-hover);
+      }
+
+      .flow-summary-copy {
+        display: grid;
+        gap: 4px;
+        min-width: 0;
+      }
+
+      .flow-summary-meta {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 8px;
+        border-radius: 999px;
+        border: 1px solid var(--ds-pill-border);
+        background: var(--ds-pill-surface);
+        color: var(--ds-text-secondary);
+        font-size: var(--ds-font-size-xs);
+        white-space: nowrap;
+      }
+
+      .flow-chevron {
+        width: 17px;
+        height: 17px;
+        color: var(--ds-text-tertiary);
+        flex-shrink: 0;
+        transition: transform var(--ds-transition-fast);
+      }
+
+      .flow-section[open] .flow-chevron {
+        transform: rotate(180deg);
+      }
+
+      .flow-section-body {
+        display: grid;
+        gap: 10px;
+        padding: 12px;
+        border-top: 1px solid var(--ds-panel-border);
+      }
+
+      .header,
+      .effective-now,
+      .control-stack,
+      .batch-summary,
+      .flow-note,
+      .batch-empty,
+      .batch-item {
+        border: 1px solid var(--ds-panel-border);
+        background: var(--ds-panel-surface-muted);
+        border-radius: 13px;
       }
 
       .header {
@@ -38,6 +121,7 @@ export class DsWorkflowPanel extends LitElement {
         align-items: center;
         justify-content: space-between;
         gap: 10px;
+        padding: 12px;
       }
 
       .title-group {
@@ -46,7 +130,7 @@ export class DsWorkflowPanel extends LitElement {
       }
 
       .eyebrow {
-        font-size: 11px;
+        font-size: 10px;
         font-weight: var(--ds-font-weight-medium);
         color: var(--ds-text-tertiary);
         letter-spacing: 0.08em;
@@ -54,7 +138,7 @@ export class DsWorkflowPanel extends LitElement {
       }
 
       .title {
-        font-size: 14px;
+        font-size: 13px;
         font-weight: var(--ds-font-weight-semibold);
         color: var(--ds-text-primary);
       }
@@ -71,17 +155,13 @@ export class DsWorkflowPanel extends LitElement {
       .controls {
         display: flex;
         flex-wrap: wrap;
-        gap: 8px;
+        gap: 7px;
       }
 
       .effective-now {
         display: grid;
         gap: 6px;
-        padding: 12px;
-        border-radius: 14px;
-        border: 1px solid var(--ds-panel-border);
-        background: var(--ds-card-surface-strong);
-        box-shadow: var(--ds-shadow-sm);
+        padding: 10px;
       }
 
       .effective-now-title {
@@ -106,9 +186,6 @@ export class DsWorkflowPanel extends LitElement {
         display: grid;
         gap: 8px;
         padding: 10px;
-        border-radius: 16px;
-        background: var(--ds-panel-surface-muted);
-        border: 1px solid var(--ds-panel-border);
       }
 
       .control-stack-title {
@@ -123,10 +200,9 @@ export class DsWorkflowPanel extends LitElement {
         display: grid;
         gap: 4px;
         padding: 10px;
-        border-radius: 14px;
+        border-radius: 12px;
         border: 1px solid var(--ds-panel-border);
         background: var(--ds-card-surface);
-        box-shadow: var(--ds-shadow-sm);
       }
 
       .status-label {
@@ -169,7 +245,7 @@ export class DsWorkflowPanel extends LitElement {
       .channel-btn.active {
         background: var(--ds-panel-surface-strong);
         color: var(--ds-text-primary);
-        box-shadow: var(--ds-shadow-sm);
+        border-color: var(--ds-panel-border-strong);
       }
 
       .summary-pill strong,
@@ -240,11 +316,7 @@ export class DsWorkflowPanel extends LitElement {
       .batch-summary {
         display: grid;
         gap: 6px;
-        padding: 12px;
-        border-radius: 14px;
-        border: 1px solid var(--ds-panel-border);
-        background: var(--ds-card-surface-strong);
-        box-shadow: var(--ds-shadow-sm);
+        padding: 10px;
       }
 
       .batch-summary-row {
@@ -265,11 +337,7 @@ export class DsWorkflowPanel extends LitElement {
       .flow-note {
         display: grid;
         gap: 4px;
-        padding: 12px;
-        border-radius: 14px;
-        border: 1px solid var(--ds-empty-border);
-        background: var(--ds-empty-surface);
-        box-shadow: var(--ds-panel-shadow-soft);
+        padding: 10px;
       }
 
       .flow-note-title {
@@ -287,11 +355,9 @@ export class DsWorkflowPanel extends LitElement {
       .batch-empty {
         display: grid;
         gap: 6px;
-        padding: 12px;
-        border-radius: 14px;
+        padding: 10px;
         border: 1px dashed var(--ds-empty-border);
         background: var(--ds-empty-surface);
-        box-shadow: var(--ds-panel-shadow-soft);
       }
 
       .batch-empty-title {
@@ -314,11 +380,7 @@ export class DsWorkflowPanel extends LitElement {
       .batch-item {
         display: grid;
         gap: 6px;
-        padding: 10px 12px;
-        border-radius: 14px;
-        border: 1px solid var(--ds-panel-border);
-        background: var(--ds-card-surface);
-        box-shadow: var(--ds-shadow-sm);
+        padding: 10px;
       }
 
       .batch-row {
@@ -376,6 +438,77 @@ export class DsWorkflowPanel extends LitElement {
         gap: 8px;
         color: var(--ds-text-secondary);
         font-size: var(--ds-font-size-xs);
+      }
+
+      :host([theme='light']) .flow-section {
+        background: rgba(255, 253, 250, 0.72);
+      }
+
+      :host([theme='light']) .flow-section[open] {
+        background: rgba(255, 254, 251, 0.96);
+      }
+
+      :host([theme='light']) .header,
+      :host([theme='light']) .effective-now,
+      :host([theme='light']) .control-stack,
+      :host([theme='light']) .batch-summary,
+      :host([theme='light']) .flow-note,
+      :host([theme='light']) .batch-empty,
+      :host([theme='light']) .batch-item {
+        background: rgba(255, 253, 250, 0.72);
+      }
+
+      :host([theme='dark']) .header,
+      :host([theme='dark']) .flow-section,
+      :host([theme='dark']) .effective-now,
+      :host([theme='dark']) .control-stack,
+      :host([theme='dark']) .batch-summary,
+      :host([theme='dark']) .flow-note,
+      :host([theme='dark']) .batch-empty,
+      :host([theme='dark']) .batch-item {
+        background: #080706;
+        border-color: rgba(38, 30, 24, 0.9);
+      }
+
+      :host([theme='dark']) .flow-section[open] {
+        background: #0d0b09;
+        border-color: rgba(62, 47, 35, 0.88);
+      }
+
+      :host([theme='dark']) .flow-summary:hover {
+        background: #100d0a;
+      }
+
+      :host([theme='dark']) .flow-section-body {
+        border-top-color: rgba(42, 33, 26, 0.86);
+      }
+
+      :host([theme='dark']) .status-card,
+      :host([theme='dark']) .channel-btn,
+      :host([theme='dark']) .summary-pill,
+      :host([theme='dark']) .flow-summary-meta,
+      :host([theme='dark']) .control-pill,
+      :host([theme='dark']) .pause-btn,
+      :host([theme='dark']) .dispatch-btn,
+      :host([theme='dark']) .mode-select,
+      :host([theme='dark']) .batch-status {
+        background: #12100d;
+        border-color: rgba(50, 38, 29, 0.76);
+      }
+
+      :host([theme='dark']) .channel-btn.active,
+      :host([theme='dark']) .pause-btn.active {
+        background: #18120d;
+        border-color: rgba(72, 53, 37, 0.88);
+      }
+
+      :host([theme='dark']) .panel-copy,
+      :host([theme='dark']) .effective-now-copy,
+      :host([theme='dark']) .status-note,
+      :host([theme='dark']) .flow-note-copy,
+      :host([theme='dark']) .batch-meta,
+      :host([theme='dark']) .batch-summary-meta {
+        color: #988878;
       }
     `,
   ];
@@ -686,265 +819,299 @@ export class DsWorkflowPanel extends LitElement {
 
     return html`
       <div class="panel">
-        <div class="header">
-          <div class="title-group">
-            <div class="eyebrow">Workflow</div>
-            <div class="title">Flow-Steuerung</div>
-            <div class="panel-copy">
-              Halte Session-Kanal, Queue-Status und Freigabe an einer Stelle im Blick.
-            </div>
-          </div>
-        </div>
-
-        <div class="channel-group">
-          ${([
-            ['codex', 'Codex'],
-            ['claude', 'Claude'],
-            ['queue_only', 'Nur sammeln'],
-          ] as Array<[DispatchChannel, string]>).map(
-            ([channel, label]) => html`
-              <button
-                class="channel-btn ${effective.channel === channel
-                  ? 'active'
-                  : ''}"
-                @click=${() => this.setChannel(channel)}
-                aria-label="Kanal ${label} fuer diese Session aktivieren"
-              >
-                ${label}
-              </button>
-            `,
-          )}
-        </div>
-
-        <div class="status-overview">
-          <div class="status-card">
-            <div class="status-label">Session-Kanal</div>
-            <div class="status-value">${this.getChannelLabel(effective.channel)}</div>
-            <div class="status-note">
-              ${effective.channel === 'queue_only'
-                ? 'Neue Aufgaben bleiben gesammelt, bis du einen aktiven Kanal waehlst.'
-                : 'Session-weit aktiv fuer neue Annotationen und den naechsten Batch.'}
-            </div>
-          </div>
-          <div class="status-card">
-            <div class="status-label">Queue-Status</div>
-            <div class="status-value">${this.getModeLabel(effective.mode)}</div>
-            <div class="status-note">
-              ${effective.mode === 'threshold'
-                ? `Automatisch ab ${effective.threshold} offenen Aufgaben.`
-                : effective.mode === 'immediate'
-                  ? 'Neue Aufgaben werden direkt in die Queue gegeben.'
-                  : 'Neue Aufgaben bleiben gesammelt, bis du freigibst.'}
-            </div>
-          </div>
-          <div class="status-card">
-            <div class="status-label">Live-Status</div>
-            <div class="status-value">${activeStatus}</div>
-            <div class="status-note">
-              ${effective.channel === 'queue_only'
-                ? 'Sammelt Aufgaben ohne Versand. '
-                : ''}${effective.concurrency} parallel, Fortsetzung ${effective.continuation ===
-              'automatic'
-                ? 'automatisch'
-                : effective.continuation === 'confirm'
-                  ? 'mit Freigabe'
-                  : 'manuell'}
-            </div>
-          </div>
-          <div class="status-card">
-            <div class="status-label">Fortsetzung</div>
-            <div class="status-value">
-              ${this.getContinuationLabel(effective.continuation)}
-            </div>
-            <div class="status-note">
-              ${this.getContinuationCopy(effective.continuation)}
-            </div>
-          </div>
-        </div>
-
-        <div class="effective-now">
-          <div class="effective-now-title">Wirksam jetzt</div>
-          <div class="effective-now-copy">
-            ${this.getChannelLabel(effective.channel)}, ${this.getModeLabel(effective.mode)}, ${effective.concurrency}
-            parallel, Fortsetzung ${effective.continuation === 'automatic'
-              ? 'automatisch'
-              : effective.continuation === 'confirm'
-                ? 'mit Freigabe'
-                : 'manuell'}.
-          </div>
-        </div>
-
-        <div class="summary">
-          <span class="summary-pill"><strong>${summary.waiting}</strong> Bereit</span>
-          <span class="summary-pill"><strong>${summary.active}</strong> In Arbeit</span>
-          <span class="summary-pill"><strong>${summary.completed}</strong> Erledigt</span>
-          ${analysis.awaitingConfirmationIds.length
-            ? html`<span class="summary-pill"
-                ><strong>${analysis.awaitingConfirmationIds.length}</strong>
-                Freigabe</span
-              >`
-            : nothing}
-          ${summary.failed
-            ? html`<span class="summary-pill"
-                ><strong>${summary.failed}</strong> Fehler</span
-              >`
-            : nothing}
-        </div>
-
-        <div class="control-stack">
-          <div class="control-stack-title">Freigabe & Automatik</div>
-          <div class="controls">
-            <div class="control-pill">
-              Versand
-              <select class="mode-select" .value=${effective.mode} @change=${this.handleModeChange}>
-                <option value="manual">Manuell</option>
-                <option value="immediate">Sofort</option>
-                <option value="threshold">Ab Schwelle</option>
-              </select>
+        <details class="flow-section">
+          <summary class="flow-summary">
+            <span class="flow-summary-copy">
+              <span class="eyebrow">Workflow</span>
+              <span class="title">Flow-Steuerung</span>
+              <span class="panel-copy">
+                Kanal, Queue-Status und Live-Zustand.
+              </span>
+            </span>
+            <span class="flow-summary-meta">
+              ${this.getChannelLabel(effective.channel)}
+            </span>
+            <svg class="flow-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </summary>
+          <div class="flow-section-body">
+            <div class="channel-group">
+              ${([
+                ['codex', 'Codex'],
+                ['claude', 'Claude'],
+                ['queue_only', 'Nur sammeln'],
+              ] as Array<[DispatchChannel, string]>).map(
+                ([channel, label]) => html`
+                  <button
+                    class="channel-btn ${effective.channel === channel
+                      ? 'active'
+                      : ''}"
+                    @click=${() => this.setChannel(channel)}
+                    aria-label="Kanal ${label} fuer diese Session aktivieren"
+                  >
+                    ${label}
+                  </button>
+                `,
+              )}
             </div>
 
-            <div class="control-pill">
-              <strong>${effective.concurrency}</strong> parallel
-            </div>
-
-            <button
-              class="pause-btn ${effective.paused ? 'active' : ''}"
-              @click=${this.togglePause}
-            >
-              ${effective.paused ? 'Queue pausiert' : 'Queue aktiv'}
-            </button>
-
-            <button
-              class="dispatch-btn"
-              ?disabled=${nextActionDisabled}
-              @click=${this.releaseNextBatch}
-            >
-              ${nextActionLabel}
-            </button>
-          </div>
-        </div>
-
-        ${nextFlowNote
-          ? html`
-              <div class="flow-note">
-                <div class="flow-note-title">${nextFlowNote.title}</div>
-                <div class="flow-note-copy">${nextFlowNote.copy}</div>
-              </div>
-            `
-          : nothing}
-
-        ${dispatchBatches.length
-          ? html`
-              <div class="batch-log">
-                <div class="eyebrow">Letzter Lauf</div>
-                <div class="batch-summary">
-                  <div class="batch-summary-row">
-                    <div class="batch-channel">
-                      ${this.getChannelLabel(latestBatch.channel as DispatchChannel)}
-                    </div>
-                    <div class="batch-status" data-status=${latestBatch.status}>
-                      ${this.getBatchStatusLabel(latestBatch.status)}
-                    </div>
-                  </div>
-                  <div class="flow-note-copy">
-                    ${this.getBatchStatusCopy(latestBatch.status)}
-                  </div>
-                  ${latestBatchFollowUp
-                    ? html`
-                        <div class="flow-note">
-                          <div class="flow-note-title">
-                            ${latestBatchFollowUp.title}
-                          </div>
-                          <div class="flow-note-copy">
-                            ${latestBatchFollowUp.copy}
-                          </div>
-                        </div>
-                      `
-                    : nothing}
-                  <div class="batch-summary-meta">
-                    <span
-                      >Freigegeben
-                      ${this.formatBatchReleasedAt(latestBatch.releasedAt)}</span
-                    >
-                    <span>${latestBatch.annotationIds.length} Aufgaben</span>
-                    <span>${latestBatch.completedCount} fertig</span>
-                    ${latestBatch.processingCount
-                      ? html`<span>${latestBatch.processingCount} aktiv</span>`
-                      : nothing}
-                    ${latestBatch.queuedCount
-                      ? html`<span>${latestBatch.queuedCount} wartend</span>`
-                      : nothing}
-                    ${latestBatch.failedCount
-                      ? html`<span>${latestBatch.failedCount} Fehler</span>`
-                      : nothing}
-                  </div>
+            <div class="status-overview">
+              <div class="status-card">
+                <div class="status-label">Session-Kanal</div>
+                <div class="status-value">${this.getChannelLabel(effective.channel)}</div>
+                <div class="status-note">
+                  ${effective.channel === 'queue_only'
+                    ? 'Neue Aufgaben bleiben gesammelt, bis du einen aktiven Kanal waehlst.'
+                    : 'Session-weit aktiv fuer neue Annotationen und den naechsten Batch.'}
                 </div>
-                ${attentionSummary
-                  ? html`
-                      <div class="flow-note">
-                        <div class="flow-note-title">${attentionSummary.title}</div>
-                        <div class="flow-note-copy">${attentionSummary.copy}</div>
+              </div>
+              <div class="status-card">
+                <div class="status-label">Queue-Status</div>
+                <div class="status-value">${this.getModeLabel(effective.mode)}</div>
+                <div class="status-note">
+                  ${effective.mode === 'threshold'
+                    ? `Automatisch ab ${effective.threshold} offenen Aufgaben.`
+                    : effective.mode === 'immediate'
+                      ? 'Neue Aufgaben werden direkt in die Queue gegeben.'
+                      : 'Neue Aufgaben bleiben gesammelt, bis du freigibst.'}
+                </div>
+              </div>
+              <div class="status-card">
+                <div class="status-label">Live-Status</div>
+                <div class="status-value">${activeStatus}</div>
+                <div class="status-note">
+                  ${effective.channel === 'queue_only'
+                    ? 'Sammelt Aufgaben ohne Versand. '
+                    : ''}${effective.concurrency} parallel, Fortsetzung ${effective.continuation ===
+                  'automatic'
+                    ? 'automatisch'
+                    : effective.continuation === 'confirm'
+                      ? 'mit Freigabe'
+                      : 'manuell'}
+                </div>
+              </div>
+              <div class="status-card">
+                <div class="status-label">Fortsetzung</div>
+                <div class="status-value">
+                  ${this.getContinuationLabel(effective.continuation)}
+                </div>
+                <div class="status-note">
+                  ${this.getContinuationCopy(effective.continuation)}
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="flow-section">
+          <summary class="flow-summary">
+            <span class="flow-summary-copy">
+              <span class="title">Freigabe & Automatik</span>
+              <span class="panel-copy">
+                Versandmodus, Kapazitaet und naechsten Batch steuern.
+              </span>
+            </span>
+            <span class="flow-summary-meta">${this.getModeLabel(effective.mode)}</span>
+            <svg class="flow-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </summary>
+          <div class="flow-section-body">
+            <div class="effective-now">
+              <div class="effective-now-title">Wirksam jetzt</div>
+              <div class="effective-now-copy">
+                ${this.getChannelLabel(effective.channel)}, ${this.getModeLabel(effective.mode)}, ${effective.concurrency}
+                parallel, Fortsetzung ${effective.continuation === 'automatic'
+                  ? 'automatisch'
+                  : effective.continuation === 'confirm'
+                    ? 'mit Freigabe'
+                    : 'manuell'}.
+              </div>
+            </div>
+
+            <div class="summary">
+              <span class="summary-pill"><strong>${summary.waiting}</strong> Bereit</span>
+              <span class="summary-pill"><strong>${summary.active}</strong> In Arbeit</span>
+              <span class="summary-pill"><strong>${summary.completed}</strong> Erledigt</span>
+              ${analysis.awaitingConfirmationIds.length
+                ? html`<span class="summary-pill"
+                    ><strong>${analysis.awaitingConfirmationIds.length}</strong>
+                    Freigabe</span
+                  >`
+                : nothing}
+              ${summary.failed
+                ? html`<span class="summary-pill"
+                    ><strong>${summary.failed}</strong> Fehler</span
+                  >`
+                : nothing}
+            </div>
+
+            <div class="control-stack">
+              <div class="control-stack-title">Steuerung</div>
+              <div class="controls">
+                <div class="control-pill">
+                  Versand
+                  <select class="mode-select" .value=${effective.mode} @change=${this.handleModeChange}>
+                    <option value="manual">Manuell</option>
+                    <option value="immediate">Sofort</option>
+                    <option value="threshold">Ab Schwelle</option>
+                  </select>
+                </div>
+
+                <div class="control-pill">
+                  <strong>${effective.concurrency}</strong> parallel
+                </div>
+
+                <button
+                  class="pause-btn ${effective.paused ? 'active' : ''}"
+                  @click=${this.togglePause}
+                >
+                  ${effective.paused ? 'Queue pausiert' : 'Queue aktiv'}
+                </button>
+
+                <button
+                  class="dispatch-btn"
+                  ?disabled=${nextActionDisabled}
+                  @click=${this.releaseNextBatch}
+                >
+                  ${nextActionLabel}
+                </button>
+              </div>
+            </div>
+
+            ${nextFlowNote
+              ? html`
+                  <div class="flow-note">
+                    <div class="flow-note-title">${nextFlowNote.title}</div>
+                    <div class="flow-note-copy">${nextFlowNote.copy}</div>
+                  </div>
+                `
+              : nothing}
+          </div>
+        </details>
+
+        <details class="flow-section">
+          <summary class="flow-summary">
+            <span class="flow-summary-copy">
+              <span class="title">Letzte Batches</span>
+              <span class="panel-copy">Status und Nacharbeit der letzten Laeufe.</span>
+            </span>
+            <span class="flow-summary-meta">${dispatchBatches.length}</span>
+            <svg class="flow-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </summary>
+          <div class="flow-section-body">
+            ${dispatchBatches.length
+              ? html`
+                  <div class="batch-log">
+                    <div class="batch-summary">
+                      <div class="batch-summary-row">
+                        <div class="batch-channel">
+                          ${this.getChannelLabel(latestBatch.channel as DispatchChannel)}
+                        </div>
+                        <div class="batch-status" data-status=${latestBatch.status}>
+                          ${this.getBatchStatusLabel(latestBatch.status)}
+                        </div>
                       </div>
-                    `
-                  : nothing}
-                <div class="eyebrow">Letzte Batches</div>
-                <div class="batch-list">
-                  ${dispatchBatches.slice(0, 3).map(
-                    (batch) => html`
-                      <div class="batch-item">
-                        <div class="batch-row">
-                          <div class="batch-channel">
-                            ${this.getChannelLabel(batch.channel as DispatchChannel)}
-                          </div>
-                          <div
-                            class="batch-status"
-                            data-status=${batch.status}
-                          >
-                            ${this.getBatchStatusLabel(batch.status)}
-                          </div>
-                        </div>
-                        <div class="batch-meta">
-                          <span
-                            >Freigegeben
-                            ${this.formatBatchReleasedAt(batch.releasedAt)}</span
-                          >
-                          <span>${batch.annotationIds.length} Aufgaben</span>
-                          <span>${batch.completedCount} fertig</span>
-                          ${batch.processingCount
-                            ? html`<span>${batch.processingCount} aktiv</span>`
-                            : nothing}
-                          ${batch.queuedCount
-                            ? html`<span>${batch.queuedCount} wartend</span>`
-                            : nothing}
-                          ${batch.failedCount
-                            ? html`<span>${batch.failedCount} Fehler</span>`
-                            : nothing}
-                        </div>
-                        ${this.getBatchHistoryNote(batch)
-                          ? html`
-                              <div class="status-note">
-                                ${this.getBatchHistoryNote(batch)}
+                      <div class="flow-note-copy">
+                        ${this.getBatchStatusCopy(latestBatch.status)}
+                      </div>
+                      ${latestBatchFollowUp
+                        ? html`
+                            <div class="flow-note">
+                              <div class="flow-note-title">
+                                ${latestBatchFollowUp.title}
                               </div>
-                            `
+                              <div class="flow-note-copy">
+                                ${latestBatchFollowUp.copy}
+                              </div>
+                            </div>
+                          `
+                        : nothing}
+                      <div class="batch-summary-meta">
+                        <span
+                          >Freigegeben
+                          ${this.formatBatchReleasedAt(latestBatch.releasedAt)}</span
+                        >
+                        <span>${latestBatch.annotationIds.length} Aufgaben</span>
+                        <span>${latestBatch.completedCount} fertig</span>
+                        ${latestBatch.processingCount
+                          ? html`<span>${latestBatch.processingCount} aktiv</span>`
+                          : nothing}
+                        ${latestBatch.queuedCount
+                          ? html`<span>${latestBatch.queuedCount} wartend</span>`
+                          : nothing}
+                        ${latestBatch.failedCount
+                          ? html`<span>${latestBatch.failedCount} Fehler</span>`
                           : nothing}
                       </div>
-                    `,
-                  )}
-                </div>
-              </div>
-            `
-          : html`
-              <div class="batch-log">
-                <div class="eyebrow">Letzte Batches</div>
-                <div class="batch-empty">
-                  <div class="batch-empty-title">Bereit fuer den ersten Batch</div>
-                  <div class="batch-empty-copy">
-                    Sobald du die ersten Aufgaben freigibst oder versendest,
-                    siehst du hier Kanal, Status und Fortschritt des letzten Laufs.
+                    </div>
+                    ${attentionSummary
+                      ? html`
+                          <div class="flow-note">
+                            <div class="flow-note-title">${attentionSummary.title}</div>
+                            <div class="flow-note-copy">${attentionSummary.copy}</div>
+                          </div>
+                        `
+                      : nothing}
+                    <div class="batch-list">
+                      ${dispatchBatches.slice(0, 3).map(
+                        (batch) => html`
+                          <div class="batch-item">
+                            <div class="batch-row">
+                              <div class="batch-channel">
+                                ${this.getChannelLabel(batch.channel as DispatchChannel)}
+                              </div>
+                              <div
+                                class="batch-status"
+                                data-status=${batch.status}
+                              >
+                                ${this.getBatchStatusLabel(batch.status)}
+                              </div>
+                            </div>
+                            <div class="batch-meta">
+                              <span
+                                >Freigegeben
+                                ${this.formatBatchReleasedAt(batch.releasedAt)}</span
+                              >
+                              <span>${batch.annotationIds.length} Aufgaben</span>
+                              <span>${batch.completedCount} fertig</span>
+                              ${batch.processingCount
+                                ? html`<span>${batch.processingCount} aktiv</span>`
+                                : nothing}
+                              ${batch.queuedCount
+                                ? html`<span>${batch.queuedCount} wartend</span>`
+                                : nothing}
+                              ${batch.failedCount
+                                ? html`<span>${batch.failedCount} Fehler</span>`
+                                : nothing}
+                            </div>
+                            ${this.getBatchHistoryNote(batch)
+                              ? html`
+                                  <div class="status-note">
+                                    ${this.getBatchHistoryNote(batch)}
+                                  </div>
+                                `
+                              : nothing}
+                          </div>
+                        `,
+                      )}
+                    </div>
                   </div>
-                </div>
-              </div>
-            `}
+                `
+              : html`
+                  <div class="batch-empty">
+                    <div class="batch-empty-title">Bereit fuer den ersten Batch</div>
+                    <div class="batch-empty-copy">
+                      Sobald du die ersten Aufgaben freigibst oder versendest,
+                      siehst du hier Kanal, Status und Fortschritt des letzten Laufs.
+                    </div>
+                  </div>
+                `}
+          </div>
+        </details>
       </div>
     `;
   }

@@ -37,14 +37,22 @@ export class DsAnnotationInput extends LitElement {
     utilityStyles,
     css`
       :host {
-        display: block;
+        display: flex;
+        min-height: 0;
+        height: 100%;
+        flex-direction: column;
+        overflow: visible;
       }
 
       .input-wrapper {
+        display: flex;
+        min-height: 0;
+        flex: 1;
+        flex-direction: column;
         background: var(--ds-shell-surface-strong);
         border: 1px solid var(--ds-shell-border-soft);
         border-radius: 22px;
-        overflow: hidden;
+        overflow: visible;
         box-shadow: var(--ds-shadow-md);
         backdrop-filter: var(--ds-shell-blur);
         transition:
@@ -96,12 +104,14 @@ export class DsAnnotationInput extends LitElement {
 
       .textarea-container {
         padding: 8px 14px 6px;
+        flex: 1;
+        min-height: 0;
       }
 
       textarea {
         width: 100%;
-        min-height: 72px;
-        max-height: 180px;
+        height: 100%;
+        min-height: 56px;
         padding: 0;
         background: transparent;
         border: none;
@@ -161,6 +171,13 @@ export class DsAnnotationInput extends LitElement {
       .action-btn.active {
         color: var(--ds-brand-primary);
         background: var(--ds-highlight);
+        border-color: color-mix(in srgb, var(--ds-brand-primary) 38%, var(--ds-pill-border));
+      }
+
+      .capture-btn {
+        background: color-mix(in srgb, var(--ds-brand-primary) 8%, var(--ds-pill-surface));
+        border-color: color-mix(in srgb, var(--ds-brand-primary) 24%, var(--ds-pill-border));
+        color: var(--ds-text-primary);
       }
 
       .action-btn svg {
@@ -170,22 +187,22 @@ export class DsAnnotationInput extends LitElement {
 
       .menu-wrap {
         position: relative;
+        z-index: 30;
       }
 
       .menu-btn {
         position: relative;
+        width: auto;
+        min-width: 76px;
+        gap: 7px;
+        padding: 0 10px;
+        justify-content: flex-start;
       }
 
-      .menu-btn::after {
-        content: '';
-        position: absolute;
-        right: 7px;
-        bottom: 7px;
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: var(--ds-brand-primary);
-        box-shadow: 0 0 0 3px color-mix(in srgb, var(--ds-brand-primary) 18%, transparent);
+      .menu-btn.active {
+        background: var(--ds-panel-surface-strong);
+        color: var(--ds-text-primary);
+        border-color: var(--ds-panel-border-strong);
       }
 
       .menu-panel {
@@ -194,13 +211,22 @@ export class DsAnnotationInput extends LitElement {
         bottom: calc(100% + 10px);
         display: grid;
         gap: 4px;
-        min-width: 180px;
+        min-width: 196px;
         padding: 8px;
         border-radius: 16px;
         border: 1px solid var(--ds-panel-border);
         background: var(--ds-card-surface-strong);
         box-shadow: var(--ds-shadow-lg);
-        z-index: 3;
+        z-index: 20;
+      }
+
+      .menu-heading {
+        padding: 3px 6px 5px;
+        color: var(--ds-text-tertiary);
+        font-size: 10px;
+        font-weight: var(--ds-font-weight-medium);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
       }
 
       .menu-item {
@@ -250,6 +276,15 @@ export class DsAnnotationInput extends LitElement {
         flex-shrink: 0;
       }
 
+      .menu-label {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: var(--ds-font-size-xs);
+        font-weight: var(--ds-font-weight-medium);
+      }
+
       .submit-btn {
         display: flex;
         align-items: center;
@@ -285,23 +320,6 @@ export class DsAnnotationInput extends LitElement {
         height: 18px;
       }
 
-      .composer-foot {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 0 2px;
-        font-size: var(--ds-font-size-xs);
-        color: var(--ds-text-secondary);
-      }
-
-      .composer-foot-copy {
-        flex: 1;
-        min-width: 0;
-        line-height: 1.35;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
     `,
   ];
 
@@ -312,9 +330,6 @@ export class DsAnnotationInput extends LitElement {
       this.submitState = 'idle';
     }
 
-    // Auto-resize
-    textarea.style.height = 'auto';
-    textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
   }
 
   private handleKeyDown(event: KeyboardEvent) {
@@ -334,16 +349,6 @@ export class DsAnnotationInput extends LitElement {
 
   private toggleChannelMenu() {
     this.channelMenuOpen = !this.channelMenuOpen;
-  }
-
-  private handleOpenSettings() {
-    this.channelMenuOpen = false;
-    this.dispatchEvent(
-      new CustomEvent('open-settings', {
-        bubbles: true,
-        composed: true,
-      }),
-    );
   }
 
   private setChannel(channel: DispatchChannel) {
@@ -505,7 +510,7 @@ export class DsAnnotationInput extends LitElement {
         <div class="action-bar">
           <div class="action-group">
             <button
-              class="action-btn ${hasElement ? 'active' : ''}"
+              class="action-btn capture-btn ${hasElement ? 'active' : ''}"
               @click=${this.handleCapture}
               ?disabled=${isCapturing}
               title=${hasElement
@@ -537,6 +542,7 @@ export class DsAnnotationInput extends LitElement {
               ${this.channelMenuOpen
                 ? html`
                     <div class="menu-panel" role="menu" aria-label="Agent wählen">
+                      <div class="menu-heading">Weitergabe</div>
                       ${[
                         ['codex', 'Codex', 'Direkt mit Codex arbeiten'],
                         ['claude', 'Claude', 'Mit Claude weiterschicken'],
@@ -579,44 +585,31 @@ export class DsAnnotationInput extends LitElement {
                 : null}
 
               <button
-                class="action-btn menu-btn"
+                class="action-btn menu-btn ${this.channelMenuOpen ? 'active' : ''}"
                 @click=${this.toggleChannelMenu}
                 title=${`Agent: ${flowLabel}`}
                 aria-label="Agent waehlen"
               >
                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <path
-                    d="M12 3.5c3.9 0 7 2.86 7 6.4 0 2.1-1.12 3.95-2.85 5.12v3.48l-2.72-1.72c-.47.08-.95.12-1.43.12-3.9 0-7-2.86-7-6.4s3.1-6.4 7-6.4Z"
+                    d="M6 4v4a4 4 0 0 0 4 4h8"
                     stroke="currentColor"
-                    stroke-width="1.7"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
                     stroke-linejoin="round"
                   />
                   <path
-                    d="M9.25 10.2h.01M12 10.2h.01M14.75 10.2h.01"
+                    d="M14 8l4 4-4 4M6 20v-3a5 5 0 0 1 5-5"
                     stroke="currentColor"
-                    stroke-width="2.2"
+                    stroke-width="1.8"
                     stroke-linecap="round"
+                    stroke-linejoin="round"
                   />
                 </svg>
+                <span class="menu-label">${flowLabel}</span>
               </button>
             </div>
 
-            <button
-              class="action-btn"
-              @click=${this.handleOpenSettings}
-              title="Einstellungen oeffnen"
-              aria-label="Einstellungen oeffnen"
-            >
-              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path
-                  d="M10.5 4.5h3l.8 2.14 2.26.94 2.03-.84 2.12 2.12-.85 2.02.94 2.27 2.2.85v3l-2.13.8-.94 2.26.85 2.03-2.12 2.12-2.02-.85-2.27.94-.85 2.2h-3l-.8-2.13-2.26-.94-2.03.85-2.12-2.12.85-2.02-.94-2.27-2.2-.85v-3l2.13-.8.94-2.26-.85-2.03 2.12-2.12 2.02.85 2.27-.94.85-2.2Z"
-                  stroke="currentColor"
-                  stroke-width="1.4"
-                  stroke-linejoin="round"
-                />
-                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8" />
-              </svg>
-            </button>
           </div>
 
           <div class="action-group">
@@ -639,9 +632,6 @@ export class DsAnnotationInput extends LitElement {
             </button>
           </div>
         </div>
-      </div>
-      <div class="composer-foot">
-        <span class="composer-foot-copy">${composerState.copy}</span>
       </div>
     `;
   }

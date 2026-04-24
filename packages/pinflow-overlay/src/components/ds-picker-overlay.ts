@@ -29,6 +29,11 @@ export class DsPickerOverlay extends LitElement {
   @state()
   private tooltipPosition: { x: number; y: number } | null = null;
 
+  @state()
+  private showIntroNotice = true;
+
+  private introTimer: number | null = null;
+
   static override styles = [
     themeStyles,
     css`
@@ -55,67 +60,71 @@ export class DsPickerOverlay extends LitElement {
           var(--ds-picker-scrim);
       }
 
-      .instructions {
+      .picker-toast {
         position: fixed;
-        top: var(--ds-space-lg);
+        top: 10px;
         left: 50%;
         transform: translateX(-50%);
-        display: grid;
-        gap: 4px;
-        min-width: min(420px, calc(100vw - 32px));
-        padding: 12px 18px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        max-width: calc(100vw - 32px);
+        padding: 8px 12px;
         background: var(--ds-tooltip-surface);
         border: 1px solid var(--ds-panel-border);
-        border-radius: calc(var(--ds-radius-lg) - 2px);
-        font-size: var(--ds-font-size-sm);
+        border-radius: 999px;
+        font-size: var(--ds-font-size-xs);
+        line-height: 1;
         color: var(--ds-text-primary);
         box-shadow: var(--ds-panel-shadow);
         backdrop-filter: var(--ds-shell-blur);
-      }
-
-      .instruction-eyebrow {
-        font-size: var(--ds-font-size-xs);
         font-weight: var(--ds-font-weight-medium);
-        color: var(--ds-text-tertiary);
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
+        pointer-events: none;
+        animation: toast-enter 180ms ease-out both, toast-leave 260ms ease-in 1.55s forwards;
       }
 
-      .instruction-title {
-        font-size: var(--ds-font-size-md);
-        font-weight: var(--ds-font-weight-semibold);
-        color: var(--ds-text-primary);
-        letter-spacing: -0.02em;
-      }
-
-      .instruction-copy {
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: var(--ds-space-xs);
-        color: var(--ds-text-secondary);
-        line-height: 1.45;
-      }
-
-      .instructions kbd {
+      .picker-toast kbd {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-width: 24px;
-        height: 20px;
-        padding: 0 var(--ds-space-xs);
+        min-width: 26px;
+        height: 18px;
+        padding: 0 6px;
         background: var(--ds-pill-surface);
         border: 1px solid var(--ds-pill-border);
-        border-radius: var(--ds-radius-sm);
+        border-radius: 7px;
         font-family: var(--ds-font-mono);
         font-size: var(--ds-font-size-xs);
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.58);
+      }
+
+      @keyframes toast-enter {
+        from {
+          opacity: 0;
+          transform: translate(-50%, -6px);
+        }
+        to {
+          opacity: 1;
+          transform: translate(-50%, 0);
+        }
+      }
+
+      @keyframes toast-leave {
+        to {
+          opacity: 0;
+          transform: translate(-50%, -6px);
+        }
       }
     `,
   ];
 
   override connectedCallback() {
     super.connectedCallback();
+    this.showIntroNotice = true;
+    this.introTimer = window.setTimeout(() => {
+      this.showIntroNotice = false;
+      this.introTimer = null;
+    }, 1800);
     window.addEventListener('pointermove', this.handlePointerMove, {
       capture: true,
     });
@@ -130,6 +139,10 @@ export class DsPickerOverlay extends LitElement {
 
   override disconnectedCallback() {
     super.disconnectedCallback();
+    if (this.introTimer) {
+      window.clearTimeout(this.introTimer);
+      this.introTimer = null;
+    }
     window.removeEventListener('pointermove', this.handlePointerMove, {
       capture: true,
     });
@@ -143,22 +156,42 @@ export class DsPickerOverlay extends LitElement {
   }
 
   /**
-   * Temporarily hide this overlay to get the underlying element at point
+   * Temporarily hide PinFlow chrome to get the underlying page element.
    */
   private getElementUnderPoint(x: number, y: number): HTMLElement | null {
-    // Hide this picker overlay to find the element beneath it
-    const originalPointerEvents = this.style.pointerEvents;
-    this.style.pointerEvents = 'none';
+    const hiddenHosts = Array.from(
+      document.querySelectorAll<HTMLElement>('ds-overlay, ds-picker-overlay'),
+    );
+    if (!hiddenHosts.includes(this)) {
+      hiddenHosts.push(this);
+    }
+    const originalChromeStyles = hiddenHosts.map((host) => [
+      host,
+      host.style.pointerEvents,
+      host.style.visibility,
+    ] as const);
 
-    const element = document.elementFromPoint(x, y) as HTMLElement | null;
+    for (const host of hiddenHosts) {
+      host.style.pointerEvents = 'none';
+      host.style.visibility = 'hidden';
+    }
 
-    this.style.pointerEvents = originalPointerEvents;
-
-    return element;
+    try {
+      return document.elementFromPoint(x, y) as HTMLElement | null;
+    } finally {
+      for (const [host, pointerEvents, visibility] of originalChromeStyles) {
+        host.style.pointerEvents = pointerEvents;
+        host.style.visibility = visibility;
+      }
+    }
   }
 
   private resolveSelectableElement(element: HTMLElement | null): HTMLElement | null {
     if (!element) return null;
+    if (element.closest('ds-overlay, ds-picker-overlay, ds-sidebar, ds-tab')) {
+      return null;
+    }
+
     const bridgedElement = element.closest('[data-ds]') as HTMLElement | null;
 
     if (bridgedElement) {
@@ -227,18 +260,12 @@ export class DsPickerOverlay extends LitElement {
 
     return html`
       <div class="overlay">
-        <div class="instructions">
-          <div class="instruction-eyebrow">Picker aktiv</div>
-          <div class="instruction-title">Markiere jetzt dein Zielelement</div>
-          <div class="instruction-copy">
-            Klicke im Canvas auf die passende Stelle. PinFlow uebernimmt die
-            Auswahl danach direkt in deinen Arbeitsbereich. Der helle Rahmen
-            zeigt dir immer das aktuell getroffene Element.
-            <span>-</span>
-            <kbd>ESC</kbd>
-            <span>bricht ab</span>
-          </div>
-        </div>
+        ${this.showIntroNotice
+          ? html`<div class="picker-toast" role="status">
+              <kbd>ESC</kbd>
+              <span>zum Beenden</span>
+            </div>`
+          : null}
 
         ${this.highlightRect
           ? html`<ds-highlight-box

@@ -61,9 +61,9 @@ export const themeStyles = css`
     --ds-text-accent: #b27d4f;
 
     /* Brand colors */
-    --ds-brand-primary: #c79564;
-    --ds-brand-secondary: #b78253;
-    --ds-brand-light: #e1bf98;
+    --ds-brand-primary: #a66f3d;
+    --ds-brand-secondary: #8d5d34;
+    --ds-brand-light: #d7b38a;
 
     /* Status colors */
     --ds-success: #10b981;
@@ -72,9 +72,9 @@ export const themeStyles = css`
     --ds-info: var(--ds-brand-primary);
 
     /* Highlight color (for element picker) */
-    --ds-highlight: rgba(199, 149, 100, 0.14);
-    --ds-highlight-border: #c79564;
-    --ds-highlight-glow: 0 0 26px rgba(215, 178, 127, 0.22);
+    --ds-highlight: rgba(166, 111, 61, 0.1);
+    --ds-highlight-border: #a66f3d;
+    --ds-highlight-glow: 0 0 22px rgba(166, 111, 61, 0.16);
 
     /* Border colors */
     --ds-border-primary: #e7dfd2;
@@ -88,7 +88,7 @@ export const themeStyles = css`
     --ds-shell-surface-strong: rgba(255, 253, 250, 0.92);
     --ds-shell-border-soft: rgba(231, 223, 210, 0.9);
     --ds-shell-border-muted: rgba(239, 231, 220, 0.86);
-    --ds-shell-glow: rgba(245, 222, 192, 0.72);
+    --ds-shell-glow: rgba(215, 190, 160, 0.28);
     --ds-shell-shadow-raise: 0 10px 24px rgba(92, 71, 48, 0.08);
     --ds-shell-shadow-float: 0 -12px 28px rgba(92, 71, 48, 0.08);
     --ds-shell-blur: blur(12px);
@@ -107,24 +107,9 @@ export const themeStyles = css`
     --ds-panel-shadow-soft: 0 6px 18px rgba(92, 71, 48, 0.06);
     --ds-pill-surface: rgba(255, 252, 247, 0.9);
     --ds-pill-border: rgba(225, 213, 198, 0.92);
-    --ds-card-surface:
-      linear-gradient(
-        180deg,
-        rgba(255, 253, 249, 0.96) 0%,
-        rgba(248, 243, 236, 0.94) 100%
-      );
-    --ds-card-surface-strong:
-      linear-gradient(
-        180deg,
-        rgba(255, 254, 251, 0.98) 0%,
-        rgba(251, 246, 239, 0.96) 100%
-      );
-    --ds-empty-surface:
-      linear-gradient(
-        180deg,
-        rgba(255, 253, 249, 0.94) 0%,
-        rgba(247, 241, 232, 0.9) 100%
-      );
+    --ds-card-surface: rgba(255, 253, 249, 0.94);
+    --ds-card-surface-strong: rgba(255, 254, 251, 0.97);
+    --ds-empty-surface: rgba(255, 253, 249, 0.9);
     --ds-empty-border: rgba(225, 213, 198, 0.92);
     --ds-note-surface: rgba(255, 250, 243, 0.58);
     --ds-status-ready-surface: rgba(255, 252, 247, 0.92);
@@ -137,23 +122,13 @@ export const themeStyles = css`
     --ds-status-error-border: rgba(239, 68, 68, 0.3);
     --ds-status-archived-surface: rgba(247, 241, 232, 0.88);
     --ds-status-archived-border: rgba(209, 198, 185, 0.9);
-    --ds-response-surface:
-      linear-gradient(
-        180deg,
-        rgba(255, 247, 237, 0.95) 0%,
-        rgba(251, 242, 231, 0.9) 100%
-      );
-    --ds-response-border: rgba(236, 210, 177, 0.86);
+    --ds-response-surface: rgba(255, 250, 244, 0.92);
+    --ds-response-border: rgba(223, 205, 184, 0.86);
     --ds-chrome-divider: rgba(231, 223, 210, 0.7);
     --ds-picker-scrim: rgba(66, 49, 31, 0.07);
     --ds-picker-spotlight: rgba(247, 222, 192, 0.22);
     --ds-tab-shadow: -10px 16px 28px rgba(92, 71, 48, 0.18);
-    --ds-tooltip-surface:
-      linear-gradient(
-        180deg,
-        rgba(255, 253, 249, 0.97) 0%,
-        rgba(247, 241, 232, 0.96) 100%
-      );
+    --ds-tooltip-surface: rgba(255, 253, 249, 0.97);
 
     /* Shadows */
     --ds-shadow-sm: 0 4px 10px rgba(92, 71, 48, 0.05);
@@ -194,7 +169,7 @@ export const themeStyles = css`
     --ds-font-weight-semibold: 600;
 
     /* Layout */
-    --ds-sidebar-width: 360px;
+    --ds-sidebar-width: 340px;
     --ds-tab-width: 32px;
     --ds-header-height: 48px;
 
@@ -209,138 +184,138 @@ export const themeStyles = css`
   }
 
   :host([theme='dark']) {
-    /* Accent Scale - darker companion palette */
-    --ds-cyan-50: #1e252d;
-    --ds-cyan-100: #25303a;
-    --ds-cyan-200: #31404e;
-    --ds-cyan-300: #42617a;
-    --ds-cyan-400: #5f88aa;
-    --ds-cyan-500: #78a9c9;
-    --ds-cyan-600: #8bb7d4;
-    --ds-cyan-700: #a6c8df;
-    --ds-cyan-800: #c4dbea;
-    --ds-cyan-900: #deebf4;
+    /* Accent Scale - warm logo-gold on black */
+    --ds-cyan-50: #211509;
+    --ds-cyan-100: #2d1b0d;
+    --ds-cyan-200: #473018;
+    --ds-cyan-300: #6f4a24;
+    --ds-cyan-400: #9a6732;
+    --ds-cyan-500: #c98540;
+    --ds-cyan-600: #e3a358;
+    --ds-cyan-700: #f2be76;
+    --ds-cyan-800: #ffd99c;
+    --ds-cyan-900: #ffecc9;
 
-    /* Neutral Scale - quiet charcoal editorial surfaces */
-    --ds-neutral-50: #f5f7f8;
-    --ds-neutral-100: #d7dde2;
-    --ds-neutral-200: #b4bec7;
-    --ds-neutral-300: #94a1ad;
-    --ds-neutral-400: #71808d;
-    --ds-neutral-500: #55616d;
-    --ds-neutral-600: #404b56;
-    --ds-neutral-700: #2f3942;
-    --ds-neutral-800: #20282f;
-    --ds-neutral-900: #171d23;
-    --ds-neutral-950: #0f1418;
+    /* Neutral Scale - near-black editorial surfaces */
+    --ds-neutral-50: #f8f3ea;
+    --ds-neutral-100: #dfd1bd;
+    --ds-neutral-200: #bba892;
+    --ds-neutral-300: #9a8166;
+    --ds-neutral-400: #765f49;
+    --ds-neutral-500: #574333;
+    --ds-neutral-600: #3c3026;
+    --ds-neutral-700: #27211b;
+    --ds-neutral-800: #17130f;
+    --ds-neutral-900: #0d0b09;
+    --ds-neutral-950: #050403;
 
     /* Backgrounds */
-    --ds-bg-app: #0f1418;
-    --ds-bg-primary: #171d23;
-    --ds-bg-secondary: rgba(26, 33, 40, 0.92);
-    --ds-bg-tertiary: #20282f;
-    --ds-bg-hover: #232d35;
-    --ds-bg-active: #293540;
+    --ds-bg-app: #050403;
+    --ds-bg-primary: #0b0907;
+    --ds-bg-secondary: rgba(12, 10, 8, 0.96);
+    --ds-bg-tertiary: #100d0a;
+    --ds-bg-hover: #18120d;
+    --ds-bg-active: #20150d;
 
     /* Text colors */
-    --ds-text-primary: #f3f5f6;
-    --ds-text-secondary: #c2c9cf;
-    --ds-text-tertiary: #8e9aa5;
-    --ds-text-accent: #c8a97d;
+    --ds-text-primary: #fff7eb;
+    --ds-text-secondary: #c7b9a9;
+    --ds-text-tertiary: #7c6e60;
+    --ds-text-accent: #ad7642;
 
     /* Brand colors */
-    --ds-brand-primary: #9ac5e0;
-    --ds-brand-secondary: #c8a97d;
-    --ds-brand-light: #d9bf9a;
+    --ds-brand-primary: #9a6732;
+    --ds-brand-secondary: #b98549;
+    --ds-brand-light: #c99c68;
 
     /* Status colors */
     --ds-success: #34d399;
     --ds-warning: #fbbf24;
     --ds-error: #f87171;
-    --ds-info: var(--ds-brand-primary);
+    --ds-info: var(--ds-brand-secondary);
 
     /* Highlight color */
-    --ds-highlight: rgba(154, 197, 224, 0.14);
-    --ds-highlight-border: #9ac5e0;
-    --ds-highlight-glow: 0 0 26px rgba(120, 169, 201, 0.24);
+    --ds-highlight: rgba(154, 103, 50, 0.1);
+    --ds-highlight-border: #9a6732;
+    --ds-highlight-glow: 0 0 22px rgba(154, 103, 50, 0.16);
 
     /* Border colors */
-    --ds-border-primary: rgba(72, 85, 98, 0.9);
-    --ds-border-secondary: rgba(56, 66, 76, 0.9);
-    --ds-border-focus: #9ac5e0;
+    --ds-border-primary: rgba(54, 41, 31, 0.92);
+    --ds-border-secondary: rgba(38, 30, 24, 0.9);
+    --ds-border-focus: #b98549;
 
     /* Dark shell tokens */
-    --ds-shell-surface: rgba(23, 29, 35, 0.86);
-    --ds-shell-surface-soft: rgba(23, 29, 35, 0.8);
-    --ds-shell-surface-quiet: rgba(32, 40, 47, 0.72);
-    --ds-shell-surface-strong: rgba(37, 48, 58, 0.9);
-    --ds-shell-border-soft: rgba(63, 74, 85, 0.92);
-    --ds-shell-border-muted: rgba(55, 65, 74, 0.84);
-    --ds-shell-glow: rgba(120, 169, 201, 0.16);
+    --ds-shell-surface: rgba(5, 4, 3, 0.94);
+    --ds-shell-surface-soft: rgba(7, 6, 5, 0.88);
+    --ds-shell-surface-quiet: rgba(10, 8, 7, 0.84);
+    --ds-shell-surface-strong: rgba(12, 10, 8, 0.98);
+    --ds-shell-border-soft: rgba(46, 35, 26, 0.68);
+    --ds-shell-border-muted: rgba(38, 30, 24, 0.62);
+    --ds-shell-glow: rgba(154, 103, 50, 0.045);
     --ds-shell-shadow-raise: 0 16px 38px rgba(0, 0, 0, 0.34);
     --ds-shell-shadow-float: 0 -14px 34px rgba(0, 0, 0, 0.32);
     --ds-shell-blur: blur(14px);
     --ds-shell-gradient:
       linear-gradient(
         180deg,
-        rgba(26, 33, 40, 0.96) 0%,
-        rgba(18, 23, 28, 0.96) 100%
+        rgba(7, 6, 5, 0.995) 0%,
+        rgba(2, 2, 1, 0.995) 100%
       );
-    --ds-panel-surface: rgba(31, 39, 47, 0.84);
-    --ds-panel-surface-strong: rgba(37, 48, 58, 0.96);
-    --ds-panel-surface-muted: rgba(28, 35, 42, 0.82);
-    --ds-panel-border: rgba(70, 82, 95, 0.92);
-    --ds-panel-border-strong: rgba(91, 105, 120, 0.96);
+    --ds-panel-surface: rgba(9, 8, 7, 0.94);
+    --ds-panel-surface-strong: rgba(13, 11, 9, 0.98);
+    --ds-panel-surface-muted: rgba(8, 7, 6, 0.92);
+    --ds-panel-border: rgba(48, 36, 27, 0.68);
+    --ds-panel-border-strong: rgba(69, 49, 33, 0.74);
     --ds-panel-shadow: 0 16px 34px rgba(0, 0, 0, 0.28);
     --ds-panel-shadow-soft: 0 8px 18px rgba(0, 0, 0, 0.22);
-    --ds-pill-surface: rgba(37, 48, 58, 0.88);
-    --ds-pill-border: rgba(88, 102, 116, 0.9);
+    --ds-pill-surface: rgba(13, 11, 9, 0.94);
+    --ds-pill-border: rgba(50, 38, 29, 0.72);
     --ds-card-surface:
       linear-gradient(
         180deg,
-        rgba(31, 39, 47, 0.96) 0%,
-        rgba(23, 29, 35, 0.95) 100%
+        rgba(12, 10, 8, 0.98) 0%,
+        rgba(5, 4, 3, 0.98) 100%
       );
     --ds-card-surface-strong:
       linear-gradient(
         180deg,
-        rgba(37, 48, 58, 0.98) 0%,
-        rgba(28, 35, 42, 0.97) 100%
+        rgba(14, 12, 10, 0.99) 0%,
+        rgba(5, 4, 3, 0.99) 100%
       );
     --ds-empty-surface:
       linear-gradient(
         180deg,
-        rgba(34, 42, 50, 0.96) 0%,
-        rgba(24, 31, 38, 0.95) 100%
+        rgba(12, 10, 8, 0.96) 0%,
+        rgba(5, 4, 3, 0.95) 100%
       );
-    --ds-empty-border: rgba(88, 102, 116, 0.92);
-    --ds-note-surface: rgba(28, 35, 42, 0.72);
-    --ds-status-ready-surface: rgba(37, 48, 58, 0.9);
-    --ds-status-ready-border: rgba(88, 102, 116, 0.92);
-    --ds-status-running-surface: rgba(63, 52, 25, 0.88);
-    --ds-status-running-border: rgba(214, 158, 46, 0.52);
+    --ds-empty-border: rgba(50, 38, 29, 0.62);
+    --ds-note-surface: rgba(18, 14, 10, 0.5);
+    --ds-status-ready-surface: rgba(12, 10, 8, 0.92);
+    --ds-status-ready-border: rgba(50, 38, 29, 0.68);
+    --ds-status-running-surface: rgba(24, 17, 11, 0.78);
+    --ds-status-running-border: rgba(154, 103, 50, 0.28);
     --ds-status-done-surface: rgba(29, 55, 47, 0.88);
     --ds-status-done-border: rgba(52, 211, 153, 0.34);
     --ds-status-error-surface: rgba(72, 33, 33, 0.88);
     --ds-status-error-border: rgba(248, 113, 113, 0.38);
-    --ds-status-archived-surface: rgba(31, 39, 47, 0.88);
-    --ds-status-archived-border: rgba(90, 103, 117, 0.82);
+    --ds-status-archived-surface: rgba(12, 10, 8, 0.88);
+    --ds-status-archived-border: rgba(48, 36, 27, 0.58);
     --ds-response-surface:
       linear-gradient(
         180deg,
-        rgba(43, 49, 42, 0.96) 0%,
-        rgba(34, 39, 34, 0.94) 100%
+        rgba(18, 13, 9, 0.94) 0%,
+        rgba(8, 7, 6, 0.94) 100%
       );
-    --ds-response-border: rgba(95, 120, 89, 0.82);
-    --ds-chrome-divider: rgba(70, 82, 95, 0.74);
-    --ds-picker-scrim: rgba(5, 8, 11, 0.32);
-    --ds-picker-spotlight: rgba(154, 197, 224, 0.1);
+    --ds-response-border: rgba(50, 38, 29, 0.64);
+    --ds-chrome-divider: rgba(48, 36, 27, 0.56);
+    --ds-picker-scrim: rgba(3, 2, 1, 0.34);
+    --ds-picker-spotlight: rgba(154, 103, 50, 0.06);
     --ds-tab-shadow: -10px 18px 34px rgba(0, 0, 0, 0.34);
     --ds-tooltip-surface:
       linear-gradient(
         180deg,
-        rgba(31, 39, 47, 0.97) 0%,
-        rgba(22, 28, 34, 0.97) 100%
+        rgba(17, 14, 11, 0.98) 0%,
+        rgba(7, 6, 5, 0.98) 100%
       );
 
     /* Shadows */

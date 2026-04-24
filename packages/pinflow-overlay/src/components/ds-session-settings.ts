@@ -6,10 +6,13 @@ import type {
   DispatchProjectDefaults,
   DispatchSessionOverrides,
 } from '../core/dispatch-config.js';
+import { StoreController } from '../core/store-controller.js';
 import { themeStyles, utilityStyles } from '../styles/theme.js';
 
 @customElement('ds-session-settings')
 export class DsSessionSettings extends LitElement {
+  private storeController = new StoreController(this);
+
   @property({ type: Object })
   projectDefaults!: DispatchProjectDefaults;
 
@@ -26,48 +29,108 @@ export class DsSessionSettings extends LitElement {
 
       .section {
         display: grid;
-        gap: 10px;
-        padding: 10px;
-        border-radius: 16px;
+        gap: 8px;
+        border-radius: 13px;
         background: var(--ds-panel-surface-muted);
         border: 1px solid var(--ds-panel-border);
+        overflow: hidden;
       }
 
       .section + .section {
-        margin-top: 12px;
+        margin-top: 8px;
+      }
+
+      .section[open] {
+        background: var(--ds-panel-surface);
+        border-color: var(--ds-panel-border-strong);
+      }
+
+      .section-summary {
+        list-style: none;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        min-height: 46px;
+        padding: 11px 12px;
+        cursor: pointer;
+        transition:
+          background var(--ds-transition-fast),
+          color var(--ds-transition-fast);
+      }
+
+      .section-summary:hover {
+        background: var(--ds-bg-hover);
+      }
+
+      .section-summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .summary-copy {
+        display: grid;
+        gap: 3px;
+        min-width: 0;
       }
 
       .section-title {
-        font-size: 11px;
+        font-size: 13px;
         font-weight: var(--ds-font-weight-medium);
-        color: var(--ds-text-secondary);
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
+        color: var(--ds-text-primary);
+        letter-spacing: 0;
+        text-transform: none;
       }
 
       .section-copy {
         color: var(--ds-text-tertiary);
-        font-size: var(--ds-font-size-xs);
-        line-height: 1.45;
+        font-size: 10.5px;
+        line-height: 1.35;
+      }
+
+      .section-chevron {
+        width: 17px;
+        height: 17px;
+        color: var(--ds-text-tertiary);
+        flex-shrink: 0;
+        transition: transform var(--ds-transition-fast);
+      }
+
+      .section[open] .section-chevron {
+        transform: rotate(180deg);
+      }
+
+      .section-body {
+        display: grid;
+        gap: 8px;
+        padding: 12px;
+        border-top: 1px solid var(--ds-panel-border);
+      }
+
+      .section:not([open]) .section-title {
+        color: var(--ds-text-secondary);
+      }
+
+      .section:not([open]) .section-copy {
+        color: var(--ds-text-tertiary);
       }
 
       .grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
+        gap: 8px;
       }
 
       .summary-strip {
         display: flex;
         flex-wrap: wrap;
-        gap: 8px;
+        gap: 6px;
       }
 
       .summary-pill {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        padding: 7px 10px;
+        padding: 6px 8px;
         border-radius: 999px;
         border: 1px solid var(--ds-pill-border);
         background: var(--ds-pill-surface);
@@ -82,14 +145,14 @@ export class DsSessionSettings extends LitElement {
 
       label {
         display: grid;
-        gap: 6px;
+        gap: 5px;
         font-size: var(--ds-font-size-xs);
         color: var(--ds-text-secondary);
       }
 
       select {
         width: 100%;
-        padding: 8px 10px;
+        padding: 7px 9px;
         background: var(--ds-panel-surface);
         border: 1px solid var(--ds-panel-border);
         border-radius: 10px;
@@ -112,15 +175,15 @@ export class DsSessionSettings extends LitElement {
       .session-note {
         font-size: var(--ds-font-size-xs);
         color: var(--ds-text-tertiary);
-        line-height: 1.45;
+        line-height: 1.35;
       }
 
       .session-state {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        padding: 9px 10px;
-        border-radius: 14px;
+        padding: 7px 9px;
+        border-radius: 12px;
         border: 1px solid var(--ds-panel-border);
         background: var(--ds-panel-surface);
         color: var(--ds-text-secondary);
@@ -141,12 +204,11 @@ export class DsSessionSettings extends LitElement {
 
       .effective-state {
         display: grid;
-        gap: 8px;
-        padding: 10px;
-        border-radius: 14px;
+        gap: 7px;
+        padding: 9px;
+        border-radius: 12px;
         border: 1px solid var(--ds-panel-border);
         background: var(--ds-card-surface);
-        box-shadow: var(--ds-shadow-sm);
       }
 
       .effective-title {
@@ -157,9 +219,9 @@ export class DsSessionSettings extends LitElement {
 
       .session-overrides {
         display: grid;
-        gap: 8px;
-        padding: 10px;
-        border-radius: 14px;
+        gap: 7px;
+        padding: 9px;
+        border-radius: 12px;
         border: 1px solid var(--ds-panel-border);
         background: var(--ds-panel-surface);
       }
@@ -192,6 +254,58 @@ export class DsSessionSettings extends LitElement {
         color: var(--ds-text-primary);
         background: var(--ds-panel-surface-strong);
         border-color: var(--ds-panel-border-strong);
+      }
+
+      :host([theme='light']) .section {
+        background: rgba(255, 253, 250, 0.72);
+      }
+
+      :host([theme='light']) .section[open] {
+        background: rgba(255, 254, 251, 0.96);
+      }
+
+      :host([theme='dark']) .section {
+        background: #080706;
+        border-color: rgba(38, 30, 24, 0.9);
+      }
+
+      :host([theme='dark']) .section[open] {
+        background: #0d0b09;
+        border-color: rgba(62, 47, 35, 0.88);
+      }
+
+      :host([theme='dark']) .section-summary:hover {
+        background: #100d0a;
+      }
+
+      :host([theme='dark']) .section-body {
+        border-top-color: rgba(42, 33, 26, 0.86);
+      }
+
+      :host([theme='dark']) .section-title {
+        color: #f6ecdf;
+      }
+
+      :host([theme='dark']) .section-copy,
+      :host([theme='dark']) .session-note {
+        color: #988878;
+      }
+
+      :host([theme='dark']) .section:not([open]) .section-title {
+        color: #b5a696;
+      }
+
+      :host([theme='dark']) .summary-pill,
+      :host([theme='dark']) .session-state {
+        background: #12100d;
+        border-color: rgba(50, 38, 29, 0.76);
+      }
+
+      :host([theme='dark']) select,
+      :host([theme='dark']) .effective-state,
+      :host([theme='dark']) .session-overrides {
+        background: #0a0807;
+        border-color: rgba(48, 37, 29, 0.84);
       }
     `,
   ];
@@ -293,173 +407,189 @@ export class DsSessionSettings extends LitElement {
       this.sessionOverrides.threshold ?? this.projectDefaults.threshold;
     const effectiveConcurrency =
       this.sessionOverrides.concurrency ?? this.projectDefaults.concurrency;
+    const theme = this.storeController.state.theme;
 
     return html`
-      <div class="section">
-        <div class="section-title">Projektstandard</div>
-        <div class="section-copy">
-          Diese Werte gelten fuer das Projekt, solange du sie nicht aktiv
-          aenderst.
-        </div>
-        <div class="summary-strip">
-          <span class="summary-pill"><strong>${modeLabel}</strong> Versand</span>
-          <span class="summary-pill"
-            ><strong>${this.projectDefaults.concurrency}</strong> Parallelitaet</span
-          >
-          <span class="summary-pill"
-            ><strong>${this.projectDefaults.threshold}</strong> Schwelle</span
-          >
-          <span class="summary-pill"
-            ><strong>${continuationLabel}</strong> Fortsetzung</span
-          >
-        </div>
-        <div class="grid">
-          <label>
-            Versand
-            <select
-              .value=${this.projectDefaults.mode}
-              @change=${this.handleProjectModeChange}
-            >
-              <option value="manual">Manuell</option>
-              <option value="immediate">Sofort</option>
-              <option value="threshold">Ab Schwelle</option>
-            </select>
-          </label>
-
-          <label>
-            Parallelitaet
-            <select
-              .value=${String(this.projectDefaults.concurrency)}
-              @change=${this.handleProjectConcurrencyChange}
-            >
-              ${Array.from({ length: 10 }, (_, index) => index + 1).map(
-                (value) =>
-                  html`<option value=${String(value)}>${value}</option>`,
-              )}
-            </select>
-          </label>
-
-          <label>
-            Automatik-Schwelle
-            <select
-              .value=${String(this.projectDefaults.threshold)}
-              @change=${this.handleProjectThresholdChange}
-            >
-              ${Array.from({ length: 10 }, (_, index) => index + 1).map(
-                (value) =>
-                  html`<option value=${String(value)}>${value}</option>`,
-              )}
-            </select>
-          </label>
-
-          <label>
-            Naechster Batch
-            <select
-              .value=${this.projectDefaults.continuation}
-              @change=${this.handleProjectContinuationChange}
-            >
-              <option value="automatic">Automatisch</option>
-              <option value="confirm">Freigeben</option>
-              <option value="manual">Manuell</option>
-            </select>
-          </label>
-        </div>
-      </div>
-
-      <div class="section">
-        <div class="section-title">Session-Verhalten</div>
-        <div class="session-note">
-          Aktive Kanal- und Versandwechsel gelten zuerst fuer diese laufende
-          Session. Die Projektdefaults bleiben erhalten, bis du sie hier oben
-          aenderst.
-        </div>
-        <div class="session-state ${hasSessionOverrides ? 'active' : ''}">
-          ${hasSessionOverrides
-            ? 'Session-Overrides sind aktiv'
-            : 'Session folgt Projektstandard'}
-        </div>
-        <div class="session-note">
-          ${hasSessionOverrides
-            ? 'Aktive Session-Anpassungen uebersteuern nur diese laufende Sitzung.'
-            : 'Keine Session-Anpassungen aktiv.'}
-        </div>
-        <div class="effective-state">
-          <div class="effective-title">Wirkt gerade</div>
+      <details class="section" data-theme=${theme}>
+        <summary class="section-summary">
+          <span class="summary-copy">
+            <span class="section-title">Projektstandard</span>
+            <span class="section-copy">Gilt fuer neue Aufgaben in diesem Projekt.</span>
+          </span>
+          <svg class="section-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </summary>
+        <div class="section-body">
           <div class="summary-strip">
-            <span class="summary-pill">
-              <strong>${hasSessionOverrides ? 'Session-Regeln aktiv' : 'Projektstandard aktiv'}</strong>
-            </span>
+            <span class="summary-pill"><strong>${modeLabel}</strong> Versand</span>
             <span class="summary-pill"
-              ><strong>${this.getChannelLabel(effectiveChannel)}</strong> Kanal</span
+              ><strong>${this.projectDefaults.concurrency}</strong> Parallelitaet</span
             >
             <span class="summary-pill"
-              ><strong>${this.getModeLabel(effectiveMode)}</strong> Versand</span
+              ><strong>${this.projectDefaults.threshold}</strong> Schwelle</span
             >
             <span class="summary-pill"
-              ><strong>${effectiveConcurrency}</strong> Parallelitaet</span
-            >
-            <span class="summary-pill"
-              ><strong>${effectiveThreshold}</strong> Schwelle</span
-            >
-            <span class="summary-pill"
-              ><strong>${this.getContinuationLabel(effectiveContinuation)}</strong>
-              Fortsetzung</span
+              ><strong>${continuationLabel}</strong> Fortsetzung</span
             >
           </div>
+          <div class="grid">
+            <label>
+              Versand
+              <select
+                .value=${this.projectDefaults.mode}
+                @change=${this.handleProjectModeChange}
+              >
+                <option value="manual">Manuell</option>
+                <option value="immediate">Sofort</option>
+                <option value="threshold">Ab Schwelle</option>
+              </select>
+            </label>
+
+            <label>
+              Parallelitaet
+              <select
+                .value=${String(this.projectDefaults.concurrency)}
+                @change=${this.handleProjectConcurrencyChange}
+              >
+                ${Array.from({ length: 10 }, (_, index) => index + 1).map(
+                  (value) =>
+                    html`<option value=${String(value)}>${value}</option>`,
+                )}
+              </select>
+            </label>
+
+            <label>
+              Automatik-Schwelle
+              <select
+                .value=${String(this.projectDefaults.threshold)}
+                @change=${this.handleProjectThresholdChange}
+              >
+                ${Array.from({ length: 10 }, (_, index) => index + 1).map(
+                  (value) =>
+                    html`<option value=${String(value)}>${value}</option>`,
+                )}
+              </select>
+            </label>
+
+            <label>
+              Naechster Batch
+              <select
+                .value=${this.projectDefaults.continuation}
+                @change=${this.handleProjectContinuationChange}
+              >
+                <option value="automatic">Automatisch</option>
+                <option value="confirm">Freigeben</option>
+                <option value="manual">Manuell</option>
+              </select>
+            </label>
+          </div>
         </div>
-        ${hasSessionOverrides
-          ? html`
-              <div class="session-overrides">
-                <div class="session-overrides-title">
-                  Aktive Session-Anpassungen
+      </details>
+
+      <details class="section" data-theme=${theme}>
+        <summary class="section-summary">
+          <span class="summary-copy">
+            <span class="section-title">Session-Verhalten</span>
+            <span class="section-copy">
+              ${hasSessionOverrides
+                ? 'Aktive Anpassungen gelten nur fuer diese Sitzung.'
+                : 'Diese Sitzung folgt aktuell dem Projektstandard.'}
+            </span>
+          </span>
+          <svg class="section-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </summary>
+        <div class="section-body">
+          <div class="session-state ${hasSessionOverrides ? 'active' : ''}">
+            ${hasSessionOverrides
+              ? 'Session-Overrides sind aktiv'
+              : 'Session folgt Projektstandard'}
+          </div>
+          <div class="session-note">
+            ${hasSessionOverrides
+              ? 'Aktive Session-Anpassungen uebersteuern nur diese laufende Sitzung.'
+              : 'Keine Session-Anpassungen aktiv.'}
+          </div>
+          <div class="effective-state">
+            <div class="effective-title">Wirkt gerade</div>
+            <div class="summary-strip">
+              <span class="summary-pill">
+                <strong>${hasSessionOverrides ? 'Session-Regeln aktiv' : 'Projektstandard aktiv'}</strong>
+              </span>
+              <span class="summary-pill"
+                ><strong>${this.getChannelLabel(effectiveChannel)}</strong> Kanal</span
+              >
+              <span class="summary-pill"
+                ><strong>${this.getModeLabel(effectiveMode)}</strong> Versand</span
+              >
+              <span class="summary-pill"
+                ><strong>${effectiveConcurrency}</strong> Parallelitaet</span
+              >
+              <span class="summary-pill"
+                ><strong>${effectiveThreshold}</strong> Schwelle</span
+              >
+              <span class="summary-pill"
+                ><strong>${this.getContinuationLabel(effectiveContinuation)}</strong>
+                Fortsetzung</span
+              >
+            </div>
+          </div>
+          ${hasSessionOverrides
+            ? html`
+                <div class="session-overrides">
+                  <div class="session-overrides-title">
+                    Aktive Session-Anpassungen
+                  </div>
+                  <div class="summary-strip">
+                    ${this.sessionOverrides.channel
+                      ? html`<span class="summary-pill"
+                          ><strong
+                            >${this.getChannelLabel(this.sessionOverrides.channel)}</strong
+                          >
+                          Kanal</span
+                        >`
+                      : null}
+                    ${this.sessionOverrides.mode
+                      ? html`<span class="summary-pill"
+                          ><strong>${this.getModeLabel(this.sessionOverrides.mode)}</strong>
+                          Versand</span
+                        >`
+                      : null}
+                    ${this.sessionOverrides.continuation
+                      ? html`<span class="summary-pill"
+                          ><strong
+                            >${this.getContinuationLabel(this.sessionOverrides.continuation)}</strong
+                          >
+                          Fortsetzung</span
+                        >`
+                      : null}
+                    ${this.sessionOverrides.threshold
+                      ? html`<span class="summary-pill"
+                          ><strong>${this.sessionOverrides.threshold}</strong>
+                          Schwelle</span
+                        >`
+                      : null}
+                    ${this.sessionOverrides.concurrency
+                      ? html`<span class="summary-pill"
+                          ><strong>${this.sessionOverrides.concurrency}</strong>
+                          Parallelitaet</span
+                        >`
+                      : null}
+                  </div>
                 </div>
-                <div class="summary-strip">
-                  ${this.sessionOverrides.channel
-                    ? html`<span class="summary-pill"
-                        ><strong
-                          >${this.getChannelLabel(this.sessionOverrides.channel)}</strong
-                        >
-                        Kanal</span
-                      >`
-                    : null}
-                  ${this.sessionOverrides.mode
-                    ? html`<span class="summary-pill"
-                        ><strong>${this.getModeLabel(this.sessionOverrides.mode)}</strong>
-                        Versand</span
-                      >`
-                    : null}
-                  ${this.sessionOverrides.continuation
-                    ? html`<span class="summary-pill"
-                        ><strong
-                          >${this.getContinuationLabel(this.sessionOverrides.continuation)}</strong
-                        >
-                        Fortsetzung</span
-                      >`
-                    : null}
-                  ${this.sessionOverrides.threshold
-                    ? html`<span class="summary-pill"
-                        ><strong>${this.sessionOverrides.threshold}</strong>
-                        Schwelle</span
-                      >`
-                    : null}
-                  ${this.sessionOverrides.concurrency
-                    ? html`<span class="summary-pill"
-                        ><strong>${this.sessionOverrides.concurrency}</strong>
-                        Parallelitaet</span
-                      >`
-                    : null}
-                </div>
-              </div>
-            `
-          : null}
-        ${hasSessionOverrides
-          ? html`
-              <button class="reset-btn" @click=${this.handleResetSession}>
-                Session-Overrides zuruecksetzen
-              </button>
-            `
-          : null}
-      </div>
+              `
+            : null}
+          ${hasSessionOverrides
+            ? html`
+                <button class="reset-btn" @click=${this.handleResetSession}>
+                  Session-Overrides zuruecksetzen
+                </button>
+              `
+            : null}
+        </div>
+      </details>
     `;
   }
 }

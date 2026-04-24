@@ -35,6 +35,17 @@ const OVERLAY_INIT_PATTERN =
 const REACT_INIT_PATTERN =
   /import\((['"])\/@pinflow\/react-init\.js(?:\?[^'"]*)?\1\)/g;
 
+function buildInitImport(
+  path: '/pinflow-local-overlay-init.ts' | '/pinflow-local-react-init.ts',
+  cacheTag: string,
+): string {
+  // Emit cache query only when a tag is provided. An empty query (`?v=`)
+  // is a distinct URL from no query — leaving it off keeps the child
+  // import graph consistent so Vite can dedupe shared modules.
+  const suffix = cacheTag ? `?v=${cacheTag}` : '';
+  return `import('${path}${suffix}')`;
+}
+
 const PINFLOW_WORKSPACE_PACKAGES = [
   '@pinflow/core',
   '@pinflow/runtime',
@@ -91,15 +102,15 @@ export function pinflowLocalPreviewViteConfig(): PinflowLocalPreviewViteConfig {
 
 export function rewritePinflowInitImports(
   source: string,
-  cacheTag: string,
+  cacheTag = '',
 ): string {
   return source
     .replace(
       OVERLAY_INIT_PATTERN,
-      `import('/pinflow-local-overlay-init.ts?v=${cacheTag}')`,
+      buildInitImport('/pinflow-local-overlay-init.ts', cacheTag),
     )
     .replace(
       REACT_INIT_PATTERN,
-      `import('/pinflow-local-react-init.ts?v=${cacheTag}')`,
+      buildInitImport('/pinflow-local-react-init.ts', cacheTag),
     );
 }

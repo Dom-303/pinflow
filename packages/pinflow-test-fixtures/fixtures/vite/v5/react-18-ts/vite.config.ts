@@ -6,15 +6,13 @@ import {
   rewritePinflowInitImports,
 } from '../../../../shared/pinflow-local-workspace-overrides.js';
 
-const PINFLOW_DEV_CACHE_TAG = 'pinflow-ui-2026-04-24a';
-
 function pinflowLocalWorkspaceOverrides() {
   return {
     name: 'pinflow-local-workspace-overrides',
     transformIndexHtml: {
       order: 'post' as const,
       handler(html: string) {
-        return rewritePinflowInitImports(html, PINFLOW_DEV_CACHE_TAG);
+        return rewritePinflowInitImports(html);
       },
     },
     transform(code: string, id: string) {
@@ -22,7 +20,7 @@ function pinflowLocalWorkspaceOverrides() {
         return null;
       }
 
-      const rewritten = rewritePinflowInitImports(code, PINFLOW_DEV_CACHE_TAG);
+      const rewritten = rewritePinflowInitImports(code);
       return rewritten === code ? null : rewritten;
     },
   };

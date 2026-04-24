@@ -25,7 +25,5 @@ RuntimeManager.getInstance()
   );
 
 if (typeof window !== 'undefined' && window.__PINFLOW_OVERLAY_OPTIONS__) {
-  import('./pinflow-local-overlay-init.ts?v=pinflow-ui-2026-04-24a').catch(
-    () => {},
-  );
+  import('./pinflow-local-overlay-init.ts').catch(() => {});
 }

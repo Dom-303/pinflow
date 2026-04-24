@@ -1,4 +1,4 @@
-import('../../../../../pinflow-overlay/src/index.ts?v=pinflow-ui-2026-04-24a')
+import('../../../../../pinflow-overlay/src/index.ts')
   .then((module) => module.initOverlay())
   .catch((error) =>
     console.warn(

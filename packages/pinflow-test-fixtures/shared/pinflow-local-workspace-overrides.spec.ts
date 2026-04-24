@@ -38,6 +38,19 @@ describe('rewritePinflowInitImports', () => {
       `import('/pinflow-local-overlay-init.ts?v=pinflow-ui-test').catch(function(){})`,
     );
   });
+
+  it('emits URLs without any query string when cache tag is empty', () => {
+    // Regression guard: a stray `?v=` query on one path but not another
+    // splits the Vite module graph and causes double custom-element
+    // registration. Empty tag must yield plain URLs, not `?v=`.
+    const source =
+      "<script type=\"module\">import('/@pinflow/overlay-init.js?v=stale');</script>";
+
+    const result = rewritePinflowInitImports(source);
+
+    expect(result).toContain("import('/pinflow-local-overlay-init.ts')");
+    expect(result).not.toContain('/pinflow-local-overlay-init.ts?v=');
+  });
 });
 
 describe('pinflowLocalPreviewViteConfig', () => {

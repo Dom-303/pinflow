@@ -1,6 +1,12 @@
 /**
  * React-aware PinFlow Vite plugin
  * @module @pinflow/react/vite/vite-plugin
+ *
+ * ⚠️ Preview-critical: this plugin injects the overlay + React runtime
+ * init. Changes here (especially the injected import paths, the init
+ * module URL, or the HTML script-tag wiring) propagate to
+ * `pnpm pinflow:preview`. Re-run `pnpm pinflow:preview:e2e` before
+ * merging. See `.claude/rules/preview-pipeline.md`.
  */
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';

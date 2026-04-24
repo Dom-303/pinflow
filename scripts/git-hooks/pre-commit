@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# Advisory pre-commit warning for preview-critical paths.
+#
+# This hook never blocks a commit. It only prints a yellow reminder
+# when any staged file lives under a path that historically cascades
+# into `pnpm pinflow:preview` breakage. Exit is always 0.
+#
+# Activate with: pnpm hooks:install  (sets core.hooksPath once).
+# Deactivate with: git config --unset core.hooksPath
+
+set -euo pipefail
+
+PREVIEW_PATHS=(
+  'packages/pinflow-overlay/'
+  'packages/pinflow-react/src/vite/'
+  'packages/pinflow-runtime/src/'
+  'packages/pinflow-test-fixtures/fixtures/vite/v5/react-18-ts/'
+  'packages/pinflow-test-fixtures/shared/pinflow-local-workspace-overrides'
+  'scripts/pinflow-preview.ts'
+  'tsconfig.base.json'
+)
+
+staged=$(git diff --cached --name-only --diff-filter=ACMR || true)
+
+if [ -z "$staged" ]; then
+  exit 0
+fi
+
+hits=()
+while IFS= read -r file; do
+  for prefix in "${PREVIEW_PATHS[@]}"; do
+    if [[ "$file" == "$prefix"* ]]; then
+      hits+=("$file")
+      break
+    fi
+  done
+done <<<"$staged"
+
+if [ ${#hits[@]} -eq 0 ]; then
+  exit 0
+fi
+
+YELLOW='\033[0;33m'
+CYAN='\033[0;36m'
+RESET='\033[0m'
+
+printf "${YELLOW}!${RESET} Preview-critical files staged:\n"
+for file in "${hits[@]}"; do
+  printf "    ${CYAN}%s${RESET}\n" "$file"
+done
+printf "${YELLOW}!${RESET} Before merging, run ${CYAN}pnpm pinflow:preview:e2e${RESET} to confirm the overlay still boots.\n"
+printf "${YELLOW}!${RESET} Context: ${CYAN}.claude/rules/preview-pipeline.md${RESET}\n"
+
+exit 0

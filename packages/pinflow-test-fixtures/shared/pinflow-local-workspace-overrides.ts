@@ -1,4 +1,11 @@
 /**
+ * ⚠️ Preview-critical helper — touch with care.
+ *
+ * If you change any of the settings below, re-run
+ * `pnpm pinflow:preview:e2e` before merging. See
+ * `.claude/rules/preview-pipeline.md` for the three failure modes
+ * these settings historically prevent.
+ *
  * Local workspace overrides for the pinflow preview pipeline.
  *
  * When a fixture imports the pinflow overlay / runtime directly from

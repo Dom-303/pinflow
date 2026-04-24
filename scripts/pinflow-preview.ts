@@ -232,13 +232,28 @@ async function runPreviewSmokeCheck(port: number): Promise<void> {
     return;
   }
 
-  console.warn(
+  const reporter =
+    process.env['CI'] || process.env['PINFLOW_PREVIEW_STRICT']
+      ? console.error
+      : console.warn;
+
+  reporter(
     '[pinflow-preview] smoke check FAILED — overlay preview likely broken:',
   );
   for (const failure of failures) {
-    console.warn(`  - ${failure}`);
+    reporter(`  - ${failure}`);
   }
-  console.warn(
+
+  if (process.env['CI'] || process.env['PINFLOW_PREVIEW_STRICT']) {
+    // In CI or under PINFLOW_PREVIEW_STRICT=1 we fail loudly so a broken
+    // preview never ships silently. Interactive local runs stay warn-only
+    // so you can still poke at the dev server while diagnosing.
+    throw new Error(
+      `[pinflow-preview] smoke check failed with ${failures.length} issue(s)`,
+    );
+  }
+
+  reporter(
     '[pinflow-preview] dev server is still running; inspect logs above.',
   );
 }
@@ -294,15 +309,21 @@ async function main(): Promise<void> {
     return;
   }
 
-  startDevStep(devStep);
+  const devChild = startDevStep(devStep);
 
   try {
     await waitForDevServer(plan.port);
     await runPreviewSmokeCheck(plan.port);
   } catch (error) {
-    console.warn(
-      `[pinflow-preview] smoke check skipped — ${error instanceof Error ? error.message : String(error)}`,
-    );
+    const message = error instanceof Error ? error.message : String(error);
+
+    if (process.env['CI'] || process.env['PINFLOW_PREVIEW_STRICT']) {
+      console.error(`[pinflow-preview] ${message}`);
+      devChild.kill('SIGTERM');
+      process.exit(1);
+    }
+
+    console.warn(`[pinflow-preview] smoke check skipped — ${message}`);
   }
 }
 

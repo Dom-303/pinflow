@@ -1,3 +1,6 @@
+// ⚠️ Preview init shim — loaded by pnpm pinflow:preview.
+// See the overlay init sibling; same caveats (no ?v=... query).
+// .claude/rules/preview-pipeline.md explains the failure modes.
 import { RuntimeManager } from '../../../../../pinflow-runtime/src/index.ts';
 import { createReactAdapter } from '../../../../../pinflow-react/src/index.ts';
 

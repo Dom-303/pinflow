@@ -72,6 +72,41 @@ pnpm pipeline:e2e            # publish → install fixtures → e2e only
 npx verdaccio --config .verdaccio/config.yml --listen 4873
 ```
 
+## Preview pipeline — read before touching preview-critical files
+
+`pnpm pinflow:preview` loads the overlay + runtime from workspace
+TypeScript source, bypassing the `tsc` build. Three Vite settings carry
+it, and three historical regressions keep breaking it when an unrelated
+change shifts one of them:
+
+1. `resolve.preserveSymlinks: false` (pnpm peer graph)
+2. `esbuild.tsconfigRaw` with `experimentalDecorators: true` +
+   `useDefineForClassFields: false` (lit legacy decorators)
+3. no `?v=` cache tag on init-import URLs (Vite module-graph dedup)
+
+All three are encoded in `pinflowLocalPreviewViteConfig()` and locked
+by unit spec, HTTP smoke check, and a Playwright e2e that mounts the
+overlay in real Chromium. CI already runs the e2e as part of the
+existing `vite-v5-react-18-ts` matrix row.
+
+Before merging changes in any of these paths — re-run
+`pnpm pinflow:preview:e2e` (~3s):
+
+- `packages/pinflow-overlay/**`
+- `packages/pinflow-react/src/vite/**`
+- `packages/pinflow-runtime/src/**`
+- `packages/pinflow-test-fixtures/fixtures/vite/v5/react-18-ts/**`
+- `packages/pinflow-test-fixtures/shared/pinflow-local-workspace-overrides.ts`
+- `scripts/pinflow-preview.ts`
+
+Full context: `.claude/rules/preview-pipeline.md`.
+
+Optional one-shot per clone: `pnpm hooks:install` activates an advisory
+pre-commit hook that prints a yellow reminder (never blocks) when a
+commit touches one of those paths, nudging you toward
+`pnpm pinflow:preview:e2e`. Disable with
+`git config --unset core.hooksPath`.
+
 ## Architecture
 
 ### Package Dependency Graph (bottom-up)

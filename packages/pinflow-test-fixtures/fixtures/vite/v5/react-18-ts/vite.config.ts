@@ -1,3 +1,11 @@
+/**
+ * ⚠️ Preview fixture — `pnpm pinflow:preview` serves this.
+ *
+ * Unlike the sibling fixtures, this one loads the overlay + runtime
+ * from workspace TypeScript source. If you edit this file or the init
+ * shims next to it, verify the overlay still mounts with
+ * `pnpm pinflow:preview:e2e`. See `.claude/rules/preview-pipeline.md`.
+ */
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { pinflow } from '@pinflow/react/vite';

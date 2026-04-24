@@ -3,6 +3,11 @@
  *
  * Entry point for initializing the PinFlow overlay UI.
  * Called automatically when injected via build plugins, or manually by user.
+ *
+ * ⚠️ Preview-critical: the import chain rooted here (plus the ds-overlay
+ * custom-element registration it triggers) must stay single-instance in
+ * the Vite module graph. If you reshape the imports, re-run
+ * `pnpm pinflow:preview:e2e`. See `.claude/rules/preview-pipeline.md`.
  */
 
 import { OverlayStore } from './overlay-store.js';

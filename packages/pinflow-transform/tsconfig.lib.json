@@ -12,7 +12,8 @@
     "target": "es2024",
     "module": "nodenext",
     "moduleResolution": "nodenext",
-    "outDir": "../../dist/packages/pinflow-transform"
+    "outDir": "../../dist/packages/pinflow-transform",
+    "rootDir": "src"
   },
   "include": [
     "src/**/*.ts"

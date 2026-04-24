@@ -13,7 +13,8 @@
     "target": "es2024",
     "module": "esnext",
     "moduleResolution": "bundler",
-    "outDir": "../../dist/packages/pinflow-runtime"
+    "outDir": "../../dist/packages/pinflow-runtime",
+    "rootDir": "src"
   },
   "include": [
     "src/**/*.ts"

@@ -12,7 +12,8 @@
     "target": "es2024",
     "module": "nodenext",
     "moduleResolution": "nodenext",
-    "outDir": "../../dist/packages/pinflow-core"
+    "outDir": "../../dist/packages/pinflow-core",
+    "rootDir": "src"
   },
   "include": [
     "src/**/*.ts"

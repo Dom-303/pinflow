@@ -15,7 +15,8 @@
     "moduleResolution": "bundler",
     "experimentalDecorators": true,
     "useDefineForClassFields": false,
-    "outDir": "../../dist/packages/pinflow-overlay"
+    "outDir": "../../dist/packages/pinflow-overlay",
+    "rootDir": "src"
   },
   "include": [
     "src/**/*.ts"

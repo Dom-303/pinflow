@@ -12,7 +12,8 @@
     "target": "es2024",
     "module": "nodenext",
     "moduleResolution": "nodenext",
-    "outDir": "../../dist/packages/pinflow-cli"
+    "outDir": "../../dist/packages/pinflow-cli",
+    "rootDir": "src"
   },
   "include": [
     "src/**/*.ts"

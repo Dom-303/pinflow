@@ -12,7 +12,8 @@
     "target": "es2024",
     "module": "nodenext",
     "moduleResolution": "nodenext",
-    "outDir": "../../dist/packages/pinflow-mcp"
+    "outDir": "../../dist/packages/pinflow-mcp",
+    "rootDir": "src"
   },
   "include": [
     "src/**/*.ts"

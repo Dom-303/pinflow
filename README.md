@@ -3,9 +3,13 @@
 </p>
 
 <p align="center">
+  <img src="https://img.shields.io/badge/npm-v0.6.0--pinflow.0-D99545?style=flat-square&logo=npm&logoColor=white" alt="npm v0.6.0-pinflow.0" />
+  <img src="https://img.shields.io/badge/CI-verified-2B2B2B?style=flat-square&logo=githubactions&logoColor=white" alt="CI verified" />
+  <img src="https://img.shields.io/badge/coverage-local-2B2B2B?style=flat-square" alt="local coverage" />
   <a href="./LICENSE"><img src="https://img.shields.io/badge/MIT-License-D99545?style=flat-square" alt="MIT License" /></a>
   <img src="https://img.shields.io/badge/TypeScript-5.x-D99545?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript 5.x" />
   <img src="https://img.shields.io/badge/Node-%3E%3D18-2B2B2B?style=flat-square&logo=node.js&logoColor=white" alt="Node.js >= 18" />
+  <img src="https://img.shields.io/badge/PRs-welcome-D99545?style=flat-square" alt="PRs welcome" />
   <img src="https://img.shields.io/badge/MCP-Compatible-2B2B2B?style=flat-square" alt="MCP Compatible" />
 </p>
 
@@ -16,6 +20,15 @@
   <img src="https://img.shields.io/badge/Nuxt-D99545?style=flat-square&logo=nuxt&logoColor=white" alt="Nuxt" />
   <img src="https://img.shields.io/badge/Vite-2B2B2B?style=flat-square&logo=vite&logoColor=white" alt="Vite" />
   <img src="https://img.shields.io/badge/Webpack-2B2B2B?style=flat-square&logo=webpack&logoColor=white" alt="Webpack" />
+  <img src="https://img.shields.io/badge/Turbopack-D99545?style=flat-square&logo=turbo&logoColor=white" alt="Turbopack" />
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Claude_Code-D99545?style=flat-square" alt="Claude Code" />
+  <img src="https://img.shields.io/badge/GitHub_Copilot-2B2B2B?style=flat-square&logo=githubcopilot&logoColor=white" alt="GitHub Copilot" />
+  <img src="https://img.shields.io/badge/Cursor-2B2B2B?style=flat-square" alt="Cursor" />
+  <img src="https://img.shields.io/badge/Gemini-D99545?style=flat-square&logo=googlegemini&logoColor=white" alt="Gemini" />
+  <img src="https://img.shields.io/badge/Kiro-2B2B2B?style=flat-square" alt="Kiro" />
 </p>
 
 ---
@@ -286,12 +299,12 @@ Codex Support liegt im Repo über `.codex-plugin/plugin.json` und
 ## Herkunft und Einordnung
 
 PinFlow ist aus der Idee entstanden, Frontend-Arbeit für Agenten sichtbarer und
-präziser zu machen. DoomScript war dabei die frühere Arbeitsrichtung: stark als
-Konzept und Experiment, aber noch nicht als rundes, friend-ready Repository.
-PinFlow führt diese Richtung weiter und verbindet sie mit einer
-source-genauen Runtime-Grundlage.
+präziser zu machen. Domscribe, das ursprüngliche DOM-Skript, war dabei die
+technische Grundlage: stark als Konzept und Experiment, aber noch nicht als
+rundes, friend-ready Repository. PinFlow führt diese Richtung weiter und
+verbindet sie mit einer source-genauen Runtime-Grundlage.
 
-| Bereich       | DoomScript / frühe Idee            | Source-Mapping-Grundlage         | PinFlow heute                       |
+| Bereich       | Domscribe / Grundlage              | Source-Mapping-Grundlage         | PinFlow heute                       |
 | ------------- | ---------------------------------- | -------------------------------- | ----------------------------------- |
 | Ziel          | Agenten näher an UI-Arbeit bringen | DOM-Elemente auf Source abbilden | Voller UI-zu-Agent Workflow         |
 | Oberfläche    | Konzeptuell, noch roh              | Technische Primitive             | Overlay, Picker, Queue, Settings    |
@@ -301,20 +314,43 @@ source-genauen Runtime-Grundlage.
 
 ## Vergleich
 
-| Fähigkeit                  | PinFlow                | DoomScript    | Stagewise  | DevInspector MCP | React Grab | Frontman      |
-| -------------------------- | ---------------------- | ------------- | ---------- | ---------------- | ---------- | ------------- |
-| UI -> Code Aufgabe         | Ja                     | Idee/Prototyp | Ja         | Teilweise        | Teilweise  | Ja            |
-| Code -> Live-UI Query      | Ja                     | Nein          | Nein       | Nein             | Nein       | Nein          |
-| Stabile Build-Time IDs     | Ja                     | Nein          | Nein       | Teilweise        | Nein       | Nein          |
-| Tiefer Props/State-Kontext | Ja                     | Nein          | Teilweise  | Teilweise        | Nein       | Teilweise     |
-| MCP-first                  | Ja                     | Nein          | Nein       | Ja               | Add-on     | Intern        |
-| Framework-Breite           | React, Vue, Next, Nuxt | Offen         | React      | Mehrere          | React      | Eingeschränkt |
-| Lokaler Repo-Workflow      | `.pinflow/annotations` | Nein          | App-intern | Tooling          | Capture    | App-intern    |
-| Lizenz                     | MIT                    | intern/früh   | AGPL       | MIT              | MIT        | gemischt      |
+Legende: ✅ klar vorhanden · ◐ teilweise/anderer Fokus · ✕ nicht erkennbar
+
+| Feature          | PinFlow | [Domscribe](https://github.com/patchorbit/domscribe) | [stagewise](https://github.com/stagewise-io/stagewise) | [DevInsp.](https://sveltethemes.dev/mcpc-tech/dev-inspector-mcp) | [React Grab](https://github.com/aidenybai/react-grab) | [Frontman](https://frontman.sh/vs/cursor) |
+| ---------------- | :-----: | :--------------------------------------------------: | :----------------------------------------------------: | :--------------------------------------------------------------: | :---------------------------------------------------: | :---------------------------------------: |
+| Build-time IDs   |   ✅    |                          ✅                          |                           ✕                            |                                ◐                                 |                           ✕                           |                     ✕                     |
+| DOM → Source     |   ✅    |                          ✅                          |                           ◐                            |                                ✅                                |                           ◐                           |                    ✅                     |
+| Code → Live-UI   |   ✅    |                          ✅                          |                           ✕                            |                                ✅                                |                           ✕                           |                    ✅                     |
+| Props/State/DOM  |   ✅    |                          ✅                          |                           ◐                            |                                ✅                                |                           ◐                           |                    ✅                     |
+| MCP Tools        |   ✅    |                          ✅                          |                           ◐                            |                                ✅                                |                           ✕                           |                     ◐                     |
+| Agent-agnostisch |   ✅    |                          ✅                          |                           ✕                            |                                ✅                                |                           ◐                           |                     ◐                     |
+| Multi-Framework  |   ✅    |                          ✅                          |                           ✅                           |                                ✅                                |                           ✕                           |                     ◐                     |
+| Multi-Bundler    |   ✅    |                          ✅                          |                           ◐                            |                                ✅                                |                           ✕                           |                     ◐                     |
+| Lokale Queue     |   ✅    |                          ✅                          |                           ✕                            |                                ◐                                 |                           ✕                           |                     ✕                     |
+| Lizenz           |   MIT   |                         MIT                          |                          AGPL                          |                               MIT                                |                          MIT                          |                     ◐                     |
 
 PinFlows Stärke ist die Kombination: stabile Source-Zuordnung, Live-Kontext,
 visuelles Markieren, lokale Queue und MCP-Werkzeuge in einem zusammenhängenden
 Workflow.
+
+Quellen und Einordnung:
+
+- [Domscribe](https://github.com/patchorbit/domscribe) ist die ursprüngliche
+  Grundlage: Build-time IDs, DOM→Source Manifest, Code→Live DOM Query,
+  Runtime-Kontext, MCP Tools sowie React/Vue/Next/Nuxt, Vite/Webpack/Turbopack.
+- [stagewise](https://stagewise.io/docs) positioniert sich als Browser-Agent
+  für laufende Web-Apps mit DOM-Kontext, kompatiblen Frameworks und eigenem
+  Agentenflow; das GitHub-Repo nennt AGPL-3.0.
+- [DevInspector MCP](https://sveltethemes.dev/mcpc-tech/dev-inspector-mcp)
+  beschreibt MCP/ACP-Flows mit Source Location, DOM, Styles, Network, Console,
+  Screenshots und Framework-Support für React, Vue, Svelte, SolidJS, Preact und
+  Next.js.
+- [React Grab](https://github.com/aidenybai/react-grab) fokussiert React:
+  Element auswählen, Kontext kopieren, darunter HTML, React-Komponente,
+  File-Source und Hierarchie.
+- [Frontman](https://frontman.sh/vs/cursor) läuft browserbasiert über
+  Framework-Plugins, nutzt einen browserseitigen MCP-Server für DOM, Screenshots
+  und computed CSS und editiert Source-Dateien mit Hot Reload.
 
 ## MCP Tools
 
@@ -334,6 +370,20 @@ Workflow.
 | `pinflow.status`                  | Relay-, Manifest- und Queue-Status abrufen                  |
 
 Details stehen im [`@pinflow/mcp` README](./packages/pinflow-mcp/README.md).
+
+## Annotation Lifecycle
+
+| Von          | Nach         | Auslöser                                           |
+| ------------ | ------------ | -------------------------------------------------- |
+| `queued`     | `processing` | Agent claimt die nächste Aufgabe per MCP           |
+| `processing` | `processed`  | Agent speichert Antwort und schließt die Aufgabe   |
+| `processing` | `failed`     | Agent-Fehler, Abbruch oder Timeout                 |
+| `processed`  | `archived`   | Entwickler räumt erledigte Aufgaben im Overlay auf |
+
+Der praktische Ablauf: Du markierst ein Element im Browser, PinFlow speichert
+die Aufgabe lokal in `.pinflow/annotations`, der Agent claimt sie atomar,
+ändert die passende Datei und schreibt seine Antwort zurück. Das Overlay erhält
+Statuswechsel über WebSocket.
 
 ## Packages
 
@@ -372,6 +422,29 @@ nx run-many -t build test lint typecheck
 ```
 
 Konventionen liegen in `.claude/rules/`. PRs sind willkommen.
+
+---
+
+<p align="center">
+  <picture>
+    <source
+      media="(prefers-color-scheme: dark)"
+      srcset="./assets/pinflow-stacked-dark.png"
+    />
+    <img src="./assets/pinflow-stacked-light.png" alt="PinFlow" width="360" />
+  </picture>
+</p>
+
+<h2 align="center">Pin it. Flow it. Ship it.</h2>
+
+<p align="center">
+  Starte in deinem Frontend-Repo, öffne die App lokal im Browser und gib deinem
+  Coding Agenten den Kontext, den er wirklich braucht.
+</p>
+
+<p align="center">
+  <code>npx pinflow init</code>
+</p>
 
 ## License
 

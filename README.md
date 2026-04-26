@@ -53,8 +53,17 @@ produktisierter Agent-Workflow weiterbaut.
 PinFlow ist als npm-Paket `pinflow` veroeffentlicht. Voraussetzung:
 Node.js 20 oder neuer.
 
+Direkt aus npm starten:
+
 ```bash
 npx pinflow init
+```
+
+Oder dauerhaft installieren und danach starten:
+
+```bash
+npm install -g pinflow
+pinflow init
 ```
 
 Der Wizard führt durch zwei Schritte:
@@ -66,13 +75,8 @@ Der Wizard führt durch zwei Schritte:
 Danach startest du deinen Dev-Server und öffnest die App im Browser. Das
 PinFlow-Overlay ist dann bereit für Markierungen, Aufgaben und Live-Kontext.
 
-Alternativen:
-
-- Installiert: `pinflow init`
-- Ohne Installation: `npx pinflow init`
-
-Bevorzugter installierter CLI-Befehl: `pinflow`. Kompatibler
-No-Install-Pfad: `npx pinflow init`. Kompatibilitaets-Alias: `pinflow`.
+Kurz gesagt: `npx pinflow init` ist der No-Install-Weg über npm, `npm install
+-g pinflow` ist der installierte Weg.
 
 ## Wie PinFlow lokal läuft
 

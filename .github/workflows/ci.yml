@@ -10,6 +10,10 @@ permissions:
   actions: read
   contents: read
 
+env:
+  NX_ISOLATE_PLUGINS: 'false'
+  NX_NO_CLOUD: 'true'
+
 jobs:
   checks:
     runs-on: ubuntu-latest
@@ -28,7 +32,9 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - run: npx nx run-many -t lint test build typecheck --exclude pinflow-test-fixtures
+      - run: pnpm run release:check:docs
+
+      - run: pnpm run build:all
 
       - name: Update coverage badge
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'

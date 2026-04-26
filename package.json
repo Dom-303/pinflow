@@ -8,8 +8,10 @@
   "license": "MIT",
   "scripts": {
     "sync-dist": "nx run-many -t sync-dist",
-    "build:all": "nx run-many -t=lint,test,build --exclude pinflow-test-fixtures --output-style=stream",
-    "build:affected": "nx affected -t lint,test,build --exclude pinflow-test-fixtures --output-style=stream",
+    "build:all": "nx run-many -t=lint,test,build,typecheck --exclude pinflow-test-fixtures --output-style=stream --parallel=1",
+    "build:affected": "nx affected -t lint,test,build,typecheck --exclude pinflow-test-fixtures --output-style=stream --parallel=1",
+    "release:check": "node scripts/release-check.mjs",
+    "release:check:docs": "node scripts/generate-readme-assets.mjs && prettier --check README.md RELEASE.md SECURITY.md CHANGELOG.md package.json packages/*/package.json packages/*/vite.config.ts packages/pinflow-test-fixtures/shared/pinflow-package-scope.spec.ts scripts/release-check.mjs .github/workflows/*.yml && vitest run --config packages/pinflow-test-fixtures/vite.config.ts packages/pinflow-test-fixtures/shared/pinflow-package-scope.spec.ts",
     "release:version:local": "nx release version prerelease --preid pinflow --git-commit=false --git-tag=false --stage-changes=false",
     "release:publish:local": "nx run-many -t sync-dist && nx release publish --registry=http://localhost:4873",
     "release:local": "pnpm run build:all && pnpm run release:version:local && pnpm run release:publish:local",

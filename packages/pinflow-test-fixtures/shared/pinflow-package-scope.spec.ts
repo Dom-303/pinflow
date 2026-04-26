@@ -9,10 +9,16 @@ function readRepoFile(relativePath: string): string {
 function readPackage(relativePath: string): {
   name?: string;
   dependencies?: Record<string, string>;
+  publishConfig?: {
+    access?: string;
+  };
 } {
   return JSON.parse(readRepoFile(relativePath)) as {
     name?: string;
     dependencies?: Record<string, string>;
+    publishConfig?: {
+      access?: string;
+    };
   };
 }
 
@@ -60,19 +66,42 @@ describe('pinflow package scopes', () => {
       '@pinflow/relay': 'workspace:*',
     });
 
-    expect(readPackage('packages/pinflow-react/package.json').dependencies)
-      .toMatchObject({
-        '@pinflow/core': 'workspace:*',
-        '@pinflow/runtime': 'workspace:*',
-        '@pinflow/transform': 'workspace:*',
-      });
+    expect(
+      readPackage('packages/pinflow-react/package.json').dependencies,
+    ).toMatchObject({
+      '@pinflow/core': 'workspace:*',
+      '@pinflow/runtime': 'workspace:*',
+      '@pinflow/transform': 'workspace:*',
+    });
 
-    expect(readPackage('packages/pinflow-next/package.json').dependencies)
-      .toMatchObject({
-        '@pinflow/transform': 'workspace:*',
-        '@pinflow/runtime': 'workspace:*',
-        '@pinflow/react': 'workspace:*',
-      });
+    expect(
+      readPackage('packages/pinflow-next/package.json').dependencies,
+    ).toMatchObject({
+      '@pinflow/transform': 'workspace:*',
+      '@pinflow/runtime': 'workspace:*',
+      '@pinflow/react': 'workspace:*',
+    });
+  });
+
+  it('marks every publishable package as public for npm release', () => {
+    const publishablePackages = [
+      'packages/pinflow-cli/package.json',
+      'packages/pinflow-core/package.json',
+      'packages/pinflow-manifest/package.json',
+      'packages/pinflow-mcp/package.json',
+      'packages/pinflow-next/package.json',
+      'packages/pinflow-nuxt/package.json',
+      'packages/pinflow-overlay/package.json',
+      'packages/pinflow-react/package.json',
+      'packages/pinflow-relay/package.json',
+      'packages/pinflow-runtime/package.json',
+      'packages/pinflow-transform/package.json',
+      'packages/pinflow-vue/package.json',
+    ];
+
+    for (const packagePath of publishablePackages) {
+      expect(readPackage(packagePath).publishConfig?.access).toBe('public');
+    }
   });
 
   it('prefers @pinflow package names in the main onboarding docs', () => {
@@ -82,17 +111,15 @@ describe('pinflow package scopes', () => {
     expect(readme).toContain("import { withPinFlow } from '@pinflow/next';");
     expect(readme).toContain('npm install -D @pinflow/react');
     expect(readme).toContain("import { pinflow } from '@pinflow/react/vite';");
-    expect(readme).toContain("require('@pinflow/react/webpack');");
+    expect(readme).toContain("require('@pinflow/react/webpack')");
     expect(readme).toContain('npm install -D @pinflow/vue');
     expect(readme).toContain("import { pinflow } from '@pinflow/vue/vite';");
-    expect(readme).toContain("require('@pinflow/vue/webpack');");
+    expect(readme).toContain("require('@pinflow/vue/webpack')");
     expect(readme).toContain('npm install -D @pinflow/transform');
     expect(readme).toContain(
       "import { pinflow } from '@pinflow/transform/plugins/vite';",
     );
-    expect(readme).toContain(
-      "require('@pinflow/transform/plugins/webpack');",
-    );
+    expect(readme).toContain("require('@pinflow/transform/plugins/webpack')");
   });
 
   it('uses pinflow-first package names and framework aliases in fixture sources', () => {
@@ -112,7 +139,9 @@ describe('pinflow package scopes', () => {
       'packages/pinflow-test-fixtures/fixtures/nuxt/v3/ts/nuxt.config.ts',
     );
 
-    expect(nextConfig).toContain("import { withPinFlow } from '@pinflow/next';");
+    expect(nextConfig).toContain(
+      "import { withPinFlow } from '@pinflow/next';",
+    );
     expect(reactViteConfig).toContain(
       "import { pinflow } from '@pinflow/react/vite';",
     );
@@ -122,7 +151,9 @@ describe('pinflow package scopes', () => {
     expect(webpackConfig).toContain(
       "const { PinFlowWebpackPlugin } = require('@pinflow/react/webpack');",
     );
-    expect(webpackConfig).toContain("loader: '@pinflow/transform/webpack-loader'");
+    expect(webpackConfig).toContain(
+      "loader: '@pinflow/transform/webpack-loader'",
+    );
     expect(nuxtConfig).toContain("modules: ['@pinflow/nuxt']");
   });
 });

@@ -4,7 +4,7 @@
   "type": "module",
   "main": "src/index.ts",
   "publishConfig": {
-    "access": "restricted"
+    "access": "public"
   },
   "distExports": {
     "./auto-init": "./auto-init.js"

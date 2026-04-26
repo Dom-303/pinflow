@@ -8,7 +8,7 @@
     "pinflow-mcp": "./bin/pinflow-mcp.js"
   },
   "publishConfig": {
-    "access": "restricted"
+    "access": "public"
   },
   "dependencies": {
     "@pinflow/relay": "workspace:*"

@@ -3,12 +3,12 @@
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/search?q=%40pinflow"><img src="https://img.shields.io/badge/npm-v0.6.0--pinflow.0-D99545?style=flat-square&logo=npm&logoColor=white" alt="npm v0.6.0-pinflow.0" /></a>
-  <a href="https://github.com/Dom-303/pinflow/actions"><img src="https://img.shields.io/badge/CI-verified-2B2B2B?style=flat-square&logo=githubactions&logoColor=white" alt="CI verified" /></a>
+  <a href="https://www.npmjs.com/package/pinflow"><img src="https://img.shields.io/badge/npm-v0.6.0--pinflow.0-D99545?style=flat-square&logo=npm&logoColor=white" alt="npm v0.6.0-pinflow.0" /></a>
+  <a href="https://github.com/Dom-303/pinflow/actions/workflows/ci.yml"><img src="https://github.com/Dom-303/pinflow/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI" /></a>
   <a href="#lokale-prüfung"><img src="https://img.shields.io/badge/coverage-local-2B2B2B?style=flat-square" alt="local coverage" /></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/MIT-License-D99545?style=flat-square" alt="MIT License" /></a>
   <a href="./package.json"><img src="https://img.shields.io/badge/TypeScript-5.x-D99545?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript 5.x" /></a>
-  <a href="./package.json"><img src="https://img.shields.io/badge/Node-%3E%3D18-2B2B2B?style=flat-square&logo=node.js&logoColor=white" alt="Node.js >= 18" /></a>
+  <a href="./package.json"><img src="https://img.shields.io/badge/Node-%3E%3D20-2B2B2B?style=flat-square&logo=node.js&logoColor=white" alt="Node.js >= 20" /></a>
   <a href="https://github.com/Dom-303/pinflow/pulls"><img src="https://img.shields.io/badge/PRs-welcome-D99545?style=flat-square" alt="PRs welcome" /></a>
   <a href="https://modelcontextprotocol.io/"><img src="https://img.shields.io/badge/MCP-Compatible-2B2B2B?style=flat-square" alt="MCP Compatible" /></a>
 </p>
@@ -49,6 +49,8 @@ die starke technische Grundlage, auf der PinFlow als fokussierter,
 produktisierter Agent-Workflow weiterbaut.
 
 ## Schnellstart
+
+Voraussetzung: Node.js 20 oder neuer.
 
 ```bash
 npx pinflow init
@@ -230,6 +232,20 @@ export default defineConfig({
 </details>
 
 <details>
+<summary><strong>React 18/19 mit Webpack</strong> - <code>npm install -D @pinflow/react</code></summary>
+
+```js
+// webpack.config.js
+const { PinFlowWebpackPlugin } = require('@pinflow/react/webpack');
+
+module.exports = {
+  plugins: [new PinFlowWebpackPlugin()],
+};
+```
+
+</details>
+
+<details>
 <summary><strong>Vue 3 mit Vite</strong> - <code>npm install -D @pinflow/vue</code></summary>
 
 ```ts
@@ -241,6 +257,20 @@ import { pinflow } from '@pinflow/vue/vite';
 export default defineConfig({
   plugins: [vue(), pinflow()],
 });
+```
+
+</details>
+
+<details>
+<summary><strong>Vue 3 mit Webpack</strong> - <code>npm install -D @pinflow/vue</code></summary>
+
+```js
+// webpack.config.js
+const { PinFlowWebpackPlugin } = require('@pinflow/vue/webpack');
+
+module.exports = {
+  plugins: [new PinFlowWebpackPlugin()],
+};
 ```
 
 </details>
@@ -260,6 +290,20 @@ export default defineConfig({
 
 Diese Variante liefert DOM-zu-Source-Mapping, aber keine tiefen Framework-Props
 oder State-Daten.
+
+</details>
+
+<details>
+<summary><strong>Framework-unabhängig mit Webpack</strong> - <code>npm install -D @pinflow/transform</code></summary>
+
+```js
+// webpack.config.js
+const { PinFlowWebpackPlugin } = require('@pinflow/transform/plugins/webpack');
+
+module.exports = {
+  plugins: [new PinFlowWebpackPlugin()],
+};
+```
 
 </details>
 
@@ -462,14 +506,19 @@ pnpm run pinflow:preview:vite-react
 Für den vollständigen Repo-Check:
 
 ```bash
-nx run-many -t=lint,test,build --exclude pinflow-test-fixtures
+pnpm run release:check
 ```
+
+Der Release-Check validiert README-Assets, wichtige Package-Metadaten,
+Formatierung, Lint, Tests, Build und Typecheck. Der ausführliche Ablauf steht
+in [RELEASE.md](./RELEASE.md); lokale Sicherheits- und Datenhinweise stehen in
+[SECURITY.md](./SECURITY.md).
 
 ## Contributing
 
 ```bash
 pnpm install
-nx run-many -t build test lint typecheck
+pnpm run build:all
 ```
 
 Konventionen liegen in `.claude/rules/`. PRs sind willkommen.

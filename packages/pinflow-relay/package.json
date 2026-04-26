@@ -14,7 +14,7 @@
     "./program": "./program/index.js"
   },
   "publishConfig": {
-    "access": "restricted"
+    "access": "public"
   },
   "distBin": {
     "pinflow": "./cli/bin/main.js",

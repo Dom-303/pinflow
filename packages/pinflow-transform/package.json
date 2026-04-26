@@ -38,7 +38,7 @@
     }
   },
   "publishConfig": {
-    "access": "restricted"
+    "access": "public"
   },
   "distExports": {
     "./plugins/vite": "./plugins/vite/index.js",

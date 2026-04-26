@@ -51,6 +51,24 @@ Alternativen:
 - Installiert: `pinflow init`
 - Ohne Installation: `npx pinflow init`
 
+## Wie PinFlow lokal läuft
+
+PinFlow ist kein separates Cloud-Dashboard und keine VS-Code-only Extension.
+Es läuft in deinem normalen lokalen Entwicklungs-Setup: dein Repo liegt in der
+IDE, dein Frontend läuft auf `localhost`, PinFlow hängt sich über Framework- und
+Bundler-Integration in die App ein und dein Coding Agent verbindet sich über
+MCP mit dem lokalen Relay.
+
+<p align="center">
+  <img src="./assets/local-setup-flow.png" alt="PinFlow lokaler Setup-Flow: IDE und Repo, Dev Server, Browser-App, Relay und Coding Agent" width="920" />
+</p>
+
+Der wichtige Punkt: Der Browser liefert den sichtbaren UI-Kontext, das Repo
+liefert Source-Dateien und lokale Aufgaben, und der Agent fragt beides über
+PinFlow ab. Dadurch bleibt der Workflow nah an deiner echten App, ohne dass du
+Screenshots, DOM-Details oder Datei-Vermutungen manuell in den Chat tragen
+musst.
+
 ## Was PinFlow löst
 
 - **UI-Wünsche werden konkrete Code-Aufgaben.** Nicht "irgendwo ist ein Button

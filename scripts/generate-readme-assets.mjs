@@ -19,6 +19,12 @@ const expectedAssets = [
       'UI sehen, Kontext sichern, Agent arbeitet, Ergebnis im Browser pruefen.',
   },
   {
+    file: 'assets/local-setup-flow.png',
+    role: 'Local setup map',
+    context:
+      'IDE, Repo, Dev Server, Browser-App, lokaler Relay und Coding Agent arbeiten zusammen.',
+  },
+  {
     file: 'assets/ui-to-code.png',
     role: 'UI to Code workflow',
     context:

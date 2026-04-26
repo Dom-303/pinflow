@@ -11,7 +11,7 @@ npm install @pinflow/mcp
 Or use directly without installing:
 
 ```bash
-npx -y @pinflow/mcp
+npx -y --package @pinflow/mcp pinflow-mcp
 ```
 
 Preferred binary:
@@ -38,7 +38,7 @@ Add `pinflow` to your MCP server configuration. The server communicates over std
     "pinflow": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@pinflow/mcp"]
+      "args": ["-y", "--package", "@pinflow/mcp", "pinflow-mcp"]
     }
   }
 }
@@ -54,8 +54,8 @@ The relay daemon starts automatically when you run your dev server with PinFlow 
 
 Query source locations and retrieve live runtime context from the running browser session.
 
-| Tool                       | Description                                                                                                   |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Tool                     | Description                                                                                                   |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------- |
 | `pinflow.query.bySource` | Query a source file and line number to get live runtime context from the browser (props, state, DOM snapshot) |
 | `pinflow.manifest.query` | Find all manifest entries by file path, component name, or element ID                                         |
 | `pinflow.manifest.stats` | Manifest coverage statistics (entry count, file count, component count, cache hit rate)                       |
@@ -64,8 +64,8 @@ Query source locations and retrieve live runtime context from the running browse
 
 Resolve `data-ds` element IDs injected at build time back to their source locations.
 
-| Tool                      | Description                                                                             |
-| ------------------------- | --------------------------------------------------------------------------------------- |
+| Tool                    | Description                                                                             |
+| ----------------------- | --------------------------------------------------------------------------------------- |
 | `pinflow.resolve`       | Resolve a single `data-ds` element ID to its ManifestEntry (file, line, col, component) |
 | `pinflow.resolve.batch` | Resolve multiple element IDs in one call                                                |
 
@@ -73,8 +73,8 @@ Resolve `data-ds` element IDs injected at build time back to their source locati
 
 Annotations are created when a developer clicks an element in the PinFlow overlay and enters intent. These tools drive the agent-side processing loop.
 
-| Tool                                | Description                                                                                     |
-| ----------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Tool                              | Description                                                                                     |
+| --------------------------------- | ----------------------------------------------------------------------------------------------- |
 | `pinflow.annotation.process`      | Atomically claim the next queued annotation (`claimNext`) — prevents concurrent agent conflicts |
 | `pinflow.annotation.respond`      | Attach agent response and transition annotation to `PROCESSED`                                  |
 | `pinflow.annotation.updateStatus` | Manually transition annotation status                                                           |
@@ -84,8 +84,8 @@ Annotations are created when a developer clicks an element in the PinFlow overla
 
 ### System
 
-| Tool               | Description                                           |
-| ------------------ | ----------------------------------------------------- |
+| Tool             | Description                                           |
+| ---------------- | ----------------------------------------------------- |
 | `pinflow.status` | Relay daemon health, manifest stats, and queue counts |
 
 ## MCP Prompts

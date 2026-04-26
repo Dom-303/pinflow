@@ -78,7 +78,7 @@ const MCP_CONFIG = `{
     "pinflow": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@pinflow/mcp"]
+      "args": ["-y", "--package", "@pinflow/mcp", "pinflow-mcp"]
     }
   }
 }`;

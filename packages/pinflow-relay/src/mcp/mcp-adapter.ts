@@ -6,7 +6,10 @@
 import { z } from 'zod';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { MCP_TOOL_COMPAT_ALIASES, McpToolDefinition } from './tools/tool.defs.js';
+import {
+  MCP_TOOL_COMPAT_ALIASES,
+  McpToolDefinition,
+} from './tools/tool.defs.js';
 import { McpPromptDefinition } from './prompts/prompt.defs.js';
 import { RelayHttpClient } from '../client/relay-http-client.js';
 import { RELAY_VERSION } from '../version.js';
@@ -130,6 +133,7 @@ export class McpAdapter {
       this.server.registerTool(tool.name, registration, handler);
 
       for (const alias of MCP_TOOL_COMPAT_ALIASES[tool.name] ?? []) {
+        if (alias === tool.name) continue;
         this.server.registerTool(alias, registration, handler);
       }
     }
@@ -152,6 +156,7 @@ export class McpAdapter {
     );
 
     for (const alias of MCP_TOOL_COMPAT_ALIASES[tool.name] ?? []) {
+      if (alias === tool.name) continue;
       this.server.registerTool(
         alias,
         {

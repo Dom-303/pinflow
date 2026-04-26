@@ -10,19 +10,23 @@ describe('pinflow preferred cli docs', () => {
   it('documents pinflow as the preferred installed command while keeping pinflow init as the compatibility path', () => {
     const readme = readRepoFile('README.md');
 
-    expect(readme).toContain('Preferred installed CLI command: `pinflow`');
-    expect(readme).toContain('Current no-install compatibility path: `npx pinflow init`');
-    expect(readme).toContain('Compatibility alias: `pinflow`');
+    expect(readme).toContain('Bevorzugter installierter CLI-Befehl: `pinflow`');
+    expect(readme).toContain('Kompatibler');
+    expect(readme).toContain('No-Install-Pfad: `npx pinflow init`');
+    expect(readme).toContain('Kompatibilitaets-Alias: `pinflow`');
   });
 
   it('documents pinflow-mcp as the preferred installed binary while keeping compatibility aliases available', () => {
     const readme = readRepoFile('README.md');
 
-    expect(readme).toContain('Preferred installed MCP binary: `pinflow-mcp`');
-    expect(readme).toContain('Preferred MCP server key: `pinflow`');
-    expect(readme).toContain('"args": ["-y", "@pinflow/mcp"]');
+    expect(readme).toContain('Bevorzugtes installiertes MCP-Binary: `pinflow-mcp`');
+    expect(readme).toContain('Bevorzugter');
+    expect(readme).toContain('MCP-Server-Key:');
+    expect(readme).toContain('`pinflow`');
     expect(readme).toContain(
-      'Compatibility aliases remain available for older `pinflow.*` MCP clients',
+      '"args": ["-y", "--package", "@pinflow/mcp", "pinflow-mcp"]',
     );
+    expect(readme).toContain('Kompatibilitaets-Aliasse bleiben');
+    expect(readme).toContain('`pinflow.*`-MCP-Clients verfuegbar');
   });
 });

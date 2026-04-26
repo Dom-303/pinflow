@@ -70,6 +70,9 @@ Alternativen:
 - Installiert: `pinflow init`
 - Ohne Installation: `npx pinflow init`
 
+Bevorzugter installierter CLI-Befehl: `pinflow`. Kompatibler
+No-Install-Pfad: `npx pinflow init`. Kompatibilitaets-Alias: `pinflow`.
+
 ## Wie PinFlow lokal läuft
 
 PinFlow ist kein separates Cloud-Dashboard und keine VS-Code-only Extension.
@@ -332,13 +335,17 @@ Codex Support liegt im Repo über `.codex-plugin/plugin.json` und
 
 #### Jeder MCP-Client
 
+Bevorzugtes installiertes MCP-Binary: `pinflow-mcp`. Bevorzugter
+MCP-Server-Key: `pinflow`. Kompatibilitaets-Aliasse bleiben fuer aeltere
+`pinflow.*`-MCP-Clients verfuegbar.
+
 ```json
 {
   "mcpServers": {
     "pinflow": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@pinflow/mcp"]
+      "args": ["-y", "--package", "@pinflow/mcp", "pinflow-mcp"]
     }
   }
 }

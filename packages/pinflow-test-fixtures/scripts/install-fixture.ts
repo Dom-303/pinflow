@@ -42,7 +42,7 @@ const registryPort = Number.isNaN(parsedRegistryPort)
   ? DEFAULT_REGISTRY_PORT
   : parsedRegistryPort;
 const registryUrl =
-  process.env['REGISTRY_URL'] ?? `http://127.0.0.1:${registryPort}`;
+  process.env['REGISTRY_URL'] ?? `http://localhost:${registryPort}`;
 const forceReinstall =
   process.env['FORCE_REINSTALL'] === '1' ||
   process.env['FORCE_REINSTALL'] === 'true';

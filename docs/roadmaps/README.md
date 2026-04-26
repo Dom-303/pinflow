@@ -1,19 +1,32 @@
 # PinFlow Roadmaps
 
-This folder captures the staged transition from upstream `pinflow` to the visible product direction `PinFlow`.
+This folder captures the staged transition from the Domscribe foundation to the
+visible product direction `PinFlow`.
 
 ## Guiding Principle
 
-PinFlow should become a neutral, multi-project visual review and change workflow for live web apps, centered on:
+PinFlow should become the source-exact runtime context layer for visual
+frontend work with coding agents. It is not positioned as a replacement for
+Claude Code Desktop, Codex Desktop, or any other browser-preview workspace.
+Those tools can preview and edit apps; PinFlow tells them exactly what they are
+looking at.
 
-- point-and-tell UI review
-- source-mapped implementation workflows
-- Codex and Claude as primary agent paths
+The release focus is centered on:
+
+- source-exact UI-to-code mapping
+- source-to-live-UI queries through `pinflow.query.bySource`
+- framework-aware runtime context
+- repo-local annotation and queue workflow
+- Codex, Claude, and generic MCP clients as agent paths
 - gradual automation instead of risky over-engineering
 
 Core claim:
 
-> Pin it, flow it, ship it.
+> PinFlow gives coding agents source-exact visual context from your running
+> frontend.
+
+The detailed positioning note is
+[PinFlow Positioning and Build Focus](../reports/2026-04-25-pinflow-positioning-and-build-focus.md).
 
 ## Recommended Execution Order
 

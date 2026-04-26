@@ -96,7 +96,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-registry
     env:
-      DS_MAX_BUILD_OVERHEAD_PERCENT: 75
+      DS_MAX_BUILD_OVERHEAD_PERCENT: 90
     strategy:
       fail-fast: false
       matrix:

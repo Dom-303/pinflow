@@ -103,6 +103,12 @@ musst.
 - **Production bleibt sauber.** Die Instrumentierung ist development-only und
   wird aus Production Builds entfernt.
 
+PinFlow ist dabei bewusst **nicht** als weitere Browser-Preview positioniert.
+Claude, Codex und andere Tools können deine App bereits sehen und bedienen.
+PinFlow ergänzt diese Agenten um die fehlende Tiefenschicht: source-exakte
+Zuordnung, Runtime-Kontext, lokale Queue und MCP-Werkzeuge für echte
+Frontend-Änderungen.
+
 ## Der tägliche Loop
 
 <p align="center">
@@ -522,6 +528,16 @@ Der Release-Check validiert README-Assets, wichtige Package-Metadaten,
 Formatierung, Lint, Tests, Build und Typecheck. Der ausführliche Ablauf steht
 in [RELEASE.md](./RELEASE.md); lokale Sicherheits- und Datenhinweise stehen in
 [SECURITY.md](./SECURITY.md).
+
+## Produktfokus
+
+Die aktuelle strategische Einordnung steht in
+[PinFlow Positioning and Build Focus](./docs/reports/2026-04-25-pinflow-positioning-and-build-focus.md).
+Kurz: PinFlow soll enger und tiefer werden, nicht breiter. Release-relevant ist
+der Golden Path aus stabilem DOM→Source Mapping, Runtime-Kontext,
+`pinflow.query.bySource`, lokaler Annotation-Queue und Agent-Integration. Dinge
+wie eigener Browser, Desktop-App, großes Chat-UI oder generische
+Artifact-Plattform bleiben bewusst außerhalb dieses Release-Fokus.
 
 ## Contributing
 

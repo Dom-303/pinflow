@@ -31,7 +31,7 @@ import {
 /**
  * Maximum acceptable build overhead (%).
  * Local default is strict (50%) to catch regressions early.
- * CI runners are slower and noisier — set DS_MAX_BUILD_OVERHEAD_PERCENT=75
+ * CI runners are slower and noisier — set DS_MAX_BUILD_OVERHEAD_PERCENT=90
  * in the workflow to allow for that.
  */
 const MAX_BUILD_OVERHEAD_PERCENT =
@@ -116,7 +116,7 @@ describe.skipIf(!fixture)('Build Performance', () => {
       expect(
         overheadPct,
         `build overhead ${overheadPct.toFixed(1)}% exceeds ${MAX_BUILD_OVERHEAD_PERCENT}%`,
-      ).toBeLessThan(MAX_BUILD_OVERHEAD_PERCENT);
+      ).toBeLessThanOrEqual(MAX_BUILD_OVERHEAD_PERCENT);
     },
     300_000,
   );

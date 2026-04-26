@@ -1,6 +1,6 @@
 {
   "name": "@pinflow/vue",
-  "version": "0.6.0-pinflow.0",
+  "version": "0.6.0",
   "description": "Vue adapter for PinFlow",
   "type": "module",
   "main": "src/index.ts",

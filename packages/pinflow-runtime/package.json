@@ -1,6 +1,6 @@
 {
   "name": "@pinflow/runtime",
-  "version": "0.6.0-pinflow.0",
+  "version": "0.6.0",
   "description": "Browser-side runtime context capture for PinFlow",
   "type": "module",
   "main": "src/index.ts",

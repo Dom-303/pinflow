@@ -1,6 +1,6 @@
 {
   "name": "pinflow",
-  "version": "0.6.0-pinflow.0",
+  "version": "0.6.0",
   "description": "Codex plugin manifest for PinFlow with current runtime-context compatibility wiring.",
   "author": {
     "name": "Dom-303"
@@ -11,7 +11,12 @@
     "pinflow": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "--package", "@pinflow/mcp", "pinflow-mcp"]
+      "args": [
+        "-y",
+        "--package",
+        "@pinflow/mcp",
+        "pinflow-mcp"
+      ]
     }
   }
 }

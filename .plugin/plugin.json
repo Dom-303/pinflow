@@ -1,6 +1,6 @@
 {
   "name": "pinflow",
-  "version": "0.6.0-pinflow.0",
+  "version": "0.6.0",
   "description": "PinFlow is a visual review and change workflow for live web apps with current Codex and Claude-compatible runtime context tooling.",
   "author": {
     "name": "Dom-303"

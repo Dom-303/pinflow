@@ -1,6 +1,6 @@
 {
   "name": "@pinflow/transform",
-  "version": "0.6.0-pinflow.0",
+  "version": "0.6.0",
   "description": "AST injection of stable element IDs and bundler plugins for PinFlow",
   "type": "module",
   "main": "src/index.ts",

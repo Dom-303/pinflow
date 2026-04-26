@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/pinflow"><img src="https://img.shields.io/badge/npm-v0.6.0--pinflow.0-D99545?style=flat-square&logo=npm&logoColor=white" alt="npm v0.6.0-pinflow.0" /></a>
+  <a href="https://www.npmjs.com/package/pinflow"><img src="https://img.shields.io/badge/npm-v0.6.0-D99545?style=flat-square&logo=npm&logoColor=white" alt="npm v0.6.0" /></a>
   <a href="https://github.com/Dom-303/pinflow/actions/workflows/ci.yml"><img src="https://github.com/Dom-303/pinflow/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI" /></a>
   <a href="#lokale-prüfung"><img src="https://img.shields.io/badge/coverage-local-2B2B2B?style=flat-square" alt="local coverage" /></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/MIT-License-D99545?style=flat-square" alt="MIT License" /></a>
@@ -50,7 +50,8 @@ produktisierter Agent-Workflow weiterbaut.
 
 ## Schnellstart
 
-Voraussetzung: Node.js 20 oder neuer.
+PinFlow ist als npm-Paket `pinflow` veroeffentlicht. Voraussetzung:
+Node.js 20 oder neuer.
 
 ```bash
 npx pinflow init

@@ -32,7 +32,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: 'pnpm'
 
       - run: pnpm install --frozen-lockfile
@@ -54,7 +54,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: 'pnpm'
           registry-url: 'https://registry.npmjs.org'
 
@@ -69,7 +69,6 @@ jobs:
       - name: Publish to npm
         run: npx nx release publish --yes
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
 
       - name: Build Gemini extension archive

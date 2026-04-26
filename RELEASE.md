@@ -58,6 +58,17 @@ git push origin main --follow-tags
 Use `release:minor` or `release:major` when the public API changes require it.
 The workflow publishes to npm with provenance and creates a GitHub Release.
 
+For tokenless trusted publishing, configure each public package on npmjs.com
+with this trusted publisher:
+
+- Publisher: GitHub Actions
+- Organization or user: `Dom-303`
+- Repository: `pinflow`
+- Workflow filename: `publish.yml`
+
+The workflow already grants `id-token: write` and does not require
+`NODE_AUTH_TOKEN` for publishing once npm trusted publishers are configured.
+
 ## Manual Checks Before Public Announcement
 
 - GitHub Actions `CI` is green on `main`.

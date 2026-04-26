@@ -1,38 +1,21 @@
 <p align="center">
-  <picture>
-    <source
-      media="(prefers-color-scheme: dark)"
-      srcset="./assets/pinflow-horizontal-dark.png"
-    />
-    <img src="./assets/pinflow-horizontal-light.png" alt="PinFlow" width="520" />
-  </picture>
-</p>
-
-<h1 align="center">PinFlow</h1>
-
-<p align="center"><strong>Pin it. Flow it. Ship it.</strong></p>
-
-<p align="center">
-  <a href="https://www.npmjs.com/search?q=%40pinflow"><img src="https://img.shields.io/npm/v/%40pinflow/core?label=npm&color=cb3837" alt="npm version" /></a>
-  <a href="https://github.com/Dom-303/pinflow/actions"><img src="https://img.shields.io/github/actions/workflow/status/Dom-303/pinflow/ci.yml?label=CI" alt="CI status" /></a>
-  <a href="#"><img src="https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/Narrator/1bedc40fc56874758abd3b7caf4d6748/raw/pinflow-coverage.json" alt="test coverage" /></a>
-  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license" /></a>
-  <img src="https://img.shields.io/badge/TypeScript-5.x-3178c6?logo=typescript&logoColor=white" alt="TypeScript" />
-  <img src="https://img.shields.io/badge/node-%3E%3D18-417e38?logo=node.js&logoColor=white" alt="Node.js >= 18" />
-</p>
-
-<p align="center">
-  <a href="https://www.npmjs.com/package/@pinflow/react"><img src="https://img.shields.io/badge/React-61DAFB?style=flat&logo=react&logoColor=black" alt="React" /></a>
-  <a href="https://www.npmjs.com/package/@pinflow/vue"><img src="https://img.shields.io/badge/Vue-4FC08D?style=flat&logo=vuedotjs&logoColor=white" alt="Vue" /></a>
-  <a href="https://www.npmjs.com/package/@pinflow/next"><img src="https://img.shields.io/badge/Next.js-000000?style=flat&logo=nextdotjs&logoColor=white" alt="Next.js" /></a>
-  <a href="https://www.npmjs.com/package/@pinflow/nuxt"><img src="https://img.shields.io/badge/Nuxt-00DC82?style=flat&logo=nuxt&logoColor=white" alt="Nuxt" /></a>
-  <a href="https://www.npmjs.com/package/@pinflow/transform"><img src="https://img.shields.io/badge/Vite-646CFF?style=flat&logo=vite&logoColor=white" alt="Vite" /></a>
-  <a href="https://www.npmjs.com/package/@pinflow/transform"><img src="https://img.shields.io/badge/Webpack-8DD6F9?style=flat&logo=webpack&logoColor=black" alt="Webpack" /></a>
-  <img src="https://img.shields.io/badge/MCP-Compatible-2563eb?style=flat&logoColor=white" alt="MCP Compatible" />
-</p>
-
-<p align="center">
   <img src="./assets/pinflow-overview.png" alt="PinFlow verbindet Browser UI, Kontextkarten und Coding Agenten" width="920" />
+</p>
+
+<p align="center">
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/MIT-License-D99545?style=flat-square" alt="MIT License" /></a>
+  <img src="https://img.shields.io/badge/TypeScript-5.x-D99545?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript 5.x" />
+  <img src="https://img.shields.io/badge/Node-%3E%3D18-2B2B2B?style=flat-square&logo=node.js&logoColor=white" alt="Node.js >= 18" />
+  <img src="https://img.shields.io/badge/MCP-Compatible-2B2B2B?style=flat-square" alt="MCP Compatible" />
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/React-D99545?style=flat-square&logo=react&logoColor=white" alt="React" />
+  <img src="https://img.shields.io/badge/Vue-D99545?style=flat-square&logo=vuedotjs&logoColor=white" alt="Vue" />
+  <img src="https://img.shields.io/badge/Next.js-2B2B2B?style=flat-square&logo=nextdotjs&logoColor=white" alt="Next.js" />
+  <img src="https://img.shields.io/badge/Nuxt-D99545?style=flat-square&logo=nuxt&logoColor=white" alt="Nuxt" />
+  <img src="https://img.shields.io/badge/Vite-2B2B2B?style=flat-square&logo=vite&logoColor=white" alt="Vite" />
+  <img src="https://img.shields.io/badge/Webpack-2B2B2B?style=flat-square&logo=webpack&logoColor=white" alt="Webpack" />
 </p>
 
 ---

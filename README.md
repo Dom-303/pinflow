@@ -319,21 +319,24 @@ verbindet sie mit einer source-genauen Runtime-Grundlage.
 
 Legende: ✅ klar vorhanden · ◐ teilweise/anderer Fokus · ✕ nicht erkennbar
 
-| Feature          | PinFlow | [Domscribe](https://github.com/patchorbit/domscribe) | [stagewise](https://github.com/stagewise-io/stagewise) | [DevInsp.](https://sveltethemes.dev/mcpc-tech/dev-inspector-mcp) | [React Grab](https://github.com/aidenybai/react-grab) | [Frontman](https://frontman.sh/vs/cursor) |
-| ---------------- | :-----: | :--------------------------------------------------: | :----------------------------------------------------: | :--------------------------------------------------------------: | :---------------------------------------------------: | :---------------------------------------: |
-| Build-time IDs   |   ✅    |                          ✅                          |                           ✕                            |                                ◐                                 |                           ✕                           |                     ✕                     |
-| DOM → Source     |   ✅    |                          ✅                          |                           ◐                            |                                ✅                                |                           ◐                           |                    ✅                     |
-| Code → Live-UI   |   ✅    |                          ✅                          |                           ✕                            |                                ✅                                |                           ✕                           |                    ✅                     |
-| Props/State/DOM  |   ✅    |                          ✅                          |                           ◐                            |                                ✅                                |                           ◐                           |                    ✅                     |
-| MCP Tools        |   ✅    |                          ✅                          |                           ◐                            |                                ✅                                |                           ✕                           |                     ◐                     |
-| Agent-agnostisch |   ✅    |                          ✅                          |                           ✕                            |                                ✅                                |                           ◐                           |                     ◐                     |
-| Multi-Framework  |   ✅    |                          ✅                          |                           ✅                           |                                ✅                                |                           ✕                           |                     ◐                     |
-| Multi-Bundler    |   ✅    |                          ✅                          |                           ◐                            |                                ✅                                |                           ✕                           |                     ◐                     |
-| Picker-Modi      |   ✅    |                          ◐                           |                           ◐                            |                                ◐                                 |                           ◐                           |                     ◐                     |
-| Dispatch-Regeln  |   ✅    |                          ✕                           |                           ✕                            |                                ◐                                 |                           ✕                           |                     ✕                     |
-| Session Settings |   ✅    |                          ✕                           |                           ✕                            |                                ✕                                 |                           ✕                           |                     ✕                     |
-| Lokale Queue     |   ✅    |                          ✅                          |                           ✕                            |                                ◐                                 |                           ✕                           |                     ✕                     |
-| Lizenz           |   MIT   |                         MIT                          |                          AGPL                          |                               MIT                                |                          MIT                          |                     ◐                     |
+| Feature                 | PinFlow                                           | [Domscribe](https://github.com/patchorbit/domscribe) | [stagewise](https://github.com/stagewise-io/stagewise) | [DevInsp.](https://sveltethemes.dev/mcpc-tech/dev-inspector-mcp) | [React Grab](https://github.com/aidenybai/react-grab) | [Frontman](https://frontman.sh/vs/cursor) |
+| ----------------------- | ------------------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------ | ---------------------------------------------------------------- | ----------------------------------------------------- | ----------------------------------------- |
+| Build-time IDs          | ✅ `data-ds` via AST                              | ✅ `data-ds` via AST                                 | ✕ Runtime/CDP                                          | ◐ AST-injected, nicht stabil                                     | ✕ `_debugSource`                                      | ✕ Runtime framework introspection         |
+| DOM → Source            | ✅ JSONL, append-only                             | ✅ JSONL, append-only                                | ✕                                                      | ✕                                                                | ✕                                                     | ✕                                         |
+| Code → Live-UI          | ✅ Agent fragt Source ab und bekommt Live-Kontext | ✅ Agent fragt Source ab und bekommt Live-Kontext    | ✕                                                      | ✕                                                                | ✕                                                     | ✕                                         |
+| Props/State/DOM         | ✅ Fiber + VNode + DOM Snapshot                   | ✅ Fiber + VNode + DOM Snapshot                      | ◐ Shallow                                              | ◐ DOM-level + JS eval                                            | ✕ HTML + Komponentennamen                             | ◐ Props only                              |
+| Multi-Framework         | ✅ React · Vue · Next · Nuxt · Adapter            | ✅ React · Vue · Next · Nuxt · Adapter               | ◐ React                                                | ✅ React · Vue · Svelte · Solid · Preact                         | ✕ React                                               | ◐ Next · Astro · Vite                     |
+| Multi-Bundler           | ✅ Vite · Webpack · Turbopack                     | ✅ Vite · Webpack · Turbopack                        | ✕ N/A                                                  | ✅ Vite · Webpack · Turbopack                                    | ✕ N/A                                                 | ◐ Dev-server middleware                   |
+| MCP Tools               | ✅ 12 Tools + 4 Prompts                           | ✅ 12 Tools + 4 Prompts                              | ✕ Proprietary protocol                                 | ✅ 9 Tools                                                       | ◐ Lightweight add-on                                  | ✕ Internal MCP only                       |
+| Agent-agnostisch        | ✅ Jeder MCP-Client                               | ✅ Jeder MCP-Client                                  | ✕ Bundled Electron agent                               | ✅                                                               | ✅                                                    | ✕ Bundled Elixir agent                    |
+| In-app Picker           | ✅ Lit Shadow DOM                                 | ✅ Lit Shadow DOM                                    | ✅ Built-in browser selector                           | ✅ Inspector bar                                                 | ✅ Hover-to-capture                                   | ✅ Chat interface                         |
+| Picker-Modi             | ✅ Element · Region · Multi                       | ◐ Element                                            | ◐ Element                                              | ◐ Inspector-Auswahl                                              | ◐ Hover-Auswahl                                       | ◐ Chat-Auswahl                            |
+| Dispatch-/Queue-Schicht | ✅ Auto · Codex · Claude · Queue-only             | ◐ Queue + MCP Tools                                  | ✕                                                      | ◐ MCP/ACP Tooling                                                | ✕                                                     | ✕                                         |
+| Dispatch-Regeln         | ✅ Manual · Immediate · Threshold                 | ✕                                                    | ✕                                                      | ✕                                                                | ✕                                                     | ✕                                         |
+| Fortsetzung             | ✅ Manual · Confirm · Automatic                   | ✕                                                    | ✕                                                      | ✕                                                                | ✕                                                     | ✕                                         |
+| Session Settings        | ✅ Projektdefaults + Session-Overrides            | ✕                                                    | ✕                                                      | ✕                                                                | ✕                                                     | ✕                                         |
+| Lokale Queue            | ✅ `.pinflow/annotations` + Batch-/Run-Status     | ✅ `.domscribe/annotations`                          | ✕                                                      | ◐ Tooling                                                        | ✕                                                     | ✕                                         |
+| Lizenz                  | ✅ MIT                                            | ✅ MIT                                               | ◐ AGPL                                                 | ✅ MIT                                                           | ✅ MIT                                                | ◐ Apache + AGPL                           |
 
 PinFlows Stärke ist die Kombination: stabile Source-Zuordnung, Live-Kontext,
 visuelles Markieren, lokale Queue und MCP-Werkzeuge in einem zusammenhängenden
@@ -360,18 +363,27 @@ Quellen und Einordnung:
 
 ### PinFlow vs. Doom-Script / Domscribe
 
-| Bereich                   | PinFlow heute                                     | [Doom-Script / Domscribe](https://github.com/patchorbit/domscribe) |
-| ------------------------- | ------------------------------------------------- | ------------------------------------------------------------------ |
-| Rolle                     | Produktisierte Weiterentwicklung für Agent-Flows  | Technisch starke Grundlage und ursprüngliches DOM-Skript           |
-| Sprache & Repo-Eindruck   | Deutsche README, eigene PinFlow-Visuals, CTA      | Englische technische README mit Demo und API-Fokus                 |
-| Picker                    | Element, Region und Multi-Select                  | Element-Picker für UI→Code Annotationen                            |
-| Dispatch                  | Auto, Codex, Claude oder Queue-only               | Agent verarbeitet Annotationen über MCP                            |
-| Dispatch-Modus            | Manual, Immediate oder Threshold                  | Claim/Process/Respond Lifecycle                                    |
-| Fortsetzung               | Manual, Confirm oder Automatic                    | Agent-Loop über Annotation Tools                                   |
-| Einstellungen             | Projektdefaults plus Session-Overrides im Overlay | Setup- und Tooling-Konfiguration                                   |
-| Queue-Oberfläche          | Batch-/Run-Status im Overlay sichtbar             | Annotation Lifecycle und WebSocket Feedback                        |
-| Lokales Setup-Verständnis | IDE, Repo, Dev Server, Browser, Relay und Agent   | App-side plus Agent-side Setup                                     |
-| Technische Basis          | Bewahrt Source Mapping, Runtime Capture und MCP   | Build-time IDs, JSONL Manifest, Runtime Context und MCP Tools      |
+| Bereich                  | PinFlow | Domscribe | Was PinFlow darauf aufbaut                                |
+| ------------------------ | :-----: | :-------: | --------------------------------------------------------- |
+| Build-time IDs           |   ✅    |    ✅     | unverändert starke Source-Zuordnung                       |
+| DOM→Source Manifest      |   ✅    |    ✅     | PinFlow behält JSONL/Manifest-Basis                       |
+| Code→Live-UI Query       |   ✅    |    ✅     | Agenten können weiter Source-Stellen live abfragen        |
+| Runtime Props/State/DOM  |   ✅    |    ✅     | React/Vue Runtime-Kontext bleibt erhalten                 |
+| MCP Tools                |   ✅    |    ✅     | PinFlow nutzt die Tool-Basis weiter                       |
+| Annotation Lifecycle     |   ✅    |    ✅     | Queue/Claim/Respond bleibt Kern des Workflows             |
+| WebSocket Feedback       |   ✅    |    ✅     | Statuswechsel bleiben live im Overlay sichtbar            |
+| Framework-/Bundler-Basis |   ✅    |    ✅     | React, Vue, Next, Nuxt, Vite, Webpack, Turbopack          |
+| Picker: Element          |   ✅    |    ✅     | bestehender UI→Code-Pfad                                  |
+| Picker: Region           |   ✅    |     ✕     | Bereichsauswahl für breitere UI-Kontexte                  |
+| Picker: Multi-Select     |   ✅    |     ✕     | mehrere Elemente als gemeinsame Aufgabe                   |
+| Provider-Kanal           |   ✅    |     ✕     | Auto, Codex, Claude oder Queue-only                       |
+| Dispatch-Modus           |   ✅    |     ✕     | Manual, Immediate oder Threshold                          |
+| Fortsetzung              |   ✅    |     ✕     | Manual, Confirm oder Automatic                            |
+| Projektdefaults          |   ✅    |     ✕     | dauerhafte Dispatch-Standards                             |
+| Session-Overrides        |   ✅    |     ✕     | temporäre Regeln nur für die laufende Sitzung             |
+| Batch-/Run-Status        |   ✅    |     ✕     | sichtbarer Fortschritt für freigegebene Aufgaben          |
+| Undo-/Follow-up-Fluss    |   ✅    |     ✕     | Auswahl zurücknehmen oder Anschlussaufgabe erzeugen       |
+| README-Produktauftritt   |   ✅    |     ◐     | deutsche README, PinFlow-Visuals, lokales Setup-Bild, CTA |
 
 Kurz gesagt: Domscribe ist die profunde Grundlage. PinFlow übernimmt diese
 starke technische Basis und legt darüber eine stärker geführte Produkt-,

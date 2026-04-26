@@ -319,24 +319,37 @@ verbindet sie mit einer source-genauen Runtime-Grundlage.
 
 Legende: ✅ klar vorhanden · ◐ teilweise/anderer Fokus · ✕ nicht erkennbar
 
-| Feature                 | PinFlow                                           | [Domscribe](https://github.com/patchorbit/domscribe) | [stagewise](https://github.com/stagewise-io/stagewise) | [DevInsp.](https://sveltethemes.dev/mcpc-tech/dev-inspector-mcp) | [React Grab](https://github.com/aidenybai/react-grab) | [Frontman](https://frontman.sh/vs/cursor) |
-| ----------------------- | ------------------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------ | ---------------------------------------------------------------- | ----------------------------------------------------- | ----------------------------------------- |
-| Build-time IDs          | ✅ `data-ds` via AST                              | ✅ `data-ds` via AST                                 | ✕ Runtime/CDP                                          | ◐ AST-injected, nicht stabil                                     | ✕ `_debugSource`                                      | ✕ Runtime framework introspection         |
-| DOM → Source            | ✅ JSONL, append-only                             | ✅ JSONL, append-only                                | ✕                                                      | ✕                                                                | ✕                                                     | ✕                                         |
-| Code → Live-UI          | ✅ Agent fragt Source ab und bekommt Live-Kontext | ✅ Agent fragt Source ab und bekommt Live-Kontext    | ✕                                                      | ✕                                                                | ✕                                                     | ✕                                         |
-| Props/State/DOM         | ✅ Fiber + VNode + DOM Snapshot                   | ✅ Fiber + VNode + DOM Snapshot                      | ◐ Shallow                                              | ◐ DOM-level + JS eval                                            | ✕ HTML + Komponentennamen                             | ◐ Props only                              |
-| Multi-Framework         | ✅ React · Vue · Next · Nuxt · Adapter            | ✅ React · Vue · Next · Nuxt · Adapter               | ◐ React                                                | ✅ React · Vue · Svelte · Solid · Preact                         | ✕ React                                               | ◐ Next · Astro · Vite                     |
-| Multi-Bundler           | ✅ Vite · Webpack · Turbopack                     | ✅ Vite · Webpack · Turbopack                        | ✕ N/A                                                  | ✅ Vite · Webpack · Turbopack                                    | ✕ N/A                                                 | ◐ Dev-server middleware                   |
-| MCP Tools               | ✅ 12 Tools + 4 Prompts                           | ✅ 12 Tools + 4 Prompts                              | ✕ Proprietary protocol                                 | ✅ 9 Tools                                                       | ◐ Lightweight add-on                                  | ✕ Internal MCP only                       |
-| Agent-agnostisch        | ✅ Jeder MCP-Client                               | ✅ Jeder MCP-Client                                  | ✕ Bundled Electron agent                               | ✅                                                               | ✅                                                    | ✕ Bundled Elixir agent                    |
-| In-app Picker           | ✅ Lit Shadow DOM                                 | ✅ Lit Shadow DOM                                    | ✅ Built-in browser selector                           | ✅ Inspector bar                                                 | ✅ Hover-to-capture                                   | ✅ Chat interface                         |
-| Picker-Modi             | ✅ Element · Region · Multi                       | ◐ Element                                            | ◐ Element                                              | ◐ Inspector-Auswahl                                              | ◐ Hover-Auswahl                                       | ◐ Chat-Auswahl                            |
-| Dispatch-/Queue-Schicht | ✅ Auto · Codex · Claude · Queue-only             | ◐ Queue + MCP Tools                                  | ✕                                                      | ◐ MCP/ACP Tooling                                                | ✕                                                     | ✕                                         |
-| Dispatch-Regeln         | ✅ Manual · Immediate · Threshold                 | ✕                                                    | ✕                                                      | ✕                                                                | ✕                                                     | ✕                                         |
-| Fortsetzung             | ✅ Manual · Confirm · Automatic                   | ✕                                                    | ✕                                                      | ✕                                                                | ✕                                                     | ✕                                         |
-| Session Settings        | ✅ Projektdefaults + Session-Overrides            | ✕                                                    | ✕                                                      | ✕                                                                | ✕                                                     | ✕                                         |
-| Lokale Queue            | ✅ `.pinflow/annotations` + Batch-/Run-Status     | ✅ `.domscribe/annotations`                          | ✕                                                      | ◐ Tooling                                                        | ✕                                                     | ✕                                         |
-| Lizenz                  | ✅ MIT                                            | ✅ MIT                                               | ◐ AGPL                                                 | ✅ MIT                                                           | ✅ MIT                                                | ◐ Apache + AGPL                           |
+<table>
+  <thead>
+    <tr>
+      <th>Feature</th>
+      <th>PinFlow</th>
+      <th><a href="https://github.com/patchorbit/domscribe">Domscribe</a></th>
+      <th><a href="https://github.com/stagewise-io/stagewise">stagewise</a></th>
+      <th><a href="https://sveltethemes.dev/mcpc-tech/dev-inspector-mcp">DevInsp.</a></th>
+      <th><a href="https://github.com/aidenybai/react-grab">React Grab</a></th>
+      <th><a href="https://frontman.sh/vs/cursor">Frontman</a></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>Stable IDs</td><td>✅ AST <code>data-ds</code></td><td>✅ AST <code>data-ds</code></td><td>✕ Runtime/CDP</td><td>◐ AST, unstabil</td><td>✕ <code>_debugSource</code></td><td>✕ Runtime APIs</td></tr>
+    <tr><td>DOM→Source</td><td>✅ JSONL</td><td>✅ JSONL</td><td>✕</td><td>✕</td><td>✕</td><td>✕</td></tr>
+    <tr><td>Code→Live UI</td><td>✅ Source→Runtime</td><td>✅ Source→Runtime</td><td>✕</td><td>✕</td><td>✕</td><td>✕</td></tr>
+    <tr><td>Runtime ctx</td><td>✅ Props · State · DOM</td><td>✅ Props · State · DOM</td><td>◐ flach</td><td>◐ DOM + JS eval</td><td>✕ HTML + Namen</td><td>◐ Props</td></tr>
+    <tr><td>Frameworks</td><td>✅ React · Vue · Next · Nuxt</td><td>✅ React · Vue · Next · Nuxt</td><td>◐ React</td><td>✅ React · Vue · Svelte · Solid</td><td>✕ React</td><td>◐ Next · Astro · Vite</td></tr>
+    <tr><td>Bundler</td><td>✅ Vite · Webpack · Turbo</td><td>✅ Vite · Webpack · Turbo</td><td>✕ N/A</td><td>✅ Vite · Webpack · Turbo</td><td>✕ N/A</td><td>◐ Middleware</td></tr>
+    <tr><td>MCP</td><td>✅ 12 Tools · 4 Prompts</td><td>✅ 12 Tools · 4 Prompts</td><td>✕ Karton</td><td>✅ 9 Tools</td><td>◐ Add-on</td><td>✕ intern</td></tr>
+    <tr><td>Agent-neutral</td><td>✅ jeder MCP-Client</td><td>✅ jeder MCP-Client</td><td>✕ bundled</td><td>✅</td><td>✅</td><td>✕ bundled</td></tr>
+    <tr><td>Picker</td><td>✅ Shadow DOM</td><td>✅ Shadow DOM</td><td>✅ Browser selector</td><td>✅ Inspector bar</td><td>✅ Hover</td><td>✅ Chat</td></tr>
+    <tr><td>Picker-Modi</td><td>✅ Element · Region · Multi</td><td>◐ Element</td><td>◐ Element</td><td>◐ Inspector</td><td>◐ Hover</td><td>◐ Chat</td></tr>
+    <tr><td>Dispatch</td><td>✅ Auto · Codex · Claude · Queue</td><td>◐ Queue + MCP</td><td>✕</td><td>◐ MCP/ACP</td><td>✕</td><td>✕</td></tr>
+    <tr><td>Regeln</td><td>✅ Manual · Immediate · Threshold</td><td>✕</td><td>✕</td><td>✕</td><td>✕</td><td>✕</td></tr>
+    <tr><td>Fortsetzung</td><td>✅ Manual · Confirm · Automatic</td><td>✕</td><td>✕</td><td>✕</td><td>✕</td><td>✕</td></tr>
+    <tr><td>Session</td><td>✅ Defaults + Overrides</td><td>✕</td><td>✕</td><td>✕</td><td>✕</td><td>✕</td></tr>
+    <tr><td>Queue</td><td>✅ Queue + Batch-Status</td><td>✅ Queue</td><td>✕</td><td>◐ Tooling</td><td>✕</td><td>✕</td></tr>
+    <tr><td>Lizenz</td><td>✅ MIT</td><td>✅ MIT</td><td>◐ AGPL</td><td>✅ MIT</td><td>✅ MIT</td><td>◐ Apache + AGPL</td></tr>
+  </tbody>
+</table>
 
 PinFlows Stärke ist die Kombination: stabile Source-Zuordnung, Live-Kontext,
 visuelles Markieren, lokale Queue und MCP-Werkzeuge in einem zusammenhängenden

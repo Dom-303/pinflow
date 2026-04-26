@@ -11,6 +11,13 @@ import {
 } from './dispatch-config.js';
 
 describe('dispatch-config', () => {
+  it('uses the current local agent as the default handoff target', () => {
+    const normalized = normalizeProjectDefaults({});
+
+    expect(DEFAULT_DISPATCH_PROJECT_DEFAULTS.channel).toBe('auto');
+    expect(normalized.channel).toBe('auto');
+  });
+
   it('normalizes invalid project defaults into safe bounds', () => {
     const normalized = normalizeProjectDefaults({
       // @ts-expect-error test invalid runtime values

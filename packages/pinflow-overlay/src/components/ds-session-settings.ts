@@ -2,6 +2,7 @@ import { LitElement, html, css } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import type {
   DispatchContinuationMode,
+  DispatchChannel,
   DispatchMode,
   DispatchProjectDefaults,
   DispatchSessionOverrides,
@@ -384,8 +385,10 @@ export class DsSessionSettings extends LitElement {
         : 'Manuell';
   }
 
-  private getChannelLabel(channel?: 'codex' | 'claude' | 'queue_only') {
-    return channel === 'queue_only'
+  private getChannelLabel(channel?: DispatchChannel) {
+    return channel === 'auto'
+      ? 'Aktueller Agent'
+      : channel === 'queue_only'
       ? 'Nur sammeln'
       : channel === 'claude'
         ? 'Claude'
@@ -519,7 +522,7 @@ export class DsSessionSettings extends LitElement {
                 <strong>${hasSessionOverrides ? 'Session-Regeln aktiv' : 'Projektstandard aktiv'}</strong>
               </span>
               <span class="summary-pill"
-                ><strong>${this.getChannelLabel(effectiveChannel)}</strong> Kanal</span
+                ><strong>${this.getChannelLabel(effectiveChannel)}</strong> Uebergabe</span
               >
               <span class="summary-pill"
                 ><strong>${this.getModeLabel(effectiveMode)}</strong> Versand</span
@@ -548,7 +551,7 @@ export class DsSessionSettings extends LitElement {
                           ><strong
                             >${this.getChannelLabel(this.sessionOverrides.channel)}</strong
                           >
-                          Kanal</span
+                          Uebergabe</span
                         >`
                       : null}
                     ${this.sessionOverrides.mode

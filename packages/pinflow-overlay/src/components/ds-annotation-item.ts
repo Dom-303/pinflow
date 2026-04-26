@@ -38,6 +38,9 @@ export class DsAnnotationItem extends LitElement {
   private confirmingDelete = false;
 
   @state()
+  private confirmingUndo = false;
+
+  @state()
   private copied = false;
 
   static override styles = [
@@ -379,6 +382,11 @@ export class DsAnnotationItem extends LitElement {
         border-color: var(--ds-warning);
       }
 
+      .action-btn.undo:hover {
+        color: var(--ds-brand-primary);
+        border-color: var(--ds-brand-primary);
+      }
+
       .action-btn.danger:hover {
         color: var(--ds-error);
         border-color: var(--ds-error);
@@ -496,6 +504,7 @@ export class DsAnnotationItem extends LitElement {
     if (!this.expanded) {
       this.editing = false;
       this.confirmingDelete = false;
+      this.confirmingUndo = false;
     }
   }
 
@@ -584,6 +593,48 @@ export class DsAnnotationItem extends LitElement {
     const relay = RelayService.getInstance();
     await relay.deleteAnnotation(this.annotation.metadata.id);
     this.confirmingDelete = false;
+  }
+
+  private canShowUndoAction(): boolean {
+    const status = this.annotation?.metadata.status;
+    return status === 'queued' || status === 'processed' || status === 'failed';
+  }
+
+  private getUndoActionLabel(): string {
+    const status = this.annotation?.metadata.status;
+    if (status === 'queued') {
+      return this.confirmingUndo ? 'Bestaetigen' : 'Zurueckholen';
+    }
+
+    return this.confirmingUndo ? 'Bestaetigen' : 'Ruecknahme';
+  }
+
+  private getUndoActionTitle(): string {
+    const status = this.annotation?.metadata.status;
+    if (this.confirmingUndo) {
+      return 'Zum Bestaetigen erneut klicken';
+    }
+    if (status === 'queued') {
+      return 'Auftrag aus der Warteliste entfernen';
+    }
+    return 'Neuen Ruecknahme-Auftrag fuer diese Aenderung erstellen';
+  }
+
+  private async handleUndoAction(e: Event) {
+    e.stopPropagation();
+    if (!this.annotation) return;
+
+    if (!this.confirmingUndo) {
+      this.confirmingUndo = true;
+      setTimeout(() => {
+        this.confirmingUndo = false;
+      }, 3000);
+      return;
+    }
+
+    const store = OverlayStore.getInstance();
+    await store.undoAnnotation(this.annotation);
+    this.confirmingUndo = false;
   }
 
   private renderCopyButton() {
@@ -718,6 +769,34 @@ export class DsAnnotationItem extends LitElement {
         </button>
 
         <span class="action-spacer"></span>
+
+        ${this.canShowUndoAction()
+          ? html`
+              <button
+                class="action-btn undo"
+                @click=${this.handleUndoAction}
+                title=${this.getUndoActionTitle()}
+              >
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M9 7H4v5"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M5 11a7 7 0 1 0 2.05-4.95L4 9"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                ${this.getUndoActionLabel()}
+              </button>
+            `
+          : nothing}
 
         <!-- Archive (hide if already archived) -->
         ${!isArchived

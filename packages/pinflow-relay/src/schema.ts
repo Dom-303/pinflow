@@ -18,6 +18,7 @@ import {
   ManifestEntrySchema,
   RuntimeContextSchema,
   SelectedElementSchema,
+  RegionSelectionSchema,
   SourcePositionSchema,
   AnnotationStatusSchema,
   AnnotationSummarySchema,
@@ -106,7 +107,15 @@ export const AnnotationProcessResponseSchema = z
     found: z.boolean().describe('Whether an annotation was found and claimed'),
     annotationId: AnnotationIdSchema.optional().describe('The annotation ID'),
     userIntent: z.string().optional().describe('The user intent'),
+    selectionMode: InteractionModeSchema.optional().describe(
+      'The picker mode used for the annotation',
+    ),
     element: SelectedElementSchema.optional().describe('The selected element'),
+    elements: z
+      .array(SelectedElementSchema)
+      .optional()
+      .describe('Multiple selected elements'),
+    region: RegionSelectionSchema.optional().describe('Selected viewport region'),
     sourceLocation: z
       .object({
         file: ManifestEntrySchema.shape.file,

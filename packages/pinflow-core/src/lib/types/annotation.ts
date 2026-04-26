@@ -25,21 +25,29 @@ export const AnnotationStatusSchema = z.enum([
 
 export enum InteractionModeEnum {
   ELEMENT_CLICK = 'element-click',
+  REGION_SELECT = 'region-select',
+  MULTI_ELEMENT = 'multi-element',
   TEXT_SELECTION = 'text-selection',
 }
 
 export const InteractionModeSchema = z.enum([
   InteractionModeEnum.ELEMENT_CLICK,
+  InteractionModeEnum.REGION_SELECT,
+  InteractionModeEnum.MULTI_ELEMENT,
   InteractionModeEnum.TEXT_SELECTION,
 ]);
 
 export enum InteractionTypeEnum {
   ELEMENT_ANNOTATION = 'element-annotation',
+  REGION_ANNOTATION = 'region-annotation',
+  MULTI_ELEMENT_ANNOTATION = 'multi-element-annotation',
   TEXT_SELECTION = 'text-selection',
 }
 
 export const InteractionTypeSchema = z.enum([
   InteractionTypeEnum.ELEMENT_ANNOTATION,
+  InteractionTypeEnum.REGION_ANNOTATION,
+  InteractionTypeEnum.MULTI_ELEMENT_ANNOTATION,
   InteractionTypeEnum.TEXT_SELECTION,
 ]);
 
@@ -116,6 +124,20 @@ export const BoundingRectSchema = z.object({
   left: z.number().describe('X coordinate of the left edge'),
 });
 
+export const RegionSelectionSchema = z.object({
+  boundingRect: BoundingRectSchema.describe('Selected viewport region'),
+  devicePixelRatio: z
+    .number()
+    .optional()
+    .describe('Device pixel ratio at capture time'),
+  elementCount: z
+    .number()
+    .int()
+    .nonnegative()
+    .optional()
+    .describe('Number of matching elements inside the region'),
+});
+
 export const AnnotationInteractionSchema = z.object({
   type: InteractionTypeSchema.describe('Type of interaction'),
   selectedText: z
@@ -124,6 +146,13 @@ export const AnnotationInteractionSchema = z.object({
     .describe('Selected text content if applicable'),
   selectedElement: SelectedElementSchema.optional().describe(
     'Selected element details if applicable',
+  ),
+  selectedElements: z
+    .array(SelectedElementSchema)
+    .optional()
+    .describe('Multiple selected elements if applicable'),
+  region: RegionSelectionSchema.optional().describe(
+    'Selected viewport region if applicable',
   ),
   boundingRect: BoundingRectSchema.optional().describe(
     'Bounding rectangle of the selection',
@@ -192,6 +221,7 @@ export type InteractionMode = z.infer<typeof InteractionModeSchema>;
 export type InteractionType = z.infer<typeof InteractionTypeSchema>;
 export type SelectedElement = z.infer<typeof SelectedElementSchema>;
 export type BoundingRect = z.infer<typeof BoundingRectSchema>;
+export type RegionSelection = z.infer<typeof RegionSelectionSchema>;
 
 export type Viewport = z.infer<typeof ViewportSchema>;
 export type Environment = z.infer<typeof EnvironmentSchema>;

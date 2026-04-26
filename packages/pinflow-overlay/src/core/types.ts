@@ -6,6 +6,7 @@ import type {
   RuntimeContext,
   ManifestEntry,
   Annotation,
+  BoundingRect,
 } from '@pinflow/core';
 import type {
   DispatchProjectDefaults,
@@ -16,12 +17,19 @@ import type {
 /**
  * Overlay display mode
  */
-export type OverlayMode = 'collapsed' | 'expanded' | 'capturing';
+export type OverlayMode = 'collapsed' | 'expanded' | 'mini' | 'capturing';
 
 /**
  * Product theme mode
  */
 export type OverlayTheme = 'light' | 'dark';
+
+export type PickerMode = 'element' | 'region' | 'multi';
+
+export interface RegionCapture {
+  rect: BoundingRect;
+  elements: HTMLElement[];
+}
 
 export type DispatchBatchStatus =
   | 'queued'
@@ -42,6 +50,38 @@ export interface DispatchBatch {
   failedCount: number;
 }
 
+export type UndoActionKind =
+  | 'selection'
+  | 'queued-annotation'
+  | 'reversal-request';
+
+export interface UndoSelectionSnapshot {
+  selectedElement: HTMLElement | null;
+  selectedElements: HTMLElement[];
+  selectedRegion: RegionCapture | null;
+  selectedEntryId: string | null;
+  runtimeContext: RuntimeContext | null;
+  manifestEntry: ManifestEntry | null;
+  manifestEntries: ManifestEntry[];
+}
+
+export interface UndoAction {
+  id: string;
+  kind: UndoActionKind;
+  label: string;
+  description: string;
+  timestamp: string;
+  selectionBefore?: UndoSelectionSnapshot;
+  annotation?: Annotation;
+  annotationId?: string;
+}
+
+export interface UndoResult {
+  ok: boolean;
+  kind: UndoActionKind;
+  message: string;
+}
+
 /**
  * Overlay state managed by OverlayStore
  */
@@ -55,6 +95,7 @@ export interface OverlayState {
   dispatchProjectDefaults: DispatchProjectDefaults;
   dispatchSession: DispatchSessionState;
   dispatchBatches: DispatchBatch[];
+  undoStack: UndoAction[];
 
   // Connection State
   relayConnected: boolean;
@@ -62,11 +103,15 @@ export interface OverlayState {
   relayHost: string | null;
 
   // Capture State
+  pickerMode: PickerMode;
   selectedElement: HTMLElement | null;
+  selectedElements: HTMLElement[];
+  selectedRegion: RegionCapture | null;
   selectedEntryId: string | null;
   hoveredElement: HTMLElement | null;
   runtimeContext: RuntimeContext | null;
   manifestEntry: ManifestEntry | null;
+  manifestEntries: ManifestEntry[];
 
   // Annotation State
   annotations: Annotation[];

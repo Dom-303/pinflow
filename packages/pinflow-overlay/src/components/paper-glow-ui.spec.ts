@@ -13,6 +13,9 @@ const mockStore = {
   setHoveredElement: vi.fn(),
   exitCaptureMode: vi.fn(),
   selectElement: vi.fn().mockResolvedValue(undefined),
+  selectRegion: vi.fn().mockResolvedValue(undefined),
+  selectMultipleElements: vi.fn().mockResolvedValue(undefined),
+  setPickerMode: vi.fn(),
   setDispatchSessionOverrides: vi.fn(),
   updateDispatchProjectDefaults: vi.fn(),
   clearDispatchSessionOverrides: vi.fn(),
@@ -20,10 +23,17 @@ const mockStore = {
   releaseNextDispatchBatch: vi.fn(),
   enterCaptureMode: vi.fn(),
   submitAnnotation: vi.fn().mockResolvedValue(undefined),
+  undoLastAction: vi.fn().mockResolvedValue({ ok: true }),
 };
 
 const mockState = {
   selectedElement: null as null | { tagName: string },
+  selectedElements: [] as Array<{ tagName: string }>,
+  selectedRegion: null as null | {
+    rect: { width: number; height: number };
+    elements: Array<{ tagName: string }>;
+  },
+  pickerMode: 'element' as 'element' | 'region' | 'multi',
   annotations: [] as Array<{ id: string; metadata?: { status?: string } }>,
   dispatchBatches: [] as Array<{
     id: string;
@@ -35,6 +45,13 @@ const mockState = {
     processingCount: number;
     completedCount: number;
     failedCount: number;
+  }>,
+  undoStack: [] as Array<{
+    id: string;
+    kind: string;
+    label: string;
+    description: string;
+    timestamp: string;
   }>,
   relayConnected: false,
   mode: 'expanded',
@@ -52,7 +69,7 @@ const mockState = {
         start: { line: number | null; column: number | null };
       },
   dispatchProjectDefaults: {
-    channel: 'codex' as const,
+    channel: 'auto' as const,
     mode: 'manual' as const,
     threshold: 3,
     concurrency: 3,
@@ -127,15 +144,19 @@ describe('Paper Glow UI contract', () => {
   beforeEach(() => {
     document.body.innerHTML = '';
     mockState.selectedElement = null;
+    mockState.selectedElements = [];
+    mockState.selectedRegion = null;
+    mockState.pickerMode = 'element';
     mockState.annotations = [];
     mockState.dispatchBatches = [];
+    mockState.undoStack = [];
     mockState.relayConnected = false;
     mockState.mode = 'expanded';
     mockState.theme = 'light';
     mockState.runtimeContext = null;
     mockState.manifestEntry = null;
     mockState.dispatchProjectDefaults = {
-      channel: 'codex',
+      channel: 'auto',
       mode: 'manual',
       threshold: 3,
       concurrency: 3,
@@ -152,6 +173,8 @@ describe('Paper Glow UI contract', () => {
   });
 
   it('renders PinFlow branding in the header', async () => {
+    mockState.relayConnected = true;
+
     const host = document.createElement('div');
     document.body.appendChild(host);
     render(html`<ds-header></ds-header>`, host);
@@ -172,6 +195,9 @@ describe('Paper Glow UI contract', () => {
     const themeButton = header.shadowRoot.querySelector(
       'button[aria-label="Darstellung wechseln"]',
     ) as HTMLButtonElement | null;
+    const minimizeButton = header.shadowRoot.querySelector(
+      'button[aria-label="Arbeitsbereich minimieren"]',
+    ) as HTMLButtonElement | null;
     const closeButton = header.shadowRoot.querySelector(
       'button[aria-label="Seitenleiste schliessen"]',
     );
@@ -184,15 +210,91 @@ describe('Paper Glow UI contract', () => {
     expect(brandIcon).not.toBeNull();
     expect(brandIcon?.getAttribute('src')).toContain('pinflow-icon-light');
     expect(header.shadowRoot.textContent).not.toContain('Arbeitsbereich');
-    expect(header.shadowRoot.textContent).toContain('Session aktiv');
+    expect(header.shadowRoot.textContent).toContain('aktiv');
+    expect(header.shadowRoot.textContent).not.toContain('Session aktiv');
     expect(header.shadowRoot.textContent).not.toContain('Auswahl, Kommentare');
+    expect(
+      header.shadowRoot.querySelector('.brand-status.active'),
+    ).not.toBeNull();
     expect(header.scrolled).toBe(false);
     expect(settingsButton).not.toBeNull();
+    expect(minimizeButton).not.toBeNull();
     expect(themeButton).not.toBeNull();
     expect(closeButton).not.toBeNull();
     expect(closeButton?.querySelector('svg path')).not.toBeNull();
+    let minimizeEventCount = 0;
+    header.addEventListener('minimize-sidebar', () => {
+      minimizeEventCount += 1;
+    });
+    minimizeButton?.click();
+    expect(minimizeEventCount).toBe(1);
     themeButton?.click();
     expect(mockStore.toggleTheme).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps composer controls icon-only and confirms undo before running it', async () => {
+    mockState.relayConnected = true;
+    mockState.selectedElement = { tagName: 'button' };
+    mockState.undoStack = [
+      {
+        id: 'undo-1',
+        kind: 'selection',
+        label: 'Auswahl rueckgaengig',
+        description: 'Setzt die letzte Auswahl zurueck.',
+        timestamp: new Date('2026-04-25T10:00:00.000Z').toISOString(),
+      },
+    ];
+
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    render(html`<ds-annotation-input></ds-annotation-input>`, host);
+
+    const input = host.querySelector('ds-annotation-input') as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await input.updateComplete;
+
+    const controlButtons = Array.from(
+      input.shadowRoot.querySelectorAll<HTMLButtonElement>(
+        '.action-group:first-child > button, .action-group:first-child .menu-wrap > button, .action-group:first-child .picker-menu-wrap > button, .action-group:first-child .undo-wrap > button',
+      ),
+    );
+
+    expect(controlButtons).toHaveLength(4);
+    for (const button of controlButtons) {
+      expect(button.textContent?.trim()).toBe('');
+    }
+
+    const undoButton = input.shadowRoot.querySelector(
+      'button[aria-label="Letzte Aktion rueckgaengig machen"]',
+    ) as HTMLButtonElement;
+    const pickerModeIcon = input.shadowRoot.querySelector(
+      '.mode-switch-icon',
+    ) as SVGElement | null;
+    const firstActionIcon = input.shadowRoot.querySelector(
+      '.action-btn svg',
+    ) as SVGElement | null;
+
+    expect(undoButton.disabled).toBe(false);
+    expect(pickerModeIcon).not.toBeNull();
+    expect(pickerModeIcon?.getAttribute('data-mode')).toBe('element');
+    expect(getComputedStyle(firstActionIcon as Element).width).toBe('18px');
+
+    undoButton.click();
+    await input.updateComplete;
+
+    expect(input.shadowRoot.textContent).toContain('Wirklich rueckgaengig machen?');
+    expect(mockStore.undoLastAction).not.toHaveBeenCalled();
+
+    const confirmButton = input.shadowRoot.querySelector(
+      'button[data-testid="confirm-undo"]',
+    ) as HTMLButtonElement;
+    confirmButton.click();
+    await input.updateComplete;
+
+    expect(mockStore.undoLastAction).toHaveBeenCalledTimes(1);
   });
 
   it('renders German-first annotation input copy', async () => {
@@ -211,10 +313,10 @@ describe('Paper Glow UI contract', () => {
 
     const textarea = input.shadowRoot.querySelector('textarea');
     const captureButton = input.shadowRoot.querySelector(
-      'button[aria-label="Element markieren"]',
+      'button[aria-label="Auswahl markieren"]',
     ) as HTMLButtonElement;
     const agentButton = input.shadowRoot.querySelector(
-      'button[aria-label="Agent waehlen"]',
+      'button[aria-label="Weitergabe waehlen"]',
     ) as HTMLButtonElement;
     const submitButton = input.shadowRoot.querySelector(
       'button[aria-label="Anmerkung senden"]',
@@ -231,7 +333,8 @@ describe('Paper Glow UI contract', () => {
       'Element waehlen und Aenderung schreiben.',
     );
     expect(agentButton).not.toBeNull();
-    expect(agentButton.textContent?.replace(/\s+/g, ' ').trim()).toContain('Codex');
+    expect(agentButton.textContent?.replace(/\s+/g, ' ').trim()).toBe('');
+    expect(agentButton.getAttribute('title')).toContain('Aktueller Agent');
     expect(
       input.shadowRoot.querySelector('button[aria-label="Einstellungen oeffnen"]'),
     ).toBeNull();
@@ -239,15 +342,36 @@ describe('Paper Glow UI contract', () => {
     agentButton.click();
     await input.updateComplete;
     const menuPanel = input.shadowRoot.querySelector('.menu-panel') as HTMLElement;
+    const fallbackGroup = input.shadowRoot.querySelector(
+      '.fallback-group',
+    ) as HTMLDetailsElement;
     const menuText = input.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
     expect(menuPanel).not.toBeNull();
     expect(getComputedStyle(menuPanel).zIndex).toBe('20');
+    expect(fallbackGroup).not.toBeNull();
+    expect(fallbackGroup.hasAttribute('open')).toBe(false);
     expect(menuText).toContain('Weitergabe');
+    expect(menuText).toContain('Aktueller Agent');
     expect(menuText).toContain('Codex');
     expect(menuText).toContain('Claude');
     expect(menuText).toContain('Nur sammeln');
     captureButton.click();
     expect(mockStore.enterCaptureMode).toHaveBeenCalledTimes(1);
+    expect(mockStore.enterCaptureMode).toHaveBeenCalledWith('element');
+
+    const pickerModeButton = input.shadowRoot.querySelector(
+      'button[aria-label="Picker-Modus waehlen"]',
+    ) as HTMLButtonElement;
+    expect(pickerModeButton).not.toBeNull();
+    pickerModeButton.click();
+    await input.updateComplete;
+
+    const pickerMenuText =
+      input.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+    expect(pickerMenuText).toContain('Picker-Modus');
+    expect(pickerMenuText).toContain('Element');
+    expect(pickerMenuText).toContain('Bereich');
+    expect(pickerMenuText).toContain('Mehrfach');
   });
 
   it('renders guided composer states for offline, selection and ready-to-send moments', async () => {
@@ -425,6 +549,247 @@ describe('Paper Glow UI contract', () => {
 
     expect(mockStore.setHoveredElement).toHaveBeenCalledWith(target);
     expect(picker.shadowRoot.querySelector('ds-highlight-box')).not.toBeNull();
+  });
+
+  it('captures a dragged region with intersecting elements', async () => {
+    mockState.pickerMode = 'region';
+    const host = document.createElement('div');
+    const target = document.createElement('section');
+    target.setAttribute('data-ds', 'entry-region');
+    document.body.append(target, host);
+
+    Object.defineProperty(target, 'getBoundingClientRect', {
+      value: () =>
+        ({
+          x: 30,
+          y: 30,
+          top: 30,
+          left: 30,
+          right: 150,
+          bottom: 90,
+          width: 120,
+          height: 60,
+        }) as DOMRect,
+    });
+
+    render(html`<ds-picker-overlay></ds-picker-overlay>`, host);
+
+    const picker = host.querySelector('ds-picker-overlay') as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+    await picker.updateComplete;
+    expect(picker.shadowRoot.querySelector('.overlay.region')).not.toBeNull();
+
+    window.dispatchEvent(
+      new PointerEvent('pointerdown', {
+        bubbles: true,
+        clientX: 20,
+        clientY: 20,
+      }),
+    );
+    window.dispatchEvent(
+      new PointerEvent('pointermove', {
+        bubbles: true,
+        clientX: 180,
+        clientY: 120,
+      }),
+    );
+    await picker.updateComplete;
+    expect(picker.shadowRoot.querySelector('.region-box')).not.toBeNull();
+
+    window.dispatchEvent(
+      new PointerEvent('pointerup', {
+        bubbles: true,
+        clientX: 180,
+        clientY: 120,
+      }),
+    );
+
+    expect(mockStore.selectRegion).not.toHaveBeenCalled();
+    expect(picker.shadowRoot.textContent?.replace(/\s+/g, ' ')).toContain(
+      '160 x 100 px',
+    );
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+
+    expect(mockStore.selectRegion).toHaveBeenCalledWith(
+      expect.objectContaining({
+        left: 20,
+        top: 20,
+        width: 160,
+        height: 100,
+      }),
+      expect.arrayContaining([target]),
+    );
+  });
+
+  it('moves an existing picker region instead of starting a new one', async () => {
+    mockState.pickerMode = 'region';
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+
+    render(html`<ds-picker-overlay></ds-picker-overlay>`, host);
+
+    const picker = host.querySelector('ds-picker-overlay') as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+    await picker.updateComplete;
+
+    window.dispatchEvent(
+      new PointerEvent('pointerdown', {
+        bubbles: true,
+        clientX: 20,
+        clientY: 20,
+      }),
+    );
+    window.dispatchEvent(
+      new PointerEvent('pointerup', {
+        bubbles: true,
+        clientX: 180,
+        clientY: 120,
+      }),
+    );
+    await picker.updateComplete;
+
+    const regionBox = picker.shadowRoot.querySelector('.region-box') as HTMLElement;
+    regionBox.dispatchEvent(
+      new PointerEvent('pointerdown', {
+        bubbles: true,
+        composed: true,
+        clientX: 80,
+        clientY: 70,
+      }),
+    );
+    window.dispatchEvent(
+      new PointerEvent('pointermove', {
+        bubbles: true,
+        clientX: 110,
+        clientY: 90,
+      }),
+    );
+    window.dispatchEvent(
+      new PointerEvent('pointerup', {
+        bubbles: true,
+        clientX: 110,
+        clientY: 90,
+      }),
+    );
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+
+    expect(mockStore.selectRegion).toHaveBeenCalledWith(
+      expect.objectContaining({
+        left: 50,
+        top: 40,
+        width: 160,
+        height: 100,
+      }),
+      expect.any(Array),
+    );
+  });
+
+  it('collects multiple picker elements and confirms with Enter', async () => {
+    mockState.pickerMode = 'multi';
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+
+    const first = document.createElement('button');
+    const second = document.createElement('a');
+    let pointTarget: HTMLElement = first;
+
+    Object.defineProperty(first, 'getBoundingClientRect', {
+      value: () =>
+        ({
+          x: 20,
+          y: 20,
+          top: 20,
+          left: 20,
+          right: 90,
+          bottom: 50,
+          width: 70,
+          height: 30,
+        }) as DOMRect,
+    });
+    Object.defineProperty(second, 'getBoundingClientRect', {
+      value: () =>
+        ({
+          x: 100,
+          y: 20,
+          top: 20,
+          left: 100,
+          right: 170,
+          bottom: 50,
+          width: 70,
+          height: 30,
+        }) as DOMRect,
+    });
+    Object.defineProperty(document, 'elementFromPoint', {
+      configurable: true,
+      value: vi.fn(() => pointTarget),
+    });
+
+    render(html`<ds-picker-overlay></ds-picker-overlay>`, host);
+    const picker = host.querySelector('ds-picker-overlay') as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+    await picker.updateComplete;
+
+    window.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: 30, clientY: 30 }));
+    pointTarget = second;
+    window.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: 110, clientY: 30 }));
+    await picker.updateComplete;
+
+    expect(picker.shadowRoot.textContent?.replace(/\s+/g, ' ')).toContain(
+      '2 gewaehlt',
+    );
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+    expect(mockStore.selectMultipleElements).toHaveBeenCalledWith([first, second]);
+  });
+
+  it('confirms multi picker selections from the overlay action button', async () => {
+    mockState.pickerMode = 'multi';
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+
+    const target = document.createElement('button');
+    Object.defineProperty(target, 'getBoundingClientRect', {
+      value: () =>
+        ({
+          x: 20,
+          y: 20,
+          top: 20,
+          left: 20,
+          right: 90,
+          bottom: 50,
+          width: 70,
+          height: 30,
+        }) as DOMRect,
+    });
+    Object.defineProperty(document, 'elementFromPoint', {
+      configurable: true,
+      value: vi.fn(() => target),
+    });
+
+    render(html`<ds-picker-overlay></ds-picker-overlay>`, host);
+    const picker = host.querySelector('ds-picker-overlay') as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+    await picker.updateComplete;
+
+    window.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: 30, clientY: 30 }));
+    await picker.updateComplete;
+
+    const confirmButton = Array.from(
+      picker.shadowRoot.querySelectorAll<HTMLButtonElement>('.picker-action'),
+    ).find((button) => button.textContent?.includes('Uebernehmen'));
+    confirmButton?.click();
+
+    expect(mockStore.selectMultipleElements).toHaveBeenCalledWith([target]);
   });
 
   it('renders composer feedback after submit success and failure', async () => {
@@ -652,6 +1017,51 @@ describe('Paper Glow UI contract', () => {
     expect(settingsOverlay.shadowRoot.querySelector('.sheet')).not.toBeNull();
   });
 
+  it('renders the mini composer mode with only essential controls', async () => {
+    mockState.mode = 'mini';
+    mockState.relayConnected = true;
+
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    render(html`<ds-sidebar></ds-sidebar>`, host);
+
+    const sidebar = host.querySelector('ds-sidebar') as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await sidebar.updateComplete;
+
+    const miniText = sidebar.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+    const expandButton = sidebar.shadowRoot.querySelector(
+      'button[aria-label="Arbeitsbereich oeffnen"]',
+    ) as HTMLButtonElement | null;
+    const closeButton = sidebar.shadowRoot.querySelector(
+      'button[aria-label="Seitenleiste schliessen"]',
+    ) as HTMLButtonElement | null;
+    const miniLogo = sidebar.shadowRoot.querySelector(
+      '.mini-logo',
+    ) as HTMLImageElement | null;
+
+    expect(sidebar.hasAttribute('mini')).toBe(true);
+    expect(sidebar.shadowRoot.querySelector('.mini-content')).not.toBeNull();
+    expect(miniLogo).not.toBeNull();
+    expect(miniLogo?.getAttribute('src')).toContain('pinflow-icon-light');
+    expect(sidebar.shadowRoot.querySelector('ds-annotation-input')).not.toBeNull();
+    expect(sidebar.shadowRoot.querySelector('ds-header')).toBeNull();
+    expect(sidebar.shadowRoot.querySelector('.main-content')).toBeNull();
+    expect(miniText).toContain('PinFlow');
+    expect(miniText).toContain('aktiv');
+    expect(miniText).not.toContain('Composer');
+    expect(sidebar.shadowRoot.querySelector('.mini-status.active')).not.toBeNull();
+
+    expandButton?.click();
+    expect(mockStore.setMode).toHaveBeenCalledWith('expanded');
+
+    closeButton?.click();
+    expect(mockStore.setMode).toHaveBeenCalledWith('collapsed');
+  });
+
   it('opens workspace settings as a dedicated full-surface overlay', async () => {
     const host = document.createElement('div');
     document.body.appendChild(host);
@@ -676,11 +1086,23 @@ describe('Paper Glow UI contract', () => {
     expect(settingsOverlay.shadowRoot.querySelector('.settings-nav')).not.toBeNull();
     expect(settingsOverlay.shadowRoot.querySelector('.sheet-body.scrollable')).not.toBeNull();
     expect(settingsOverlay.shadowRoot.querySelector('.backdrop')).not.toBeNull();
+    expect(overlayText).toContain('Elementwahl');
+    expect(overlayText).toContain('Element');
+    expect(overlayText).toContain('Bereich');
+    expect(overlayText).toContain('Mehrfach');
     expect(
       Array.from(settingsOverlay.shadowRoot.querySelectorAll('.settings-card')).every(
         (card) => !(card as HTMLDetailsElement).open,
       ),
     ).toBe(true);
+    const pickerModeButtons = Array.from(
+      settingsOverlay.shadowRoot.querySelectorAll(
+        '.picker-mode-control .segment-option',
+      ),
+    ) as HTMLButtonElement[];
+    expect(pickerModeButtons).toHaveLength(3);
+    pickerModeButtons[1].click();
+    expect(mockStore.setPickerMode).toHaveBeenCalledWith('region');
 
     const embeddedSettings = settingsOverlay.shadowRoot.querySelector(
       'ds-session-settings',
@@ -1025,12 +1447,12 @@ describe('Paper Glow UI contract', () => {
 
     expect(workflowText).toContain('Sammelt Aufgaben ohne Versand');
     expect(workflowText).toContain(
-      'Neue Aufgaben bleiben gesammelt, bis du einen aktiven Kanal waehlst.',
+      'Neue Aufgaben bleiben gesammelt, bis du sie bewusst weitergibst.',
     );
     expect(workflowText).toContain('Queue pausiert');
     expect(workflowText).toContain('Sammelt weiter');
     expect(workflowText).toContain(
-      'Wechsle auf Codex oder Claude, sobald die ersten Aufgaben rausgehen sollen.',
+      'Wechsle auf den aktuellen Agent, sobald die ersten Aufgaben rausgehen sollen.',
     );
     expect(releaseButton.disabled).toBe(true);
   });

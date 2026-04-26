@@ -82,6 +82,7 @@ export class AnnotationProcessRoute implements RelayRoute {
         found: true,
         annotationId: annotation.metadata.id,
         userIntent: annotation.context.userMessage,
+        selectionMode: annotation.metadata.mode,
         element: selectedElement
           ? {
               tagName: selectedElement.tagName,
@@ -91,6 +92,8 @@ export class AnnotationProcessRoute implements RelayRoute {
               innerText: selectedElement.innerText,
             }
           : undefined,
+        elements: annotation.interaction.selectedElements,
+        region: annotation.interaction.region,
         sourceLocation: manifestEntry
           ? {
               file: manifestEntry.file,

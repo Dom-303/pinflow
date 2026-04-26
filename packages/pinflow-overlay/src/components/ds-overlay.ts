@@ -50,6 +50,10 @@ export class DsOverlay extends LitElement {
         width: var(--ds-sidebar-width);
       }
 
+      :host([mode='mini']) {
+        width: var(--ds-sidebar-width);
+      }
+
       :host([mode='capturing']) {
         /* Full-screen capture - no sidebar footprint */
         width: 0;
@@ -80,7 +84,7 @@ export class DsOverlay extends LitElement {
 
     // Explicit conditional rendering - each mode has one primary component
     const showTab = mode === 'collapsed';
-    const showSidebar = mode === 'expanded';
+    const showSidebar = mode === 'expanded' || mode === 'mini';
     const showPicker = mode === 'capturing';
 
     return html`

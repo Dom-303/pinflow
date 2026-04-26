@@ -11,6 +11,7 @@ import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { StoreController } from '../core/store-controller.js';
 import { themeStyles, utilityStyles } from '../styles/theme.js';
+import { getThemeIconAsset } from './logo/index.js';
 
 // Import child components
 import './ds-header.js';
@@ -54,6 +55,7 @@ export class DsSidebar extends LitElement {
     super.connectedCallback();
     this.composerHeight = this.loadComposerHeight();
     this.syncComposerHeight();
+    this.syncHostAttributes();
   }
 
   override disconnectedCallback() {
@@ -73,6 +75,7 @@ export class DsSidebar extends LitElement {
   }
 
   override updated(changedProperties: Map<string, unknown>) {
+    this.syncHostAttributes();
     if (changedProperties.has('composerHeight')) {
       this.syncComposerHeight();
     }
@@ -99,12 +102,134 @@ export class DsSidebar extends LitElement {
         overflow: hidden;
       }
 
+      :host([mini]) {
+        top: auto;
+        height: min(310px, calc(100vh - 24px));
+      }
+
       .sidebar-content {
         display: flex;
         flex-direction: column;
         flex: 1;
         overflow: hidden;
         position: relative;
+      }
+
+      .mini-content {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+        padding: 10px;
+        gap: 9px;
+        background: var(--ds-bg-primary);
+      }
+
+      :host([theme='dark']) .mini-content {
+        background: #030302;
+      }
+
+      .mini-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        min-height: 30px;
+        padding: 0 2px;
+      }
+
+      .mini-brand {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+      }
+
+      .mini-logo {
+        display: block;
+        width: 22px;
+        height: 22px;
+        object-fit: contain;
+        border-radius: 7px;
+        flex: 0 0 auto;
+      }
+
+      .mini-title {
+        color: var(--ds-text-primary);
+        font-size: 13px;
+        font-weight: var(--ds-font-weight-semibold);
+      }
+
+      .mini-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 3px 7px;
+        border: 1px solid var(--ds-pill-border);
+        border-radius: var(--ds-radius-full);
+        background: var(--ds-note-surface);
+        color: var(--ds-text-secondary);
+        font-size: 10px;
+        font-weight: var(--ds-font-weight-medium);
+        white-space: nowrap;
+      }
+
+      .mini-status::before {
+        content: '';
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--ds-text-tertiary);
+      }
+
+      .mini-status.active {
+        color: var(--ds-text-primary);
+        border-color: color-mix(in srgb, var(--ds-brand-primary) 32%, var(--ds-pill-border));
+        background: color-mix(in srgb, var(--ds-brand-primary) 10%, var(--ds-note-surface));
+      }
+
+      .mini-status.active::before {
+        background: var(--ds-brand-primary);
+        box-shadow: 0 0 0 4px color-mix(in srgb, var(--ds-brand-primary) 18%, transparent);
+      }
+
+      .mini-actions {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .mini-btn {
+        display: grid;
+        place-items: center;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        border: 1px solid var(--ds-shell-border-soft);
+        border-radius: 9px;
+        background: var(--ds-shell-surface-quiet);
+        color: var(--ds-text-secondary);
+        cursor: pointer;
+        transition:
+          background var(--ds-transition-fast),
+          color var(--ds-transition-fast),
+          transform var(--ds-transition-fast);
+      }
+
+      .mini-btn:hover {
+        background: var(--ds-highlight);
+        color: var(--ds-text-primary);
+        transform: translateY(-1px);
+      }
+
+      .mini-btn svg {
+        width: 15px;
+        height: 15px;
+      }
+
+      .mini-composer {
+        flex: 1;
+        min-height: 0;
       }
 
       /* Scrollable annotations area */
@@ -418,6 +543,19 @@ export class DsSidebar extends LitElement {
     this.settingsOpen = true;
   }
 
+  private handleMinimizeSidebar() {
+    this.settingsOpen = false;
+    this.storeController.store.setMode('mini');
+  }
+
+  private handleExpandSidebar() {
+    this.storeController.store.setMode('expanded');
+  }
+
+  private handleCloseSidebar() {
+    this.storeController.store.setMode('collapsed');
+  }
+
   private handleCloseSettings() {
     this.settingsOpen = false;
   }
@@ -462,6 +600,12 @@ export class DsSidebar extends LitElement {
 
   private syncComposerHeight() {
     this.style.setProperty('--composer-height', `${this.composerHeight}px`);
+  }
+
+  private syncHostAttributes() {
+    const { mode, theme } = this.storeController.state;
+    this.toggleAttribute('mini', mode === 'mini');
+    this.setAttribute('theme', theme);
   }
 
   private handleComposerResizeStart = (event: PointerEvent) => {
@@ -569,13 +713,33 @@ export class DsSidebar extends LitElement {
   }
 
   override render() {
-    const { selectedElement } =
+    const {
+      relayConnected,
+      selectedElement,
+      selectedElements,
+      selectedRegion,
+      mode,
+      theme,
+    } =
       this.storeController.state;
+    const statusLabel = relayConnected ? 'aktiv' : 'nicht aktiv';
     const selectedLabel = selectedElement
       ? String((selectedElement as { tagName?: string }).tagName ?? 'element').toLowerCase()
       : 'Kein Element';
-    const selectedTitle = selectedElement ? `<${selectedLabel}>` : 'Noch kein Element';
-    const selectedSubtitle = selectedElement
+    const hasSelection =
+      !!selectedElement || selectedElements.length > 0 || !!selectedRegion;
+    const selectedTitle = selectedRegion
+      ? `Bereich mit ${selectedRegion.elements.length} Treffern`
+      : selectedElements.length > 1
+        ? `${selectedElements.length} Elemente`
+        : selectedElement
+          ? `<${selectedLabel}>`
+          : 'Noch keine Auswahl';
+    const selectedSubtitle = selectedRegion
+      ? 'Viewport-Bereich und betroffene Elemente sind markiert.'
+      : selectedElements.length > 1
+        ? 'Mehrere Elemente sind fuer einen gemeinsamen Auftrag markiert.'
+        : selectedElement
       ? 'Quelle und Kontext sind verbunden.'
       : 'Element im Canvas markieren.';
 
@@ -593,17 +757,84 @@ export class DsSidebar extends LitElement {
       `;
     }
 
+    if (mode === 'mini') {
+      return html`
+        <div class="mini-content">
+          <div class="mini-header">
+            <div class="mini-brand">
+              <img
+                class="mini-logo"
+                src=${getThemeIconAsset(theme)}
+                alt=""
+                width="22"
+                height="22"
+                aria-hidden="true"
+              />
+              <span class="mini-title">PinFlow</span>
+              <span
+                class="mini-status ${relayConnected ? 'active' : 'inactive'}"
+                title=${relayConnected
+                  ? 'PinFlow ist mit dem lokalen Relay verbunden'
+                  : 'PinFlow wartet auf die lokale Relay-Verbindung'}
+                aria-label=${`PinFlow ${statusLabel}`}
+              >
+                ${statusLabel}
+              </span>
+            </div>
+            <div class="mini-actions">
+              <button
+                class="mini-btn"
+                @click=${this.handleExpandSidebar}
+                title="Arbeitsbereich oeffnen"
+                aria-label="Arbeitsbereich oeffnen"
+              >
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path
+                    d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </button>
+              <button
+                class="mini-btn"
+                @click=${this.handleCloseSidebar}
+                title="Schliessen"
+                aria-label="Seitenleiste schliessen"
+              >
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path
+                    d="M18 6 6 18M6 6l12 12"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="mini-composer">
+            <ds-annotation-input></ds-annotation-input>
+          </div>
+        </div>
+      `;
+    }
+
     return html`
       <div class="sidebar-content">
         <ds-header
           ?scrolled=${this.isScrolled}
           @open-settings=${this.handleOpenSettings}
+          @minimize-sidebar=${this.handleMinimizeSidebar}
         ></ds-header>
 
         <!-- Scrollable annotations area -->
         <div class="main-content" @scroll=${this.handleScroll}>
           <div class="workspace-top">
-            <details class="context-drawer">
+            <details class="context-drawer" ?open=${hasSelection}>
               <summary class="context-summary">
                 <span class="summary-label">Auswahl</span>
                 <svg

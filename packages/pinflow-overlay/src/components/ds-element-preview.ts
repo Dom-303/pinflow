@@ -279,6 +279,31 @@ export class DsElementPreview extends LitElement {
         border-radius: 50%;
         background: var(--ds-success);
       }
+
+      .selection-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .selection-metric {
+        display: grid;
+        gap: 3px;
+        padding: 9px 10px;
+        background: var(--ds-panel-surface-muted);
+        border: 1px solid var(--ds-shell-border-muted);
+        border-radius: var(--ds-radius-md);
+      }
+
+      .selection-metric span {
+        font-size: var(--ds-font-size-xs);
+        color: var(--ds-text-tertiary);
+      }
+
+      .selection-metric strong {
+        font-size: var(--ds-font-size-sm);
+        color: var(--ds-text-primary);
+      }
     `,
   ];
 
@@ -341,8 +366,137 @@ export class DsElementPreview extends LitElement {
   }
 
   override render() {
-    const { selectedElement, runtimeContext, manifestEntry } =
+    const { selectedElement, selectedElements, selectedRegion, runtimeContext, manifestEntry } =
       this.storeController.state;
+
+    if (selectedRegion) {
+      const props = (runtimeContext?.componentProps ?? {}) as Record<
+        string,
+        unknown
+      >;
+      const state = (runtimeContext?.componentState ?? {}) as Record<
+        string,
+        unknown
+      >;
+      const propsCount = Object.keys(props).length;
+      const stateCount = Object.keys(state).length;
+      const regionWidth = Math.round(selectedRegion.rect.width);
+      const regionHeight = Math.round(selectedRegion.rect.height);
+      const primaryTag = selectedElement?.tagName.toLowerCase() ?? null;
+
+      return html`
+        <div class="element-content">
+          <div class="element-header">
+            <div class="element-primary">
+              <span class="section-label">Auswahl</span>
+              <span class="selection-status">Bereich bestaetigt</span>
+              <div class="selection-grid">
+                <div class="selection-metric">
+                  <span>Groesse</span>
+                  <strong>${regionWidth} x ${regionHeight} px</strong>
+                </div>
+                <div class="selection-metric">
+                  <span>Treffer</span>
+                  <strong>${selectedRegion.elements.length} Elemente</strong>
+                </div>
+              </div>
+              ${primaryTag
+                ? html`
+                    <div class="identity-row">
+                      <span class="tag-name">&lt;${primaryTag}&gt;</span>
+                      <span class="component-name">Primaerer Kontext</span>
+                    </div>
+                  `
+                : null}
+              ${(propsCount || stateCount)
+                ? html`
+                    <div class="context-summary">
+                      ${propsCount
+                        ? html`<span class="context-pill"
+                            ><strong>${propsCount}</strong> Eigenschaften</span
+                          >`
+                        : null}
+                      ${stateCount
+                        ? html`<span class="context-pill"
+                            ><strong>${stateCount}</strong>
+                            ${stateCount === 1
+                              ? 'Statusfeld'
+                              : 'Statusfelder'}</span
+                          >`
+                        : null}
+                    </div>
+                  `
+                : null}
+            </div>
+            <button
+              class="btn-dismiss"
+              @click=${this.handleClearSelection}
+              title="Auswahl aufheben"
+              aria-label="Auswahl aufheben"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <ds-context-panel .props=${props} .state=${state}></ds-context-panel>
+        </div>
+      `;
+    }
+
+    if (selectedElements.length > 1 && selectedElement) {
+      const props = (runtimeContext?.componentProps ?? {}) as Record<
+        string,
+        unknown
+      >;
+      const state = (runtimeContext?.componentState ?? {}) as Record<
+        string,
+        unknown
+      >;
+      const tagName = selectedElement.tagName.toLowerCase();
+
+      return html`
+        <div class="element-content">
+          <div class="element-header">
+            <div class="element-primary">
+              <span class="section-label">Auswahl</span>
+              <span class="selection-status">Mehrfachauswahl bestaetigt</span>
+              <div class="selection-grid">
+                <div class="selection-metric">
+                  <span>Auswahl</span>
+                  <strong>${selectedElements.length} Elemente</strong>
+                </div>
+                <div class="selection-metric">
+                  <span>Primaer</span>
+                  <strong>&lt;${tagName}&gt;</strong>
+                </div>
+              </div>
+            </div>
+            <button
+              class="btn-dismiss"
+              @click=${this.handleClearSelection}
+              title="Auswahl aufheben"
+              aria-label="Auswahl aufheben"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <ds-context-panel .props=${props} .state=${state}></ds-context-panel>
+        </div>
+      `;
+    }
 
     if (!selectedElement) {
       return html`

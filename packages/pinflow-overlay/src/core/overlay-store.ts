@@ -10,6 +10,8 @@ import type {
   AnnotationContext,
   RuntimeContext,
   ManifestEntry,
+  BoundingRect,
+  SelectedElement,
 } from '@pinflow/core';
 import { InteractionModeEnum, InteractionTypeEnum } from '@pinflow/core';
 import type {
@@ -17,8 +19,12 @@ import type {
   OverlayMode,
   OverlayOptions,
   OverlayTheme,
+  PickerMode,
   DispatchBatch,
   DispatchBatchStatus,
+  UndoAction,
+  UndoResult,
+  UndoSelectionSnapshot,
 } from './types.js';
 import {
   analyzeDispatchQueue,
@@ -53,6 +59,7 @@ const DEFAULT_STATE: OverlayState = {
   dispatchProjectDefaults: DEFAULT_DISPATCH_PROJECT_DEFAULTS,
   dispatchSession: DEFAULT_DISPATCH_SESSION_STATE,
   dispatchBatches: [],
+  undoStack: [],
 
   // Connection State
   relayConnected: false,
@@ -60,11 +67,15 @@ const DEFAULT_STATE: OverlayState = {
   relayHost: null,
 
   // Capture State
+  pickerMode: 'element',
   selectedElement: null,
+  selectedElements: [],
+  selectedRegion: null,
   selectedEntryId: null,
   hoveredElement: null,
   runtimeContext: null,
   manifestEntry: null,
+  manifestEntries: [],
 
   // Annotation State
   annotations: [],
@@ -81,19 +92,23 @@ const DEFAULT_STATE: OverlayState = {
  */
 export class OverlayStore {
   private static instance: OverlayStore | null = null;
+  private static readonly MAX_UNDO_ACTIONS = 8;
 
   private state: OverlayState;
   private listeners: Set<StateListener> = new Set();
+  private suppressUndoRecording = false;
 
   private static readonly TAB_OFFSET_KEY = 'pinflow:tabOffsetY';
   private static readonly THEME_KEY = 'pinflow:theme';
   private static readonly DISPATCH_DEFAULTS_KEY = 'pinflow:dispatchDefaults';
+  private static readonly PICKER_MODE_KEY = 'pinflow:pickerMode';
 
   private constructor(options?: OverlayOptions) {
     this.state = {
       ...DEFAULT_STATE,
       mode: options?.initialMode ?? 'collapsed',
       theme: options?.initialTheme ?? OverlayStore.loadTheme(),
+      pickerMode: OverlayStore.loadPickerMode(),
       sidebarWidth: options?.sidebarWidth ?? 360,
       tabOffsetY: OverlayStore.loadTabOffsetY(),
       dispatchProjectDefaults: OverlayStore.loadDispatchProjectDefaults(),
@@ -145,6 +160,18 @@ export class OverlayStore {
     } catch {
       return DEFAULT_DISPATCH_PROJECT_DEFAULTS;
     }
+  }
+
+  private static loadPickerMode(): PickerMode {
+    try {
+      const stored = localStorage.getItem(OverlayStore.PICKER_MODE_KEY);
+      if (stored === 'element' || stored === 'region' || stored === 'multi') {
+        return stored;
+      }
+    } catch {
+      // localStorage unavailable
+    }
+    return 'element';
   }
 
   /**
@@ -329,6 +356,130 @@ export class OverlayStore {
     this.reconcileDispatchBatches();
   }
 
+  getUndoPreview(): UndoAction | null {
+    return this.state.undoStack[0] ?? null;
+  }
+
+  recordSubmittedAnnotation(annotation: Annotation): void {
+    const annotationId = annotation.metadata?.id;
+    if (!annotationId) {
+      return;
+    }
+
+    if (this.canDeleteQueuedAnnotation(annotation)) {
+      this.pushUndoAction({
+        kind: 'queued-annotation',
+        label: 'Auftrag zurueckholen',
+        description: 'Entfernt den zuletzt gesammelten Auftrag aus der Warteliste.',
+        annotation,
+        annotationId,
+      });
+      return;
+    }
+
+    this.pushUndoAction({
+      kind: 'reversal-request',
+      label: 'Ruecknahme beauftragen',
+      description:
+        'Erstellt einen neuen Auftrag, der die bereits uebergebene Aenderung rueckgaengig macht.',
+      annotation,
+      annotationId,
+    });
+  }
+
+  async undoLastAction(): Promise<UndoResult | null> {
+    const action = this.state.undoStack[0];
+    if (!action) {
+      return null;
+    }
+
+    if (action.kind === 'selection' && action.selectionBefore) {
+      this.suppressUndoRecording = true;
+      try {
+        this.applySelectionSnapshot(action.selectionBefore);
+      } finally {
+        this.suppressUndoRecording = false;
+      }
+      this.popUndoAction(action.id);
+      return {
+        ok: true,
+        kind: action.kind,
+        message: 'Auswahl wurde rueckgaengig gemacht.',
+      };
+    }
+
+    if (action.kind === 'queued-annotation' && action.annotation) {
+      const current =
+        this.state.annotations.find(
+          (annotation) => annotation.metadata.id === action.annotationId,
+        ) ?? action.annotation;
+
+      if (this.canDeleteQueuedAnnotation(current)) {
+        await this.removeQueuedAnnotation(current.metadata.id);
+        this.popUndoAction(action.id);
+        return {
+          ok: true,
+          kind: action.kind,
+          message: 'Auftrag wurde aus der Warteliste entfernt.',
+        };
+      }
+
+      const result = await this.requestAnnotationReversal(current);
+      this.popUndoAction(action.id);
+      return result;
+    }
+
+    if (action.kind === 'reversal-request' && action.annotation) {
+      const result = await this.requestAnnotationReversal(action.annotation);
+      this.popUndoAction(action.id);
+      return result;
+    }
+
+    this.popUndoAction(action.id);
+    return {
+      ok: false,
+      kind: action.kind,
+      message: 'Diese Aktion ist nicht mehr rueckgaengig machbar.',
+    };
+  }
+
+  async requestAnnotationReversal(annotation: Annotation): Promise<UndoResult> {
+    const relayService = RelayService.getInstance();
+    const originalMessage =
+      annotation.context?.userMessage?.trim() || annotation.metadata.id;
+    const reversal = await relayService.createAnnotation({
+      mode: annotation.metadata.mode,
+      interaction: annotation.interaction,
+      context: {
+        ...annotation.context,
+        userMessage:
+          'Ruecknahme-Auftrag: Bitte mache diese bereits uebergebene PinFlow-Aenderung gezielt rueckgaengig, ohne andere Aenderungen anzufassen.\n\n' +
+          `Urspruenglicher Auftrag:\n${originalMessage}`,
+      },
+    });
+
+    this.recordSubmittedAnnotation(reversal);
+
+    return {
+      ok: true,
+      kind: 'reversal-request',
+      message: 'Ruecknahme-Auftrag wurde in die Warteliste gelegt.',
+    };
+  }
+
+  async undoAnnotation(annotation: Annotation): Promise<UndoResult> {
+    if (this.canDeleteQueuedAnnotation(annotation)) {
+      await this.removeQueuedAnnotation(annotation.metadata.id);
+      return {
+        ok: true,
+        kind: 'queued-annotation',
+        message: 'Auftrag wurde aus der Warteliste entfernt.',
+      };
+    }
+
+    return this.requestAnnotationReversal(annotation);
+  }
+
   /**
    * Subscribe to state changes
    * @returns Unsubscribe function
@@ -378,7 +529,11 @@ export class OverlayStore {
     const currentMode = this.state.mode;
     if (currentMode === 'collapsed') {
       this.setState({ mode: 'expanded' });
-    } else if (currentMode === 'expanded' || currentMode === 'capturing') {
+    } else if (
+      currentMode === 'expanded' ||
+      currentMode === 'mini' ||
+      currentMode === 'capturing'
+    ) {
       this.setState({ mode: 'collapsed' });
     }
   }
@@ -386,11 +541,21 @@ export class OverlayStore {
   /**
    * Enter capture mode
    */
-  enterCaptureMode(): void {
+  enterCaptureMode(pickerMode: PickerMode = this.state.pickerMode): void {
     this.setState({
+      pickerMode,
       mode: 'capturing',
       hoveredElement: null,
     });
+  }
+
+  setPickerMode(pickerMode: PickerMode): void {
+    this.setState({ pickerMode });
+    try {
+      localStorage.setItem(OverlayStore.PICKER_MODE_KEY, pickerMode);
+    } catch {
+      // localStorage unavailable
+    }
   }
 
   /**
@@ -410,8 +575,11 @@ export class OverlayStore {
     element: HTMLElement | null,
     entryId: string | null = null,
   ): void {
+    this.recordSelectionUndo('Auswahl rueckgaengig');
     this.setState({
       selectedElement: element,
+      selectedElements: element ? [element] : [],
+      selectedRegion: null,
       selectedEntryId: entryId,
     });
   }
@@ -420,11 +588,15 @@ export class OverlayStore {
    * Clear selection
    */
   clearSelection(): void {
+    this.recordSelectionUndo('Auswahl entfernen rueckgaengig');
     this.setState({
       selectedElement: null,
+      selectedElements: [],
+      selectedRegion: null,
       selectedEntryId: null,
       runtimeContext: null,
       manifestEntry: null,
+      manifestEntries: [],
     });
   }
 
@@ -453,9 +625,13 @@ export class OverlayStore {
   async selectElement(element: HTMLElement): Promise<void> {
     const entryId = element.getAttribute('data-ds');
 
+    this.recordSelectionUndo('Auswahl rueckgaengig');
+
     // Set the element immediately
     this.setState({
       selectedElement: element,
+      selectedElements: [element],
+      selectedRegion: null,
       selectedEntryId: entryId,
       mode: 'expanded',
       hoveredElement: null,
@@ -485,7 +661,7 @@ export class OverlayStore {
         const manifestEntry = await relayService.resolve(entryId);
 
         if (manifestEntry) {
-          this.setState({ manifestEntry });
+          this.setState({ manifestEntry, manifestEntries: [manifestEntry] });
         }
       } catch (error) {
         if (this.state.debug) {
@@ -498,15 +674,70 @@ export class OverlayStore {
     }
   }
 
+  async selectMultipleElements(elements: HTMLElement[]): Promise<void> {
+    const uniqueElements = Array.from(new Set(elements)).slice(0, 30);
+    if (uniqueElements.length === 0) {
+      return;
+    }
+
+    const primaryElement = uniqueElements[0];
+    const entryId = primaryElement.getAttribute('data-ds');
+
+    this.recordSelectionUndo('Auswahl rueckgaengig');
+
+    this.setState({
+      pickerMode: 'multi',
+      selectedElement: primaryElement,
+      selectedElements: uniqueElements,
+      selectedRegion: null,
+      selectedEntryId: entryId,
+      mode: 'expanded',
+      hoveredElement: null,
+    });
+
+    await this.capturePrimaryContext(primaryElement);
+    await this.resolveManifestEntries(uniqueElements);
+  }
+
+  async selectRegion(rect: BoundingRect, elements: HTMLElement[]): Promise<void> {
+    const uniqueElements = Array.from(new Set(elements)).slice(0, 30);
+    const primaryElement = uniqueElements[0] ?? null;
+    const entryId = primaryElement?.getAttribute('data-ds') ?? null;
+
+    this.recordSelectionUndo('Bereich rueckgaengig');
+
+    this.setState({
+      pickerMode: 'region',
+      selectedElement: primaryElement,
+      selectedElements: uniqueElements,
+      selectedRegion: { rect, elements: uniqueElements },
+      selectedEntryId: entryId,
+      mode: 'expanded',
+      hoveredElement: null,
+    });
+
+    if (primaryElement) {
+      await this.capturePrimaryContext(primaryElement);
+      await this.resolveManifestEntries(uniqueElements);
+    }
+  }
+
   /**
    * Submit an annotation for the selected element
    */
   async submitAnnotation(content: string): Promise<Annotation | null> {
-    const { selectedElement, selectedEntryId, runtimeContext, manifestEntry } =
-      this.state;
+    const {
+      pickerMode,
+      selectedElement,
+      selectedElements,
+      selectedRegion,
+      runtimeContext,
+      manifestEntry,
+      manifestEntries,
+    } = this.state;
 
-    if (!selectedElement) {
-      throw new Error('No element selected');
+    if (!selectedElement && !selectedRegion) {
+      throw new Error('No selection available');
     }
 
     this.setState({ isSubmitting: true });
@@ -514,40 +745,53 @@ export class OverlayStore {
     try {
       const relayService = RelayService.getInstance();
 
-      // Build selector path for the element
-      const selector = this.buildSelectorPath(selectedElement);
-
-      // Get attributes
-      const attributes: Record<string, string> = {};
-      for (let i = 0; i < selectedElement.attributes.length; i++) {
-        const attr = selectedElement.attributes[i];
-        attributes[attr.name] = attr.value;
-      }
-
-      // Get bounding rect
-      const rect = selectedElement.getBoundingClientRect();
+      const elementModels = selectedElements.map((element) =>
+        this.buildSelectedElement(element),
+      );
+      const primaryElementModel =
+        selectedElement !== null
+          ? this.buildSelectedElement(selectedElement)
+          : elementModels[0];
+      const primaryRect =
+        selectedElement !== null
+          ? this.toBoundingRect(selectedElement.getBoundingClientRect())
+          : selectedRegion?.rect;
+      const mode =
+        pickerMode === 'region'
+          ? InteractionModeEnum.REGION_SELECT
+          : pickerMode === 'multi'
+            ? InteractionModeEnum.MULTI_ELEMENT
+            : InteractionModeEnum.ELEMENT_CLICK;
+      const type =
+        pickerMode === 'region'
+          ? InteractionTypeEnum.REGION_ANNOTATION
+          : pickerMode === 'multi'
+            ? InteractionTypeEnum.MULTI_ELEMENT_ANNOTATION
+            : InteractionTypeEnum.ELEMENT_ANNOTATION;
+      const snapshots =
+        manifestEntries.length > 0
+          ? manifestEntries
+          : manifestEntry
+            ? [manifestEntry]
+            : undefined;
 
       const annotation = await relayService.createAnnotation({
-        mode: InteractionModeEnum.ELEMENT_CLICK,
+        mode,
         interaction: {
-          type: InteractionTypeEnum.ELEMENT_ANNOTATION,
-          selectedElement: {
-            tagName: selectedElement.tagName.toLowerCase(),
-            selector,
-            dataDs: selectedEntryId ?? undefined,
-            attributes,
-            innerText: selectedElement.innerText?.slice(0, 100),
-          },
-          boundingRect: {
-            x: rect.x,
-            y: rect.y,
-            width: rect.width,
-            height: rect.height,
-            top: rect.top,
-            right: rect.right,
-            bottom: rect.bottom,
-            left: rect.left,
-          },
+          type,
+          selectedElement: primaryElementModel,
+          selectedElements:
+            elementModels.length > 1 || pickerMode === 'multi' || pickerMode === 'region'
+              ? elementModels
+              : undefined,
+          region: selectedRegion
+            ? {
+                boundingRect: selectedRegion.rect,
+                devicePixelRatio: window.devicePixelRatio,
+                elementCount: selectedRegion.elements.length,
+              }
+            : undefined,
+          boundingRect: primaryRect,
         },
         context: {
           pageUrl: window.location.href,
@@ -558,7 +802,7 @@ export class OverlayStore {
           },
           userAgent: navigator.userAgent,
           userMessage: content,
-          manifestSnapshot: manifestEntry ? [manifestEntry] : undefined,
+          manifestSnapshot: snapshots,
           runtimeContext: runtimeContext ?? undefined,
         },
       });
@@ -566,15 +810,251 @@ export class OverlayStore {
       // Clear submission state — the annotation list is already refreshed
       // by relay-service.createAnnotation() via refreshAnnotations()
       this.setState({ isSubmitting: false });
+      this.recordSubmittedAnnotation(annotation);
 
       // Clear the selected element so the user can pick a new one
-      this.clearSelection();
+      this.clearSelectionWithoutUndo();
 
       return annotation;
     } catch (error) {
       this.setState({ isSubmitting: false });
       throw error;
     }
+  }
+
+  private buildSelectedElement(element: HTMLElement): SelectedElement {
+    const attributes: Record<string, string> = {};
+    for (let i = 0; i < element.attributes.length; i++) {
+      const attr = element.attributes[i];
+      attributes[attr.name] = attr.value;
+    }
+
+    return {
+      tagName: element.tagName.toLowerCase(),
+      selector: this.buildSelectorPath(element),
+      dataDs: element.getAttribute('data-ds') ?? undefined,
+      attributes,
+      innerText: element.innerText?.slice(0, 100),
+    };
+  }
+
+  private getSelectionSnapshot(): UndoSelectionSnapshot {
+    return {
+      selectedElement: this.state.selectedElement,
+      selectedElements: [...this.state.selectedElements],
+      selectedRegion: this.state.selectedRegion
+        ? {
+            rect: { ...this.state.selectedRegion.rect },
+            elements: [...this.state.selectedRegion.elements],
+          }
+        : null,
+      selectedEntryId: this.state.selectedEntryId,
+      runtimeContext: this.state.runtimeContext,
+      manifestEntry: this.state.manifestEntry,
+      manifestEntries: [...this.state.manifestEntries],
+    };
+  }
+
+  private applySelectionSnapshot(snapshot: UndoSelectionSnapshot): void {
+    this.setState({
+      selectedElement: snapshot.selectedElement,
+      selectedElements: [...snapshot.selectedElements],
+      selectedRegion: snapshot.selectedRegion
+        ? {
+            rect: { ...snapshot.selectedRegion.rect },
+            elements: [...snapshot.selectedRegion.elements],
+          }
+        : null,
+      selectedEntryId: snapshot.selectedEntryId,
+      runtimeContext: snapshot.runtimeContext,
+      manifestEntry: snapshot.manifestEntry,
+      manifestEntries: [...snapshot.manifestEntries],
+    });
+  }
+
+  private hasActiveSelection(): boolean {
+    return (
+      this.state.selectedElement !== null ||
+      this.state.selectedElements.length > 0 ||
+      this.state.selectedRegion !== null ||
+      this.state.selectedEntryId !== null
+    );
+  }
+
+  private recordSelectionUndo(label: string): void {
+    if (this.suppressUndoRecording) {
+      return;
+    }
+
+    const snapshot = this.getSelectionSnapshot();
+    const hasNextMeaningfulUndo =
+      this.hasActiveSelection() ||
+      snapshot.selectedElement !== null ||
+      snapshot.selectedElements.length > 0 ||
+      snapshot.selectedRegion !== null ||
+      snapshot.selectedEntryId !== null;
+
+    if (!hasNextMeaningfulUndo) {
+      this.pushUndoAction({
+        kind: 'selection',
+        label,
+        description: 'Setzt die zuletzt markierte Auswahl wieder zurueck.',
+        selectionBefore: snapshot,
+      });
+      return;
+    }
+
+    this.pushUndoAction({
+      kind: 'selection',
+      label,
+      description: 'Setzt die zuletzt markierte Auswahl wieder zurueck.',
+      selectionBefore: snapshot,
+    });
+  }
+
+  private clearSelectionWithoutUndo(): void {
+    this.setState({
+      selectedElement: null,
+      selectedElements: [],
+      selectedRegion: null,
+      selectedEntryId: null,
+      runtimeContext: null,
+      manifestEntry: null,
+      manifestEntries: [],
+    });
+  }
+
+  private pushUndoAction(
+    action: Omit<UndoAction, 'id' | 'timestamp'>,
+  ): void {
+    const nextAction: UndoAction = {
+      ...action,
+      id: `undo-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      timestamp: new Date().toISOString(),
+    };
+
+    this.setState({
+      undoStack: [nextAction, ...this.state.undoStack].slice(
+        0,
+        OverlayStore.MAX_UNDO_ACTIONS,
+      ),
+    });
+  }
+
+  private popUndoAction(actionId: string): void {
+    this.setState({
+      undoStack: this.state.undoStack.filter((action) => action.id !== actionId),
+    });
+  }
+
+  private canDeleteQueuedAnnotation(annotation: Annotation): boolean {
+    const id = annotation.metadata?.id;
+    if (!id || annotation.metadata.status !== 'queued') {
+      return false;
+    }
+
+    return !this.state.dispatchSession.releasedAnnotationIds.includes(id);
+  }
+
+  private async removeQueuedAnnotation(annotationId: string): Promise<void> {
+    const relayService = RelayService.getInstance();
+    await relayService.deleteAnnotation(annotationId);
+
+    this.setState({
+      annotations: this.state.annotations.filter(
+        (annotation) => annotation.metadata.id !== annotationId,
+      ),
+      dispatchSession: {
+        ...this.state.dispatchSession,
+        releasedAnnotationIds:
+          this.state.dispatchSession.releasedAnnotationIds.filter(
+            (id) => id !== annotationId,
+          ),
+        awaitingConfirmationIds:
+          this.state.dispatchSession.awaitingConfirmationIds.filter(
+            (id) => id !== annotationId,
+          ),
+      },
+      dispatchBatches: this.state.dispatchBatches
+        .map((batch) => ({
+          ...batch,
+          annotationIds: batch.annotationIds.filter((id) => id !== annotationId),
+        }))
+        .filter((batch) => batch.annotationIds.length > 0),
+    });
+
+    this.reconcileDispatchQueue();
+    this.reconcileDispatchBatches();
+  }
+
+  private toBoundingRect(rect: DOMRect | BoundingRect): BoundingRect {
+    return {
+      x: rect.x,
+      y: rect.y,
+      width: rect.width,
+      height: rect.height,
+      top: rect.top,
+      right: rect.right,
+      bottom: rect.bottom,
+      left: rect.left,
+    };
+  }
+
+  private async capturePrimaryContext(element: HTMLElement): Promise<void> {
+    try {
+      const bridge = BridgeDispatch.getInstance();
+      const runtimeContext = await bridge.captureContext(element);
+
+      if (runtimeContext) {
+        this.setState({ runtimeContext });
+      }
+    } catch (error) {
+      if (this.state.debug) {
+        console.warn(
+          '[pinflow-overlay][store] Failed to capture runtime context:',
+          error,
+        );
+      }
+    }
+  }
+
+  private async resolveManifestEntries(elements: HTMLElement[]): Promise<void> {
+    const entryIds = Array.from(
+      new Set(
+        elements
+          .map((element) => element.getAttribute('data-ds'))
+          .filter((entryId): entryId is string => Boolean(entryId)),
+      ),
+    ).slice(0, 30);
+
+    if (entryIds.length === 0) {
+      this.setState({ manifestEntry: null, manifestEntries: [] });
+      return;
+    }
+
+    const relayService = RelayService.getInstance();
+    const entries: ManifestEntry[] = [];
+
+    for (const entryId of entryIds) {
+      try {
+        const entry = await relayService.resolve(entryId);
+        if (entry) {
+          entries.push(entry);
+        }
+      } catch (error) {
+        if (this.state.debug) {
+          console.warn(
+            '[pinflow-overlay][store] Failed to resolve manifest entry:',
+            error,
+          );
+        }
+      }
+    }
+
+    this.setState({
+      manifestEntry: entries[0] ?? null,
+      manifestEntries: entries,
+    });
   }
 
   /**

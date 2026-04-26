@@ -532,7 +532,9 @@ export class DsWorkflowPanel extends LitElement {
   }
 
   private getChannelLabel(channel: DispatchChannel) {
-    return channel === 'queue_only'
+    return channel === 'auto'
+      ? 'Aktueller Agent'
+      : channel === 'queue_only'
       ? 'Nur sammeln'
       : channel === 'claude'
         ? 'Claude'
@@ -711,7 +713,7 @@ export class DsWorkflowPanel extends LitElement {
     if (effective.channel === 'queue_only') {
       return {
         title: 'Sammelt weiter',
-        copy: 'Wechsle auf Codex oder Claude, sobald die ersten Aufgaben rausgehen sollen.',
+        copy: 'Wechsle auf den aktuellen Agent, sobald die ersten Aufgaben rausgehen sollen.',
       };
     }
 
@@ -825,7 +827,7 @@ export class DsWorkflowPanel extends LitElement {
               <span class="eyebrow">Workflow</span>
               <span class="title">Flow-Steuerung</span>
               <span class="panel-copy">
-                Kanal, Queue-Status und Live-Zustand.
+                Uebergabe, Queue-Status und Live-Zustand.
               </span>
             </span>
             <span class="flow-summary-meta">
@@ -838,9 +840,10 @@ export class DsWorkflowPanel extends LitElement {
           <div class="flow-section-body">
             <div class="channel-group">
               ${([
+                ['auto', 'Aktueller Agent'],
+                ['queue_only', 'Nur sammeln'],
                 ['codex', 'Codex'],
                 ['claude', 'Claude'],
-                ['queue_only', 'Nur sammeln'],
               ] as Array<[DispatchChannel, string]>).map(
                 ([channel, label]) => html`
                   <button
@@ -848,7 +851,7 @@ export class DsWorkflowPanel extends LitElement {
                       ? 'active'
                       : ''}"
                     @click=${() => this.setChannel(channel)}
-                    aria-label="Kanal ${label} fuer diese Session aktivieren"
+                    aria-label="Uebergabe ${label} fuer diese Session aktivieren"
                   >
                     ${label}
                   </button>
@@ -858,12 +861,14 @@ export class DsWorkflowPanel extends LitElement {
 
             <div class="status-overview">
               <div class="status-card">
-                <div class="status-label">Session-Kanal</div>
+                <div class="status-label">Uebergabeziel</div>
                 <div class="status-value">${this.getChannelLabel(effective.channel)}</div>
                 <div class="status-note">
                   ${effective.channel === 'queue_only'
-                    ? 'Neue Aufgaben bleiben gesammelt, bis du einen aktiven Kanal waehlst.'
-                    : 'Session-weit aktiv fuer neue Annotationen und den naechsten Batch.'}
+                    ? 'Neue Aufgaben bleiben gesammelt, bis du sie bewusst weitergibst.'
+                    : effective.channel === 'auto'
+                      ? 'PinFlow nutzt den Agent, der diese lokale Session gestartet hat.'
+                      : 'Manueller Fallback fuer diese Session.'}
                 </div>
               </div>
               <div class="status-card">
@@ -1106,7 +1111,7 @@ export class DsWorkflowPanel extends LitElement {
                     <div class="batch-empty-title">Bereit fuer den ersten Batch</div>
                     <div class="batch-empty-copy">
                       Sobald du die ersten Aufgaben freigibst oder versendest,
-                      siehst du hier Kanal, Status und Fortschritt des letzten Laufs.
+                      siehst du hier Uebergabeziel, Status und Fortschritt des letzten Laufs.
                     </div>
                   </div>
                 `}

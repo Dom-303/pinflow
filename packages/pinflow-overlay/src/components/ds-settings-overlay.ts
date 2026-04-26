@@ -5,7 +5,7 @@ import type {
   DispatchSessionOverrides,
 } from '../core/dispatch-config.js';
 import { StoreController } from '../core/store-controller.js';
-import type { OverlayTheme } from '../core/types.js';
+import type { OverlayTheme, PickerMode } from '../core/types.js';
 import { themeStyles, utilityStyles } from '../styles/theme.js';
 import './ds-session-settings.js';
 import './ds-workflow-panel.js';
@@ -323,6 +323,10 @@ export class DsSettingsOverlay extends LitElement {
         background: var(--ds-pill-surface);
       }
 
+      .segmented-control.picker-mode-control {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
       .segment-option {
         display: inline-flex;
         align-items: center;
@@ -335,6 +339,27 @@ export class DsSettingsOverlay extends LitElement {
         background: transparent;
         color: var(--ds-text-secondary);
         font-size: var(--ds-font-size-xs);
+        font-family: inherit;
+        cursor: default;
+      }
+
+      button.segment-option {
+        cursor: pointer;
+        transition:
+          background var(--ds-transition-fast),
+          border-color var(--ds-transition-fast),
+          color var(--ds-transition-fast),
+          transform var(--ds-transition-fast);
+      }
+
+      button.segment-option:hover {
+        background: var(--ds-bg-hover);
+        color: var(--ds-text-primary);
+      }
+
+      button.segment-option:focus-visible {
+        outline: 2px solid color-mix(in srgb, var(--ds-brand-primary) 42%, transparent);
+        outline-offset: 2px;
       }
 
       .segment-option.active {
@@ -488,8 +513,22 @@ export class DsSettingsOverlay extends LitElement {
     this.storeController.store.setTheme(theme);
   }
 
+  private setPickerMode(pickerMode: PickerMode) {
+    this.storeController.store.setPickerMode(pickerMode);
+  }
+
+  private getPickerModeNote(pickerMode: PickerMode): string {
+    if (pickerMode === 'region') {
+      return 'Bereiche werden per Ziehen markiert und mit Koordinaten uebergeben.';
+    }
+    if (pickerMode === 'multi') {
+      return 'Mehrere Elemente werden gesammelt und gemeinsam bestaetigt.';
+    }
+    return 'Ein Klick waehlt ein einzelnes Element mit Quellkontext.';
+  }
+
   override render() {
-    const { theme } = this.storeController.state;
+    const { theme, pickerMode } = this.storeController.state;
 
     return html`
       <div class="backdrop" @click=${this.handleClose}></div>
@@ -578,7 +617,7 @@ export class DsSettingsOverlay extends LitElement {
                   <span class="settings-card-copy">
                     <span class="settings-card-title">Elementwahl</span>
                     <span class="settings-card-note">
-                      Aktiver Auswahlmodus fuer neue Markierungen.
+                      ${this.getPickerModeNote(pickerMode)}
                     </span>
                   </span>
                   <svg class="settings-card-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -586,11 +625,27 @@ export class DsSettingsOverlay extends LitElement {
                   </svg>
                 </summary>
                 <div class="settings-card-body">
-                  <div class="segmented-control">
-                    <span class="segment-option active"><strong>Element</strong></span>
-                    <span class="segment-option muted"
-                      ><strong>Ausschnitt</strong><small>später</small></span
-                    >
+                  <div
+                    class="segmented-control picker-mode-control"
+                    role="group"
+                    aria-label="Picker-Modus"
+                  >
+                    ${[
+                      ['element', 'Element'],
+                      ['region', 'Bereich'],
+                      ['multi', 'Mehrfach'],
+                    ].map(
+                      ([value, label]) => html`
+                        <button
+                          type="button"
+                          class="segment-option ${pickerMode === value ? 'active' : ''}"
+                          @click=${() => this.setPickerMode(value as PickerMode)}
+                          aria-pressed=${pickerMode === value}
+                        >
+                          <strong>${label}</strong>
+                        </button>
+                      `,
+                    )}
                   </div>
                 </div>
               </details>

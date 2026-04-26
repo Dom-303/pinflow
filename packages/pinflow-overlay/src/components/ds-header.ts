@@ -112,8 +112,22 @@ export class DsHeader extends LitElement {
         width: 6px;
         height: 6px;
         border-radius: 50%;
+        background: var(--ds-text-tertiary);
+      }
+
+      .brand-status.active {
+        color: var(--ds-text-primary);
+        border-color: color-mix(in srgb, var(--ds-brand-primary) 32%, var(--ds-pill-border));
+        background: color-mix(in srgb, var(--ds-brand-primary) 10%, var(--ds-note-surface));
+      }
+
+      .brand-status.active::before {
         background: var(--ds-brand-primary);
         box-shadow: 0 0 0 4px color-mix(in srgb, var(--ds-brand-primary) 18%, transparent);
+      }
+
+      .brand-status.inactive {
+        color: var(--ds-text-tertiary);
       }
 
       .header-actions {
@@ -164,13 +178,23 @@ export class DsHeader extends LitElement {
     );
   }
 
+  private handleMinimize() {
+    this.dispatchEvent(
+      new CustomEvent('minimize-sidebar', {
+        bubbles: true,
+        composed: true,
+      }),
+    );
+  }
+
   private handleToggleTheme() {
     this.storeController.store.toggleTheme();
   }
 
   override render() {
-    const { theme } = this.storeController.state;
+    const { relayConnected, theme } = this.storeController.state;
     const isDark = theme === 'dark';
+    const statusLabel = relayConnected ? 'aktiv' : 'nicht aktiv';
 
     return html`
       <div class="header-row">
@@ -187,12 +211,36 @@ export class DsHeader extends LitElement {
           <div class="brand-copy">
             <span class="brand-wordmark">PinFlow</span>
             <div class="brand-meta">
-              <span class="brand-status">Session aktiv</span>
+              <span
+                class="brand-status ${relayConnected ? 'active' : 'inactive'}"
+                title=${relayConnected
+                  ? 'PinFlow ist mit dem lokalen Relay verbunden'
+                  : 'PinFlow wartet auf die lokale Relay-Verbindung'}
+                aria-label=${`PinFlow ${statusLabel}`}
+              >
+                ${statusLabel}
+              </span>
             </div>
           </div>
         </div>
 
         <div class="header-actions">
+          <button
+            class="btn-icon"
+            @click=${this.handleMinimize}
+            title="Arbeitsbereich minimieren"
+            aria-label="Arbeitsbereich minimieren"
+          >
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M6 12h12"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+          </button>
+
           <button
             class="btn-icon"
             @click=${this.handleToggleTheme}

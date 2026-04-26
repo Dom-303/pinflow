@@ -1,6 +1,6 @@
 import type { Annotation } from '@pinflow/core';
 
-export type DispatchChannel = 'codex' | 'claude' | 'queue_only';
+export type DispatchChannel = 'auto' | 'codex' | 'claude' | 'queue_only';
 export type DispatchMode = 'manual' | 'immediate' | 'threshold';
 export type DispatchContinuationMode = 'manual' | 'confirm' | 'automatic';
 
@@ -50,7 +50,7 @@ export interface DispatchQueueAnalysis {
 }
 
 export const DEFAULT_DISPATCH_PROJECT_DEFAULTS: DispatchProjectDefaults = {
-  channel: 'codex',
+  channel: 'auto',
   mode: 'manual',
   threshold: 3,
   concurrency: 3,
@@ -78,7 +78,12 @@ export function normalizeConcurrency(value: number | undefined): number {
 }
 
 function isChannel(value: unknown): value is DispatchChannel {
-  return value === 'codex' || value === 'claude' || value === 'queue_only';
+  return (
+    value === 'auto' ||
+    value === 'codex' ||
+    value === 'claude' ||
+    value === 'queue_only'
+  );
 }
 
 function isMode(value: unknown): value is DispatchMode {

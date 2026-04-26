@@ -8,6 +8,8 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { StoreController } from '../core/store-controller.js';
+import type { PickerMode } from '../core/types.js';
+import type { BoundingRect } from '@pinflow/core';
 import { themeStyles } from '../styles/theme.js';
 
 // Import child components
@@ -31,6 +33,41 @@ export class DsPickerOverlay extends LitElement {
 
   @state()
   private showIntroNotice = true;
+
+  @state()
+  private dragRect: BoundingRect | null = null;
+
+  @state()
+  private multiElements: HTMLElement[] = [];
+
+  private dragStart: { x: number; y: number } | null = null;
+
+  private resizeHandle:
+    | 'nw'
+    | 'n'
+    | 'ne'
+    | 'e'
+    | 'se'
+    | 's'
+    | 'sw'
+    | 'w'
+    | null = null;
+
+  private resizeStart:
+    | {
+        x: number;
+        y: number;
+        rect: BoundingRect;
+      }
+    | null = null;
+
+  private moveStart:
+    | {
+        x: number;
+        y: number;
+        rect: BoundingRect;
+      }
+    | null = null;
 
   private introTimer: number | null = null;
 
@@ -60,6 +97,10 @@ export class DsPickerOverlay extends LitElement {
           var(--ds-picker-scrim);
       }
 
+      .overlay.region {
+        background: transparent;
+      }
+
       .picker-toast {
         position: fixed;
         top: 10px;
@@ -83,6 +124,11 @@ export class DsPickerOverlay extends LitElement {
         animation: toast-enter 180ms ease-out both, toast-leave 260ms ease-in 1.55s forwards;
       }
 
+      .picker-toast.persistent {
+        pointer-events: auto;
+        animation: toast-enter 180ms ease-out both;
+      }
+
       .picker-toast kbd {
         display: inline-flex;
         align-items: center;
@@ -96,6 +142,122 @@ export class DsPickerOverlay extends LitElement {
         font-family: var(--ds-font-mono);
         font-size: var(--ds-font-size-xs);
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.58);
+      }
+
+      .region-box {
+        position: fixed;
+        border: 1.5px solid var(--ds-brand-primary);
+        background: transparent;
+        box-shadow:
+          0 0 0 9999px var(--ds-picker-scrim),
+          var(--ds-highlight-glow);
+        pointer-events: auto;
+        cursor: move;
+      }
+
+      .region-box::before {
+        content: '';
+        position: absolute;
+        inset: -1px;
+        border-radius: 3px;
+        outline: 1px solid color-mix(in srgb, var(--ds-brand-primary) 58%, transparent);
+        pointer-events: none;
+      }
+
+      .region-handle {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--ds-brand-primary);
+        border: 1px solid var(--ds-bg-primary);
+        box-shadow: var(--ds-shadow-sm);
+      }
+
+      .region-handle[data-handle='nw'] {
+        top: -5px;
+        left: -5px;
+        cursor: nwse-resize;
+      }
+
+      .region-handle[data-handle='n'] {
+        top: -5px;
+        left: calc(50% - 5px);
+        cursor: ns-resize;
+      }
+
+      .region-handle[data-handle='ne'] {
+        top: -5px;
+        right: -5px;
+        cursor: nesw-resize;
+      }
+
+      .region-handle[data-handle='e'] {
+        top: calc(50% - 5px);
+        right: -5px;
+        cursor: ew-resize;
+      }
+
+      .region-handle[data-handle='se'] {
+        right: -5px;
+        bottom: -5px;
+        cursor: nwse-resize;
+      }
+
+      .region-handle[data-handle='s'] {
+        bottom: -5px;
+        left: calc(50% - 5px);
+        cursor: ns-resize;
+      }
+
+      .region-handle[data-handle='sw'] {
+        bottom: -5px;
+        left: -5px;
+        cursor: nesw-resize;
+      }
+
+      .region-handle[data-handle='w'] {
+        top: calc(50% - 5px);
+        left: -5px;
+        cursor: ew-resize;
+      }
+
+      .multi-count {
+        position: fixed;
+        left: 50%;
+        bottom: 18px;
+        transform: translateX(-50%);
+        padding: 7px 11px;
+        border-radius: 999px;
+        border: 1px solid var(--ds-panel-border);
+        background: var(--ds-tooltip-surface);
+        color: var(--ds-text-primary);
+        font-size: var(--ds-font-size-xs);
+        font-weight: var(--ds-font-weight-medium);
+        box-shadow: var(--ds-panel-shadow);
+        pointer-events: none;
+      }
+
+      .picker-action {
+        appearance: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 24px;
+        padding: 0 9px;
+        border-radius: 999px;
+        border: 1px solid var(--ds-panel-border-strong);
+        background: var(--ds-brand-primary);
+        color: var(--ds-bg-tertiary);
+        font: inherit;
+        font-size: var(--ds-font-size-xs);
+        font-weight: var(--ds-font-weight-semibold);
+        cursor: pointer;
+      }
+
+      .picker-action:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
       }
 
       @keyframes toast-enter {
@@ -121,10 +283,12 @@ export class DsPickerOverlay extends LitElement {
   override connectedCallback() {
     super.connectedCallback();
     this.showIntroNotice = true;
-    this.introTimer = window.setTimeout(() => {
-      this.showIntroNotice = false;
-      this.introTimer = null;
-    }, 1800);
+    if (this.storeController.state.pickerMode === 'element') {
+      this.introTimer = window.setTimeout(() => {
+        this.showIntroNotice = false;
+        this.introTimer = null;
+      }, 1800);
+    }
     window.addEventListener('pointermove', this.handlePointerMove, {
       capture: true,
     });
@@ -132,6 +296,12 @@ export class DsPickerOverlay extends LitElement {
       capture: true,
     });
     window.addEventListener('click', this.handleClick, {
+      capture: true,
+    });
+    window.addEventListener('pointerdown', this.handlePointerDown, {
+      capture: true,
+    });
+    window.addEventListener('pointerup', this.handlePointerUp, {
       capture: true,
     });
     document.addEventListener('keydown', this.handleKeyDown);
@@ -150,6 +320,12 @@ export class DsPickerOverlay extends LitElement {
       capture: true,
     });
     window.removeEventListener('click', this.handleClick, {
+      capture: true,
+    });
+    window.removeEventListener('pointerdown', this.handlePointerDown, {
+      capture: true,
+    });
+    window.removeEventListener('pointerup', this.handlePointerUp, {
       capture: true,
     });
     document.removeEventListener('keydown', this.handleKeyDown);
@@ -220,6 +396,43 @@ export class DsPickerOverlay extends LitElement {
   }
 
   private handlePointerMove = (event: PointerEvent | MouseEvent) => {
+    const { pickerMode } = this.storeController.state;
+
+    if (pickerMode === 'region') {
+      this.storeController.store.setHoveredElement(null);
+      this.highlightRect = null;
+      this.tooltipPosition = null;
+
+      if (this.resizeHandle && this.resizeStart) {
+        this.dragRect = this.resizeRect(
+          this.resizeStart.rect,
+          this.resizeHandle,
+          event.clientX - this.resizeStart.x,
+          event.clientY - this.resizeStart.y,
+        );
+        return;
+      }
+
+      if (this.moveStart) {
+        this.dragRect = this.translateRect(
+          this.moveStart.rect,
+          event.clientX - this.moveStart.x,
+          event.clientY - this.moveStart.y,
+        );
+        return;
+      }
+
+      if (this.dragStart) {
+        this.dragRect = this.buildRectFromPoints(
+          this.dragStart.x,
+          this.dragStart.y,
+          event.clientX,
+          event.clientY,
+        );
+      }
+      return;
+    }
+
     const rawElement = this.getElementUnderPoint(event.clientX, event.clientY);
     const element = this.resolveSelectableElement(rawElement);
 
@@ -237,12 +450,108 @@ export class DsPickerOverlay extends LitElement {
     }
   };
 
-  private handleClick = async (event: PointerEvent | MouseEvent) => {
+  private handlePointerDown = (event: PointerEvent) => {
+    if (this.storeController.state.pickerMode !== 'region') return;
+
+    const handle = this.getRegionHandle(event);
+    if (handle && this.dragRect) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.resizeHandle = handle;
+      this.resizeStart = {
+        x: event.clientX,
+        y: event.clientY,
+        rect: this.dragRect,
+      };
+      return;
+    }
+
+    if (this.isRegionBoxEvent(event) && this.dragRect) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.moveStart = {
+        x: event.clientX,
+        y: event.clientY,
+        rect: this.dragRect,
+      };
+      return;
+    }
+
+    if (this.isPickerChromeEvent(event)) {
+      return;
+    }
+
     event.preventDefault();
     event.stopPropagation();
 
+    this.dragStart = { x: event.clientX, y: event.clientY };
+    this.dragRect = this.buildRectFromPoints(
+      event.clientX,
+      event.clientY,
+      event.clientX,
+      event.clientY,
+    );
+    this.highlightRect = null;
+    this.tooltipPosition = null;
+  };
+
+  private handlePointerUp = async (event: PointerEvent) => {
+    if (this.storeController.state.pickerMode !== 'region' || !this.dragStart) {
+      if (this.resizeHandle) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.resizeHandle = null;
+        this.resizeStart = null;
+      }
+      if (this.moveStart) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.moveStart = null;
+      }
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const rect = this.buildRectFromPoints(
+      this.dragStart.x,
+      this.dragStart.y,
+      event.clientX,
+      event.clientY,
+    );
+    this.dragStart = null;
+
+    if (rect.width < 8 || rect.height < 8) {
+      this.dragRect = null;
+      return;
+    }
+
+    this.dragRect = rect;
+  };
+
+  private handleClick = async (event: PointerEvent | MouseEvent) => {
+    if (this.isPickerChromeEvent(event)) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const { pickerMode } = this.storeController.state;
+    if (pickerMode === 'region') {
+      return;
+    }
+
     const rawElement = this.getElementUnderPoint(event.clientX, event.clientY);
     const element = this.resolveSelectableElement(rawElement);
+
+    if (pickerMode === 'multi') {
+      if (element) {
+        this.toggleMultiElement(element);
+      }
+      return;
+    }
 
     if (element) {
       await this.storeController.store.selectElement(element);
@@ -252,26 +561,282 @@ export class DsPickerOverlay extends LitElement {
   private handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === 'Escape') {
       this.storeController.store.exitCaptureMode();
+      return;
+    }
+
+    if (
+      event.key === 'Enter' &&
+      this.storeController.state.pickerMode === 'multi'
+    ) {
+      event.preventDefault();
+      this.confirmMultiSelection();
+      return;
+    }
+
+    if (
+      event.key === 'Enter' &&
+      this.storeController.state.pickerMode === 'region'
+    ) {
+      event.preventDefault();
+      this.confirmRegionSelection();
     }
   };
 
+  private confirmMultiSelection = () => {
+    if (this.multiElements.length === 0) return;
+    this.storeController.store.selectMultipleElements(this.multiElements);
+  };
+
+  private confirmRegionSelection = () => {
+    if (!this.dragRect || this.dragRect.width < 8 || this.dragRect.height < 8) {
+      return;
+    }
+    this.storeController.store.selectRegion(
+      this.dragRect,
+      this.collectElementsInRect(this.dragRect),
+    );
+  };
+
+  private toggleMultiElement(element: HTMLElement): void {
+    if (this.multiElements.includes(element)) {
+      this.multiElements = this.multiElements.filter((item) => item !== element);
+      return;
+    }
+
+    this.multiElements = [...this.multiElements, element].slice(0, 30);
+  }
+
+  private buildRectFromPoints(
+    startX: number,
+    startY: number,
+    endX: number,
+    endY: number,
+  ): BoundingRect {
+    const left = Math.min(startX, endX);
+    const right = Math.max(startX, endX);
+    const top = Math.min(startY, endY);
+    const bottom = Math.max(startY, endY);
+
+    return {
+      x: left,
+      y: top,
+      width: right - left,
+      height: bottom - top,
+      top,
+      right,
+      bottom,
+      left,
+    };
+  }
+
+  private collectElementsInRect(rect: BoundingRect): HTMLElement[] {
+    const allElements = Array.from(document.body.querySelectorAll<HTMLElement>('*'));
+    const candidates = allElements.filter((element) => {
+      if (element.closest('ds-overlay, ds-picker-overlay, ds-sidebar, ds-tab')) {
+        return false;
+      }
+      const tagName = element.tagName.toLowerCase();
+      if (tagName === 'html' || tagName === 'body') {
+        return false;
+      }
+      const elementRect = element.getBoundingClientRect();
+      return (
+        elementRect.width >= 8 &&
+        elementRect.height >= 8 &&
+        elementRect.right >= rect.left &&
+        elementRect.left <= rect.right &&
+        elementRect.bottom >= rect.top &&
+        elementRect.top <= rect.bottom
+      );
+    });
+
+    const bridged = candidates.filter((element) => element.hasAttribute('data-ds'));
+    return (bridged.length > 0 ? bridged : candidates).slice(0, 30);
+  }
+
+  private isPickerChromeEvent(event: Event): boolean {
+    return event
+      .composedPath()
+      .some(
+        (target) =>
+            target instanceof HTMLElement &&
+          (target.classList.contains('picker-action') ||
+            target.classList.contains('picker-toast') ||
+            target.classList.contains('region-box') ||
+            target.classList.contains('region-handle')),
+      );
+  }
+
+  private isRegionBoxEvent(event: Event): boolean {
+    return event
+      .composedPath()
+      .some(
+        (target) =>
+          target instanceof HTMLElement &&
+          target.classList.contains('region-box'),
+      );
+  }
+
+  private getRegionHandle(
+    event: Event,
+  ):
+    | 'nw'
+    | 'n'
+    | 'ne'
+    | 'e'
+    | 'se'
+    | 's'
+    | 'sw'
+    | 'w'
+    | null {
+    const target = event.composedPath()[0];
+    if (!(target instanceof HTMLElement)) {
+      return null;
+    }
+    const handle = target.dataset.handle;
+    return handle === 'nw' ||
+      handle === 'n' ||
+      handle === 'ne' ||
+      handle === 'e' ||
+      handle === 'se' ||
+      handle === 's' ||
+      handle === 'sw' ||
+      handle === 'w'
+      ? handle
+      : null;
+  }
+
+  private resizeRect(
+    source: BoundingRect,
+    handle: NonNullable<DsPickerOverlay['resizeHandle']>,
+    deltaX: number,
+    deltaY: number,
+  ): BoundingRect {
+    let { left, top, right, bottom } = source;
+
+    if (handle.includes('w')) {
+      left += deltaX;
+    }
+    if (handle.includes('e')) {
+      right += deltaX;
+    }
+    if (handle.includes('n')) {
+      top += deltaY;
+    }
+    if (handle.includes('s')) {
+      bottom += deltaY;
+    }
+
+    return this.buildRectFromPoints(left, top, right, bottom);
+  }
+
+  private translateRect(
+    source: BoundingRect,
+    deltaX: number,
+    deltaY: number,
+  ): BoundingRect {
+    const left = source.left + deltaX;
+    const top = source.top + deltaY;
+
+    return {
+      x: left,
+      y: top,
+      left,
+      top,
+      right: left + source.width,
+      bottom: top + source.height,
+      width: source.width,
+      height: source.height,
+    };
+  }
+
+  private getToastCopy(pickerMode: PickerMode): { key: string; text: string } {
+    if (pickerMode === 'region') {
+      return { key: 'Enter', text: 'Bereich uebernehmen · ESC beendet' };
+    }
+    if (pickerMode === 'multi') {
+      return { key: 'Enter', text: 'Auswahl uebernehmen · ESC beendet' };
+    }
+    return { key: 'ESC', text: 'zum Beenden' };
+  }
+
   override render() {
-    const { hoveredElement, theme } = this.storeController.state;
+    const { hoveredElement, theme, pickerMode } = this.storeController.state;
+    const toast = this.getToastCopy(pickerMode);
 
     return html`
-      <div class="overlay">
+      <div class="overlay ${pickerMode === 'region' ? 'region' : ''}">
         ${this.showIntroNotice
-          ? html`<div class="picker-toast" role="status">
-              <kbd>ESC</kbd>
-              <span>zum Beenden</span>
+          ? html`<div
+              class="picker-toast ${pickerMode === 'element' ? '' : 'persistent'}"
+              role="status"
+            >
+              <kbd>${toast.key}</kbd>
+              <span>${toast.text}</span>
+              ${pickerMode === 'multi'
+                ? html`
+                    <button
+                      class="picker-action"
+                      @click=${this.confirmMultiSelection}
+                      ?disabled=${this.multiElements.length === 0}
+                    >
+                      Uebernehmen
+                    </button>
+                  `
+                : null}
+              ${pickerMode === 'region'
+                ? html`
+                    <button
+                      class="picker-action"
+                      @click=${this.confirmRegionSelection}
+                      ?disabled=${!this.dragRect}
+                    >
+                      Uebernehmen
+                    </button>
+                  `
+                : null}
             </div>`
           : null}
 
+        ${this.dragRect
+          ? html`<div
+              class="region-box"
+              style=${`left:${this.dragRect.left}px;top:${this.dragRect.top}px;width:${this.dragRect.width}px;height:${this.dragRect.height}px;`}
+            >
+              ${(['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'] as const).map(
+                (handle) => html`
+                  <span class="region-handle" data-handle=${handle}></span>
+                `,
+              )}
+            </div>`
+          : null}
         ${this.highlightRect
           ? html`<ds-highlight-box
               theme=${theme}
               .rect=${this.highlightRect}
             ></ds-highlight-box>`
+          : null}
+        ${this.multiElements.map(
+          (element) => html`
+            <ds-highlight-box
+              theme=${theme}
+              .rect=${element.getBoundingClientRect()}
+            ></ds-highlight-box>
+          `,
+        )}
+        ${pickerMode === 'multi'
+          ? html`<div class="multi-count">
+              ${this.multiElements.length} gewaehlt · Enter oder Uebernehmen
+            </div>`
+          : null}
+        ${pickerMode === 'region'
+          ? html`<div class="multi-count">
+              ${this.dragRect
+                ? `${Math.round(this.dragRect.width)} x ${Math.round(
+                    this.dragRect.height,
+                  )} px · Enter oder Uebernehmen`
+                : 'Bereich mit gedrueckter Maus aufziehen'}
+            </div>`
           : null}
         ${hoveredElement && this.tooltipPosition
           ? html`<ds-tooltip

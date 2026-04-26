@@ -1,6 +1,12 @@
 name: Publish
 
 on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version/tag, for example v0.6.0'
+        required: true
+        type: string
   push:
     tags:
       - 'v*'
@@ -74,11 +80,11 @@ jobs:
           tar -czf tmp/pinflow-gemini-extension.tar.gz -C tmp/gemini-archive .
 
       - name: Create GitHub Release
+        env:
+          VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          VERSION=${GITHUB_REF#refs/tags/}
           gh release create "$VERSION" \
             --title "$VERSION" \
             --generate-notes \
             tmp/pinflow-gemini-extension.tar.gz
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

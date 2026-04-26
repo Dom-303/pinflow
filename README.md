@@ -3,32 +3,33 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/npm-v0.6.0--pinflow.0-D99545?style=flat-square&logo=npm&logoColor=white" alt="npm v0.6.0-pinflow.0" />
-  <img src="https://img.shields.io/badge/CI-verified-2B2B2B?style=flat-square&logo=githubactions&logoColor=white" alt="CI verified" />
-  <img src="https://img.shields.io/badge/coverage-local-2B2B2B?style=flat-square" alt="local coverage" />
+  <a href="https://www.npmjs.com/search?q=%40pinflow"><img src="https://img.shields.io/badge/npm-v0.6.0--pinflow.0-D99545?style=flat-square&logo=npm&logoColor=white" alt="npm v0.6.0-pinflow.0" /></a>
+  <a href="https://github.com/Dom-303/pinflow/actions"><img src="https://img.shields.io/badge/CI-verified-2B2B2B?style=flat-square&logo=githubactions&logoColor=white" alt="CI verified" /></a>
+  <a href="#lokale-prüfung"><img src="https://img.shields.io/badge/coverage-local-2B2B2B?style=flat-square" alt="local coverage" /></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/MIT-License-D99545?style=flat-square" alt="MIT License" /></a>
-  <img src="https://img.shields.io/badge/TypeScript-5.x-D99545?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript 5.x" />
-  <img src="https://img.shields.io/badge/Node-%3E%3D18-2B2B2B?style=flat-square&logo=node.js&logoColor=white" alt="Node.js >= 18" />
-  <img src="https://img.shields.io/badge/PRs-welcome-D99545?style=flat-square" alt="PRs welcome" />
-  <img src="https://img.shields.io/badge/MCP-Compatible-2B2B2B?style=flat-square" alt="MCP Compatible" />
+  <a href="./package.json"><img src="https://img.shields.io/badge/TypeScript-5.x-D99545?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript 5.x" /></a>
+  <a href="./package.json"><img src="https://img.shields.io/badge/Node-%3E%3D18-2B2B2B?style=flat-square&logo=node.js&logoColor=white" alt="Node.js >= 18" /></a>
+  <a href="https://github.com/Dom-303/pinflow/pulls"><img src="https://img.shields.io/badge/PRs-welcome-D99545?style=flat-square" alt="PRs welcome" /></a>
+  <a href="https://modelcontextprotocol.io/"><img src="https://img.shields.io/badge/MCP-Compatible-2B2B2B?style=flat-square" alt="MCP Compatible" /></a>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/React-D99545?style=flat-square&logo=react&logoColor=white" alt="React" />
-  <img src="https://img.shields.io/badge/Vue-D99545?style=flat-square&logo=vuedotjs&logoColor=white" alt="Vue" />
-  <img src="https://img.shields.io/badge/Next.js-2B2B2B?style=flat-square&logo=nextdotjs&logoColor=white" alt="Next.js" />
-  <img src="https://img.shields.io/badge/Nuxt-D99545?style=flat-square&logo=nuxt&logoColor=white" alt="Nuxt" />
-  <img src="https://img.shields.io/badge/Vite-2B2B2B?style=flat-square&logo=vite&logoColor=white" alt="Vite" />
-  <img src="https://img.shields.io/badge/Webpack-2B2B2B?style=flat-square&logo=webpack&logoColor=white" alt="Webpack" />
-  <img src="https://img.shields.io/badge/Turbopack-D99545?style=flat-square&logo=turbo&logoColor=white" alt="Turbopack" />
+  <a href="./packages/pinflow-react"><img src="https://img.shields.io/badge/React-D99545?style=flat-square&logo=react&logoColor=white" alt="React" /></a>
+  <a href="./packages/pinflow-vue"><img src="https://img.shields.io/badge/Vue-D99545?style=flat-square&logo=vuedotjs&logoColor=white" alt="Vue" /></a>
+  <a href="./packages/pinflow-next"><img src="https://img.shields.io/badge/Next.js-2B2B2B?style=flat-square&logo=nextdotjs&logoColor=white" alt="Next.js" /></a>
+  <a href="./packages/pinflow-nuxt"><img src="https://img.shields.io/badge/Nuxt-D99545?style=flat-square&logo=nuxt&logoColor=white" alt="Nuxt" /></a>
+  <a href="./packages/pinflow-transform"><img src="https://img.shields.io/badge/Vite-2B2B2B?style=flat-square&logo=vite&logoColor=white" alt="Vite" /></a>
+  <a href="./packages/pinflow-transform"><img src="https://img.shields.io/badge/Webpack-2B2B2B?style=flat-square&logo=webpack&logoColor=white" alt="Webpack" /></a>
+  <a href="./packages/pinflow-transform"><img src="https://img.shields.io/badge/Turbopack-D99545?style=flat-square&logo=turbo&logoColor=white" alt="Turbopack" /></a>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Claude_Code-D99545?style=flat-square" alt="Claude Code" />
-  <img src="https://img.shields.io/badge/GitHub_Copilot-2B2B2B?style=flat-square&logo=githubcopilot&logoColor=white" alt="GitHub Copilot" />
-  <img src="https://img.shields.io/badge/Cursor-2B2B2B?style=flat-square" alt="Cursor" />
-  <img src="https://img.shields.io/badge/Gemini-D99545?style=flat-square&logo=googlegemini&logoColor=white" alt="Gemini" />
-  <img src="https://img.shields.io/badge/Kiro-2B2B2B?style=flat-square" alt="Kiro" />
+  <a href="https://help.openai.com/en/articles/11369540-codex-in-chatgpt"><img src="https://img.shields.io/badge/Codex-D99545?style=flat-square&logo=openai&logoColor=white" alt="Codex" /></a>
+  <a href="https://docs.anthropic.com/en/docs/claude-code/overview"><img src="https://img.shields.io/badge/Claude_Code-D99545?style=flat-square" alt="Claude Code" /></a>
+  <a href="https://docs.github.com/en/copilot/concepts/agents/about-copilot-cli"><img src="https://img.shields.io/badge/GitHub_Copilot-2B2B2B?style=flat-square&logo=githubcopilot&logoColor=white" alt="GitHub Copilot" /></a>
+  <a href="https://docs.cursor.com/en/context/mcp"><img src="https://img.shields.io/badge/Cursor-2B2B2B?style=flat-square" alt="Cursor" /></a>
+  <a href="https://google-gemini.github.io/gemini-cli/docs/"><img src="https://img.shields.io/badge/Gemini-D99545?style=flat-square&logo=googlegemini&logoColor=white" alt="Gemini" /></a>
+  <a href="https://aws.amazon.com/documentation-overview/kiro/"><img src="https://img.shields.io/badge/Kiro-2B2B2B?style=flat-square" alt="Kiro" /></a>
 </p>
 
 ---

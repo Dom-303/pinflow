@@ -45,24 +45,14 @@
 
 ---
 
-**AI coding agents edit your source files blind — they can't see your running frontend, and your frontend can't tell them where to look.**
+**PinFlow gives coding agents source-exact runtime context from your running frontend.**
 
-PinFlow bridges both directions: click a DOM element to tell your agent what to change, or let your agent query any source location to see exactly what it looks like live in the browser. It grows out of the original [PinFlow](https://github.com/patchorbit/pinflow) source-mapped runtime foundation, but the active product surface here is `PinFlow`: visual review, queueing, dispatch, and agent-facing workflow polish for real projects. Build-time stable IDs, deep runtime context (props, state, DOM), framework-agnostic, any MCP-compatible agent. Zero production impact.
+Click the UI, describe what should change, and PinFlow turns that moment into a queued task with source file, line, component, props, state, DOM, and your instruction. Or let Codex, Claude, or any MCP-compatible agent query a source location and see what is live in the browser before it edits. The result is a tighter loop: less guessing, fewer wrong files, and clearer verification after every change.
+
+PinFlow is built on the original [PinFlow](https://github.com/patchorbit/pinflow) source-mapping foundation. This fork productizes that foundation into a visual review surface, queueing workflow, dispatch controls, Codex/Claude setup, and repo-ready packages for real frontend projects.
 
 > [!NOTE]
-> `PinFlow` is our productized adaptation of the original [PinFlow](https://github.com/patchorbit/pinflow) codebase. The visible product surface, workflow wording, plugin manifests, package scopes, and UI evolve here. Legacy `pinflow` commands, MCP names, and artifact paths remain only as transitional compatibility aliases during the migration window.
-
----
-
-## Local Preview
-
-Use the canonical preview flow to refresh a dedicated PinFlow preview registry, reinstall the fixture against the current PinFlow build, and start the local Vite React preview from one place:
-
-```bash
-pnpm run pinflow:preview:vite-react
-```
-
-This is the preferred path whenever you want to verify the current PinFlow UI instead of older fixture artifacts or stale compatibility packages.
+> Historical compatibility names remain where they protect existing setups: package scopes, CLI aliases, MCP keys, and local artifact paths may still expose `pinflow` during the migration window. The product language, UI, docs, and workflow here are PinFlow-first.
 
 ---
 
@@ -72,54 +62,92 @@ This is the preferred path whenever you want to verify the current PinFlow UI in
 npx pinflow init
 ```
 
-Preferred installed CLI command: `pinflow`
-Current no-install compatibility path: `npx pinflow init`
-Compatibility alias: `pinflow`
+The setup wizard walks through the two things PinFlow needs:
 
-The setup wizard walks you through two steps:
+1. **Connect your coding agent** - choose `Codex`, `Claude`, or another MCP-compatible setup, then install the matching plugin/config.
+2. **Add PinFlow to your app** - choose the framework and bundler, install the right package, and apply the shown config snippet.
 
-1. **Connect your coding agent** — select your agent (`Codex`, `Claude`, or another MCP-compatible setup) and the wizard installs the plugin automatically.
-2. **Add to your app** — select your framework and bundler, the wizard installs the right package and shows you the config snippet to add.
+Start your dev server, open the app in the browser, and the PinFlow overlay is ready to capture context.
 
-That's it. Start your dev server and you're ready to go.
+- Installed command: `pinflow init`
+- No-install command: `npx pinflow init`
 
-> Prefer to set things up manually, or need finer control? See the [manual setup](#manual-setup) instructions below.
+> Prefer manual setup or need finer control? See [Manual Setup](#manual-setup).
 
 ---
 
-## Features
+## Why PinFlow
 
-### Code → UI: Let the agent see the browser
+- **UI changes become precise agent tasks.** Pick an element, region, or multi-selection and send an instruction with exact source and runtime context.
+- **Code can ask the browser for evidence.** `pinflow.query.bySource` lets an agent inspect live DOM, props, state, and rendered attributes for a file and line.
+- **The workflow stays repo-local.** Annotations live in `.pinflow/annotations/`, move through queue states, and are exposed through REST, WebSocket, and MCP.
+- **It is safe for production builds.** Instrumentation is development-only and stripped in production.
 
-Your agent calls `pinflow.query.bySource` with a file path and line number and gets back the live DOM snapshot, current props, component state, and rendered attributes — directly from the running browser. No human interaction needed.
+---
+
+## Visual Workflows
+
+### UI -> Code: Point And Tell
+
+Click any element in the running app, describe the change in plain English, and submit. PinFlow captures the source location, component metadata, runtime context, and your instruction as a repo-local annotation. The agent claims it, edits the exact file, and streams status back to the overlay.
 
 <p align="center">
-  <img src="./assets/code-to-ui.png" alt="Code → UI: Let the agent see the browser" width="900" />
+  <img src="./assets/ui-to-code.png" alt="UI to Code workflow: pick a rendered element, write an instruction, and send a source-exact task to a coding agent" width="920" />
+</p>
+
+### Code -> UI: Let The Agent See The Browser
+
+Your agent calls `pinflow.query.bySource` with a file path and line number. PinFlow resolves that source location against the active browser and returns live DOM, props, component state, rendered attributes, and source metadata before the agent edits.
+
+<p align="center">
+  <img src="./assets/code-to-ui.png" alt="Code to UI workflow: an agent queries a source location and receives live runtime context from the browser" width="920" />
 </p>
 
 > [!TIP]
-> Agents don't spontaneously query runtime state — prompt them explicitly:
-> _"Fix the button color — use PinFlow's runtime query tool (`pinflow.query.bySource`) to check what CSS classes it has before changing anything."_
-> Your dev server must be running with the target page open in the browser.
+> Agents do not query runtime state automatically. Prompt them explicitly:
+> _"Fix the button color. Use `pinflow.query.bySource` to inspect the live runtime context before changing the file."_
+> Keep the target page open in the browser while the agent works.
 
-### UI → Code: Point and tell
+---
 
-Click any element in the browser overlay, describe the change in plain English, and submit. PinFlow captures the element's source location, runtime context, and your instruction as an annotation. The agent claims it, navigates to the exact file and line, and implements the change. The overlay shows the agent's response in real time via WebSocket.
+## Core Features
 
-<p align="center">
-  <img src="./assets/ui-to-code.png" alt="UI → Code: Point and tell" width="900" />
-</p>
+- **Build-time stable IDs** - deterministic `data-ds` attributes injected via AST, stable across HMR and fast refresh
+- **Deep runtime capture** - live props, state, component metadata, and DOM snapshots via React fiber walking and Vue VNode inspection
+- **Framework-agnostic adapters** - React 18-19, Vue 3, Next.js 15-16, Nuxt 3+, plus an [extensible adapter interface](./packages/pinflow-runtime/CUSTOM_ADAPTERS.md)
+- **Bundler coverage** - Vite 5-7, Webpack 5, and Turbopack
+- **Agent workflow** - queue, claim, process, respond, retry, undo, and failure states exposed to the overlay and MCP clients
+- **PII redaction** - emails, tokens, and sensitive patterns are scrubbed before leaving the browser
+- **Real-time feedback** - WebSocket relay streams agent responses and workflow updates back to the overlay
+- **Zero production impact** - development instrumentation is removed from production builds and enforced in CI
 
-### More
+---
 
-- 🎯 **Build-time stable IDs** — deterministic `data-ds` attributes injected via AST, stable across HMR and fast refresh
-- 🧩 **Framework-agnostic** — React 18-19, Vue 3, Next.js 15-16, Nuxt 3+, with an [extensible adapter interface](./packages/pinflow-runtime/CUSTOM_ADAPTERS.md)
-- 📦 **Any bundler** — Vite 5-7, Webpack 5, Turbopack
-- 🔍 **Deep runtime capture** — live props, state, and DOM snapshots via React fiber walking and Vue VNode inspection
-- 🛡️ **Zero production impact** — all instrumentation stripped in production builds, enforced in CI
-- 🔒 **PII redaction** — emails, tokens, and sensitive patterns automatically scrubbed before leaving the browser
-- 📁 **Annotations live in your repo** — stored as JSON files in `.pinflow/annotations/`, exposed via REST APIs that MCP wraps for agent access
-- 📡 **Real-time feedback** — WebSocket relay pushes agent responses to the browser overlay as they happen
+## Workflow And Settings
+
+PinFlow is designed for the moment where a developer is looking at the browser and wants the agent to work from the same context.
+
+| Control          | What it does                                                                                           |
+| ---------------- | ------------------------------------------------------------------------------------------------------ |
+| Picker modes     | Choose element, region, or multi-select capture depending on how specific the instruction needs to be. |
+| Dispatch channel | Send work to Codex, Claude, or keep it in "collect only" mode when you want to batch notes first.      |
+| Queue state      | Follow annotations from queued to claimed, processing, processed, failed, or undone.                   |
+| Undo             | Revert local selections or create a follow-up reversal task for work that has already been processed.  |
+| Session settings | Keep agent choice, dispatch behavior, and workflow defaults visible without making the composer noisy. |
+
+If the relay or browser connection is missing, PinFlow should make that state clear: the overlay can still collect useful context, but agent processing needs the local relay and MCP connection to be running.
+
+---
+
+## Local Preview
+
+Use the canonical preview flow to rebuild PinFlow, publish the current packages into a local preview registry, reinstall the fixture, and start a Vite React preview:
+
+```bash
+pnpm run pinflow:preview:vite-react
+```
+
+This is the preferred path when verifying the current overlay UI, settings, queue behavior, and README-facing workflow claims against a real browser fixture.
 
 ---
 
@@ -128,7 +156,7 @@ Click any element in the browser overlay, describe the change in plain English, 
 > [!NOTE]
 > `npx pinflow init` handles both steps below automatically. Use manual setup only if you need finer control.
 
-If you already installed the CLI package globally or through your toolchain, prefer `pinflow init`. The `pinflow` command remains available as a compatibility alias during the migration.
+If you already installed the CLI package globally or through your toolchain, prefer `pinflow init`. Older local configs may still resolve through compatibility aliases, but new setup docs should use PinFlow-facing commands.
 
 PinFlow has two sides: **app-side** (bundler + framework plugins) and **agent-side** (MCP for your coding agent). Both are needed for the full workflow.
 
@@ -282,9 +310,7 @@ Webpack plugin:
 
 ```js
 // webpack.config.js
-const {
-  PinFlowWebpackPlugin,
-} = require('@pinflow/transform/plugins/webpack');
+const { PinFlowWebpackPlugin } = require('@pinflow/transform/plugins/webpack');
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -377,7 +403,7 @@ Compatibility aliases remain available for older `pinflow.*` MCP clients
 ## How It Works
 
 <p align="center">
-  <img src="./assets/architecture.png" alt="PinFlow architecture diagram" />
+  <img src="./assets/architecture.png" alt="PinFlow architecture diagram showing source app, bundler plugin, manifest, runtime, overlay, relay, repo queue, and agents" width="940" />
 </p>
 
 **1. Inject.** The bundler plugin parses each source file, injects HMR-stable `data-ds` IDs via xxhash64, and records each mapping in `.pinflow/manifest.jsonl`.
@@ -390,7 +416,21 @@ Compatibility aliases remain available for older `pinflow.*` MCP clients
 
 ---
 
-## Comparison
+## PinFlow And The Original Foundation
+
+PinFlow keeps attribution to the original [PinFlow](https://github.com/patchorbit/pinflow) foundation because the source-mapped runtime layer matters. The difference is product focus: this repo turns that foundation into a usable agent workflow for daily frontend development.
+
+| Area                  | Original foundation                        | PinFlow in this repo                                                           |
+| --------------------- | ------------------------------------------ | ------------------------------------------------------------------------------ |
+| Core capability       | Source-mapped DOM/runtime context          | Source-exact context plus visual task capture                                  |
+| Product surface       | Lower-level runtime and integration pieces | Polished overlay, picker modes, composer, queue, dispatch, settings            |
+| Agent workflow        | MCP-facing primitives                      | Codex/Claude-ready flow with annotations, status updates, undo, and responses  |
+| Repository experience | Technical foundation docs                  | Friend-ready GitHub README, visual diagrams, setup path, packages, comparisons |
+| Compatibility         | Proven source-mapping base                 | Keeps compatibility aliases while moving visible product language to PinFlow   |
+
+---
+
+## Market Comparison
 
 | Feature               | PinFlow                                      | [Stagewise](https://github.com/stagewise-io/stagewise) | [DevInspector MCP](https://github.com/mcpc-tech/dev-inspector-mcp) | [React Grab](https://github.com/aidenybai/react-grab) | [Frontman](https://github.com/frontman-ai/frontman) |
 | --------------------- | -------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------ | ----------------------------------------------------- | --------------------------------------------------- |
@@ -412,20 +452,20 @@ No single competitor combines build-time stable IDs, deep runtime capture, bidir
 
 ## MCP Tools
 
-| Tool                                | Description                                                                             |
-| ----------------------------------- | --------------------------------------------------------------------------------------- |
-| `pinflow.query.bySource`            | Query a source file + line and get live runtime context (props, state, DOM snapshot)    |
-| `pinflow.manifest.query`            | Find manifest entries by file path, component name, or element ID                       |
-| `pinflow.manifest.stats`            | Manifest coverage statistics (entry count, file count, component count, cache hit rate) |
-| `pinflow.resolve`                   | Resolve a `data-ds` element ID to its source location (file, line, col, component)      |
-| `pinflow.resolve.batch`             | Resolve multiple element IDs in one call                                                |
-| `pinflow.annotation.process`        | Atomically claim the next queued annotation (prevents concurrent agent conflicts)        |
-| `pinflow.annotation.respond`        | Attach agent response and transition to `PROCESSED`                                     |
-| `pinflow.annotation.updateStatus`   | Manually transition annotation status                                                   |
-| `pinflow.annotation.get`            | Retrieve annotation by ID                                                               |
-| `pinflow.annotation.list`           | List annotations with status/filter options                                             |
-| `pinflow.annotation.search`         | Full-text search across annotation content                                              |
-| `pinflow.status`                    | Relay daemon health, manifest stats, queue counts                                       |
+| Tool                              | Description                                                                             |
+| --------------------------------- | --------------------------------------------------------------------------------------- |
+| `pinflow.query.bySource`          | Query a source file + line and get live runtime context (props, state, DOM snapshot)    |
+| `pinflow.manifest.query`          | Find manifest entries by file path, component name, or element ID                       |
+| `pinflow.manifest.stats`          | Manifest coverage statistics (entry count, file count, component count, cache hit rate) |
+| `pinflow.resolve`                 | Resolve a `data-ds` element ID to its source location (file, line, col, component)      |
+| `pinflow.resolve.batch`           | Resolve multiple element IDs in one call                                                |
+| `pinflow.annotation.process`      | Atomically claim the next queued annotation (prevents concurrent agent conflicts)       |
+| `pinflow.annotation.respond`      | Attach agent response and transition to `PROCESSED`                                     |
+| `pinflow.annotation.updateStatus` | Manually transition annotation status                                                   |
+| `pinflow.annotation.get`          | Retrieve annotation by ID                                                               |
+| `pinflow.annotation.list`         | List annotations with status/filter options                                             |
+| `pinflow.annotation.search`       | Full-text search across annotation content                                              |
+| `pinflow.status`                  | Relay daemon health, manifest stats, queue counts                                       |
 
 See the compatibility package docs in the [`@pinflow/mcp` README](./packages/pinflow-mcp/README.md) for detailed tool schemas, response formats, and prompt definitions.
 
@@ -433,8 +473,8 @@ See the compatibility package docs in the [`@pinflow/mcp` README](./packages/pin
 
 ## Packages
 
-| Package                    | Description                                                                         |
-| -------------------------- | ----------------------------------------------------------------------------------- |
+| Package                  | Description                                                                         |
+| ------------------------ | ----------------------------------------------------------------------------------- |
 | `@pinflow/core`          | Zod schemas, RFC 7807 error system, ID generation, PII redaction, constants         |
 | `@pinflow/manifest`      | Append-only JSONL manifest, IDStabilizer (xxhash64), BatchWriter, ManifestCompactor |
 | `@pinflow/relay`         | Fastify HTTP/WS server, MCP stdio adapter, annotation lifecycle                     |
@@ -445,9 +485,9 @@ See the compatibility package docs in the [`@pinflow/mcp` README](./packages/pin
 | `@pinflow/vue`           | Vue 3 VNode resolution, Composition + Options API support, Vite + Webpack plugins   |
 | `@pinflow/next`          | `withPinFlow()` config wrapper for Next.js 15 + 16                                  |
 | `@pinflow/nuxt`          | Nuxt 3+ module with auto-relay and runtime plugin                                   |
-| `pinflow`                | Compatibility CLI binary. Preferred product commands are `pinflow serve`, `status`, `stop`, `init`, `mcp` |
-| `@pinflow/mcp`           | Compatibility MCP package. Preferred product binary is `pinflow-mcp`                |
-| `@pinflow/test-fixtures`   | Black-box integration + e2e suite (not published)                                   |
+| `pinflow`                | Command-line entrypoint for `serve`, `status`, `stop`, `init`, and `mcp`            |
+| `@pinflow/mcp`           | Standalone MCP package. Preferred product binary is `pinflow-mcp`                   |
+| `@pinflow/test-fixtures` | Black-box integration + e2e suite (not published)                                   |
 
 ---
 

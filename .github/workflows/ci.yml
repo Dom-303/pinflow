@@ -1,6 +1,7 @@
 name: CI
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -40,9 +41,15 @@ jobs:
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         env:
           GH_TOKEN: ${{ secrets.GIST_SECRET }}
+          COVERAGE_GIST_ID: ${{ vars.COVERAGE_GIST_ID }}
         run: |
+          if [ -z "$GH_TOKEN" ] || [ -z "$COVERAGE_GIST_ID" ]; then
+            echo "Skipping coverage badge update because GIST_SECRET or COVERAGE_GIST_ID is not configured."
+            exit 0
+          fi
+
           npx nx run pinflow:coverage-badge
-          gh api --method PATCH "gists/${{ vars.COVERAGE_GIST_ID }}" \
+          gh api --method PATCH "gists/${COVERAGE_GIST_ID}" \
             -f "files[pinflow-coverage.json][content]=$(cat coverage/shields.json)"
 
   build-registry:

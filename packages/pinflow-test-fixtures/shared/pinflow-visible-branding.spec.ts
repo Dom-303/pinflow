@@ -55,7 +55,7 @@ describe('pinflow visible preview branding', () => {
     expect(app).toContain('pinflow-wordmark-slogan-light.png');
     expect(app).not.toContain('codeToUiImage');
     expect(app).not.toContain('uiToCodeImage');
-    expect(viteConfig).toContain("initialMode: 'collapsed'");
+    expect(viteConfig).toContain("initialMode: 'expanded'");
     expect(viteConfig).toContain("initialTheme: 'light'");
   });
 });

@@ -94,9 +94,16 @@ export async function readOverlayContext(
         const titleEl = section.querySelector('.section-title');
         const titleText = titleEl?.textContent?.trim().toLowerCase() ?? '';
 
-        // Determine if this is props or state section
-        const isProps = titleText.startsWith('props');
-        const isState = titleText.startsWith('state');
+        // Determine if this is props or state section. The overlay UI is
+        // localized, while older fixtures still use English test wording.
+        const isProps =
+          titleText.startsWith('props') ||
+          titleText.startsWith('properties') ||
+          titleText.startsWith('eigenschaften');
+        const isState =
+          titleText.startsWith('state') ||
+          titleText.startsWith('status') ||
+          titleText.startsWith('zustand');
         const target = isProps ? props : isState ? state : null;
 
         if (!target) continue;
@@ -157,8 +164,14 @@ export async function readOverlayPropsAndState(
       const titleEl = section.querySelector('.section-title');
       const titleText = titleEl?.textContent?.trim().toLowerCase() ?? '';
 
-      const isProps = titleText.startsWith('props');
-      const isState = titleText.startsWith('state');
+      const isProps =
+        titleText.startsWith('props') ||
+        titleText.startsWith('properties') ||
+        titleText.startsWith('eigenschaften');
+      const isState =
+        titleText.startsWith('state') ||
+        titleText.startsWith('status') ||
+        titleText.startsWith('zustand');
       const target = isProps ? props : isState ? state : null;
 
       if (!target) continue;
@@ -267,7 +280,10 @@ export async function enterOverlayCaptureMode(page: Page): Promise<boolean> {
     if (!input?.shadowRoot) return false;
 
     const btn = input.shadowRoot.querySelector(
-      'button[aria-label="Capture element"]',
+      [
+        'button[aria-label="Auswahl markieren"]',
+        'button[aria-label="Capture element"]',
+      ].join(','),
     );
     if (!btn) return false;
 

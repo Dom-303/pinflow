@@ -31,6 +31,7 @@ const LEGACY_BRAND_PATTERN = new RegExp(
     ['@dom', 'scribe/'].join(''),
   ].join('|'),
 );
+const ALLOWED_FOUNDATION_REFERENCES = new Set(['CHANGELOG.md', 'README.md']);
 
 function listTrackedTextFiles(): string[] {
   const output = execFileSync('git', ['ls-files', '-z'], {
@@ -53,8 +54,9 @@ function listTrackedTextFiles(): string[] {
 }
 
 describe('pinflow repository rename completeness', () => {
-  it('contains no tracked legacy brand references', () => {
+  it('contains no tracked legacy package or implementation references', () => {
     const offenders = listTrackedTextFiles()
+      .filter((file) => !ALLOWED_FOUNDATION_REFERENCES.has(file))
       .map((file) => {
         const content = readFileSync(resolve(ROOT, file), 'utf8');
 

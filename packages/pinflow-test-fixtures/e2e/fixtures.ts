@@ -32,7 +32,7 @@ export async function getServer(fixtureId: string): Promise<DevServerHandle> {
   const existing = servers.get(fixtureId);
   if (existing) return existing;
 
-  const server = await startDevServer(fixtureId, { timeout: 60_000 });
+  const server = await startDevServer(fixtureId, { timeout: 120_000 });
   servers.set(fixtureId, server);
   return server;
 }

@@ -144,7 +144,9 @@ Live-Zustand im Browser ab, bevor er editiert.
 - **Stabile Build-Time IDs** - deterministische `data-ds` Attribute per AST,
   stabil über HMR und Fast Refresh hinweg
 - **Runtime Capture** - Props, State, Komponenten-Metadaten und DOM-Snapshots
-  über React Fiber Walking und Vue VNode Inspection
+  über React Fiber Walking und Vue VNode Inspection; Next.js 16/Turbopack ist
+  für Element-, Source- und Props-Kontext verifiziert, Hook-State bleibt dort
+  aktuell best-effort
 - **Framework Support** - React 18-19, Vue 3, Next.js 15-16, Nuxt 3+ und ein
   [Adapter-Interface](./packages/pinflow-runtime/CUSTOM_ADAPTERS.md)
 - **Bundler Support** - Vite 5-7, Webpack 5 und Turbopack

@@ -116,7 +116,22 @@ export async function startDevServerForFixture(
       PATH: `${join(fixturePath, 'node_modules', '.bin')}:${process.env['PATH']}`,
     },
     shell: true,
+    detached: process.platform !== 'win32',
   });
+
+  const terminate = (signal: NodeJS.Signals = 'SIGTERM') => {
+    if (!child.pid) return;
+
+    try {
+      if (process.platform === 'win32') {
+        child.kill(signal);
+      } else {
+        process.kill(-child.pid, signal);
+      }
+    } catch {
+      // The process may already have exited.
+    }
+  };
 
   // Accumulate output for error reporting
   const onData = (data: Buffer) => {
@@ -155,7 +170,7 @@ export async function startDevServerForFixture(
   ]);
 
   if (!ready) {
-    child.kill();
+    terminate();
     throw new Error(
       `Dev server for ${manifest.id} failed to start within ${timeout}ms.\nOutput:\n${output}`,
     );
@@ -165,11 +180,11 @@ export async function startDevServerForFixture(
     url: url.replace(/\/$/, ''),
     port: requestedPort,
     close: async () => {
-      child.kill('SIGTERM');
+      terminate('SIGTERM');
       await new Promise<void>((res) => {
         child.on('exit', () => res());
         setTimeout(() => {
-          child.kill('SIGKILL');
+          terminate('SIGKILL');
           res();
         }, 5000);
       });

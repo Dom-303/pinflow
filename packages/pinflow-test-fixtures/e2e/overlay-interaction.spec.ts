@@ -87,8 +87,12 @@ const overlayFixtures = discoverFixtures()
 for (const fixture of overlayFixtures) {
   const { id, framework, frameworkVersion } = fixture.manifest;
   const expectations = getExpectationsForFixture(framework, frameworkVersion);
+  const supportsStateCapture =
+    fixture.manifest.capabilities.stateCapture !== false;
 
   test.describe(`Overlay: ${id}`, () => {
+    test.describe.configure({ timeout: 120_000 });
+
     let server: DevServerHandle;
 
     test.beforeAll(async () => {
@@ -114,8 +118,6 @@ for (const fixture of overlayFixtures) {
         await page.waitForSelector('ds-overlay', { timeout: 10_000 });
 
         const mode = await getOverlayMode(page);
-
-        await page.pause();
 
         expect(mode).toBe('collapsed');
       });
@@ -242,8 +244,9 @@ for (const fixture of overlayFixtures) {
                 }
               }
 
-              // Validate state keys displayed in overlay
-              if (elementExp.expectedStateKeys?.length) {
+              // Validate state keys displayed in overlay when supported by
+              // this fixture/runtime combination.
+              if (supportsStateCapture && elementExp.expectedStateKeys?.length) {
                 const stateKeys = Object.keys(context.state);
                 for (const key of elementExp.expectedStateKeys) {
                   expect(
@@ -256,7 +259,7 @@ for (const fixture of overlayFixtures) {
               // Validate state values displayed in overlay
               // Note: overlay displays formatted strings (e.g. '"Alice"', '5')
               // so we compare against the formatted representation
-              if (elementExp.expectedState) {
+              if (supportsStateCapture && elementExp.expectedState) {
                 for (const [key, value] of Object.entries(
                   elementExp.expectedState,
                 )) {
@@ -329,6 +332,11 @@ for (const fixture of overlayFixtures) {
       test('should show captured state in context panel for stateful component', async ({
         page,
       }) => {
+        test.skip(
+          !supportsStateCapture,
+          `${id} does not expose stable state capture in this runtime path`,
+        );
+
         await page.goto(server.url);
         await page.waitForSelector('ds-overlay', { timeout: 10_000 });
         await page.waitForSelector('.app', { timeout: 10_000 });

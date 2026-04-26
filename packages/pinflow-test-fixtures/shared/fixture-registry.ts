@@ -14,6 +14,8 @@ import { fileURLToPath } from 'url';
 export interface FixtureCapabilities {
   /** Whether runtime capture is supported */
   runtimeCapture: boolean;
+  /** Whether the fixture exposes component state reliably in overlay E2E */
+  stateCapture?: boolean;
   /** Available capture strategies */
   strategies: string[];
   /** Whether smoke test module is present */

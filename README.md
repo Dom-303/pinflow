@@ -66,14 +66,25 @@ npm install -g pinflow
 pinflow init
 ```
 
-Der Wizard führt durch zwei Schritte:
+Der Wizard läuft standardmäßig als Smart Setup:
 
-1. **Agent verbinden** - Codex, Claude oder einen anderen MCP-Client auswählen.
-2. **Frontend anbinden** - Framework und Bundler wählen, Package installieren,
-   Config-Snippet übernehmen.
+1. **Agents verbinden** - einen oder mehrere MCP-Clients auswählen, z. B.
+   Codex und Claude.
+2. **Frontend-App wählen** - PinFlow erkennt App-Kandidaten und zeigt, ob sie
+   bereits vollständig, teilweise oder noch nicht eingerichtet sind.
+3. **Framework und Package Manager bestätigen** - erkannte Werte werden mit
+   Grund angezeigt; bei Unsicherheit kannst du manuell wählen.
+4. **Setup-Plan prüfen** - PinFlow fasst App, Package, Package Manager und
+   Config-Snippet vor der Installation zusammen.
 
 Danach startest du deinen Dev-Server und öffnest die App im Browser. Das
 PinFlow-Overlay ist dann bereit für Markierungen, Aufgaben und Live-Kontext.
+Die Agent-Auswahl ist nicht exklusiv: Du kannst mehrere Agents direkt im selben
+Init-Lauf auswählen oder später mit `pinflow init --agent <name>` ergänzen.
+PinFlow richtet pro Init-Lauf genau eine Frontend-App ein. Wenn mehrere Apps im
+Repo liegen, wählst du eine aus; für weitere Apps startest du `pinflow init`
+danach erneut. Für Sonderfälle gibt es `pinflow init --manual`, für sichere
+Defaults ohne Nachfragen `pinflow init --yes`.
 
 Kurz gesagt: `npx pinflow init` ist der No-Install-Weg über npm, `npm install
 -g pinflow` ist der installierte Weg.
@@ -95,6 +106,12 @@ liefert Source-Dateien und lokale Aufgaben, und der Agent fragt beides über
 PinFlow ab. Dadurch bleibt der Workflow nah an deiner echten App, ohne dass du
 Screenshots, DOM-Details oder Datei-Vermutungen manuell in den Chat tragen
 musst.
+
+Der Dev-Server darf ganz normal manuell laufen. Er muss nicht von einem Agenten
+gestartet werden. Wichtig ist nur, dass deine App mit der PinFlow-Integration
+auf `localhost` läuft, das Overlay im Browser verbunden ist und der Agent den
+PinFlow-MCP-Server erreichen kann. Wenn ein Agent den Dev-Server startet, ist
+das nur Komfort, keine Voraussetzung.
 
 ## Was PinFlow löst
 
@@ -329,8 +346,11 @@ module.exports = {
 npx pinflow init --app-root apps/web
 ```
 
-Das erzeugt `pinflow.config.json` am Repo-Root. CLI, Relay und MCP lösen den
-App-Pfad anschließend automatisch auf.
+Smart Setup erkennt typische App-Pfade wie `apps/web` oder `apps/admin` und
+zeigt den aktuellen Status pro App. PinFlow schreibt weiterhin eine einfache
+`pinflow.config.json` mit genau einem `appRoot`; es gibt keine Multi-App-Config.
+Wenn du eine weitere App verbinden willst, startest du danach einen neuen
+Init-Lauf und wählst diese App aus.
 
 ### Agent-Seite
 
@@ -343,8 +363,15 @@ claude plugin install pinflow@pinflow
 
 #### Codex
 
-Codex Support liegt im Repo über `.codex-plugin/plugin.json` und
-[AGENTS.md](./AGENTS.md).
+```shell
+codex marketplace add Dom-303/pinflow
+codex mcp add pinflow -- npx -y --package @pinflow/mcp pinflow-mcp
+```
+
+Codex Support liegt zusätzlich im Repo über `.codex-plugin/plugin.json` und
+[AGENTS.md](./AGENTS.md). Wenn du mehrere Agents nutzt, konfiguriere denselben
+MCP-Server-Key `pinflow` in jedem Client. Die Overlay-Session kann danach
+weiterhin auf `Aktueller Agent`, `Codex`, `Claude` oder `Nur sammeln` stehen.
 
 #### Jeder MCP-Client
 

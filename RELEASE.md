@@ -38,7 +38,9 @@ pnpm run pipeline:e2e
 Use a fresh frontend fixture or a small real app:
 
 1. Run `npx pinflow init`.
-2. Choose Codex, Claude, or manual MCP setup.
+2. Choose one or more agents, then confirm the detected frontend app,
+   framework, and package manager. This configures one frontend app for the
+   smoke test; additional apps should be set up in separate init runs.
 3. Start the app's dev server.
 4. Open the app in the browser and create one annotation.
 5. Ask the agent to call `pinflow.annotation.process`.

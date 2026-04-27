@@ -11,6 +11,8 @@ import type { InitOptions } from '../init/index.js';
 interface InitCommandOptions {
   force: boolean;
   dryRun: boolean;
+  manual?: boolean;
+  yes?: boolean;
   agent?: string;
   framework?: string;
   pm?: string;
@@ -21,6 +23,12 @@ export const InitCommand = new Command('init')
   .description('Initialize PinFlow and configure your coding agent')
   .option('-f, --force', 'Overwrite existing configuration', false)
   .option('--dry-run', 'Show what would be done without making changes', false)
+  .option('--manual', 'Choose every setup option manually', false)
+  .option(
+    '--yes',
+    'Use safe detected defaults and stop when a choice is ambiguous',
+    false,
+  )
   .option('--agent <name>', `Coding agent (${AGENT_IDS.join(', ')})`)
   .option(
     '--framework <name>',
@@ -61,6 +69,8 @@ export const InitCommand = new Command('init')
         framework: options.framework as InitOptions['framework'],
         pm: options.pm as InitOptions['pm'],
         appRoot: options.appRoot,
+        setupMode: options.manual ? 'manual' : 'smart',
+        yes: options.yes,
       };
 
       await runInitWizard(initOptions);

@@ -12,14 +12,20 @@ vi.mock('node:fs', () => ({
 
 vi.mock('@clack/prompts', () => ({
   confirm: vi.fn(),
+  select: vi.fn(),
   text: vi.fn(),
   isCancel: vi.fn().mockReturnValue(false),
   cancel: vi.fn(),
   log: {
     info: vi.fn(),
+    warn: vi.fn(),
     success: vi.fn(),
     error: vi.fn(),
   },
+}));
+
+vi.mock('./app-detection.js', () => ({
+  detectFrontendApps: vi.fn().mockReturnValue([]),
 }));
 
 vi.mock('../config-loader.js', () => ({
@@ -28,6 +34,7 @@ vi.mock('../config-loader.js', () => ({
 }));
 
 const { findConfigFile, loadAppRoot } = await import('../config-loader.js');
+const { detectFrontendApps } = await import('./app-detection.js');
 
 const baseOptions: InitOptions = { force: false, dryRun: false };
 
@@ -36,6 +43,7 @@ describe('runMonorepoStep', () => {
     vi.clearAllMocks();
     vi.mocked(existsSync).mockReturnValue(true);
     vi.mocked(findConfigFile).mockReturnValue(undefined);
+    vi.mocked(detectFrontendApps).mockReturnValue([]);
   });
 
   describe('non-interactive (--app-root flag)', () => {
@@ -79,15 +87,16 @@ describe('runMonorepoStep', () => {
   });
 
   describe('existing config', () => {
-    it('should reuse existing config when --force is not set', async () => {
+    it('should reuse existing config in manual setup when --force is not set', async () => {
       // Arrange
       vi.mocked(findConfigFile).mockReturnValue(
         '/monorepo/pinflow.config.json',
       );
       vi.mocked(loadAppRoot).mockReturnValue('/monorepo/apps/web');
+      const options: InitOptions = { ...baseOptions, setupMode: 'manual' };
 
       // Act
-      const result = await runMonorepoStep(baseOptions, '/monorepo');
+      const result = await runMonorepoStep(options, '/monorepo');
 
       // Assert
       expect(result.appRoot).toBe('/monorepo/apps/web');
@@ -179,6 +188,96 @@ describe('runMonorepoStep', () => {
       // Assert
       expect(clack.cancel).toHaveBeenCalledWith('Setup cancelled.');
       expect(exitSpy).toHaveBeenCalledWith(0);
+    });
+  });
+
+  describe('smart setup', () => {
+    it('should show detected apps with configured status and one-app-per-run copy', async () => {
+      // Arrange
+      vi.mocked(detectFrontendApps).mockReturnValue([
+        {
+          appRoot: 'apps/admin',
+          absolutePath: '/monorepo/apps/admin',
+          framework: 'react-vite',
+          status: 'not_configured',
+          missing: ['package', 'config'],
+          reason: 'dependencies "react" and "vite"',
+        },
+        {
+          appRoot: 'apps/web',
+          absolutePath: '/monorepo/apps/web',
+          framework: 'next',
+          status: 'configured',
+          missing: [],
+          reason: 'dependency "next"',
+        },
+      ]);
+      vi.mocked(clack.select).mockResolvedValue('apps/admin');
+      vi.mocked(existsSync).mockImplementation((p) => {
+        const s = String(p);
+        return s === '/monorepo/apps/admin';
+      });
+
+      // Act
+      const result = await runMonorepoStep(baseOptions, '/monorepo');
+
+      // Assert
+      expect(result.appRoot).toBe('/monorepo/apps/admin');
+      expect(clack.log.info).toHaveBeenCalledWith(
+        expect.stringContaining('PinFlow sets up one app per init run'),
+      );
+      expect(clack.select).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Choose one frontend app to set up or update now:',
+          options: expect.arrayContaining([
+            expect.objectContaining({
+              label: 'apps/web',
+              hint: expect.stringContaining('already set up'),
+            }),
+            expect.objectContaining({
+              label: 'apps/admin',
+              hint: expect.stringContaining('not set up'),
+            }),
+          ]),
+        }),
+      );
+    });
+
+    it('should stop --yes when multiple apps are detected', async () => {
+      // Arrange
+      vi.mocked(detectFrontendApps).mockReturnValue([
+        {
+          appRoot: 'apps/admin',
+          absolutePath: '/monorepo/apps/admin',
+          framework: 'react-vite',
+          status: 'not_configured',
+          missing: ['package', 'config'],
+          reason: 'dependencies "react" and "vite"',
+        },
+        {
+          appRoot: 'apps/web',
+          absolutePath: '/monorepo/apps/web',
+          framework: 'next',
+          status: 'configured',
+          missing: [],
+          reason: 'dependency "next"',
+        },
+      ]);
+      const exitSpy = vi
+        .spyOn(process, 'exit')
+        .mockImplementation(() => undefined as never);
+
+      // Act
+      await runMonorepoStep({ ...baseOptions, yes: true }, '/monorepo');
+
+      // Assert
+      expect(clack.log.error).toHaveBeenCalledWith(
+        expect.stringContaining('Multiple frontend apps found'),
+      );
+      expect(clack.log.info).toHaveBeenCalledWith(
+        expect.stringContaining('pinflow init --yes --app-root'),
+      );
+      expect(exitSpy).toHaveBeenCalledWith(1);
     });
   });
 

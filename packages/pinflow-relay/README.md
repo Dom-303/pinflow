@@ -22,20 +22,20 @@ pinflow init        # Setup wizard (agent + framework configuration)
 pinflow mcp         # Run as MCP server via stdio
 ```
 
-For use in agent MCP configuration, the standalone `pinflow-mcp` binary runs the MCP server directly over stdio without the HTTP/WebSocket relay.
+For use in agent MCP configuration, the standalone `pinflow-mcp` binary runs the MCP server directly over stdio without the HTTP/WebSocket relay. The init wizard can configure multiple agent clients in one run, and the choice is not exclusive. You can also run it again with another `--agent` value or add the same `pinflow` MCP server to multiple clients. The running localhost app is selected by the project dev server, browser overlay, and relay workspace, not by the agent choice.
 
-**Monorepo support:** All commands automatically resolve the app root from a `pinflow.config.json` file when run from a monorepo root. Run `pinflow init --app-root <path>` to generate the config, or let the interactive wizard detect it.
+**Monorepo support:** Smart setup detects likely frontend apps, shows whether each one is already configured, partially configured, or not configured, and sets up one app per init run. Run `pinflow init --app-root <path>` to choose explicitly, or `pinflow init --manual` to use the manual flow. `pinflow.config.json` remains a single-app config with one `appRoot`.
 
 ## Annotation Lifecycle
 
 A developer clicks an element in the running app, types an instruction, and submits it. The annotation moves through the following states:
 
-| From         | To           | Trigger                                    |
-| ------------ | ------------ | ------------------------------------------ |
-| `QUEUED`     | `PROCESSING` | Agent calls `pinflow.annotation.process`   |
-| `PROCESSING` | `PROCESSED`  | Agent calls `pinflow.annotation.respond`   |
-| `PROCESSING` | `FAILED`     | Agent error or timeout                     |
-| `PROCESSED`  | `ARCHIVED`   | Developer archives via overlay             |
+| From         | To           | Trigger                                  |
+| ------------ | ------------ | ---------------------------------------- |
+| `QUEUED`     | `PROCESSING` | Agent calls `pinflow.annotation.process` |
+| `PROCESSING` | `PROCESSED`  | Agent calls `pinflow.annotation.respond` |
+| `PROCESSING` | `FAILED`     | Agent error or timeout                   |
+| `PROCESSED`  | `ARCHIVED`   | Developer archives via overlay           |
 
 The agent claims an annotation atomically (preventing double-processing), edits the relevant source files, then responds with a summary. The overlay receives the state change via WebSocket and updates in real time.
 

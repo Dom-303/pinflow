@@ -9,6 +9,10 @@ import * as clack from '@clack/prompts';
 import { PATHS } from '@pinflow/core';
 
 import { findConfigFile, loadAppRoot } from '../config-loader.js';
+import {
+  detectFrontendApps,
+  type FrontendAppCandidate,
+} from './app-detection.js';
 import type { InitOptions } from './types.js';
 
 /**
@@ -46,6 +50,82 @@ function writeConfigIfNeeded(
   clack.log.success(`Created ${PATHS.CONFIG_JSON_FILE}`);
 }
 
+function getStatusHint(app: FrontendAppCandidate): string {
+  if (app.status === 'configured') {
+    return `${app.framework}, already set up (${app.reason})`;
+  }
+
+  if (app.status === 'partial') {
+    return `${app.framework}, partially set up, missing ${app.missing.join(
+      ' + ',
+    )} (${app.reason})`;
+  }
+
+  return `${app.framework}, not set up (${app.reason})`;
+}
+
+function logMultipleAppsGuidance(apps: readonly FrontendAppCandidate[]): void {
+  if (apps.length <= 1) return;
+
+  clack.log.info(
+    'Multiple frontend apps found. PinFlow sets up one app per init run. Choose one now; run `pinflow init` again to connect another app.',
+  );
+}
+
+function writeSmartConfig(
+  cwd: string,
+  appRoot: string,
+  options: InitOptions,
+): void {
+  if (appRoot === '.') return;
+  writeConfigIfNeeded(cwd, appRoot, { ...options, force: true });
+}
+
+async function chooseSmartApp(
+  options: InitOptions,
+  cwd: string,
+): Promise<MonorepoResult | undefined> {
+  const apps = detectFrontendApps(cwd);
+  if (apps.length === 0) return undefined;
+
+  if (options.yes && apps.length > 1) {
+    clack.log.error(
+      `Multiple frontend apps found:\n${apps
+        .map((app) => `- ${app.appRoot}`)
+        .join('\n')}`,
+    );
+    clack.log.info(
+      `Run pinflow init to choose one, or pass --app-root explicitly, for example:\n  pinflow init --yes --app-root ${apps[0].appRoot}`,
+    );
+    process.exit(1);
+    return { appRoot: cwd };
+  }
+
+  const selectedAppRoot =
+    options.yes || apps.length === 1
+      ? apps[0].appRoot
+      : await clack.select({
+          message: 'Choose one frontend app to set up or update now:',
+          options: apps.map((app) => ({
+            value: app.appRoot,
+            label: app.appRoot,
+            hint: getStatusHint(app),
+          })),
+        });
+
+  if (clack.isCancel(selectedAppRoot)) {
+    clack.cancel('Setup cancelled.');
+    process.exit(0);
+    return { appRoot: cwd };
+  }
+
+  logMultipleAppsGuidance(apps);
+  const app = apps.find((entry) => entry.appRoot === selectedAppRoot);
+  const appRoot = app?.appRoot ?? selectedAppRoot;
+  writeSmartConfig(cwd, appRoot, options);
+  return { appRoot: path.resolve(cwd, appRoot) };
+}
+
 /**
  * Run the monorepo detection and config creation step.
  *
@@ -67,6 +147,11 @@ export async function runMonorepoStep(
 
     writeConfigIfNeeded(cwd, options.appRoot, options);
     return { appRoot: resolved };
+  }
+
+  if (options.setupMode !== 'manual') {
+    const smartResult = await chooseSmartApp(options, cwd);
+    if (smartResult) return smartResult;
   }
 
   // Config already exists — reuse it unless --force

@@ -12,6 +12,7 @@ vi.mock('node:child_process', () => ({
 
 vi.mock('@clack/prompts', () => ({
   select: vi.fn(),
+  multiselect: vi.fn(),
   isCancel: vi.fn().mockReturnValue(false),
   cancel: vi.fn(),
   log: {
@@ -41,20 +42,63 @@ describe('runAgentStep', () => {
   describe('interactive mode', () => {
     it('should prompt for agent selection when no --agent flag', async () => {
       // Arrange
-      vi.mocked(clack.select).mockResolvedValue('kiro');
+      vi.mocked(clack.multiselect).mockResolvedValue(['kiro']);
 
       // Act
       await runAgentStep(baseOptions);
 
       // Assert
-      expect(clack.select).toHaveBeenCalledWith(
-        expect.objectContaining({ message: 'Select your coding agent:' }),
+      expect(clack.multiselect).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Select coding agents to configure now:',
+        }),
+      );
+    });
+
+    it('should include Codex in the agent selection', async () => {
+      // Arrange
+      vi.mocked(clack.multiselect).mockResolvedValue(['other']);
+
+      // Act
+      await runAgentStep(baseOptions);
+
+      // Assert
+      expect(clack.multiselect).toHaveBeenCalledWith(
+        expect.objectContaining({
+          options: expect.arrayContaining([
+            expect.objectContaining({ value: 'codex', label: 'Codex' }),
+          ]),
+        }),
+      );
+    });
+
+    it('should configure every selected agent in one run', async () => {
+      // Arrange
+      vi.mocked(clack.multiselect).mockResolvedValue(['codex', 'claude-code']);
+      vi.mocked(execFileSync).mockReturnValue(Buffer.from(''));
+      vi.mocked(spawnSync).mockReturnValue({ status: 0 } as ReturnType<
+        typeof spawnSync
+      >);
+
+      // Act
+      await runAgentStep(baseOptions);
+
+      // Assert
+      expect(spawnSync).toHaveBeenCalledWith(
+        'codex',
+        ['marketplace', 'add', 'Dom-303/pinflow'],
+        { stdio: 'inherit' },
+      );
+      expect(spawnSync).toHaveBeenCalledWith(
+        'claude',
+        ['plugin', 'marketplace', 'add', 'Dom-303/pinflow'],
+        { stdio: 'inherit' },
       );
     });
 
     it('should exit gracefully on cancel', async () => {
       // Arrange
-      vi.mocked(clack.select).mockResolvedValue(Symbol('cancel'));
+      vi.mocked(clack.multiselect).mockResolvedValue(Symbol('cancel'));
       vi.mocked(clack.isCancel).mockReturnValue(true);
       const exitSpy = vi
         .spyOn(process, 'exit')
@@ -79,14 +123,31 @@ describe('runAgentStep', () => {
 
       // Assert
       expect(clack.select).not.toHaveBeenCalled();
+      expect(clack.multiselect).not.toHaveBeenCalled();
       expect(clack.log.info).toHaveBeenCalledWith('Amazon Kiro');
+    });
+
+    it('should explain that the selected agent is only the current MCP setup target', async () => {
+      // Arrange
+      const options: InitOptions = { ...baseOptions, agent: 'other' };
+
+      // Act
+      await runAgentStep(options);
+
+      // Assert
+      expect(clack.log.message).toHaveBeenCalledWith(
+        expect.stringContaining('You can configure more agents now or later'),
+      );
+      expect(clack.log.message).toHaveBeenCalledWith(
+        expect.stringContaining('localhost app'),
+      );
     });
   });
 
   describe('manual agents', () => {
     it('should show manual instructions for Kiro', async () => {
       // Arrange
-      vi.mocked(clack.select).mockResolvedValue('kiro');
+      vi.mocked(clack.multiselect).mockResolvedValue(['kiro']);
       const writeSpy = vi.spyOn(process.stdout, 'write').mockReturnValue(true);
 
       // Act
@@ -100,7 +161,7 @@ describe('runAgentStep', () => {
 
     it('should show MCP config for Cursor', async () => {
       // Arrange
-      vi.mocked(clack.select).mockResolvedValue('cursor');
+      vi.mocked(clack.multiselect).mockResolvedValue(['cursor']);
       const writeSpy = vi.spyOn(process.stdout, 'write').mockReturnValue(true);
 
       // Act
@@ -114,7 +175,7 @@ describe('runAgentStep', () => {
 
     it('should show MCP config for Other', async () => {
       // Arrange
-      vi.mocked(clack.select).mockResolvedValue('other');
+      vi.mocked(clack.multiselect).mockResolvedValue(['other']);
       const writeSpy = vi.spyOn(process.stdout, 'write').mockReturnValue(true);
 
       // Act
@@ -128,9 +189,45 @@ describe('runAgentStep', () => {
   });
 
   describe('command-based agents', () => {
+    it('should run setup commands for Codex', async () => {
+      // Arrange
+      vi.mocked(clack.multiselect).mockResolvedValue(['codex']);
+      vi.mocked(execFileSync).mockReturnValue(Buffer.from(''));
+      vi.mocked(spawnSync).mockReturnValue({ status: 0 } as ReturnType<
+        typeof spawnSync
+      >);
+
+      // Act
+      await runAgentStep(baseOptions);
+
+      // Assert
+      expect(spawnSync).toHaveBeenCalledTimes(2);
+      expect(spawnSync).toHaveBeenCalledWith(
+        'codex',
+        ['marketplace', 'add', 'Dom-303/pinflow'],
+        { stdio: 'inherit' },
+      );
+      expect(spawnSync).toHaveBeenCalledWith(
+        'codex',
+        [
+          'mcp',
+          'add',
+          'pinflow',
+          '--',
+          'npx',
+          '-y',
+          '--package',
+          '@pinflow/mcp',
+          'pinflow-mcp',
+        ],
+        { stdio: 'inherit' },
+      );
+      expect(clack.log.success).toHaveBeenCalled();
+    });
+
     it('should run install commands for Claude Code', async () => {
       // Arrange
-      vi.mocked(clack.select).mockResolvedValue('claude-code');
+      vi.mocked(clack.multiselect).mockResolvedValue(['claude-code']);
       vi.mocked(execFileSync).mockReturnValue(Buffer.from(''));
       vi.mocked(spawnSync).mockReturnValue({ status: 0 } as ReturnType<
         typeof spawnSync
@@ -156,7 +253,7 @@ describe('runAgentStep', () => {
 
     it('should fall back to manual when CLI is not on PATH', async () => {
       // Arrange
-      vi.mocked(clack.select).mockResolvedValue('copilot');
+      vi.mocked(clack.multiselect).mockResolvedValue(['copilot']);
       vi.mocked(execFileSync).mockImplementation(() => {
         throw new Error('not found');
       });
@@ -176,7 +273,7 @@ describe('runAgentStep', () => {
 
     it('should warn on command failure and stop', async () => {
       // Arrange
-      vi.mocked(clack.select).mockResolvedValue('claude-code');
+      vi.mocked(clack.multiselect).mockResolvedValue(['claude-code']);
       vi.mocked(execFileSync).mockReturnValue(Buffer.from(''));
       vi.mocked(spawnSync).mockReturnValue({ status: 1 } as ReturnType<
         typeof spawnSync
@@ -196,7 +293,7 @@ describe('runAgentStep', () => {
   describe('dry-run', () => {
     it('should print commands without executing them', async () => {
       // Arrange
-      vi.mocked(clack.select).mockResolvedValue('claude-code');
+      vi.mocked(clack.multiselect).mockResolvedValue(['claude-code']);
       const options: InitOptions = { ...baseOptions, dryRun: true };
 
       // Act
@@ -204,7 +301,7 @@ describe('runAgentStep', () => {
 
       // Assert
       expect(spawnSync).not.toHaveBeenCalled();
-      expect(clack.log.info).toHaveBeenCalledWith('Would run:');
+      expect(clack.log.info).toHaveBeenCalledWith('Would run for Claude Code:');
       expect(clack.log.message).toHaveBeenCalledWith(
         expect.stringContaining('claude plugin marketplace add'),
       );

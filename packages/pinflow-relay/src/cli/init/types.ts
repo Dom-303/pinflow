@@ -7,6 +7,7 @@
  * Supported coding agent identifiers.
  */
 export type AgentId =
+  | 'codex'
   | 'claude-code'
   | 'copilot'
   | 'gemini'
@@ -31,6 +32,11 @@ export type FrameworkId =
  * Supported package manager identifiers.
  */
 export type PackageManagerId = 'npm' | 'pnpm' | 'yarn' | 'bun';
+
+/**
+ * Init wizard interaction style.
+ */
+export type SetupMode = 'smart' | 'manual';
 
 /**
  * Agent install strategy.
@@ -71,6 +77,8 @@ export interface InitOptions {
   readonly framework?: FrameworkId;
   readonly pm?: PackageManagerId;
   readonly appRoot?: string;
+  readonly setupMode?: SetupMode;
+  readonly yes?: boolean;
 }
 
 const MCP_CONFIG = `{
@@ -87,6 +95,16 @@ const MCP_CONFIG = `{
  * All supported coding agents.
  */
 export const AGENTS: readonly AgentConfig[] = [
+  {
+    id: 'codex',
+    label: 'Codex',
+    hint: 'recommended',
+    installType: 'command',
+    commands: [
+      'codex marketplace add Dom-303/pinflow',
+      'codex mcp add pinflow -- npx -y --package @pinflow/mcp pinflow-mcp',
+    ],
+  },
   {
     id: 'claude-code',
     label: 'Claude Code',

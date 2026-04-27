@@ -30,6 +30,7 @@ vi.mock('node:child_process', () => ({
 
 vi.mock('@clack/prompts', () => ({
   select: vi.fn(),
+  confirm: vi.fn(),
   isCancel: vi.fn().mockReturnValue(false),
   cancel: vi.fn(),
   spinner: vi.fn().mockReturnValue({
@@ -50,6 +51,17 @@ vi.mock('./detect-package-manager.js', () => ({
   detectPackageManager: vi.fn().mockReturnValue('npm'),
 }));
 
+vi.mock('./app-detection.js', () => ({
+  detectFrameworkForApp: vi.fn().mockReturnValue(undefined),
+  getPinFlowSetupStatus: vi.fn().mockReturnValue({
+    status: 'not_configured',
+    missing: ['package', 'config'],
+  }),
+}));
+
+const { detectFrameworkForApp, getPinFlowSetupStatus } =
+  await import('./app-detection.js');
+
 const baseOptions: InitOptions = {
   force: false,
   dryRun: false,
@@ -59,6 +71,12 @@ describe('runFrameworkStep', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(clack.isCancel).mockReturnValue(false);
+    vi.mocked(clack.confirm).mockResolvedValue(true);
+    vi.mocked(detectFrameworkForApp).mockReturnValue(undefined);
+    vi.mocked(getPinFlowSetupStatus).mockReturnValue({
+      status: 'not_configured',
+      missing: ['package', 'config'],
+    });
     vi.mocked(spawn).mockImplementation(
       () => createFakeChild(0) as ReturnType<typeof spawn>,
     );
@@ -132,6 +150,81 @@ describe('runFrameworkStep', () => {
         'pnpm',
         ['add', '-D', '@pinflow/nuxt'],
         expect.objectContaining({ cwd: '/project' }),
+      );
+    });
+  });
+
+  describe('smart setup', () => {
+    it('should use a detected framework and show a setup summary before installing', async () => {
+      // Arrange
+      vi.mocked(detectFrameworkForApp).mockReturnValue('next');
+      vi.mocked(clack.select).mockResolvedValueOnce('npm');
+
+      // Act
+      await runFrameworkStep(
+        { ...baseOptions, setupMode: 'smart' },
+        '/project',
+      );
+
+      // Assert
+      expect(clack.select).not.toHaveBeenCalledWith(
+        expect.objectContaining({ message: 'Select your framework:' }),
+      );
+      expect(clack.log.info).toHaveBeenCalledWith(
+        expect.stringContaining('Detected framework: Next.js'),
+      );
+      expect(clack.log.info).toHaveBeenCalledWith(
+        expect.stringContaining('PinFlow will:'),
+      );
+      expect(clack.confirm).toHaveBeenCalledWith(
+        expect.objectContaining({ message: 'Proceed with this setup?' }),
+      );
+      expect(spawn).toHaveBeenCalledWith(
+        'npm',
+        ['install', '-D', '@pinflow/next'],
+        expect.objectContaining({ cwd: '/project' }),
+      );
+    });
+
+    it('should stop --yes when no framework can be detected', async () => {
+      // Arrange
+      vi.mocked(detectFrameworkForApp).mockReturnValue(undefined);
+      const exitSpy = vi
+        .spyOn(process, 'exit')
+        .mockImplementation(() => undefined as never);
+
+      // Act
+      await runFrameworkStep({ ...baseOptions, yes: true }, '/project');
+
+      // Assert
+      expect(clack.log.error).toHaveBeenCalledWith(
+        expect.stringContaining('Could not detect a frontend framework'),
+      );
+      expect(exitSpy).toHaveBeenCalledWith(1);
+    });
+
+    it('should skip package install when smart setup finds only config missing', async () => {
+      // Arrange
+      vi.mocked(detectFrameworkForApp).mockReturnValue('react-vite');
+      vi.mocked(getPinFlowSetupStatus).mockReturnValue({
+        status: 'partial',
+        missing: ['config'],
+      });
+      vi.mocked(clack.select).mockResolvedValueOnce('npm');
+
+      // Act
+      await runFrameworkStep(
+        { ...baseOptions, setupMode: 'smart' },
+        '/project',
+      );
+
+      // Assert
+      expect(clack.log.info).toHaveBeenCalledWith(
+        expect.stringContaining('PinFlow setup status: partial'),
+      );
+      expect(spawn).not.toHaveBeenCalled();
+      expect(clack.log.info).not.toHaveBeenCalledWith(
+        expect.stringContaining('Would run'),
       );
     });
   });

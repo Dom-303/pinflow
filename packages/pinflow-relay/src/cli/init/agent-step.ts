@@ -39,15 +39,21 @@ function getAgentBinary(agent: AgentConfig): string | undefined {
   return agent.commands[0].split(' ')[0];
 }
 
+function showAgentScopeNote(): void {
+  clack.log.message(
+    'You can configure more agents now or later by rerunning pinflow init --agent <name>. This only sets up MCP clients; your localhost app and PinFlow relay decide which running UI the agents can inspect.',
+  );
+}
+
 /**
  * Run the agent selection and installation step.
  */
 export async function runAgentStep(options: InitOptions): Promise<void> {
-  let agentId = options.agent;
+  let agentIds = options.agent ? [options.agent] : undefined;
 
-  if (!agentId) {
-    const selected = await clack.select({
-      message: 'Select your coding agent:',
+  if (!agentIds) {
+    const selected = await clack.multiselect({
+      message: 'Select coding agents to configure now:',
       options: AGENTS.map((a) => ({
         value: a.id,
         label: a.label,
@@ -60,57 +66,65 @@ export async function runAgentStep(options: InitOptions): Promise<void> {
       return process.exit(0);
     }
 
-    agentId = selected;
+    agentIds = selected;
   }
 
-  const agent = AGENTS.find((a) => a.id === agentId);
-  if (!agent) {
-    clack.log.error(`Unknown agent: ${agentId}`);
-    return;
-  }
+  showAgentScopeNote();
 
-  if (agent.installType === 'manual') {
-    if (agent.manualInstructions) {
-      clack.log.info(agent.label);
-      process.stdout.write(agent.manualInstructions + '\n\n');
+  for (const agentId of agentIds) {
+    const agent = AGENTS.find((a) => a.id === agentId);
+    if (!agent) {
+      clack.log.error(`Unknown agent: ${agentId}`);
+      continue;
     }
-    return;
-  }
 
-  if (!agent.commands?.length) return;
-
-  // Command-based install
-  const binary = getAgentBinary(agent);
-
-  if (options.dryRun) {
-    clack.log.info(`Would run:`);
-    for (const cmd of agent.commands) {
-      clack.log.message(`  ${cmd}`);
+    if (agent.installType === 'manual') {
+      if (agent.manualInstructions) {
+        clack.log.info(agent.label);
+        process.stdout.write(agent.manualInstructions + '\n\n');
+      }
+      continue;
     }
-    return;
-  }
 
-  if (binary && !isBinaryAvailable(binary)) {
-    clack.log.warn(
-      `${binary} is not installed or not on PATH. Showing manual setup instead.`,
-    );
-    clack.log.info(`Install the ${agent.label} CLI, then run:\n`);
-    process.stdout.write(
-      agent.commands.map((c) => `  ${c}`).join('\n') + '\n\n',
-    );
-    return;
-  }
+    if (!agent.commands?.length) continue;
 
-  for (const cmd of agent.commands) {
-    clack.log.info(`Running: ${cmd}`);
-    const success = runCommand(cmd);
-    if (!success) {
+    // Command-based install
+    const binary = getAgentBinary(agent);
+
+    if (options.dryRun) {
+      clack.log.info(`Would run for ${agent.label}:`);
+      for (const cmd of agent.commands) {
+        clack.log.message(`  ${cmd}`);
+      }
+      continue;
+    }
+
+    if (binary && !isBinaryAvailable(binary)) {
       clack.log.warn(
-        `Command failed: ${cmd}\nYou can run it manually after setup.`,
+        `${binary} is not installed or not on PATH. Showing manual setup instead.`,
       );
-      return;
+      clack.log.info(`Install the ${agent.label} CLI, then run:\n`);
+      process.stdout.write(
+        agent.commands.map((c) => `  ${c}`).join('\n') + '\n\n',
+      );
+      continue;
+    }
+
+    let allCommandsSucceeded = true;
+    for (const cmd of agent.commands) {
+      clack.log.info(`Running: ${cmd}`);
+      const success = runCommand(cmd);
+      if (!success) {
+        allCommandsSucceeded = false;
+        clack.log.warn(
+          `Command failed: ${cmd}\nYou can run it manually after setup.`,
+        );
+        break;
+      }
+    }
+
+    if (allCommandsSucceeded) {
+      clack.log.success(`${agent.label} plugin installed.`);
     }
   }
-
-  clack.log.success(`${agent.label} plugin installed.`);
 }

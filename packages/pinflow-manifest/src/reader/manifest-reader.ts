@@ -60,6 +60,20 @@ export const ManifestUpdateEventSchema = z.object({
 export type ManifestResolveResult = z.infer<typeof ManifestResolveResultSchema>;
 export type ManifestReaderStats = z.infer<typeof ManifestReaderStatsSchema>;
 export type ManifestUpdateEvent = z.infer<typeof ManifestUpdateEventSchema>;
+export type SourceMatchConfidence = 'high' | 'medium' | 'low';
+export type SourceMatchStrategy =
+  | 'exact_line_and_column'
+  | 'exact_line'
+  | 'nearest_column_same_line'
+  | 'nearest_within_tolerance';
+
+export interface SourcePositionCandidate {
+  entry: ManifestEntry;
+  lineDistance: number;
+  columnDistance: number | null;
+  confidence: SourceMatchConfidence;
+  strategy: SourceMatchStrategy;
+}
 
 /**
  * Listener for manifest events
@@ -80,7 +94,7 @@ export class ManifestReader {
   private cacheMisses = 0;
   private fileWatcher: ReturnType<typeof watchFile> | null = null;
 
-  constructor(workspaceRoot: string) {
+  constructor(private readonly workspaceRoot: string) {
     this.manifestPath = path.join(workspaceRoot, PATHS.MANIFEST_FILE);
   }
 
@@ -145,13 +159,37 @@ export class ManifestReader {
    * @returns Array of manifest entries in the file
    */
   getEntriesByFile(filePath: string): ManifestEntry[] {
-    const ids = this.fileIndex.get(filePath);
+    const ids = this.fileIndex.get(this.normalizeFilePath(filePath));
     if (!ids) {
       return [];
     }
     return Array.from(ids)
       .map((id) => this.entries.get(id))
       .filter((e): e is ManifestEntry => e !== undefined);
+  }
+
+  /**
+   * Find manifest file paths that could match a user/agent supplied path.
+   *
+   * Exact manifest paths always win. Otherwise a path can match by suffix, which
+   * lets agents send app-root-relative paths in monorepos. Multiple matches are
+   * returned so callers can avoid guessing.
+   */
+  getMatchingFilePaths(filePath: string): string[] {
+    const normalized = this.normalizeSlashes(filePath);
+    if (this.fileIndex.has(normalized)) {
+      return [normalized];
+    }
+
+    const workspaceRelative = this.toWorkspaceRelativePath(filePath);
+    if (workspaceRelative && this.fileIndex.has(workspaceRelative)) {
+      return [workspaceRelative];
+    }
+
+    const suffix = workspaceRelative ?? normalized;
+    return Array.from(this.fileIndex.keys())
+      .filter((indexedPath) => indexedPath.endsWith(`/${suffix}`))
+      .sort();
   }
 
   /**
@@ -190,14 +228,31 @@ export class ManifestReader {
     column?: number,
     tolerance = 0,
   ): ManifestEntry | null {
-    const ids = this.fileIndex.get(filePath);
+    return (
+      this.getEntriesByPosition(filePath, line, column, tolerance)[0]?.entry ??
+      null
+    );
+  }
+
+  /**
+   * Find manifest entries by source file position.
+   *
+   * Returns all candidates within `tolerance`, sorted by line distance and then
+   * column distance. This keeps ambiguity visible for callers that need an
+   * agent-safe answer while preserving getEntryByPosition() for compatibility.
+   */
+  getEntriesByPosition(
+    filePath: string,
+    line: number,
+    column?: number,
+    tolerance = 0,
+  ): SourcePositionCandidate[] {
+    const ids = this.fileIndex.get(this.normalizeFilePath(filePath));
     if (!ids || ids.size === 0) {
-      return null;
+      return [];
     }
 
-    let bestEntry: ManifestEntry | null = null;
-    let bestLineDist = Infinity;
-    let bestColDist = Infinity;
+    const candidates: SourcePositionCandidate[] = [];
 
     for (const id of ids) {
       const entry = this.entries.get(id);
@@ -210,22 +265,82 @@ export class ManifestReader {
         continue;
       }
 
-      const colDist =
+      const columnDistance =
         column !== undefined && entry.start.column !== null
           ? Math.abs(entry.start.column - column)
-          : Infinity;
+          : null;
 
-      if (
-        lineDist < bestLineDist ||
-        (lineDist === bestLineDist && colDist < bestColDist)
-      ) {
-        bestEntry = entry;
-        bestLineDist = lineDist;
-        bestColDist = colDist;
-      }
+      candidates.push({
+        entry,
+        lineDistance: lineDist,
+        columnDistance,
+        ...this.getSourceMatchQuality(lineDist, columnDistance, column),
+      });
     }
 
-    return bestEntry;
+    return candidates.sort((a, b) => {
+      if (a.lineDistance !== b.lineDistance) {
+        return a.lineDistance - b.lineDistance;
+      }
+
+      const aColumn = a.columnDistance ?? Infinity;
+      const bColumn = b.columnDistance ?? Infinity;
+      return aColumn - bColumn;
+    });
+  }
+
+  private getSourceMatchQuality(
+    lineDistance: number,
+    columnDistance: number | null,
+    requestedColumn?: number,
+  ): Pick<SourcePositionCandidate, 'confidence' | 'strategy'> {
+    if (lineDistance === 0 && requestedColumn !== undefined) {
+      if (columnDistance === 0) {
+        return {
+          confidence: 'high',
+          strategy: 'exact_line_and_column',
+        };
+      }
+
+      return {
+        confidence: 'medium',
+        strategy: 'nearest_column_same_line',
+      };
+    }
+
+    if (lineDistance === 0) {
+      return {
+        confidence: 'high',
+        strategy: 'exact_line',
+      };
+    }
+
+    return {
+      confidence: 'low',
+      strategy: 'nearest_within_tolerance',
+    };
+  }
+
+  private normalizeFilePath(filePath: string): string {
+    const matches = this.getMatchingFilePaths(filePath);
+    return matches.length === 1 ? matches[0] : this.normalizeSlashes(filePath);
+  }
+
+  private toWorkspaceRelativePath(filePath: string): string | null {
+    if (!path.isAbsolute(filePath)) {
+      return null;
+    }
+
+    const relativePath = path.relative(this.workspaceRoot, filePath);
+    if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
+      return null;
+    }
+
+    return this.normalizeSlashes(relativePath);
+  }
+
+  private normalizeSlashes(filePath: string): string {
+    return filePath.split(path.sep).join(path.posix.sep);
   }
 
   /**

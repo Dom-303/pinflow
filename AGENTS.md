@@ -38,6 +38,14 @@ Important existing conventions:
 - Keep changes narrowly scoped to the package actually being adapted.
 - Treat PinFlow as the upstream foundation repo, not as the active product surface in this fork and not as an EventBaer app repo.
 
+## UI Change Approval
+
+Do not change visible PinFlow UI, overlay layout, visual styling, copy, or user
+workflow surfaces without first telling the user what would change and asking
+for approval. This includes `packages/pinflow-overlay/**`, demo/preview UI,
+README screenshots/assets, and visible onboarding wording. Non-visual bug fixes
+may proceed normally, but call out any visible side effects before editing.
+
 ## PinFlow Direction
 
 This fork is being adapted into `PinFlow` as a Codex- and Claude-friendly multi-project preview/review tool.

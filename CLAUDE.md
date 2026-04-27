@@ -27,6 +27,11 @@ PinFlow is a pixel-to-code development tool, based on PinFlow, that lets develop
 
 **Don't over-engineer.** Match the complexity of existing code. No premature abstractions, no speculative features, no redundant tests.
 
+**Ask before visible UI changes.** Do not change the visible PinFlow UI,
+overlay layout, styling, copy, README screenshots/assets, or user workflow
+surfaces without first explaining what would change and getting user approval.
+Non-visual fixes are fine, but call out any visible side effects before editing.
+
 ## Commands
 
 ```bash

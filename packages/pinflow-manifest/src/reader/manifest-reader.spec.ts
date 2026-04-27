@@ -324,6 +324,71 @@ describe('ManifestReader', () => {
       expect(result?.id).toBe('abc12345');
     });
 
+    it('returns match for absolute workspace file path', () => {
+      const entries = [
+        createTestEntry('abc12345', {
+          file: 'src/App.tsx',
+          start: { line: 10, column: 4 },
+        }),
+      ];
+      writeManifest(entries);
+
+      reader = new ManifestReader(testDir);
+      reader.initialize();
+
+      const result = reader.getEntryByPosition(
+        path.join(testDir, 'src/App.tsx'),
+        10,
+        4,
+      );
+
+      expect(result).not.toBeNull();
+      expect(result?.id).toBe('abc12345');
+    });
+
+    it('returns match for unique app-root suffix path', () => {
+      const entries = [
+        createTestEntry('abc12345', {
+          file: 'apps/web/src/App.tsx',
+          start: { line: 10, column: 4 },
+        }),
+      ];
+      writeManifest(entries);
+
+      reader = new ManifestReader(testDir);
+      reader.initialize();
+
+      const result = reader.getEntryByPosition('src/App.tsx', 10, 4);
+
+      expect(result).not.toBeNull();
+      expect(result?.id).toBe('abc12345');
+    });
+
+    it('does not pick a match for ambiguous app-root suffix path', () => {
+      const entries = [
+        createTestEntry('web11111', {
+          file: 'apps/web/src/App.tsx',
+          start: { line: 10, column: 4 },
+        }),
+        createTestEntry('admin222', {
+          file: 'apps/admin/src/App.tsx',
+          start: { line: 10, column: 4 },
+        }),
+      ];
+      writeManifest(entries);
+
+      reader = new ManifestReader(testDir);
+      reader.initialize();
+
+      const result = reader.getEntryByPosition('src/App.tsx', 10, 4);
+
+      expect(result).toBeNull();
+      expect(reader.getMatchingFilePaths('src/App.tsx')).toEqual([
+        'apps/admin/src/App.tsx',
+        'apps/web/src/App.tsx',
+      ]);
+    });
+
     it('returns match within tolerance range', () => {
       const entries = [
         createTestEntry('abc12345', {
@@ -418,6 +483,95 @@ describe('ManifestReader', () => {
 
       expect(result).not.toBeNull();
       expect(result?.id).toBe('def67890');
+    });
+  });
+
+  describe('getEntriesByPosition', () => {
+    it('returns sorted candidates with confidence metadata', () => {
+      const entries = [
+        createTestEntry('first111', {
+          file: 'src/App.tsx',
+          start: { line: 10, column: 20 },
+        }),
+        createTestEntry('second22', {
+          file: 'src/App.tsx',
+          start: { line: 10, column: 5 },
+        }),
+        createTestEntry('third333', {
+          file: 'src/App.tsx',
+          start: { line: 12, column: 0 },
+        }),
+      ];
+      writeManifest(entries);
+
+      reader = new ManifestReader(testDir);
+      reader.initialize();
+
+      const result = reader.getEntriesByPosition('src/App.tsx', 10, 4, 3);
+
+      expect(result).toEqual([
+        expect.objectContaining({
+          entry: expect.objectContaining({ id: 'second22' }),
+          lineDistance: 0,
+          columnDistance: 1,
+          confidence: 'medium',
+          strategy: 'nearest_column_same_line',
+        }),
+        expect.objectContaining({
+          entry: expect.objectContaining({ id: 'first111' }),
+          lineDistance: 0,
+          columnDistance: 16,
+          confidence: 'medium',
+          strategy: 'nearest_column_same_line',
+        }),
+        expect.objectContaining({
+          entry: expect.objectContaining({ id: 'third333' }),
+          lineDistance: 2,
+          columnDistance: 4,
+          confidence: 'low',
+          strategy: 'nearest_within_tolerance',
+        }),
+      ]);
+    });
+
+    it('returns candidates for absolute workspace file path', () => {
+      const entries = [
+        createTestEntry('abc12345', {
+          file: 'src/App.tsx',
+          start: { line: 10, column: 4 },
+        }),
+      ];
+      writeManifest(entries);
+
+      reader = new ManifestReader(testDir);
+      reader.initialize();
+
+      const result = reader.getEntriesByPosition(
+        path.join(testDir, 'src/App.tsx'),
+        10,
+        4,
+      );
+
+      expect(result).toHaveLength(1);
+      expect(result[0]?.entry.id).toBe('abc12345');
+    });
+
+    it('returns candidates for unique app-root suffix path', () => {
+      const entries = [
+        createTestEntry('abc12345', {
+          file: 'apps/web/src/App.tsx',
+          start: { line: 10, column: 4 },
+        }),
+      ];
+      writeManifest(entries);
+
+      reader = new ManifestReader(testDir);
+      reader.initialize();
+
+      const result = reader.getEntriesByPosition('src/App.tsx', 10, 4);
+
+      expect(result).toHaveLength(1);
+      expect(result[0]?.entry.id).toBe('abc12345');
     });
   });
 

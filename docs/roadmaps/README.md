@@ -36,6 +36,7 @@ The detailed positioning note is
 4. [04-pinflow-platform-evolution.md](./04-pinflow-platform-evolution.md)
 5. [05-pinflow-cleanup-plan.md](./05-pinflow-cleanup-plan.md)
 6. [06-pinflow-finalization-checklist.md](./06-pinflow-finalization-checklist.md)
+7. [07-pinflow-source-exact-agent-roadmap.md](./07-pinflow-source-exact-agent-roadmap.md)
 
 ## Rename Strategy
 

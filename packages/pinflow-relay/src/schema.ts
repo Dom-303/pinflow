@@ -115,7 +115,9 @@ export const AnnotationProcessResponseSchema = z
       .array(SelectedElementSchema)
       .optional()
       .describe('Multiple selected elements'),
-    region: RegionSelectionSchema.optional().describe('Selected viewport region'),
+    region: RegionSelectionSchema.optional().describe(
+      'Selected viewport region',
+    ),
     sourceLocation: z
       .object({
         file: ManifestEntrySchema.shape.file,
@@ -398,6 +400,8 @@ export const WSContextResponseSchema = z.object({
   requestId: z.string(),
   success: z.boolean(),
   rendered: z.boolean().optional(),
+  elementFound: z.boolean().optional(),
+  contextCaptured: z.boolean().optional(),
   context: RuntimeContextSchema.optional(),
   elementInfo: z
     .object({
@@ -437,6 +441,43 @@ export const QueryBySourceRequestSchema = z.object({
 });
 export type QueryBySourceRequest = z.infer<typeof QueryBySourceRequestSchema>;
 
+export const QueryBySourceReasonSchema = z.enum([
+  'manifest_entry_not_found',
+  'browser_not_connected',
+  'runtime_not_requested',
+  'runtime_timeout',
+  'element_not_rendered',
+  'capture_failed',
+  'ambiguous_source_match',
+  'ambiguous_source_path',
+  'manifest_empty',
+  'file_not_in_manifest',
+  'source_line_not_found',
+]);
+
+export const QueryBySourceMatchSchema = z.object({
+  confidence: z.enum(['high', 'medium', 'low']),
+  strategy: z.enum([
+    'exact_line_and_column',
+    'exact_line',
+    'nearest_column_same_line',
+    'nearest_within_tolerance',
+  ]),
+  lineDistance: z.number(),
+  columnDistance: z.number().nullable(),
+});
+
+export const QueryBySourceCandidateSchema = QueryBySourceMatchSchema.extend({
+  entryId: z.string(),
+  sourceLocation: z.object({
+    file: z.string(),
+    start: SourcePositionSchema,
+    end: SourcePositionSchema.optional(),
+    tagName: z.string().optional(),
+    componentName: z.string().optional(),
+  }),
+});
+
 export const QueryBySourceResponseSchema = z.object({
   found: z.boolean().describe('Whether a manifest entry was found'),
   entryId: z.string().optional().describe('The matching manifest entry ID'),
@@ -453,6 +494,8 @@ export const QueryBySourceResponseSchema = z.object({
   runtime: z
     .object({
       rendered: z.boolean(),
+      elementFound: z.boolean().optional(),
+      contextCaptured: z.boolean().optional(),
       componentProps: z.unknown().optional(),
       componentState: z.unknown().optional(),
       domSnapshot: z
@@ -469,6 +512,37 @@ export const QueryBySourceResponseSchema = z.object({
     .boolean()
     .optional()
     .describe('Whether a browser client is connected via WebSocket'),
+  browser: z
+    .object({
+      connected: z.boolean(),
+      clientCount: z.number(),
+    })
+    .optional()
+    .describe('Browser connection details for runtime context capture'),
+  manifest: z
+    .object({
+      entryCount: z.number(),
+      fileCount: z.number(),
+      componentCount: z.number(),
+      lastUpdated: z.string().nullable(),
+    })
+    .optional()
+    .describe('Manifest metadata at query time'),
+  match: QueryBySourceMatchSchema.optional().describe(
+    'Confidence and strategy for the selected best match',
+  ),
+  candidates: z
+    .array(QueryBySourceCandidateSchema)
+    .optional()
+    .describe('Source match candidates sorted by closeness'),
+  pathCandidates: z
+    .array(z.string())
+    .optional()
+    .describe('Manifest file paths matching an ambiguous source path'),
+  reasons: z
+    .array(QueryBySourceReasonSchema)
+    .optional()
+    .describe('Machine-readable reasons explaining uncertainty or failure'),
   error: z.string().optional().describe('Error message if something failed'),
 });
 export type QueryBySourceResponse = z.infer<typeof QueryBySourceResponseSchema>;

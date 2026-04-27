@@ -140,15 +140,26 @@ export class RelayService {
 
         let responseData: Record<string, unknown>;
         if (!bridge.isReady()) {
-          responseData = { requestId, success: false, rendered: false };
+          responseData = {
+            requestId,
+            success: false,
+            rendered: false,
+            elementFound: false,
+            contextCaptured: false,
+            error: 'Runtime bridge is not ready',
+          };
         } else {
           try {
             const context = await bridge.captureContextForEntry(entryId);
             const elementInfo = bridge.getElementInfo(entryId);
+            const elementFound = elementInfo !== null;
+            const contextCaptured = context !== null;
             responseData = {
               requestId,
-              success: context !== null,
-              rendered: context !== null,
+              success: contextCaptured,
+              rendered: elementFound,
+              elementFound,
+              contextCaptured,
               context: context ?? undefined,
               elementInfo: elementInfo
                 ? {
@@ -161,12 +172,18 @@ export class RelayService {
                     innerText: elementInfo.element?.innerText?.slice(0, 500),
                   }
                 : undefined,
+              error:
+                elementFound && !contextCaptured
+                  ? 'Context capture returned null'
+                  : undefined,
             };
           } catch {
             responseData = {
               requestId,
               success: false,
               rendered: false,
+              elementFound: false,
+              contextCaptured: false,
               error: 'Capture failed',
             };
           }

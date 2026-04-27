@@ -32,6 +32,30 @@ describe('QueryBySourceTool', () => {
             },
           },
           browserConnected: true,
+          match: {
+            confidence: 'high',
+            strategy: 'exact_line_and_column',
+            lineDistance: 0,
+            columnDistance: 0,
+          },
+          candidates: [
+            {
+              entryId: 'aB3dEf7h',
+              confidence: 'high',
+              strategy: 'exact_line_and_column',
+              lineDistance: 0,
+              columnDistance: 0,
+              sourceLocation: {
+                file: 'src/components/Button.tsx',
+                start: { line: 10, column: 4 },
+                end: { line: 10, column: 30 },
+                tagName: 'button',
+                componentName: 'Button',
+              },
+            },
+          ],
+          reasons: [],
+          browser: { connected: true, clientCount: 1 },
         }),
       });
       const tool = new QueryBySourceTool(mockClient);
@@ -70,6 +94,30 @@ describe('QueryBySourceTool', () => {
           },
         },
         browserConnected: true,
+        match: {
+          confidence: 'high',
+          strategy: 'exact_line_and_column',
+          lineDistance: 0,
+          columnDistance: 0,
+        },
+        candidates: [
+          {
+            entryId: 'aB3dEf7h',
+            confidence: 'high',
+            strategy: 'exact_line_and_column',
+            lineDistance: 0,
+            columnDistance: 0,
+            sourceLocation: {
+              file: 'src/components/Button.tsx',
+              start: { line: 10, column: 4 },
+              end: { line: 10, column: 30 },
+              tagName: 'button',
+              componentName: 'Button',
+            },
+          },
+        ],
+        reasons: [],
+        browser: { connected: true, clientCount: 1 },
         error: undefined,
         hint: undefined,
       });
@@ -145,6 +193,8 @@ describe('QueryBySourceTool', () => {
             start: { line: 10, column: 4 },
           },
           browserConnected: false,
+          reasons: ['browser_not_connected'],
+          browser: { connected: false, clientCount: 0 },
         }),
       });
       const tool = new QueryBySourceTool(mockClient);
@@ -159,6 +209,64 @@ describe('QueryBySourceTool', () => {
       const structured = result.structuredContent as Record<string, unknown>;
       expect(structured['hint']).toContain('No browser is connected');
       expect(structured['hint']).toContain('Ask the user');
+    });
+
+    it('should return ambiguity hint from machine-readable reasons', async () => {
+      // Arrange
+      const mockClient = createMockRelayClient({
+        queryBySource: vi.fn().mockResolvedValue({
+          found: true,
+          entryId: 'aB3dEf7h',
+          sourceLocation: {
+            file: 'src/components/Button.tsx',
+            start: { line: 10, column: 4 },
+          },
+          reasons: ['ambiguous_source_match'],
+          candidates: [{ entryId: 'aB3dEf7h' }, { entryId: 'xY9zK2pQ' }],
+        }),
+      });
+      const tool = new QueryBySourceTool(mockClient);
+
+      // Act
+      const result: CallToolResult = await tool.toolCallback({
+        file: 'src/components/Button.tsx',
+        line: 10,
+      });
+
+      // Assert
+      const structured = result.structuredContent as Record<string, unknown>;
+      expect(structured['hint']).toContain('Multiple manifest entries match');
+      expect(structured['reasons']).toEqual(['ambiguous_source_match']);
+    });
+
+    it('should return path ambiguity hint from machine-readable reasons', async () => {
+      // Arrange
+      const mockClient = createMockRelayClient({
+        queryBySource: vi.fn().mockResolvedValue({
+          found: false,
+          reasons: ['ambiguous_source_path'],
+          pathCandidates: [
+            'apps/admin/src/components/Input.tsx',
+            'src/components/Input.tsx',
+          ],
+        }),
+      });
+      const tool = new QueryBySourceTool(mockClient);
+
+      // Act
+      const result: CallToolResult = await tool.toolCallback({
+        file: 'components/Input.tsx',
+        line: 5,
+      });
+
+      // Assert
+      const structured = result.structuredContent as Record<string, unknown>;
+      expect(structured['hint']).toContain('matches multiple manifest files');
+      expect(structured['pathCandidates']).toEqual([
+        'apps/admin/src/components/Input.tsx',
+        'src/components/Input.tsx',
+      ]);
+      expect(structured['reasons']).toEqual(['ambiguous_source_path']);
     });
 
     it('should return not-rendered hint when element is not rendered', async () => {

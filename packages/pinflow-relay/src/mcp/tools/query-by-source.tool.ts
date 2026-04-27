@@ -7,6 +7,11 @@ import {
   mcpErrorResult,
 } from './tool.defs.js';
 import { RelayHttpClient } from '../../client/relay-http-client.js';
+import {
+  QueryBySourceCandidateSchema,
+  QueryBySourceMatchSchema,
+  QueryBySourceReasonSchema,
+} from '../../schema.js';
 
 const QueryBySourceToolInputSchema = z.object({
   file: z
@@ -53,6 +58,8 @@ const QueryBySourceToolOutputSchema = McpToolOutputSchema.extend({
   runtime: z
     .object({
       rendered: z.boolean(),
+      elementFound: z.boolean().optional(),
+      contextCaptured: z.boolean().optional(),
       componentProps: z.unknown().optional(),
       componentState: z.unknown().optional(),
       domSnapshot: z
@@ -65,6 +72,24 @@ const QueryBySourceToolOutputSchema = McpToolOutputSchema.extend({
     })
     .optional(),
   browserConnected: z.boolean().optional(),
+  browser: z
+    .object({
+      connected: z.boolean(),
+      clientCount: z.number(),
+    })
+    .optional(),
+  manifest: z
+    .object({
+      entryCount: z.number(),
+      fileCount: z.number(),
+      componentCount: z.number(),
+      lastUpdated: z.string().nullable(),
+    })
+    .optional(),
+  match: QueryBySourceMatchSchema.optional(),
+  candidates: z.array(QueryBySourceCandidateSchema).optional(),
+  pathCandidates: z.array(z.string()).optional(),
+  reasons: z.array(QueryBySourceReasonSchema).optional(),
   hint: z
     .string()
     .optional()
@@ -93,7 +118,20 @@ export class QueryBySourceTool implements McpToolDefinition<
     found: boolean;
     browserConnected?: boolean;
     runtime?: { rendered?: boolean };
+    reasons?: Array<z.infer<typeof QueryBySourceReasonSchema>>;
   }): string | undefined {
+    if (result.reasons?.includes('ambiguous_source_match')) {
+      return (
+        'Multiple manifest entries match this source location. ' +
+        'Inspect candidates and prefer the highest-confidence entry that matches the intended UI element.'
+      );
+    }
+    if (result.reasons?.includes('ambiguous_source_path')) {
+      return (
+        'This source path matches multiple manifest files. ' +
+        'Retry with one of pathCandidates as the file value so PinFlow can query the intended app/root.'
+      );
+    }
     if (!result.found) {
       return (
         'No manifest entry found for this source location. ' +
@@ -126,6 +164,12 @@ export class QueryBySourceTool implements McpToolDefinition<
         sourceLocation: result.sourceLocation,
         runtime: result.runtime,
         browserConnected: result.browserConnected,
+        browser: result.browser,
+        manifest: result.manifest,
+        match: result.match,
+        candidates: result.candidates,
+        pathCandidates: result.pathCandidates,
+        reasons: result.reasons,
         error: result.error,
         hint: this.buildHint(result),
       };

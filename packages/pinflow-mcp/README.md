@@ -107,14 +107,39 @@ Returns the source location matched in the manifest plus live runtime data captu
 
 ```json
 {
+  "found": true,
+  "entryId": "aB3dEf7h",
   "sourceLocation": {
     "file": "src/components/Button.tsx",
-    "line": 12,
-    "column": 4,
+    "start": { "line": 12, "column": 4 },
     "componentName": "Button",
     "tagName": "button"
   },
+  "match": {
+    "confidence": "high",
+    "strategy": "exact_line_and_column",
+    "lineDistance": 0,
+    "columnDistance": 0
+  },
+  "candidates": [
+    {
+      "entryId": "aB3dEf7h",
+      "confidence": "high",
+      "strategy": "exact_line_and_column",
+      "lineDistance": 0,
+      "columnDistance": 0,
+      "sourceLocation": {
+        "file": "src/components/Button.tsx",
+        "start": { "line": 12, "column": 4 },
+        "componentName": "Button",
+        "tagName": "button"
+      }
+    }
+  ],
   "runtime": {
+    "rendered": true,
+    "elementFound": true,
+    "contextCaptured": true,
     "componentProps": { "variant": "secondary", "onClick": "[Function]" },
     "componentState": { "hook_0": false, "hook_1": "idle" },
     "domSnapshot": {
@@ -123,7 +148,9 @@ Returns the source location matched in the manifest plus live runtime data captu
       "innerText": "Save changes"
     }
   },
-  "browserConnected": true
+  "browserConnected": true,
+  "browser": { "connected": true, "clientCount": 1 },
+  "reasons": []
 }
 ```
 

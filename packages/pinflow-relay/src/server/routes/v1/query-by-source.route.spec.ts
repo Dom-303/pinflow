@@ -78,12 +78,19 @@ describe('POST /api/v1/manifest/resolve-by-source', () => {
     componentName: 'Input',
   });
 
+  const adminInputEntry = createEntry('aDm1nInP', {
+    file: 'apps/admin/src/components/Input.tsx',
+    start: { line: 5, column: 0 },
+    tagName: 'input',
+    componentName: 'Input',
+  });
+
   beforeAll(async () => {
     // Create isolated temp workspace with manifest
     tempDir = mkdtempSync(path.join(tmpdir(), 'relay-qbs-test-'));
     const manifestDir = path.dirname(path.join(tempDir, PATHS.MANIFEST_FILE));
     mkdirSync(manifestDir, { recursive: true });
-    const entries = [buttonEntry, spanEntry, inputEntry];
+    const entries = [buttonEntry, spanEntry, inputEntry, adminInputEntry];
     writeFileSync(
       path.join(tempDir, PATHS.MANIFEST_FILE),
       entries.map((e) => JSON.stringify(e)).join('\n') + '\n',
@@ -165,6 +172,47 @@ describe('POST /api/v1/manifest/resolve-by-source', () => {
     expect(body.entryId).toBe('bTn1bTn1');
   });
 
+  it('should return match metadata and candidates for source matches', async () => {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/manifest/resolve-by-source',
+      payload: {
+        file: 'src/components/Button.tsx',
+        line: 10,
+        column: 5,
+        includeRuntime: false,
+      },
+    });
+
+    expect(response.statusCode).toBe(200);
+
+    const body = response.json();
+    expect(body.found).toBe(true);
+    expect(body.match).toEqual({
+      confidence: 'medium',
+      strategy: 'nearest_column_same_line',
+      lineDistance: 0,
+      columnDistance: 1,
+    });
+    expect(body.candidates).toEqual([
+      expect.objectContaining({
+        entryId: 'bTn1bTn1',
+        confidence: 'medium',
+        strategy: 'nearest_column_same_line',
+        lineDistance: 0,
+        columnDistance: 1,
+      }),
+      expect.objectContaining({
+        entryId: 'sPn1sPn1',
+        confidence: 'medium',
+        strategy: 'nearest_column_same_line',
+        lineDistance: 0,
+        columnDistance: 15,
+      }),
+    ]);
+    expect(body.reasons).toContain('ambiguous_source_match');
+  });
+
   it('should return found:false when no entry matches', async () => {
     const response = await app.inject({
       method: 'POST',
@@ -180,6 +228,7 @@ describe('POST /api/v1/manifest/resolve-by-source', () => {
 
     const body = response.json();
     expect(body.found).toBe(false);
+    expect(body.reasons).toContain('source_line_not_found');
     expect(body.entryId).toBeUndefined();
     expect(body.sourceLocation).toBeUndefined();
   });
@@ -195,7 +244,9 @@ describe('POST /api/v1/manifest/resolve-by-source', () => {
     });
 
     expect(response.statusCode).toBe(200);
-    expect(response.json().found).toBe(false);
+    const body = response.json();
+    expect(body.found).toBe(false);
+    expect(body.reasons).toContain('file_not_in_manifest');
   });
 
   it('should match within tolerance', async () => {
@@ -215,6 +266,47 @@ describe('POST /api/v1/manifest/resolve-by-source', () => {
     const body = response.json();
     expect(body.found).toBe(true);
     expect(body.entryId).toBe('iNp1iNp1');
+  });
+
+  it('should accept absolute workspace file paths', async () => {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/manifest/resolve-by-source',
+      payload: {
+        file: path.join(tempDir, 'src/components/Input.tsx'),
+        line: 5,
+        includeRuntime: false,
+      },
+    });
+
+    expect(response.statusCode).toBe(200);
+
+    const body = response.json();
+    expect(body.found).toBe(true);
+    expect(body.entryId).toBe('iNp1iNp1');
+    expect(body.sourceLocation.file).toBe('src/components/Input.tsx');
+  });
+
+  it('should not guess when source file path matches multiple app roots', async () => {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/manifest/resolve-by-source',
+      payload: {
+        file: 'components/Input.tsx',
+        line: 5,
+        includeRuntime: false,
+      },
+    });
+
+    expect(response.statusCode).toBe(200);
+
+    const body = response.json();
+    expect(body.found).toBe(false);
+    expect(body.reasons).toContain('ambiguous_source_path');
+    expect(body.pathCandidates).toEqual([
+      'apps/admin/src/components/Input.tsx',
+      'src/components/Input.tsx',
+    ]);
   });
 
   it('should not match outside tolerance', async () => {
@@ -248,6 +340,8 @@ describe('POST /api/v1/manifest/resolve-by-source', () => {
     const body = response.json();
     expect(body.found).toBe(true);
     expect(body.browserConnected).toBe(false);
+    expect(body.browser).toEqual({ connected: false, clientCount: 0 });
+    expect(body.reasons).toContain('browser_not_connected');
     expect(body.runtime).toBeUndefined();
   });
 
@@ -287,6 +381,8 @@ describe('POST /api/v1/manifest/resolve-by-source', () => {
     const body = response.json();
     expect(body.found).toBe(true);
     expect(body.browserConnected).toBe(true);
+    expect(body.browser).toEqual({ connected: true, clientCount: 1 });
+    expect(body.reasons).toEqual([]);
     expect(body.runtime.rendered).toBe(true);
     expect(body.runtime.componentProps).toEqual({ label: 'Submit' });
     expect(body.runtime.componentState).toEqual({ loading: false });
@@ -298,6 +394,51 @@ describe('POST /api/v1/manifest/resolve-by-source', () => {
     expect(mockWsServer.requestContext).toHaveBeenCalledWith('iNp1iNp1');
 
     // Reset for other tests
+    vi.mocked(mockWsServer.getClientCount).mockReturnValue(0);
+    vi.mocked(mockWsServer.requestContext).mockResolvedValue(null);
+  });
+
+  it('should distinguish rendered element from missing runtime context', async () => {
+    const wsResponse: WSContextResponse = {
+      requestId: 'test-req',
+      success: false,
+      rendered: true,
+      elementFound: true,
+      contextCaptured: false,
+      elementInfo: {
+        tagName: 'input',
+        attributes: { type: 'text' },
+        innerText: '',
+      },
+      error: 'Context capture returned null',
+    };
+    vi.mocked(mockWsServer.getClientCount).mockReturnValue(1);
+    vi.mocked(mockWsServer.requestContext).mockResolvedValue(wsResponse);
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/manifest/resolve-by-source',
+      payload: {
+        file: 'src/components/Input.tsx',
+        line: 5,
+        includeRuntime: true,
+      },
+    });
+
+    expect(response.statusCode).toBe(200);
+
+    const body = response.json();
+    expect(body.runtime.rendered).toBe(true);
+    expect(body.runtime.elementFound).toBe(true);
+    expect(body.runtime.contextCaptured).toBe(false);
+    expect(body.runtime.domSnapshot).toEqual({
+      tagName: 'input',
+      attributes: { type: 'text' },
+      innerText: '',
+    });
+    expect(body.reasons).toContain('capture_failed');
+    expect(body.reasons).not.toContain('element_not_rendered');
+
     vi.mocked(mockWsServer.getClientCount).mockReturnValue(0);
     vi.mocked(mockWsServer.requestContext).mockResolvedValue(null);
   });

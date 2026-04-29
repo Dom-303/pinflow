@@ -26,6 +26,7 @@ export interface DispatchSessionState {
   releasedAnnotationIds: string[];
   awaitingConfirmationIds: string[];
   flowActive: boolean;
+  lastDispatchError: string | null;
 }
 
 export interface EffectiveDispatchConfig extends DispatchProjectDefaults {
@@ -49,6 +50,23 @@ export interface DispatchQueueAnalysis {
   capacityRemaining: number;
 }
 
+export type AnnotationDispatchStage =
+  | 'waiting'
+  | 'awaiting_confirmation'
+  | 'dispatching'
+  | 'claimed'
+  | 'processing'
+  | 'completed'
+  | 'failed'
+  | 'archived';
+
+export interface AnnotationDispatchView {
+  stage: AnnotationDispatchStage;
+  statusLabel: string;
+  statusDetail?: string;
+  nextAction: string;
+}
+
 export const DEFAULT_DISPATCH_PROJECT_DEFAULTS: DispatchProjectDefaults = {
   channel: 'auto',
   mode: 'manual',
@@ -63,10 +81,12 @@ export const DEFAULT_DISPATCH_SESSION_STATE: DispatchSessionState = {
   releasedAnnotationIds: [],
   awaitingConfirmationIds: [],
   flowActive: false,
+  lastDispatchError: null,
 };
 
 export function normalizeThreshold(value: number | undefined): number {
-  if (!Number.isFinite(value)) return DEFAULT_DISPATCH_PROJECT_DEFAULTS.threshold;
+  if (!Number.isFinite(value))
+    return DEFAULT_DISPATCH_PROJECT_DEFAULTS.threshold;
   return Math.max(1, Math.min(10, Math.round(value as number)));
 }
 
@@ -101,7 +121,9 @@ export function normalizeProjectDefaults(
     channel: isChannel(input?.channel)
       ? input.channel
       : DEFAULT_DISPATCH_PROJECT_DEFAULTS.channel,
-    mode: isMode(input?.mode) ? input.mode : DEFAULT_DISPATCH_PROJECT_DEFAULTS.mode,
+    mode: isMode(input?.mode)
+      ? input.mode
+      : DEFAULT_DISPATCH_PROJECT_DEFAULTS.mode,
     threshold: normalizeThreshold(input?.threshold),
     concurrency: normalizeConcurrency(input?.concurrency),
     continuation: isContinuationMode(input?.continuation)
@@ -159,6 +181,7 @@ export function summarizeQueue(annotations: Annotation[]): QueueSummary {
       case 'queued':
         summary.waiting += 1;
         break;
+      case 'claimed':
       case 'processing':
         summary.active += 1;
         break;
@@ -202,21 +225,38 @@ export function analyzeDispatchQueue(
     if (annotation.metadata.status === 'processing') {
       processingIds.push(id);
     }
+
+    if (annotation.metadata.status === 'claimed') {
+      processingIds.push(id);
+    }
   }
 
-  const releasedActiveIds = options.releasedAnnotationIds.filter((id) => {
+  const locallyReleasedIds = options.releasedAnnotationIds.filter((id) => {
     const annotation = annotations.find((entry) => entry.metadata.id === id);
     return (
       liveIds.has(id) &&
       (annotation?.metadata.status === 'queued' ||
+        annotation?.metadata.status === 'claimed' ||
         annotation?.metadata.status === 'processing')
     );
   });
+  const serverReleasedIds = annotations
+    .filter(
+      (annotation) =>
+        annotation.metadata.status === 'queued' &&
+        Boolean(annotation.dispatch?.assignedAt),
+    )
+    .map((annotation) => annotation.metadata.id);
+  const releasedActiveIds = Array.from(
+    new Set([...locallyReleasedIds, ...serverReleasedIds]),
+  );
 
-  const awaitingConfirmationIds = options.awaitingConfirmationIds.filter((id) => {
-    const annotation = annotations.find((entry) => entry.metadata.id === id);
-    return liveIds.has(id) && annotation?.metadata.status === 'queued';
-  });
+  const awaitingConfirmationIds = options.awaitingConfirmationIds.filter(
+    (id) => {
+      const annotation = annotations.find((entry) => entry.metadata.id === id);
+      return liveIds.has(id) && annotation?.metadata.status === 'queued';
+    },
+  );
 
   const inFlightIds = Array.from(
     new Set([...processingIds, ...releasedActiveIds]),
@@ -239,5 +279,110 @@ export function analyzeDispatchQueue(
     awaitingConfirmationIds,
     releasableIds: unreleasedWaitingIds.slice(0, capacityRemaining),
     capacityRemaining,
+  };
+}
+
+export function getAnnotationDispatchView(
+  annotation: Annotation,
+  options: {
+    releasedAnnotationIds: string[];
+    awaitingConfirmationIds: string[];
+  },
+): AnnotationDispatchView {
+  const id = annotation.metadata.id;
+  const status = annotation.metadata.status;
+
+  if (status === 'queued') {
+    if (options.awaitingConfirmationIds.includes(id)) {
+      return {
+        stage: 'awaiting_confirmation',
+        statusLabel: 'Wartet auf Freigabe',
+        statusDetail: 'Dieser Auftrag startet erst nach deiner Freigabe.',
+        nextAction: 'Freigeben oder weiter sammeln',
+      };
+    }
+
+    if (
+      options.releasedAnnotationIds.includes(id) ||
+      annotation.dispatch?.assignedAt
+    ) {
+      return {
+        stage: 'dispatching',
+        statusLabel: 'Freigegeben',
+        statusDetail:
+          'PinFlow hat diesen Auftrag freigegeben und wartet auf Uebernahme.',
+        nextAction: 'Warten bis ein Agent oder Runner uebernimmt',
+      };
+    }
+
+    return {
+      stage: 'waiting',
+      statusLabel: 'In Warteliste',
+      statusDetail: 'Dieser Auftrag wird nach deiner Versandregel gestartet.',
+      nextAction: 'Warten bis die Versandregel greift oder manuell senden',
+    };
+  }
+
+  if (status === 'claimed') {
+    return {
+      stage: 'claimed',
+      statusLabel: 'Uebernommen',
+      statusDetail: 'Ein Agent hat den Auftrag uebernommen.',
+      nextAction: 'Warten, Agent hat uebernommen',
+    };
+  }
+
+  if (status === 'processing') {
+    return {
+      stage: 'processing',
+      statusLabel: 'In Bearbeitung',
+      statusDetail: 'Der Agent arbeitet gerade an diesem Auftrag.',
+      nextAction: 'Warten, Agent arbeitet',
+    };
+  }
+
+  if (status === 'processed') {
+    const verificationStatus = annotation.verification?.status;
+    const nextAction =
+      verificationStatus === 'verified'
+        ? 'Archivieren oder weiterarbeiten'
+        : verificationStatus === 'uncertain'
+          ? 'Erneut pruefen oder Quelle oeffnen'
+          : verificationStatus === 'unable'
+            ? 'Fehler ansehen oder erneut pruefen'
+            : 'Pruefen';
+
+    return {
+      stage: 'completed',
+      statusLabel: 'Erledigt',
+      statusDetail: 'Die Agent-Antwort liegt vor.',
+      nextAction,
+    };
+  }
+
+  if (status === 'failed') {
+    return {
+      stage: 'failed',
+      statusLabel: 'Fehlgeschlagen',
+      statusDetail: annotation.metadata.errorDetails
+        ? `Fehler: ${annotation.metadata.errorDetails}`
+        : 'Dieser Auftrag braucht Nacharbeit oder einen neuen Versuch.',
+      nextAction: 'Fehler ansehen oder erneut senden',
+    };
+  }
+
+  if (status === 'archived') {
+    return {
+      stage: 'archived',
+      statusLabel: 'Archiviert',
+      statusDetail: 'Dieser Auftrag liegt nur noch im Verlauf.',
+      nextAction: 'Keine Aktion noetig',
+    };
+  }
+
+  return {
+    stage: 'waiting',
+    statusLabel: status,
+    nextAction: 'Status pruefen',
   };
 }

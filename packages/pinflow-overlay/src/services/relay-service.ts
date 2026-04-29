@@ -13,11 +13,14 @@ import type {
   InteractionMode,
   AnnotationInteraction,
   AnnotationContext,
+  AnnotationDispatchTarget,
   AnnotationStatus,
   AnnotationId,
 } from '@pinflow/core';
+import type { RunnerSnapshot } from '@pinflow/relay/client';
 import { AnnotationStatusEnum, WS_EVENTS } from '@pinflow/core';
 import { BridgeDispatch } from '@pinflow/runtime';
+import type { DispatchChannel } from '../core/dispatch-config.js';
 
 /**
  * Unified relay service
@@ -29,6 +32,7 @@ export class RelayService {
   private wsClient: RelayWSClient | null = null;
   private store: OverlayStore;
   private unsubscribers: Array<() => void> = [];
+  private statusPollTimer: ReturnType<typeof setInterval> | null = null;
 
   private constructor() {
     this.store = OverlayStore.getInstance();
@@ -201,8 +205,46 @@ export class RelayService {
 
     // Load initial annotations
     await this.refreshAnnotations();
+    this.startStatusPolling();
 
     return true;
+  }
+
+  async refreshStatus(): Promise<void> {
+    if (!this.relayHttpClient) return;
+
+    try {
+      const status = await this.relayHttpClient.getStatus();
+      this.store.setRunnerStatus(
+        status.runner ?? RelayService.emptyRunnerStatus(),
+      );
+    } catch (error) {
+      this.store.setRunnerStatus(RelayService.emptyRunnerStatus());
+      if (this.store.getState().debug) {
+        console.error(
+          '[pinflow-overlay][relay-service] Failed to refresh relay status:',
+          error,
+        );
+      }
+    }
+  }
+
+  private startStatusPolling(): void {
+    if (this.statusPollTimer) {
+      clearInterval(this.statusPollTimer);
+    }
+
+    this.statusPollTimer = setInterval(() => {
+      void this.refreshStatus();
+    }, 5_000);
+  }
+
+  private static emptyRunnerStatus(): RunnerSnapshot {
+    return {
+      connected: false,
+      activeCount: 0,
+      sessions: [],
+    };
   }
 
   /**
@@ -215,6 +257,7 @@ export class RelayService {
       const result = await this.relayHttpClient.listAnnotations({
         statuses: [
           AnnotationStatusEnum.QUEUED,
+          AnnotationStatusEnum.CLAIMED,
           AnnotationStatusEnum.PROCESSING,
           AnnotationStatusEnum.PROCESSED,
           AnnotationStatusEnum.FAILED,
@@ -223,6 +266,7 @@ export class RelayService {
         limit: 50,
       });
       this.store.setAnnotations(result.annotations);
+      await this.refreshStatus();
     } catch (error) {
       if (this.store.getState().debug) {
         console.error(
@@ -305,6 +349,45 @@ export class RelayService {
       limit,
       offset,
     });
+  }
+
+  /**
+   * Dispatch selected queued annotations through the relay.
+   */
+  async dispatchAnnotations(
+    annotationIds: AnnotationId[],
+    channel: DispatchChannel,
+  ): Promise<void> {
+    if (channel === 'queue_only' || annotationIds.length === 0) {
+      return;
+    }
+
+    if (!this.relayHttpClient) {
+      const connected = await this.initialize();
+      if (!connected || !this.relayHttpClient) {
+        throw new Error('Lokaler PinFlow-Relay ist nicht verbunden');
+      }
+    }
+
+    await this.relayHttpClient.dispatchAnnotations({
+      annotationIds,
+      dispatchTarget: RelayService.toDispatchTarget(channel),
+    });
+    await this.refreshAnnotations();
+  }
+
+  private static toDispatchTarget(
+    channel: DispatchChannel,
+  ): AnnotationDispatchTarget {
+    switch (channel) {
+      case 'codex':
+        return { provider: 'codex', label: 'Codex' };
+      case 'claude':
+        return { provider: 'claude', label: 'Claude' };
+      case 'auto':
+      default:
+        return { provider: 'other', label: 'Aktueller Agent' };
+    }
   }
 
   /**
@@ -399,5 +482,10 @@ export class RelayService {
 
     // Clear HTTP client
     this.relayHttpClient = null;
+
+    if (this.statusPollTimer) {
+      clearInterval(this.statusPollTimer);
+      this.statusPollTimer = null;
+    }
   }
 }

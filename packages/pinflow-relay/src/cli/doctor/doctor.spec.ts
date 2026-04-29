@@ -115,6 +115,19 @@ describe('pinflow doctor', () => {
             clientCount: 1,
             sessions: [{ sessionId: 'tab-web', route: '/' }],
           },
+          runner: {
+            connected: true,
+            activeCount: 1,
+            sessions: [
+              {
+                runnerId: 'runner-1',
+                provider: 'codex',
+                label: 'PinFlow Runner (codex)',
+                status: 'idle',
+                lastSeenAt: new Date().toISOString(),
+              },
+            ],
+          },
         }),
       }),
     });
@@ -124,6 +137,9 @@ describe('pinflow doctor', () => {
     expect(
       report.checks.find((check) => check.id === 'browser_connection')?.summary,
     ).toContain('1 browser client');
+    expect(
+      report.checks.find((check) => check.id === 'runner_connection')?.summary,
+    ).toContain('PinFlow Runner');
   });
 
   it('reports clear repair hints when PinFlow has not been initialized', async () => {
@@ -200,6 +216,7 @@ describe('pinflow doctor', () => {
             archived: 0,
           },
           browser: { connected: false, clientCount: 0, sessions: [] },
+          runner: { connected: false, activeCount: 0, sessions: [] },
         }),
       }),
     });
@@ -211,6 +228,9 @@ describe('pinflow doctor', () => {
     ).toBe('warn');
     expect(
       report.checks.find((check) => check.id === 'mcp_config')?.status,
+    ).toBe('warn');
+    expect(
+      report.checks.find((check) => check.id === 'runner_connection')?.status,
     ).toBe('warn');
   });
 

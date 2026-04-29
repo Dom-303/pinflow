@@ -24,7 +24,7 @@ import {
   InjectorRegistry,
   isInjectorFileExtension,
 } from '../../core/injector.registry.js';
-import { RelayControl } from '@pinflow/relay';
+import { RelayControl, RunnerControl } from '@pinflow/relay';
 
 const OVERLAY_INIT_MODULE_BASE_PATH = '/@pinflow/overlay-init.js';
 const PINFLOW_DEV_CACHE_TAG = 'pinflow-ui-2026-04-23b';
@@ -140,6 +140,7 @@ export function pinflow(options: VitePluginOptions = {}): Plugin {
     exclude = /node_modules|\.test\.|\.spec\./i,
     debug = false,
     relay: relayOptions = {},
+    runner: runnerOptions,
     overlay: overlayOption = true,
     rootDir,
   } = options;
@@ -162,6 +163,7 @@ export function pinflow(options: VitePluginOptions = {}): Plugin {
 
   // Relay client for auto-start and port discovery
   let relayControl: RelayControl | undefined;
+  let runnerControl: RunnerControl | undefined;
   let relayPort: number | undefined;
   let relayHost: string | undefined;
 
@@ -256,6 +258,18 @@ export function pinflow(options: VitePluginOptions = {}): Plugin {
             console.log(
               `[pinflow-transform][vite-plugin] Relay running at http://${relayHost}:${relayPort}`,
             );
+          }
+
+          if (runnerOptions?.autoStart) {
+            runnerControl = new RunnerControl(rootContext, { debug });
+            await runnerControl.ensureRunning({
+              relayHost,
+              relayPort,
+              provider: runnerOptions.provider ?? 'codex',
+              command: runnerOptions.command,
+              args: runnerOptions.args,
+              intervalMs: runnerOptions.intervalMs,
+            });
           }
         } catch (error) {
           // Never fail the build due to relay issues

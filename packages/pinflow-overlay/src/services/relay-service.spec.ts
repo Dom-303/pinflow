@@ -4,7 +4,7 @@
  * @vitest-environment happy-dom
  */
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { WS_EVENTS } from '@pinflow/core';
 
 const {
@@ -13,9 +13,12 @@ const {
   mockConnect,
   mockDisconnect,
   mockGetHealth,
+  mockGetStatus,
   mockListAnnotations,
+  mockDispatchAnnotations,
   mockSetRelayConnection,
   mockSetAnnotations,
+  mockSetRunnerStatus,
   mockGetState,
   mockBridgeIsReady,
   mockCaptureContextForEntry,
@@ -26,9 +29,12 @@ const {
   mockConnect: vi.fn(),
   mockDisconnect: vi.fn(),
   mockGetHealth: vi.fn(),
+  mockGetStatus: vi.fn(),
   mockListAnnotations: vi.fn(),
+  mockDispatchAnnotations: vi.fn(),
   mockSetRelayConnection: vi.fn(),
   mockSetAnnotations: vi.fn(),
+  mockSetRunnerStatus: vi.fn(),
   mockGetState: vi.fn(),
   mockBridgeIsReady: vi.fn(),
   mockCaptureContextForEntry: vi.fn(),
@@ -39,7 +45,9 @@ vi.mock('@pinflow/relay/client', () => ({
   RelayHttpClient: vi.fn().mockImplementation(function () {
     return {
       getHealth: mockGetHealth,
+      getStatus: mockGetStatus,
       listAnnotations: mockListAnnotations,
+      dispatchAnnotations: mockDispatchAnnotations,
     };
   }),
   RelayWSClient: vi.fn().mockImplementation(function () {
@@ -63,6 +71,7 @@ vi.mock('../core/overlay-store.js', () => ({
       getState: mockGetState,
       setRelayConnection: mockSetRelayConnection,
       setAnnotations: mockSetAnnotations,
+      setRunnerStatus: mockSetRunnerStatus,
     }),
   },
 }));
@@ -87,8 +96,64 @@ describe('RelayService', () => {
     window.__PINFLOW_RELAY_PORT__ = 4500;
     mockGetState.mockReturnValue({ debug: false });
     mockGetHealth.mockResolvedValue({ status: 'healthy' });
+    mockGetStatus.mockResolvedValue({
+      runner: {
+        connected: true,
+        activeCount: 1,
+        sessions: [
+          {
+            runnerId: 'runner-1',
+            provider: 'codex',
+            label: 'Local Runner',
+            status: 'idle',
+            lastSeenAt: '2026-04-29T10:00:00.000Z',
+          },
+        ],
+      },
+    });
     mockListAnnotations.mockResolvedValue({ annotations: [] });
+    mockDispatchAnnotations.mockResolvedValue({
+      dispatchedIds: ['ann-1'],
+      skippedIds: [],
+      annotations: [],
+    });
     mockBridgeIsReady.mockReturnValue(true);
+  });
+
+  afterEach(() => {
+    RelayService.resetInstance();
+  });
+
+  it('initializes the relay client before dispatching when needed', async () => {
+    const relayService = RelayService.getInstance();
+
+    await relayService.dispatchAnnotations(['ann-1'], 'auto');
+
+    expect(mockGetHealth).toHaveBeenCalledTimes(1);
+    expect(mockDispatchAnnotations).toHaveBeenCalledWith({
+      annotationIds: ['ann-1'],
+      dispatchTarget: { provider: 'other', label: 'Aktueller Agent' },
+    });
+    expect(mockListAnnotations).toHaveBeenCalled();
+    expect(mockSetRunnerStatus).toHaveBeenCalledWith(
+      expect.objectContaining({
+        connected: true,
+        activeCount: 1,
+      }),
+    );
+  });
+
+  it('falls back to disconnected runner status when relay status is unavailable', async () => {
+    mockGetStatus.mockRejectedValueOnce(new Error('status unavailable'));
+
+    const relayService = RelayService.getInstance();
+    await relayService.initialize();
+
+    expect(mockSetRunnerStatus).toHaveBeenCalledWith({
+      connected: false,
+      activeCount: 0,
+      sessions: [],
+    });
   });
 
   it('reports visible element separately from missing runtime context', async () => {

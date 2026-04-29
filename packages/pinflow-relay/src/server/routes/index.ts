@@ -5,6 +5,7 @@
 
 /** Annotation routes */
 export { AnnotationCreateRoute } from './v1/annotation-create.route.js';
+export { AnnotationDispatchRoute } from './v1/annotation-dispatch.route.js';
 export { AnnotationGetRoute } from './v1/annotation-get.route.js';
 export { AnnotationListRoute } from './v1/annotation-list.route.js';
 export { AnnotationProcessRoute } from './v1/annotation-process.route.js';
@@ -14,6 +15,7 @@ export { AnnotationUpdateStatusRoute } from './v1/annotation-update-status.route
 export { AnnotationVerifyRoute } from './v1/annotation-verify.route.js';
 export { AnnotationDeleteRoute } from './v1/annotation-delete.route.js';
 export { AnnotationPatchRoute } from './v1/annotation-patch.route.js';
+export { RunnerHeartbeatRoute } from './v1/runner-heartbeat.route.js';
 
 /** Manifest routes */
 export { ManifestBatchResolveRoute } from './v1/manifest-batch-resolve.route.js';

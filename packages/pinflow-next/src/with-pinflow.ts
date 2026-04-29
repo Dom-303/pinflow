@@ -159,17 +159,24 @@ function applyDevTransforms(
     exclude = DEFAULT_EXCLUDE,
     debug = false,
     relay = {},
+    runner = {},
     overlay = true,
   } = options;
 
   return {
     ...nextConfig,
-    turbopack: buildTurbopackConfig(nextConfig, { debug, relay, overlay }),
+    turbopack: buildTurbopackConfig(nextConfig, {
+      debug,
+      relay,
+      runner,
+      overlay,
+    }),
     webpack: buildWebpackFn(nextConfig, {
       include,
       exclude,
       debug,
       relay,
+      runner,
       overlay,
     }),
   };
@@ -180,6 +187,7 @@ function buildTurbopackConfig(
   options: {
     debug: boolean;
     relay: PinFlowNextOptions['relay'];
+    runner: PinFlowNextOptions['runner'];
     overlay: PinFlowNextOptions['overlay'];
   },
 ): NextConfig['turbopack'] {
@@ -196,6 +204,7 @@ function buildTurbopackConfig(
     debug: options.debug,
     enabled: true,
     relay: options.relay as JSONValue,
+    runner: options.runner as JSONValue,
     overlay: options.overlay as JSONValue,
     autoInitPath: resolveAutoInitPath(),
   };
@@ -269,6 +278,7 @@ function buildWebpackFn(
     exclude: RegExp;
     debug: boolean;
     relay: PinFlowNextOptions['relay'];
+    runner: PinFlowNextOptions['runner'];
     overlay: PinFlowNextOptions['overlay'];
   },
 ): NextConfig['webpack'] {
@@ -285,6 +295,7 @@ function buildWebpackFn(
     debug: options.debug,
     enabled: true,
     relay: options.relay as JSONValue,
+    runner: options.runner as JSONValue,
     overlay: options.overlay as JSONValue,
     autoInitPath: resolveAutoInitPath(),
   };

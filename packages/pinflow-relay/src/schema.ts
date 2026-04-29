@@ -162,6 +162,37 @@ export type AnnotationProcessResponse = z.infer<
 >;
 
 /* =============================
+ * Annotation - Dispatch
+ * ============================= */
+export const AnnotationDispatchRequestBodySchema = z.object({
+  annotationIds: z
+    .array(AnnotationIdSchema)
+    .min(1)
+    .describe('Annotation IDs selected for release into the next run'),
+  dispatchTarget: AnnotationDispatchTargetSchema.optional().describe(
+    'Session-local provider/channel that will handle the selected annotations',
+  ),
+});
+export type AnnotationDispatchRequestBody = z.infer<
+  typeof AnnotationDispatchRequestBodySchema
+>;
+
+export const AnnotationDispatchResponseSchema = z.object({
+  dispatchedIds: z
+    .array(AnnotationIdSchema)
+    .describe('Annotation IDs released for agent pickup'),
+  skippedIds: z
+    .array(AnnotationIdSchema)
+    .describe('Annotation IDs that were not queued anymore'),
+  annotations: z
+    .array(AnnotationSchema)
+    .describe('Queued annotations with dispatch metadata'),
+});
+export type AnnotationDispatchResponse = z.infer<
+  typeof AnnotationDispatchResponseSchema
+>;
+
+/* =============================
  * Annotation - Search
  * ============================= */
 export const AnnotationSearchRequestQuerySchema = z.object({
@@ -420,6 +451,50 @@ export const ShutdownResponseSchema = z.object({
 export type ShutdownResponse = z.infer<typeof ShutdownResponseSchema>;
 
 /* =============================
+ * Runner
+ * ============================= */
+export const RunnerStatusSchema = z.enum(['idle', 'processing', 'stopping']);
+export type RunnerStatus = z.infer<typeof RunnerStatusSchema>;
+
+export const RunnerSessionSchema = z.object({
+  runnerId: z.string().min(1),
+  provider: z.string().min(1),
+  label: z.string().min(1),
+  status: RunnerStatusSchema,
+  currentAnnotationId: AnnotationIdSchema.optional(),
+  pid: z.number().int().positive().optional(),
+  lastSeenAt: z.string(),
+});
+export type RunnerSession = z.infer<typeof RunnerSessionSchema>;
+
+export const RunnerHeartbeatRequestBodySchema = z.object({
+  runnerId: RunnerSessionSchema.shape.runnerId,
+  provider: RunnerSessionSchema.shape.provider,
+  label: RunnerSessionSchema.shape.label,
+  status: RunnerStatusSchema,
+  currentAnnotationId: AnnotationIdSchema.optional(),
+  pid: RunnerSessionSchema.shape.pid,
+});
+export type RunnerHeartbeatRequestBody = z.infer<
+  typeof RunnerHeartbeatRequestBodySchema
+>;
+
+export const RunnerHeartbeatResponseSchema = z.object({
+  ok: z.boolean(),
+  runner: RunnerSessionSchema,
+});
+export type RunnerHeartbeatResponse = z.infer<
+  typeof RunnerHeartbeatResponseSchema
+>;
+
+export const RunnerSnapshotSchema = z.object({
+  connected: z.boolean(),
+  activeCount: z.number().int().min(0),
+  sessions: z.array(RunnerSessionSchema),
+});
+export type RunnerSnapshot = z.infer<typeof RunnerSnapshotSchema>;
+
+/* =============================
  * Status
  * ============================= */
 export const StatusResponseSchema = z.object({
@@ -443,6 +518,7 @@ export const StatusResponseSchema = z.object({
       sessions: z.array(z.lazy(() => BrowserSessionSchema)).optional(),
     })
     .optional(),
+  runner: RunnerSnapshotSchema.optional(),
 });
 
 export type StatusResponse = z.infer<typeof StatusResponseSchema>;

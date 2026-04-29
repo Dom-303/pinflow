@@ -7,6 +7,8 @@ import type { Annotation } from '@pinflow/core';
 import { OverlayStore } from './overlay-store.js';
 import type { DispatchBatch } from './types.js';
 
+const dispatchAnnotationsMock = vi.fn();
+
 vi.mock('@pinflow/runtime', () => ({
   BridgeDispatch: {
     getInstance: () => ({
@@ -21,6 +23,7 @@ vi.mock('../services/relay-service.js', () => ({
       resolve: vi.fn(),
       createAnnotation: vi.fn(),
       patchAnnotation: vi.fn(),
+      dispatchAnnotations: dispatchAnnotationsMock,
     }),
   },
 }));
@@ -41,6 +44,8 @@ function getDispatchBatches(store: OverlayStore): DispatchBatch[] {
 describe('OverlayStore dispatch progression', () => {
   beforeEach(() => {
     localStorage.clear();
+    dispatchAnnotationsMock.mockReset();
+    dispatchAnnotationsMock.mockResolvedValue(undefined);
     OverlayStore.resetInstance();
   });
 
@@ -58,6 +63,71 @@ describe('OverlayStore dispatch progression', () => {
       'ann-1',
     ]);
     expect(store.getState().dispatchSession.flowActive).toBe(true);
+  });
+
+  it('sends released annotations to the relay dispatch bridge', async () => {
+    const store = OverlayStore.getInstance();
+
+    store.updateDispatchProjectDefaults({
+      channel: 'auto',
+      mode: 'immediate',
+      concurrency: 2,
+    });
+
+    store.setAnnotations([annotation('ann-1', 'queued')]);
+    await Promise.resolve();
+
+    expect(dispatchAnnotationsMock).toHaveBeenCalledWith(['ann-1'], 'auto');
+  });
+
+  it('rolls back local release state when relay dispatch fails', async () => {
+    dispatchAnnotationsMock.mockRejectedValueOnce(new Error('Relay down'));
+    const store = OverlayStore.getInstance();
+
+    store.updateDispatchProjectDefaults({
+      channel: 'auto',
+      mode: 'manual',
+      concurrency: 2,
+    });
+    store.setAnnotations([
+      annotation('ann-1', 'queued'),
+      annotation('ann-2', 'queued'),
+    ]);
+
+    expect(store.releaseNextDispatchBatch()).toEqual(['ann-1', 'ann-2']);
+    expect(store.getState().dispatchSession.releasedAnnotationIds).toEqual([
+      'ann-1',
+      'ann-2',
+    ]);
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(store.getState().dispatchSession.releasedAnnotationIds).toEqual([]);
+    expect(store.getState().dispatchSession.lastDispatchError).toBe(
+      'Senden fehlgeschlagen. Bitte versuche es erneut.',
+    );
+    expect(store.getState().dispatchBatches).toEqual([]);
+  });
+
+  it('clears a previous dispatch error after a successful release', async () => {
+    dispatchAnnotationsMock.mockRejectedValueOnce(new Error('Relay down'));
+    const store = OverlayStore.getInstance();
+
+    store.updateDispatchProjectDefaults({
+      mode: 'manual',
+      concurrency: 1,
+    });
+    store.setAnnotations([annotation('ann-1', 'queued')]);
+    store.releaseNextDispatchBatch();
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(store.getState().dispatchSession.lastDispatchError).toBeTruthy();
+
+    dispatchAnnotationsMock.mockResolvedValueOnce(undefined);
+    store.releaseNextDispatchBatch();
+
+    expect(store.getState().dispatchSession.lastDispatchError).toBeNull();
   });
 
   it('holds a threshold-start batch for confirmation when configured', () => {
@@ -211,7 +281,9 @@ describe('OverlayStore dispatch progression', () => {
       annotation('ann-3', 'queued'),
     ]);
 
-    expect(store.getState().dispatchSession.awaitingConfirmationIds).toEqual([]);
+    expect(store.getState().dispatchSession.awaitingConfirmationIds).toEqual(
+      [],
+    );
 
     store.setAnnotations([
       annotation('ann-1', 'processed'),
@@ -255,6 +327,18 @@ describe('OverlayStore dispatch progression', () => {
 
     store.setAnnotations([
       annotation('ann-1', 'processing'),
+      annotation('ann-2', 'queued'),
+    ]);
+
+    batches = getDispatchBatches(store);
+    expect(batches[0]).toMatchObject({
+      status: 'running',
+      queuedCount: 1,
+      processingCount: 1,
+    });
+
+    store.setAnnotations([
+      annotation('ann-1', 'claimed'),
       annotation('ann-2', 'queued'),
     ]);
 

@@ -224,6 +224,45 @@ export class DsWorkflowPanel extends LitElement {
         line-height: 1.4;
       }
 
+      .dispatch-callout {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding: 10px;
+        border-radius: 13px;
+        border: 1px solid
+          color-mix(
+            in srgb,
+            var(--ds-brand-primary) 28%,
+            var(--ds-panel-border)
+          );
+        background: color-mix(
+          in srgb,
+          var(--ds-brand-primary) 8%,
+          var(--ds-panel-surface-muted)
+        );
+      }
+
+      .dispatch-callout-copy {
+        display: grid;
+        gap: 4px;
+        min-width: 0;
+      }
+
+      .dispatch-callout-title {
+        color: var(--ds-text-primary);
+        font-size: var(--ds-font-size-sm);
+        font-weight: var(--ds-font-weight-semibold);
+      }
+
+      .dispatch-callout-text {
+        color: var(--ds-text-secondary);
+        font-size: var(--ds-font-size-xs);
+        line-height: 1.45;
+      }
+
       .channel-btn,
       .summary-pill,
       .control-pill {
@@ -302,6 +341,14 @@ export class DsWorkflowPanel extends LitElement {
         font: inherit;
         font-size: var(--ds-font-size-xs);
         cursor: pointer;
+      }
+
+      .dispatch-btn.primary {
+        flex-shrink: 0;
+        border-color: transparent;
+        background: var(--ds-brand-primary);
+        color: var(--ds-bg-tertiary);
+        font-weight: var(--ds-font-weight-semibold);
       }
 
       .dispatch-btn:disabled {
@@ -452,6 +499,7 @@ export class DsWorkflowPanel extends LitElement {
       :host([theme='light']) .header,
       :host([theme='light']) .effective-now,
       :host([theme='light']) .control-stack,
+      :host([theme='light']) .dispatch-callout,
       :host([theme='light']) .batch-summary,
       :host([theme='light']) .flow-note,
       :host([theme='light']) .batch-empty,
@@ -463,6 +511,7 @@ export class DsWorkflowPanel extends LitElement {
       :host([theme='dark']) .flow-section,
       :host([theme='dark']) .effective-now,
       :host([theme='dark']) .control-stack,
+      :host([theme='dark']) .dispatch-callout,
       :host([theme='dark']) .batch-summary,
       :host([theme='dark']) .flow-note,
       :host([theme='dark']) .batch-empty,
@@ -490,7 +539,7 @@ export class DsWorkflowPanel extends LitElement {
       :host([theme='dark']) .flow-summary-meta,
       :host([theme='dark']) .control-pill,
       :host([theme='dark']) .pause-btn,
-      :host([theme='dark']) .dispatch-btn,
+      :host([theme='dark']) .dispatch-btn:not(.primary),
       :host([theme='dark']) .mode-select,
       :host([theme='dark']) .batch-status {
         background: #12100d;
@@ -546,16 +595,16 @@ export class DsWorkflowPanel extends LitElement {
     return mode === 'immediate'
       ? 'Sofort'
       : mode === 'threshold'
-        ? 'Ab Schwelle'
+        ? 'Ab Anzahl'
         : 'Manuell';
   }
 
   private getBatchStatusLabel(status: string) {
-    if (status === 'running') return 'Laeuft';
-    if (status === 'completed') return 'Fertig';
+    if (status === 'running') return 'Lauf gestartet';
+    if (status === 'completed') return 'Erledigt';
     if (status === 'failed') return 'Fehler';
     if (status === 'mixed') return 'Teilerfolg';
-    if (status === 'queued') return 'Bereit';
+    if (status === 'queued') return 'Wartet auf Start';
     return status;
   }
 
@@ -564,7 +613,7 @@ export class DsWorkflowPanel extends LitElement {
       return 'Ein Teil des letzten Laufs ist fertig, einzelne Aufgaben brauchen noch Nacharbeit.';
     }
     if (status === 'failed') {
-      return 'Der letzte Lauf braucht Aufmerksamkeit, bevor du den naechsten Batch weiterziehst.';
+      return 'Der letzte Lauf braucht Aufmerksamkeit, bevor du den naechsten Lauf startest.';
     }
     if (status === 'completed') {
       return 'Der letzte Lauf ist abgeschlossen und bereit fuer den naechsten Schritt.';
@@ -572,7 +621,7 @@ export class DsWorkflowPanel extends LitElement {
     if (status === 'running') {
       return 'Der aktuelle Lauf arbeitet noch und aktualisiert sich waehrend der Verarbeitung.';
     }
-    return 'Der letzte Lauf steht bereit und wartet auf seinen naechsten Schritt.';
+    return 'Der Lauf wartet auf Start oder Freigabe.';
   }
 
   private getBatchFollowUp(batch: {
@@ -598,21 +647,21 @@ export class DsWorkflowPanel extends LitElement {
     if (batch.status === 'failed') {
       return {
         title: 'Naechster Schritt',
-        copy: 'Fehlerbild pruefen und den Batch danach bewusst neu starten.',
+        copy: 'Fehlerbild pruefen und den Lauf danach bewusst neu starten.',
       };
     }
 
     if (batch.status === 'completed') {
       return {
         title: 'Naechster Schritt',
-        copy: 'Naechsten Batch freigeben oder den Flow automatisch weiterlaufen lassen.',
+        copy: 'Naechsten Lauf freigeben oder den Flow automatisch weiterlaufen lassen.',
       };
     }
 
     if (batch.status === 'queued') {
       return {
         title: 'Naechster Schritt',
-        copy: 'Batch freigeben, sobald du ihn bewusst starten willst.',
+        copy: 'Freigeben, sobald du diesen Lauf bewusst starten willst.',
       };
     }
 
@@ -621,7 +670,7 @@ export class DsWorkflowPanel extends LitElement {
 
   private getBatchHistoryNote(batch: { status: string; failedCount: number }) {
     if (batch.status === 'failed') {
-      return 'Batch nicht erfolgreich. Fehler pruefen und bewusst erneut starten.';
+      return 'Lauf nicht erfolgreich. Fehler pruefen und bewusst erneut starten.';
     }
 
     if (batch.status === 'mixed') {
@@ -666,7 +715,7 @@ export class DsWorkflowPanel extends LitElement {
       title: 'Nacharbeit im Blick',
       copy: `${failedTasks} Aufgabe${failedTasks === 1 ? '' : 'n'} aus den letzten ${
         needsAttention.length
-      } Batch${needsAttention.length === 1 ? '' : 'es'} ${
+      } Lauf${needsAttention.length === 1 ? '' : 'en'} ${
         failedTasks === 1 ? 'braucht' : 'brauchen'
       } Nacharbeit oder erneuten Versand.`,
     };
@@ -675,8 +724,8 @@ export class DsWorkflowPanel extends LitElement {
   private getContinuationLabel(
     continuation: 'automatic' | 'confirm' | 'manual',
   ) {
-    if (continuation === 'automatic') return 'Automatisch';
-    if (continuation === 'confirm') return 'Mit Freigabe';
+    if (continuation === 'automatic') return 'Automatisch starten';
+    if (continuation === 'confirm') return 'Erst Freigabe holen';
     return 'Manuell';
   }
 
@@ -684,12 +733,12 @@ export class DsWorkflowPanel extends LitElement {
     continuation: 'automatic' | 'confirm' | 'manual',
   ) {
     if (continuation === 'automatic') {
-      return 'PinFlow zieht neue Batches nach, sobald wieder Platz frei wird.';
+      return 'PinFlow startet neue Laeufe automatisch, sobald die Regel greift.';
     }
     if (continuation === 'confirm') {
-      return 'PinFlow stellt den naechsten Batch bereit und wartet auf deine Freigabe.';
+      return 'PinFlow sammelt den naechsten Lauf und wartet auf deine Freigabe.';
     }
-    return 'Neue Aufgaben bleiben gesammelt, bis du den naechsten Batch bewusst ausloest.';
+    return 'Neue Aufgaben bleiben gesammelt, bis du den naechsten Lauf bewusst startest.';
   }
 
   private formatBatchReleasedAt(value: string) {
@@ -715,21 +764,21 @@ export class DsWorkflowPanel extends LitElement {
     if (effective.channel === 'queue_only') {
       return {
         title: 'Sammelt weiter',
-        copy: 'Wechsle auf den aktuellen Agent, sobald die ersten Aufgaben rausgehen sollen.',
+        copy: 'Waehle ein Uebergabeziel, sobald die ersten Aufgaben starten sollen.',
       };
     }
 
     if (effective.paused) {
       return {
-        title: 'Queue bleibt angehalten',
+        title: 'Warteliste bleibt angehalten',
         copy: 'Hebe die Pause auf, sobald neue Aufgaben wieder in den Flow gehen sollen.',
       };
     }
 
     if (analysis.awaitingConfirmationIds.length > 0) {
       return {
-        title: 'Naechster Batch bereit',
-        copy: 'Der naechste Batch liegt bereit. Pruefe ihn und gib ihn bewusst frei.',
+        title: 'Freigabe bereit',
+        copy: 'Der naechste Lauf liegt bereit. Pruefe ihn und gib ihn bewusst frei.',
       };
     }
 
@@ -743,13 +792,13 @@ export class DsWorkflowPanel extends LitElement {
         effective.threshold - analysis.unreleasedWaitingIds.length;
       const outcome =
         effective.continuation === 'confirm'
-          ? 'den ersten Batch zur Freigabe bereit'
+          ? 'den ersten Lauf zur Freigabe bereit'
           : effective.continuation === 'automatic'
-            ? 'den ersten Batch automatisch frei'
-            : 'den ersten Batch fuer deinen manuellen Start vor';
+            ? 'den ersten Lauf automatisch frei'
+            : 'den ersten Lauf fuer deinen manuellen Start vor';
 
       return {
-        title: 'Schwelle fast erreicht',
+        title: `Sammelt bis ${effective.threshold}`,
         copy: `Noch ${remaining} Aufgabe${remaining === 1 ? '' : 'n'}, dann stellt PinFlow ${outcome}.`,
       };
     }
@@ -760,7 +809,7 @@ export class DsWorkflowPanel extends LitElement {
       analysis.unreleasedWaitingIds.length > 0
     ) {
       return {
-        title: 'Auto-Fortsetzung aktiv',
+        title: 'Automatisch senden aktiv',
         copy: `Sobald Kapazitaet frei wird, zieht PinFlow die naechsten ${
           analysis.releasableIds.length || analysis.unreleasedWaitingIds.length
         } Aufgaben automatisch nach.`,
@@ -773,7 +822,111 @@ export class DsWorkflowPanel extends LitElement {
     ) {
       return {
         title: 'Manueller Start',
-        copy: `Es warten ${analysis.unreleasedWaitingIds.length} Aufgaben auf deinen naechsten Batch.`,
+        copy: `Es warten ${analysis.unreleasedWaitingIds.length} Aufgaben auf deinen naechsten Lauf.`,
+      };
+    }
+
+    return null;
+  }
+
+  private getDispatchCallout(
+    effective: EffectiveDispatchConfig,
+    analysis: ReturnType<typeof analyzeDispatchQueue>,
+    summary: ReturnType<typeof summarizeQueue>,
+  ): {
+    title: string;
+    copy: string;
+    actionLabel: string;
+    disabled: boolean;
+  } | null {
+    if (
+      summary.waiting === 0 &&
+      analysis.awaitingConfirmationIds.length === 0
+    ) {
+      return null;
+    }
+
+    if (effective.channel === 'queue_only') {
+      return {
+        title: 'Warteliste sammelt nur',
+        copy: 'Waehle ein Uebergabeziel, bevor du die Warteliste sendest.',
+        actionLabel: 'Nur sammeln',
+        disabled: true,
+      };
+    }
+
+    if (effective.paused) {
+      return {
+        title: 'Warteliste pausiert',
+        copy: 'Hebe die Pause auf, damit du die wartenden Aufgaben senden kannst.',
+        actionLabel: 'Pausiert',
+        disabled: true,
+      };
+    }
+
+    if (analysis.awaitingConfirmationIds.length > 0) {
+      const count = analysis.awaitingConfirmationIds.length;
+      return {
+        title: 'Warteliste bereit',
+        copy: `${count} Aufgabe${count === 1 ? '' : 'n'} ${count === 1 ? 'wartet' : 'warten'} auf deine Freigabe.`,
+        actionLabel: `Freigeben (${count})`,
+        disabled: false,
+      };
+    }
+
+    const dispatchError =
+      this.storeController.state.dispatchSession.lastDispatchError;
+
+    if (dispatchError && analysis.releasableIds.length > 0) {
+      const count = analysis.releasableIds.length;
+      return {
+        title: 'Senden fehlgeschlagen',
+        copy: dispatchError,
+        actionLabel: `Erneut senden (${count})`,
+        disabled: false,
+      };
+    }
+
+    if (analysis.releasableIds.length > 0) {
+      const count = analysis.releasableIds.length;
+      return {
+        title: 'Warteliste bereit',
+        copy: `${count} Aufgabe${count === 1 ? '' : 'n'} ${count === 1 ? 'kann' : 'koennen'} jetzt gesendet werden.`,
+        actionLabel: `Jetzt senden (${count})`,
+        disabled: false,
+      };
+    }
+
+    if (analysis.unreleasedWaitingIds.length > 0) {
+      const { runnerStatus } = this.storeController.state;
+      const activeRunner = runnerStatus.sessions.find(
+        (session: (typeof runnerStatus.sessions)[number]) =>
+          session.status === 'processing',
+      );
+
+      if (activeRunner) {
+        return {
+          title: 'Runner arbeitet',
+          copy: `${activeRunner.label} uebernimmt gerade freigegebene Aufgaben.`,
+          actionLabel: 'Laeuft',
+          disabled: true,
+        };
+      }
+
+      if (runnerStatus.connected) {
+        return {
+          title: 'Runner bereit',
+          copy: 'Ein lokaler Runner ist verbunden und kann freigegebene Aufgaben uebernehmen.',
+          actionLabel: 'Bereit',
+          disabled: true,
+        };
+      }
+
+      return {
+        title: 'Runner fehlt',
+        copy: 'Starte pinflow runner, damit freigegebene Aufgaben automatisch laufen.',
+        actionLabel: 'Nicht verbunden',
+        disabled: true,
       };
     }
 
@@ -802,17 +955,17 @@ export class DsWorkflowPanel extends LitElement {
       effective.channel === 'queue_only'
         ? 'Sammelmodus aktiv'
         : effective.paused
-          ? 'Queue pausiert'
+          ? 'Warteliste pausiert'
           : analysis.awaitingConfirmationIds.length > 0
-            ? `Batch freigeben (${analysis.awaitingConfirmationIds.length})`
-            : `Naechsten Batch senden (${analysis.releasableIds.length})`;
+            ? `Freigeben (${analysis.awaitingConfirmationIds.length})`
+            : `Jetzt senden (${analysis.releasableIds.length})`;
     const nextActionDisabled =
       effective.channel === 'queue_only' ||
       effective.paused ||
       (analysis.awaitingConfirmationIds.length === 0 &&
         analysis.releasableIds.length === 0);
     const activeStatus = effective.paused
-      ? 'Queue pausiert'
+      ? 'Warteliste pausiert'
       : effective.channel === 'queue_only'
         ? 'Sammelt Aufgaben ohne Versand'
         : analysis.awaitingConfirmationIds.length > 0
@@ -820,7 +973,7 @@ export class DsWorkflowPanel extends LitElement {
           : analysis.inFlightIds.length > 0
             ? 'Bearbeitet Aufgaben'
             : summary.waiting > 0
-              ? 'Bereit fuer den naechsten Versand'
+              ? 'Bereit fuer den naechsten Lauf'
               : 'Bereit zum Start';
     const latestBatch = dispatchBatches[0];
     const latestBatchFollowUp = latestBatch
@@ -830,6 +983,11 @@ export class DsWorkflowPanel extends LitElement {
       dispatchBatches.slice(0, 3),
     );
     const nextFlowNote = this.getNextFlowNote(effective, analysis);
+    const dispatchCallout = this.getDispatchCallout(
+      effective,
+      analysis,
+      summary,
+    );
     const agentAttention = getWorkflowAgentAttention({
       annotations,
       awaitingConfirmationCount: analysis.awaitingConfirmationIds.length,
@@ -844,9 +1002,9 @@ export class DsWorkflowPanel extends LitElement {
           <summary class="flow-summary">
             <span class="flow-summary-copy">
               <span class="eyebrow">Workflow</span>
-              <span class="title">Flow-Steuerung</span>
+              <span class="title">Warteliste & Start</span>
               <span class="panel-copy">
-                Uebergabe, Queue-Status und Live-Zustand.
+                Was gesammelt ist, wann ein Lauf startet und wohin er geht.
               </span>
             </span>
             <span class="flow-summary-meta">
@@ -906,15 +1064,15 @@ export class DsWorkflowPanel extends LitElement {
                 </div>
               </div>
               <div class="status-card">
-                <div class="status-label">Queue-Status</div>
+                <div class="status-label">Wann senden?</div>
                 <div class="status-value">
                   ${this.getModeLabel(effective.mode)}
                 </div>
                 <div class="status-note">
                   ${effective.mode === 'threshold'
-                    ? `Automatisch ab ${effective.threshold} offenen Aufgaben.`
+                    ? `Sammelt bis ${effective.threshold} Aufgaben erreicht sind.`
                     : effective.mode === 'immediate'
-                      ? 'Neue Aufgaben werden direkt in die Queue gegeben.'
+                      ? 'Neue Aufgaben starten direkt nach dem Kommentar.'
                       : 'Neue Aufgaben bleiben gesammelt, bis du freigibst.'}
                 </div>
               </div>
@@ -925,7 +1083,7 @@ export class DsWorkflowPanel extends LitElement {
                   ${effective.channel === 'queue_only'
                     ? 'Sammelt Aufgaben ohne Versand. '
                     : ''}${effective.concurrency}
-                  parallel, Fortsetzung
+                  parallel, Startart
                   ${effective.continuation === 'automatic'
                     ? 'automatisch'
                     : effective.continuation === 'confirm'
@@ -934,7 +1092,7 @@ export class DsWorkflowPanel extends LitElement {
                 </div>
               </div>
               <div class="status-card">
-                <div class="status-label">Fortsetzung</div>
+                <div class="status-label">Startart</div>
                 <div class="status-value">
                   ${this.getContinuationLabel(effective.continuation)}
                 </div>
@@ -944,6 +1102,27 @@ export class DsWorkflowPanel extends LitElement {
               </div>
             </div>
 
+            ${dispatchCallout
+              ? html`
+                  <div class="dispatch-callout">
+                    <div class="dispatch-callout-copy">
+                      <div class="dispatch-callout-title">
+                        ${dispatchCallout.title}
+                      </div>
+                      <div class="dispatch-callout-text">
+                        ${dispatchCallout.copy}
+                      </div>
+                    </div>
+                    <button
+                      class="dispatch-btn primary"
+                      ?disabled=${dispatchCallout.disabled}
+                      @click=${this.releaseNextBatch}
+                    >
+                      ${dispatchCallout.actionLabel}
+                    </button>
+                  </div>
+                `
+              : nothing}
             ${agentAttention
               ? html`
                   <div class="flow-note">
@@ -961,9 +1140,9 @@ export class DsWorkflowPanel extends LitElement {
         <details class="flow-section">
           <summary class="flow-summary">
             <span class="flow-summary-copy">
-              <span class="title">Freigabe & Automatik</span>
+              <span class="title">Regeln</span>
               <span class="panel-copy">
-                Versandmodus, Kapazitaet und naechsten Batch steuern.
+                Wann senden, Startart und Kapazitaet steuern.
               </span>
             </span>
             <span class="flow-summary-meta"
@@ -990,7 +1169,7 @@ export class DsWorkflowPanel extends LitElement {
               <div class="effective-now-copy">
                 ${this.getChannelLabel(effective.channel)},
                 ${this.getModeLabel(effective.mode)}, ${effective.concurrency}
-                parallel, Fortsetzung
+                parallel, Startart
                 ${effective.continuation === 'automatic'
                   ? 'automatisch'
                   : effective.continuation === 'confirm'
@@ -1001,10 +1180,10 @@ export class DsWorkflowPanel extends LitElement {
 
             <div class="summary">
               <span class="summary-pill"
-                ><strong>${summary.waiting}</strong> Bereit</span
+                ><strong>${summary.waiting}</strong> Warteliste</span
               >
               <span class="summary-pill"
-                ><strong>${summary.active}</strong> In Arbeit</span
+                ><strong>${summary.active}</strong> In Bearbeitung</span
               >
               <span class="summary-pill"
                 ><strong>${summary.completed}</strong> Erledigt</span
@@ -1026,7 +1205,7 @@ export class DsWorkflowPanel extends LitElement {
               <div class="control-stack-title">Steuerung</div>
               <div class="controls">
                 <div class="control-pill">
-                  Versand
+                  Wann senden?
                   <select
                     class="mode-select"
                     .value=${effective.mode}
@@ -1034,7 +1213,7 @@ export class DsWorkflowPanel extends LitElement {
                   >
                     <option value="manual">Manuell</option>
                     <option value="immediate">Sofort</option>
-                    <option value="threshold">Ab Schwelle</option>
+                    <option value="threshold">Ab Anzahl</option>
                   </select>
                 </div>
 
@@ -1046,7 +1225,9 @@ export class DsWorkflowPanel extends LitElement {
                   class="pause-btn ${effective.paused ? 'active' : ''}"
                   @click=${this.togglePause}
                 >
-                  ${effective.paused ? 'Queue pausiert' : 'Queue aktiv'}
+                  ${effective.paused
+                    ? 'Warteliste pausiert'
+                    : 'Warteliste aktiv'}
                 </button>
 
                 <button
@@ -1073,7 +1254,7 @@ export class DsWorkflowPanel extends LitElement {
         <details class="flow-section">
           <summary class="flow-summary">
             <span class="flow-summary-copy">
-              <span class="title">Letzte Batches</span>
+              <span class="title">Letzte Laeufe</span>
               <span class="panel-copy"
                 >Status und Nacharbeit der letzten Laeufe.</span
               >
@@ -1223,7 +1404,7 @@ export class DsWorkflowPanel extends LitElement {
               : html`
                   <div class="batch-empty">
                     <div class="batch-empty-title">
-                      Bereit fuer den ersten Batch
+                      Bereit fuer den ersten Lauf
                     </div>
                     <div class="batch-empty-copy">
                       Sobald du die ersten Aufgaben freigibst oder versendest,

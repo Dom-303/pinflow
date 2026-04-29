@@ -8,3 +8,4 @@
  */
 export { RelayHttpClient } from './relay-http-client.js';
 export { RelayWSClient } from './relay-ws-client.js';
+export type { RunnerSnapshot } from '../schema.js';

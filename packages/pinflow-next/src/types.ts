@@ -72,6 +72,18 @@ export interface PinFlowNextOptions {
   };
 
   /**
+   * Local runner configuration.
+   * When enabled, the dev server starts the runner after the relay is ready.
+   */
+  runner?: {
+    autoStart?: boolean;
+    provider?: 'codex' | 'claude' | 'auto' | 'custom';
+    command?: string;
+    args?: string[];
+    intervalMs?: number;
+  };
+
+  /**
    * Overlay UI configuration.
    * Set to true for default options, or provide configuration.
    * Requires @pinflow/overlay package to be installed.

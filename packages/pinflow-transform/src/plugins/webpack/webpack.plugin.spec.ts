@@ -102,10 +102,23 @@ const mockRelayControl = {
   }),
 };
 
+const mockRunnerControl = {
+  ensureRunning: vi.fn().mockResolvedValue({
+    running: true,
+    wasStarted: true,
+    provider: 'codex',
+  }),
+};
+
 vi.mock('@pinflow/relay', () => ({
   RelayControl: class {
     constructor() {
       return mockRelayControl;
+    }
+  },
+  RunnerControl: class {
+    constructor() {
+      return mockRunnerControl;
     }
   },
 }));
@@ -274,6 +287,18 @@ describe('PinFlowWebpackPlugin', () => {
     mockBeforeEmitTapAsync.mockReset();
     mockGetCompilationHooks.mockReturnValue({
       beforeEmit: { tapAsync: mockBeforeEmitTapAsync },
+    });
+
+    mockRelayControl.ensureRunning.mockResolvedValue({
+      running: true,
+      wasStarted: false,
+      port: 3042,
+      host: '127.0.0.1',
+    });
+    mockRunnerControl.ensureRunning.mockResolvedValue({
+      running: true,
+      wasStarted: true,
+      provider: 'codex',
     });
   });
 
@@ -452,6 +477,45 @@ describe('PinFlowWebpackPlugin', () => {
 
       // Assert
       expect(mockStatsGetInstance).toHaveBeenCalledWith('/test/workspace');
+    });
+
+    it('should auto-start the configured runner after relay startup', async () => {
+      // Arrange
+      const { initializePlugin } = await setupPlugin({
+        runner: {
+          autoStart: true,
+          provider: 'codex',
+        },
+      });
+
+      // Act
+      await initializePlugin();
+
+      // Assert
+      expect(mockRunnerControl.ensureRunning).toHaveBeenCalledWith({
+        relayHost: '127.0.0.1',
+        relayPort: 3042,
+        provider: 'codex',
+        command: undefined,
+        args: undefined,
+        intervalMs: undefined,
+      });
+    });
+
+    it('should not auto-start the runner when runner autoStart is false', async () => {
+      // Arrange
+      const { initializePlugin } = await setupPlugin({
+        runner: {
+          autoStart: false,
+          provider: 'codex',
+        },
+      });
+
+      // Act
+      await initializePlugin();
+
+      // Assert
+      expect(mockRunnerControl.ensureRunning).not.toHaveBeenCalled();
     });
 
     it('should handle initialization errors gracefully', async () => {

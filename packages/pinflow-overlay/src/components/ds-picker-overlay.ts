@@ -15,6 +15,7 @@ import { themeStyles } from '../styles/theme.js';
 // Import child components
 import './ds-highlight-box.js';
 import './ds-tooltip.js';
+import './ds-inline-comment-composer.js';
 
 /**
  * Picker overlay component for element capture
@@ -42,6 +43,8 @@ export class DsPickerOverlay extends LitElement {
 
   private dragStart: { x: number; y: number } | null = null;
 
+  private lastPointerPosition: { x: number; y: number } | null = null;
+
   private resizeHandle:
     | 'nw'
     | 'n'
@@ -53,21 +56,17 @@ export class DsPickerOverlay extends LitElement {
     | 'w'
     | null = null;
 
-  private resizeStart:
-    | {
-        x: number;
-        y: number;
-        rect: BoundingRect;
-      }
-    | null = null;
+  private resizeStart: {
+    x: number;
+    y: number;
+    rect: BoundingRect;
+  } | null = null;
 
-  private moveStart:
-    | {
-        x: number;
-        y: number;
-        rect: BoundingRect;
-      }
-    | null = null;
+  private moveStart: {
+    x: number;
+    y: number;
+    rect: BoundingRect;
+  } | null = null;
 
   private introTimer: number | null = null;
 
@@ -121,7 +120,9 @@ export class DsPickerOverlay extends LitElement {
         backdrop-filter: var(--ds-shell-blur);
         font-weight: var(--ds-font-weight-medium);
         pointer-events: none;
-        animation: toast-enter 180ms ease-out both, toast-leave 260ms ease-in 1.55s forwards;
+        animation:
+          toast-enter 180ms ease-out both,
+          toast-leave 260ms ease-in 1.55s forwards;
       }
 
       .picker-toast.persistent {
@@ -160,7 +161,8 @@ export class DsPickerOverlay extends LitElement {
         position: absolute;
         inset: -1px;
         border-radius: 3px;
-        outline: 1px solid color-mix(in srgb, var(--ds-brand-primary) 58%, transparent);
+        outline: 1px solid
+          color-mix(in srgb, var(--ds-brand-primary) 58%, transparent);
         pointer-events: none;
       }
 
@@ -341,11 +343,10 @@ export class DsPickerOverlay extends LitElement {
     if (!hiddenHosts.includes(this)) {
       hiddenHosts.push(this);
     }
-    const originalChromeStyles = hiddenHosts.map((host) => [
-      host,
-      host.style.pointerEvents,
-      host.style.visibility,
-    ] as const);
+    const originalChromeStyles = hiddenHosts.map(
+      (host) =>
+        [host, host.style.pointerEvents, host.style.visibility] as const,
+    );
 
     for (const host of hiddenHosts) {
       host.style.pointerEvents = 'none';
@@ -362,7 +363,9 @@ export class DsPickerOverlay extends LitElement {
     }
   }
 
-  private resolveSelectableElement(element: HTMLElement | null): HTMLElement | null {
+  private resolveSelectableElement(
+    element: HTMLElement | null,
+  ): HTMLElement | null {
     if (!element) return null;
     if (element.closest('ds-overlay, ds-picker-overlay, ds-sidebar, ds-tab')) {
       return null;
@@ -396,7 +399,15 @@ export class DsPickerOverlay extends LitElement {
   }
 
   private handlePointerMove = (event: PointerEvent | MouseEvent) => {
-    const { pickerMode } = this.storeController.state;
+    this.lastPointerPosition = { x: event.clientX, y: event.clientY };
+    const { pickerMode, inlineCommentDraft } = this.storeController.state;
+
+    if (inlineCommentDraft) {
+      this.storeController.store.setHoveredElement(null);
+      this.highlightRect = null;
+      this.tooltipPosition = null;
+      return;
+    }
 
     if (pickerMode === 'region') {
       this.storeController.store.setHoveredElement(null);
@@ -537,8 +548,14 @@ export class DsPickerOverlay extends LitElement {
 
     event.preventDefault();
     event.stopPropagation();
+    this.lastPointerPosition = { x: event.clientX, y: event.clientY };
 
-    const { pickerMode } = this.storeController.state;
+    const { pickerMode, commentEntryMode, inlineCommentDraft } =
+      this.storeController.state;
+    if (inlineCommentDraft) {
+      return;
+    }
+
     if (pickerMode === 'region') {
       return;
     }
@@ -554,6 +571,17 @@ export class DsPickerOverlay extends LitElement {
     }
 
     if (element) {
+      if (commentEntryMode === 'inline') {
+        await this.storeController.store.selectElementForInlineComment(
+          element,
+          {
+            x: event.clientX,
+            y: event.clientY,
+          },
+        );
+        return;
+      }
+
       await this.storeController.store.selectElement(element);
     }
   };
@@ -584,22 +612,67 @@ export class DsPickerOverlay extends LitElement {
 
   private confirmMultiSelection = () => {
     if (this.multiElements.length === 0) return;
-    this.storeController.store.selectMultipleElements(this.multiElements);
+    if (this.storeController.state.commentEntryMode === 'inline') {
+      this.storeController.store.selectMultipleElementsForInlineComment(
+        this.multiElements,
+        this.getInlineCommentPosition(),
+      );
+      return;
+    }
+    void this.storeController.store.selectMultipleElements(this.multiElements);
   };
 
   private confirmRegionSelection = () => {
     if (!this.dragRect || this.dragRect.width < 8 || this.dragRect.height < 8) {
       return;
     }
-    this.storeController.store.selectRegion(
-      this.dragRect,
-      this.collectElementsInRect(this.dragRect),
-    );
+    const elements = this.collectElementsInRect(this.dragRect);
+    if (this.storeController.state.commentEntryMode === 'inline') {
+      this.storeController.store.selectRegionForInlineComment(
+        this.dragRect,
+        elements,
+        this.getInlineCommentPosition(this.dragRect),
+      );
+      return;
+    }
+    void this.storeController.store.selectRegion(this.dragRect, elements);
   };
+
+  private getInlineCommentPosition(rect?: BoundingRect): {
+    x: number;
+    y: number;
+  } {
+    if (this.lastPointerPosition) {
+      return this.lastPointerPosition;
+    }
+
+    if (rect) {
+      return {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+      };
+    }
+
+    const firstElement = this.multiElements[0];
+    if (firstElement) {
+      const elementRect = firstElement.getBoundingClientRect();
+      return {
+        x: elementRect.left + elementRect.width / 2,
+        y: elementRect.top + elementRect.height / 2,
+      };
+    }
+
+    return {
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2,
+    };
+  }
 
   private toggleMultiElement(element: HTMLElement): void {
     if (this.multiElements.includes(element)) {
-      this.multiElements = this.multiElements.filter((item) => item !== element);
+      this.multiElements = this.multiElements.filter(
+        (item) => item !== element,
+      );
       return;
     }
 
@@ -630,9 +703,13 @@ export class DsPickerOverlay extends LitElement {
   }
 
   private collectElementsInRect(rect: BoundingRect): HTMLElement[] {
-    const allElements = Array.from(document.body.querySelectorAll<HTMLElement>('*'));
+    const allElements = Array.from(
+      document.body.querySelectorAll<HTMLElement>('*'),
+    );
     const candidates = allElements.filter((element) => {
-      if (element.closest('ds-overlay, ds-picker-overlay, ds-sidebar, ds-tab')) {
+      if (
+        element.closest('ds-overlay, ds-picker-overlay, ds-sidebar, ds-tab')
+      ) {
         return false;
       }
       const tagName = element.tagName.toLowerCase();
@@ -650,7 +727,9 @@ export class DsPickerOverlay extends LitElement {
       );
     });
 
-    const bridged = candidates.filter((element) => element.hasAttribute('data-ds'));
+    const bridged = candidates.filter((element) =>
+      element.hasAttribute('data-ds'),
+    );
     return (bridged.length > 0 ? bridged : candidates).slice(0, 30);
   }
 
@@ -659,11 +738,12 @@ export class DsPickerOverlay extends LitElement {
       .composedPath()
       .some(
         (target) =>
-            target instanceof HTMLElement &&
+          target instanceof HTMLElement &&
           (target.classList.contains('picker-action') ||
             target.classList.contains('picker-toast') ||
             target.classList.contains('region-box') ||
-            target.classList.contains('region-handle')),
+            target.classList.contains('region-handle') ||
+            target.tagName.toLowerCase() === 'ds-inline-comment-composer'),
       );
   }
 
@@ -679,16 +759,7 @@ export class DsPickerOverlay extends LitElement {
 
   private getRegionHandle(
     event: Event,
-  ):
-    | 'nw'
-    | 'n'
-    | 'ne'
-    | 'e'
-    | 'se'
-    | 's'
-    | 'sw'
-    | 'w'
-    | null {
+  ): 'nw' | 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w' | null {
     const target = event.composedPath()[0];
     if (!(target instanceof HTMLElement)) {
       return null;
@@ -761,14 +832,17 @@ export class DsPickerOverlay extends LitElement {
   }
 
   override render() {
-    const { hoveredElement, theme, pickerMode } = this.storeController.state;
+    const { hoveredElement, theme, pickerMode, inlineCommentDraft } =
+      this.storeController.state;
     const toast = this.getToastCopy(pickerMode);
 
     return html`
       <div class="overlay ${pickerMode === 'region' ? 'region' : ''}">
         ${this.showIntroNotice
           ? html`<div
-              class="picker-toast ${pickerMode === 'element' ? '' : 'persistent'}"
+              class="picker-toast ${pickerMode === 'element'
+                ? ''
+                : 'persistent'}"
               role="status"
             >
               <kbd>${toast.key}</kbd>
@@ -797,7 +871,6 @@ export class DsPickerOverlay extends LitElement {
                 : null}
             </div>`
           : null}
-
         ${this.dragRect
           ? html`<div
               class="region-box"
@@ -814,6 +887,12 @@ export class DsPickerOverlay extends LitElement {
           ? html`<ds-highlight-box
               theme=${theme}
               .rect=${this.highlightRect}
+            ></ds-highlight-box>`
+          : null}
+        ${inlineCommentDraft
+          ? html`<ds-highlight-box
+              theme=${theme}
+              .rect=${inlineCommentDraft.anchorRect as DOMRect}
             ></ds-highlight-box>`
           : null}
         ${this.multiElements.map(
@@ -845,6 +924,9 @@ export class DsPickerOverlay extends LitElement {
               .x=${this.tooltipPosition.x}
               .y=${this.tooltipPosition.y}
             ></ds-tooltip>`
+          : null}
+        ${inlineCommentDraft
+          ? html`<ds-inline-comment-composer></ds-inline-comment-composer>`
           : null}
       </div>
     `;

@@ -6,6 +6,7 @@ import type { ManifestReader } from '@pinflow/manifest';
 import type { AnnotationService } from '../services/index.js';
 import {
   AnnotationCreateRoute,
+  AnnotationDispatchRoute,
   AnnotationListRoute,
   AnnotationGetRoute,
   AnnotationDeleteRoute,
@@ -104,6 +105,15 @@ export function registerAnnotationHandlers(
    * Atomically fetch and claim the next queued annotation
    */
   registerRoute(AnnotationProcessRoute, {
+    app,
+    annotationService,
+  });
+
+  /**
+   * POST /api/v1/annotations/dispatch
+   * Claim selected queued annotations for the active dispatch flow
+   */
+  registerRoute(AnnotationDispatchRoute, {
     app,
     annotationService,
   });

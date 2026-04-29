@@ -202,6 +202,31 @@ describe('RelayHttpClient', () => {
       });
     });
 
+    it('should POST selected IDs and target for dispatchAnnotations', async () => {
+      await client
+        .dispatchAnnotations({
+          annotationIds: ['ann_1', 'ann_2'],
+          dispatchTarget: {
+            provider: 'other',
+            label: 'Aktueller Agent',
+          },
+        })
+        .catch(() => {
+          //
+        });
+
+      const url = fetchSpy.mock.calls[0][0] as string;
+      const body = JSON.parse(fetchSpy.mock.calls[0][1].body);
+      expect(url).toContain('/annotations/dispatch');
+      expect(body).toEqual({
+        annotationIds: ['ann_1', 'ann_2'],
+        dispatchTarget: {
+          provider: 'other',
+          label: 'Aktueller Agent',
+        },
+      });
+    });
+
     it('should POST session target for queryBySource', async () => {
       await client
         .queryBySource({

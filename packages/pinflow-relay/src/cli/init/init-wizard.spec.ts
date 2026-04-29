@@ -9,7 +9,7 @@ vi.mock('@clack/prompts', () => ({
 }));
 
 vi.mock('./agent-step.js', () => ({
-  runAgentStep: vi.fn().mockResolvedValue(undefined),
+  runAgentStep: vi.fn().mockResolvedValue({ runnerProvider: undefined }),
 }));
 
 vi.mock('./monorepo-step.js', () => ({
@@ -54,6 +54,7 @@ describe('runInitWizard', () => {
     const { runGitignoreStep } = await import('./gitignore-step.js');
     vi.mocked(runAgentStep).mockImplementation(async () => {
       callOrder.push('agent');
+      return { runnerProvider: undefined };
     });
     vi.mocked(runMonorepoStep).mockImplementation(async () => {
       callOrder.push('monorepo');
@@ -87,6 +88,26 @@ describe('runInitWizard', () => {
     // Assert
     expect(runFrameworkStep).toHaveBeenCalledWith(
       baseOptions,
+      '/monorepo/apps/web',
+    );
+  });
+
+  it('should pass the selected runner provider to the framework step', async () => {
+    // Arrange
+    const { runAgentStep } = await import('./agent-step.js');
+    const { runMonorepoStep } = await import('./monorepo-step.js');
+    const { runFrameworkStep } = await import('./framework-step.js');
+    vi.mocked(runAgentStep).mockResolvedValue({ runnerProvider: 'codex' });
+    vi.mocked(runMonorepoStep).mockResolvedValue({
+      appRoot: '/monorepo/apps/web',
+    });
+
+    // Act
+    await runInitWizard(baseOptions);
+
+    // Assert
+    expect(runFrameworkStep).toHaveBeenCalledWith(
+      { ...baseOptions, runnerProvider: 'codex' },
       '/monorepo/apps/web',
     );
   });

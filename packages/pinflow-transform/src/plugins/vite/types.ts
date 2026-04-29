@@ -2,9 +2,13 @@
  * Types for the Vite plugin
  * @module @pinflow/transform/plugins/vite/types
  */
-import type { RelayPluginOptions, OverlayPluginOptions } from '../types.js';
+import type {
+  RelayPluginOptions,
+  OverlayPluginOptions,
+  RunnerPluginOptions,
+} from '../types.js';
 
-export type { RelayPluginOptions, OverlayPluginOptions };
+export type { RelayPluginOptions, OverlayPluginOptions, RunnerPluginOptions };
 
 /**
  * Configuration options for the Vite plugin
@@ -36,6 +40,12 @@ export interface VitePluginOptions {
    * Controls auto-start behavior and connection settings.
    */
   relay?: RelayPluginOptions;
+
+  /**
+   * Local runner configuration.
+   * When enabled, the dev server starts the runner after the relay is ready.
+   */
+  runner?: RunnerPluginOptions;
 
   /**
    * Overlay UI configuration.

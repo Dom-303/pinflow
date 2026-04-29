@@ -3,6 +3,7 @@
  * @module @pinflow/relay/server/services
  */
 export { AnnotationService } from './annotation-service.js';
+export { RunnerSessionService } from './runner-session-service.js';
 export type {
   CreateAnnotationInput,
   ListAnnotationsOptions,

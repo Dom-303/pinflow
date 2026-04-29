@@ -7,6 +7,7 @@
  *   stop    - Stop a running daemon
  *   status  - Check relay status
  *   mcp     - Start MCP adapter for agent integration
+ *   runner  - Run local agent autostart worker
  */
 import { program } from '../program.js';
 

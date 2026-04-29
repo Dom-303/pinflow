@@ -3,4 +3,8 @@
  * @module @pinflow/transform/plugins/vite
  */
 export { pinflow, pinflow as vite } from './vite.plugin.js';
-export type { VitePluginOptions, PinFlowVitePluginOptions } from './types.js';
+export type {
+  RunnerPluginOptions,
+  VitePluginOptions,
+  PinFlowVitePluginOptions,
+} from './types.js';

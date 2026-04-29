@@ -10,12 +10,16 @@ import { customElement, property, state } from 'lit/decorators.js';
 import type { Annotation, AnnotationStatus } from '@pinflow/core';
 import { AnnotationStatusEnum } from '@pinflow/core';
 import { StoreController } from '../core/store-controller.js';
+import {
+  analyzeDispatchQueue,
+  mergeDispatchConfig,
+} from '../core/dispatch-config.js';
 import { themeStyles, utilityStyles } from '../styles/theme.js';
 
 // Import child components
 import './ds-annotation-item.js';
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 4;
 
 /** Status display order */
 const STATUS_ORDER: AnnotationStatus[] = [
@@ -27,7 +31,7 @@ const STATUS_ORDER: AnnotationStatus[] = [
 ];
 
 const STATUS_LABELS: Record<string, string> = {
-  queued: 'Wartet auf Versand',
+  queued: 'Warteliste',
   processing: 'In Bearbeitung',
   processed: 'Uebergeben',
   failed: 'Fehlgeschlagen',
@@ -74,17 +78,27 @@ export class DsAnnotationList extends LitElement {
       .plain-item {
         display: grid;
         gap: 6px;
-        padding: 11px 12px;
+        min-width: 0;
+        padding: 10px 11px;
         border: 1px solid var(--ds-panel-border);
-        border-radius: 13px;
+        border-radius: 12px;
         background: var(--ds-panel-surface-muted);
+        box-sizing: border-box;
+        overflow: hidden;
       }
 
       .plain-item-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: start;
+        gap: 8px;
+        min-width: 0;
+      }
+
+      .plain-copy {
+        display: grid;
+        gap: 4px;
+        min-width: 0;
       }
 
       .plain-title {
@@ -97,10 +111,26 @@ export class DsAnnotationList extends LitElement {
         white-space: nowrap;
       }
 
+      .plain-message {
+        min-width: 0;
+        color: var(--ds-text-primary);
+        font-size: var(--ds-font-size-xs);
+        line-height: 1.35;
+        overflow: hidden;
+        overflow-wrap: anywhere;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+      }
+
       .plain-meta {
         color: var(--ds-text-secondary);
         font-size: var(--ds-font-size-xs);
         line-height: 1.4;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       .plain-status {
@@ -193,6 +223,7 @@ export class DsAnnotationList extends LitElement {
         display: flex;
         align-items: center;
         gap: var(--ds-space-sm);
+        min-width: 0;
         font-size: 13px;
         font-weight: var(--ds-font-weight-medium);
       }
@@ -226,8 +257,83 @@ export class DsAnnotationList extends LitElement {
       .group-content {
         display: flex;
         flex-direction: column;
-        gap: 9px;
-        padding: 10px 10px 12px;
+        gap: 7px;
+        padding: 8px 8px 10px;
+      }
+
+      .queue-action {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 10px;
+        border: 1px solid
+          color-mix(
+            in srgb,
+            var(--ds-brand-primary) 24%,
+            var(--ds-panel-border)
+          );
+        border-radius: 12px;
+        background: color-mix(
+          in srgb,
+          var(--ds-brand-primary) 7%,
+          var(--ds-panel-surface-muted)
+        );
+      }
+
+      .queue-action-copy {
+        display: grid;
+        gap: 2px;
+        min-width: 0;
+      }
+
+      .queue-action-title {
+        color: var(--ds-text-primary);
+        font-size: var(--ds-font-size-xs);
+        font-weight: var(--ds-font-weight-semibold);
+      }
+
+      .queue-action-text {
+        color: var(--ds-text-secondary);
+        font-size: var(--ds-font-size-xs);
+        line-height: 1.32;
+        overflow-wrap: anywhere;
+      }
+
+      .queue-action-btn,
+      .queue-action-status {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        max-width: 104px;
+        min-height: 28px;
+        padding: 6px 9px;
+        border: 1px solid transparent;
+        border-radius: 10px;
+        font: inherit;
+        font-size: var(--ds-font-size-xs);
+        font-weight: var(--ds-font-weight-semibold);
+        line-height: 1.15;
+        text-align: center;
+        white-space: normal;
+      }
+
+      .queue-action-btn {
+        background: var(--ds-brand-primary);
+        color: var(--ds-bg-tertiary);
+        cursor: pointer;
+      }
+
+      .queue-action-btn:disabled {
+        opacity: 0.52;
+        cursor: default;
+      }
+
+      .queue-action-status {
+        background: var(--ds-pill-surface);
+        border-color: var(--ds-pill-border);
+        color: var(--ds-text-secondary);
       }
 
       /* ======== Pagination ======== */
@@ -345,7 +451,8 @@ export class DsAnnotationList extends LitElement {
 
       :host([theme='dark']) .status-group,
       :host([theme='dark']) .empty-state,
-      :host([theme='dark']) .plain-item {
+      :host([theme='dark']) .plain-item,
+      :host([theme='dark']) .queue-action {
         background: #080706;
         border-color: rgba(38, 30, 24, 0.9);
       }
@@ -366,7 +473,8 @@ export class DsAnnotationList extends LitElement {
       }
 
       :host([theme='dark']) .empty-state-text,
-      :host([theme='dark']) .plain-meta {
+      :host([theme='dark']) .plain-meta,
+      :host([theme='dark']) .queue-action-text {
         color: #988878;
       }
     `,
@@ -404,6 +512,151 @@ export class DsAnnotationList extends LitElement {
 
   private setPage(status: string, page: number) {
     this.pages = { ...this.pages, [status]: page };
+  }
+
+  private releaseNextBatch() {
+    this.storeController.store.releaseNextDispatchBatch();
+  }
+
+  private getQueueAction(): {
+    title: string;
+    copy: string;
+    actionLabel: string;
+    disabled: boolean;
+  } | null {
+    const {
+      annotations,
+      dispatchProjectDefaults,
+      dispatchSession,
+      runnerStatus,
+    } =
+      this.storeController.state;
+    const effective = mergeDispatchConfig(
+      dispatchProjectDefaults,
+      dispatchSession,
+    );
+    const analysis = analyzeDispatchQueue(annotations, {
+      releasedAnnotationIds: dispatchSession.releasedAnnotationIds,
+      awaitingConfirmationIds: dispatchSession.awaitingConfirmationIds,
+      concurrency: effective.concurrency,
+    });
+
+    if (
+      analysis.unreleasedWaitingIds.length === 0 &&
+      analysis.awaitingConfirmationIds.length === 0
+    ) {
+      return null;
+    }
+
+    if (effective.channel === 'queue_only') {
+      return {
+        title: 'Warteliste sammelt nur',
+        copy: 'Waehle ein Uebergabeziel, wenn du die Warteliste senden moechtest.',
+        actionLabel: 'Nur sammeln',
+        disabled: true,
+      };
+    }
+
+    if (effective.paused) {
+      return {
+        title: 'Warteliste pausiert',
+        copy: 'Hebe die Pause auf, damit wartende Aufgaben gesendet werden koennen.',
+        actionLabel: 'Pausiert',
+        disabled: true,
+      };
+    }
+
+    if (analysis.awaitingConfirmationIds.length > 0) {
+      const count = analysis.awaitingConfirmationIds.length;
+      return {
+        title: 'Freigabe bereit',
+        copy: `${count} Aufgabe${count === 1 ? '' : 'n'} ${count === 1 ? 'wartet' : 'warten'} auf deine Freigabe.`,
+        actionLabel: `Freigeben (${count})`,
+        disabled: false,
+      };
+    }
+
+    if (
+      dispatchSession.lastDispatchError &&
+      analysis.releasableIds.length > 0
+    ) {
+      const count = analysis.releasableIds.length;
+      return {
+        title: 'Senden fehlgeschlagen',
+        copy: dispatchSession.lastDispatchError,
+        actionLabel: `Erneut senden (${count})`,
+        disabled: false,
+      };
+    }
+
+    if (analysis.releasableIds.length > 0) {
+      const count = analysis.releasableIds.length;
+      return {
+        title: 'Warteliste bereit',
+        copy: `${count} Aufgabe${count === 1 ? '' : 'n'} ${count === 1 ? 'kann' : 'koennen'} jetzt gesendet werden.`,
+        actionLabel: `Jetzt senden (${count})`,
+        disabled: false,
+      };
+    }
+
+    const activeRunner = runnerStatus.sessions.find(
+      (session: (typeof runnerStatus.sessions)[number]) =>
+        session.status === 'processing',
+    );
+
+    if (activeRunner) {
+      return {
+        title: 'Runner arbeitet',
+        copy: `${activeRunner.label} uebernimmt gerade freigegebene Aufgaben.`,
+        actionLabel: 'Laeuft',
+        disabled: true,
+      };
+    }
+
+    if (runnerStatus.connected) {
+      return {
+        title: 'Runner bereit',
+        copy: 'Ein lokaler Runner ist verbunden und kann freigegebene Aufgaben uebernehmen.',
+        actionLabel: 'Bereit',
+        disabled: true,
+      };
+    }
+
+    return {
+      title: 'Runner fehlt',
+      copy: 'Starte pinflow runner, damit freigegebene Aufgaben automatisch laufen.',
+      actionLabel: 'Nicht verbunden',
+      disabled: true,
+    };
+  }
+
+  private renderQueueAction(status: string) {
+    if (status !== AnnotationStatusEnum.QUEUED) {
+      return nothing;
+    }
+
+    const queueAction = this.getQueueAction();
+    if (!queueAction) {
+      return nothing;
+    }
+
+    return html`
+      <div class="queue-action">
+        <div class="queue-action-copy">
+          <div class="queue-action-title">${queueAction.title}</div>
+          <div class="queue-action-text">${queueAction.copy}</div>
+        </div>
+        <button
+          class=${queueAction.disabled
+            ? 'queue-action-status'
+            : 'queue-action-btn'}
+          ?disabled=${queueAction.disabled}
+          @click=${this.releaseNextBatch}
+        >
+          ${queueAction.actionLabel}
+        </button>
+      </div>
+    `;
   }
 
   private renderPagination(status: string, total: number) {
@@ -459,6 +712,7 @@ export class DsAnnotationList extends LitElement {
     const page = this.getPage(status);
     const start = page * PAGE_SIZE;
     const pageItems = annotations.slice(start, start + PAGE_SIZE);
+    const { dispatchSession } = this.storeController.state;
 
     return html`
       <div class="status-group" data-status=${status}>
@@ -493,10 +747,13 @@ export class DsAnnotationList extends LitElement {
         ${isOpen && !isEmpty
           ? html`
               <div class="group-content">
+                ${this.renderQueueAction(status)}
                 ${pageItems.map(
                   (annotation) => html`
                     <ds-annotation-item
                       .annotation=${annotation}
+                      .releasedAnnotationIds=${dispatchSession.releasedAnnotationIds}
+                      .awaitingConfirmationIds=${dispatchSession.awaitingConfirmationIds}
                     ></ds-annotation-item>
                   `,
                 )}
@@ -517,11 +774,19 @@ export class DsAnnotationList extends LitElement {
   }
 
   private getPlainTitle(annotation: Annotation): string {
-    return (
-      annotation.context?.userMessage?.trim() ||
-      this.getAnnotationId(annotation) ||
-      'Anmerkung'
-    );
+    const manifestEntry = annotation.context?.manifestSnapshot?.[0];
+    const fileName = manifestEntry?.file
+      ? manifestEntry.file.split('/').pop()
+      : null;
+    const tagName = annotation.interaction?.selectedElement?.tagName
+      ? `<${annotation.interaction.selectedElement.tagName.toLowerCase()}>`
+      : null;
+
+    if (fileName && manifestEntry?.start?.line) {
+      return `${fileName}:${manifestEntry.start.line}`;
+    }
+
+    return tagName ?? 'Auswahl';
   }
 
   private getPlainMeta(annotation: Annotation): string {
@@ -529,9 +794,18 @@ export class DsAnnotationList extends LitElement {
       STATUS_LABELS[annotation.metadata?.status] ??
       annotation.metadata?.status ??
       'Status offen';
+    const dataDs = annotation.interaction?.selectedElement?.dataDs;
     const id = this.getAnnotationId(annotation);
 
+    if (dataDs) {
+      return `${status} · ${dataDs}`;
+    }
+
     return id ? `${status} · ${id}` : status;
+  }
+
+  private getPlainMessage(annotation: Annotation): string {
+    return annotation.context?.userMessage?.trim() || 'Ohne Kommentar';
   }
 
   private renderPlainListItem(annotation: Annotation) {
@@ -540,13 +814,16 @@ export class DsAnnotationList extends LitElement {
     return html`
       <article class="plain-item">
         <div class="plain-item-row">
-          <div class="plain-title">${this.getPlainTitle(annotation)}</div>
+          <div class="plain-copy">
+            <div class="plain-title">${this.getPlainTitle(annotation)}</div>
+            <div class="plain-message">${this.getPlainMessage(annotation)}</div>
+            <div class="plain-meta">${this.getPlainMeta(annotation)}</div>
+          </div>
           <span class="plain-status">
             <span class="header-dot ${status}"></span>
             ${STATUS_LABELS[status] ?? status}
           </span>
         </div>
-        <div class="plain-meta">${this.getPlainMeta(annotation)}</div>
       </article>
     `;
   }
@@ -575,7 +852,9 @@ export class DsAnnotationList extends LitElement {
               stroke-linejoin="round"
             />
           </svg>
-          <p class="empty-state-title">Noch keine Anmerkungen in dieser Session</p>
+          <p class="empty-state-title">
+            Noch keine Anmerkungen in dieser Session
+          </p>
           <p class="empty-state-text">
             Markiere ein Element und starte rechts mit deiner ersten Aenderung.
           </p>
@@ -588,7 +867,9 @@ export class DsAnnotationList extends LitElement {
     if (this.variant === 'list') {
       return html`
         <div class="plain-list">
-          ${annotations.map((annotation) => this.renderPlainListItem(annotation))}
+          ${annotations.map((annotation) =>
+            this.renderPlainListItem(annotation),
+          )}
         </div>
       `;
     }

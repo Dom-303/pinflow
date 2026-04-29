@@ -13,9 +13,13 @@ const mockStore = {
   setHoveredElement: vi.fn(),
   exitCaptureMode: vi.fn(),
   selectElement: vi.fn().mockResolvedValue(undefined),
+  selectElementForInlineComment: vi.fn().mockResolvedValue(undefined),
   selectRegion: vi.fn().mockResolvedValue(undefined),
+  selectRegionForInlineComment: vi.fn().mockResolvedValue(undefined),
   selectMultipleElements: vi.fn().mockResolvedValue(undefined),
+  selectMultipleElementsForInlineComment: vi.fn().mockResolvedValue(undefined),
   setPickerMode: vi.fn(),
+  setCommentEntryMode: vi.fn(),
   setDispatchSessionOverrides: vi.fn(),
   updateDispatchProjectDefaults: vi.fn(),
   clearDispatchSessionOverrides: vi.fn(),
@@ -34,6 +38,21 @@ const mockState = {
     elements: Array<{ tagName: string }>;
   },
   pickerMode: 'element' as 'element' | 'region' | 'multi',
+  commentEntryMode: 'workspace' as 'workspace' | 'inline',
+  inlineCommentDraft: null as null | {
+    position: { x: number; y: number };
+    anchorRect: {
+      x: number;
+      y: number;
+      left: number;
+      top: number;
+      right: number;
+      bottom: number;
+      width: number;
+      height: number;
+    };
+    pickerMode: 'element' | 'region' | 'multi';
+  },
   annotations: [] as Array<{ id: string; metadata?: { status?: string } }>,
   dispatchBatches: [] as Array<{
     id: string;
@@ -79,6 +98,7 @@ const mockState = {
     releasedAnnotationIds: [],
     awaitingConfirmationIds: [],
     flowActive: false,
+    lastDispatchError: null as string | null,
   },
 };
 
@@ -149,6 +169,8 @@ describe('Paper Glow UI contract', () => {
     mockState.selectedElements = [];
     mockState.selectedRegion = null;
     mockState.pickerMode = 'element';
+    mockState.commentEntryMode = 'workspace';
+    mockState.inlineCommentDraft = null;
     mockState.annotations = [];
     mockState.dispatchBatches = [];
     mockState.undoStack = [];
@@ -170,6 +192,7 @@ describe('Paper Glow UI contract', () => {
       releasedAnnotationIds: [],
       awaitingConfirmationIds: [],
       flowActive: false,
+      lastDispatchError: null,
     };
     vi.clearAllMocks();
   });
@@ -272,6 +295,9 @@ describe('Paper Glow UI contract', () => {
     const undoButton = input.shadowRoot.querySelector(
       'button[aria-label="Letzte Aktion rueckgaengig machen"]',
     ) as HTMLButtonElement;
+    const undoPaths = Array.from(undoButton.querySelectorAll('svg path')).map(
+      (path) => path.getAttribute('d'),
+    );
     const pickerModeIcon = input.shadowRoot.querySelector(
       '.mode-switch-icon',
     ) as SVGElement | null;
@@ -280,6 +306,8 @@ describe('Paper Glow UI contract', () => {
     ) as SVGElement | null;
 
     expect(undoButton.disabled).toBe(false);
+    expect(undoPaths).toContain('M9 14 4 9l5-5');
+    expect(undoPaths).toContain('M4 9h10.5a5.5 5.5 0 1 1 0 11H11');
     expect(pickerModeIcon).not.toBeNull();
     expect(pickerModeIcon?.getAttribute('data-mode')).toBe('element');
     expect(getComputedStyle(firstActionIcon as Element).width).toBe('18px');
@@ -511,6 +539,124 @@ describe('Paper Glow UI contract', () => {
       }),
     );
     expect(mockStore.selectElement).toHaveBeenCalledWith(target);
+  });
+
+  it('opens the inline comment flow from picker selection when enabled', async () => {
+    mockState.commentEntryMode = 'inline';
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+
+    const target = document.createElement('button');
+    target.setAttribute('data-ds', 'entry-inline');
+    Object.defineProperty(target, 'getBoundingClientRect', {
+      value: () =>
+        ({
+          top: 40,
+          left: 50,
+          width: 150,
+          height: 44,
+        }) as DOMRect,
+    });
+    Object.defineProperty(document, 'elementFromPoint', {
+      configurable: true,
+      value: vi.fn(() => target),
+    });
+
+    render(html`<ds-picker-overlay></ds-picker-overlay>`, host);
+
+    const picker = host.querySelector('ds-picker-overlay') as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await picker.updateComplete;
+
+    window.dispatchEvent(
+      new MouseEvent('click', {
+        bubbles: true,
+        clientX: 66,
+        clientY: 74,
+      }),
+    );
+
+    expect(mockStore.selectElement).not.toHaveBeenCalled();
+    expect(mockStore.selectElementForInlineComment).toHaveBeenCalledWith(
+      target,
+      {
+        x: 66,
+        y: 74,
+      },
+    );
+  });
+
+  it('keeps the selected inline comment target locked while the composer is open', async () => {
+    mockState.commentEntryMode = 'inline';
+    mockState.inlineCommentDraft = {
+      position: { x: 66, y: 74 },
+      anchorRect: {
+        x: 50,
+        y: 40,
+        top: 40,
+        left: 50,
+        right: 200,
+        bottom: 84,
+        width: 150,
+        height: 44,
+      },
+      pickerMode: 'element',
+    };
+
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+
+    const target = document.createElement('button');
+    target.setAttribute('data-ds', 'entry-inline-next');
+    Object.defineProperty(target, 'getBoundingClientRect', {
+      value: () =>
+        ({
+          top: 90,
+          left: 80,
+          width: 120,
+          height: 42,
+        }) as DOMRect,
+    });
+    Object.defineProperty(document, 'elementFromPoint', {
+      configurable: true,
+      value: vi.fn(() => target),
+    });
+
+    render(html`<ds-picker-overlay></ds-picker-overlay>`, host);
+
+    const picker = host.querySelector('ds-picker-overlay') as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await picker.updateComplete;
+    vi.clearAllMocks();
+
+    window.dispatchEvent(
+      new MouseEvent('mousemove', {
+        bubbles: true,
+        clientX: 90,
+        clientY: 100,
+      }),
+    );
+    await picker.updateComplete;
+
+    expect(mockStore.setHoveredElement).toHaveBeenCalledWith(null);
+    expect(mockStore.setHoveredElement).not.toHaveBeenCalledWith(target);
+
+    window.dispatchEvent(
+      new MouseEvent('click', {
+        bubbles: true,
+        clientX: 90,
+        clientY: 100,
+      }),
+    );
+
+    expect(mockStore.selectElement).not.toHaveBeenCalled();
+    expect(mockStore.selectElementForInlineComment).not.toHaveBeenCalled();
   });
 
   it('ignores PinFlow overlay hosts while hit-testing picker targets', async () => {
@@ -1003,6 +1149,7 @@ describe('Paper Glow UI contract', () => {
         Node.DOCUMENT_POSITION_FOLLOWING,
       ),
     ).toBe(true);
+    expect(activeRunPanel?.parentElement).not.toBe(composerDock);
     expect(workspaceTop?.contains(elementPreview)).toBe(true);
     expect(input.parentElement).toBe(composerDock);
 
@@ -1149,6 +1296,18 @@ describe('Paper Glow UI contract', () => {
     expect(pickerModeButtons).toHaveLength(3);
     pickerModeButtons[1].click();
     expect(mockStore.setPickerMode).toHaveBeenCalledWith('region');
+    expect(overlayText).toContain('Kommentar nach Auswahl');
+    expect(overlayText).toContain('Im Arbeitsbereich');
+    expect(overlayText).toContain('Direkt am Element');
+
+    const commentModeButtons = Array.from(
+      settingsOverlay.shadowRoot.querySelectorAll(
+        '.comment-entry-control .segment-option',
+      ),
+    ) as HTMLButtonElement[];
+    expect(commentModeButtons).toHaveLength(2);
+    commentModeButtons[1].click();
+    expect(mockStore.setCommentEntryMode).toHaveBeenCalledWith('inline');
 
     const embeddedSettings = settingsOverlay.shadowRoot.querySelector(
       'ds-session-settings',
@@ -1213,8 +1372,59 @@ describe('Paper Glow UI contract', () => {
 
     itemText = item.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
     expect(itemText).toContain('In Bearbeitung');
-    expect(itemText).toContain('PinFlow arbeitet gerade an dieser Aenderung.');
+    expect(itemText).toContain('Der Agent arbeitet gerade an diesem Auftrag.');
     expect(itemText).toContain('vor');
+  });
+
+  it('distinguishes queued annotation stages without provider-specific wording', async () => {
+    const annotation = {
+      metadata: {
+        id: 'note-send',
+        status: 'queued',
+        timestamp: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
+      },
+      context: {
+        userMessage: 'Hero Abstand pruefen',
+      },
+      interaction: {
+        selectedElement: {
+          tagName: 'section',
+        },
+      },
+    };
+
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    render(
+      html`<ds-annotation-item
+        .annotation=${annotation}
+        .releasedAnnotationIds=${['note-send']}
+        .awaitingConfirmationIds=${[]}
+      ></ds-annotation-item>`,
+      host,
+    );
+
+    const item = host.querySelector('ds-annotation-item') as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await item.updateComplete;
+
+    let itemText = item.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+    expect(itemText).toContain('Freigegeben');
+    expect(itemText).not.toContain('Codex');
+
+    const collapsedRow = item.shadowRoot.querySelector(
+      '.collapsed-row',
+    ) as HTMLElement;
+    collapsedRow.click();
+    await item.updateComplete;
+
+    itemText = item.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+    expect(itemText).toContain('Freigegeben');
+    expect(itemText).toContain('Warten bis ein Agent oder Runner uebernimmt');
+    expect(itemText).not.toContain('Wartet auf Freigabe');
   });
 
   it('renders agent summary details inside expanded annotation cards', async () => {
@@ -1299,10 +1509,10 @@ describe('Paper Glow UI contract', () => {
     expect(settingsText).toContain('Session-Verhalten');
     expect(settingsText).toContain('Session folgt Projektstandard');
     expect(settingsText).toContain('Keine Session-Anpassungen aktiv');
-    expect(settingsText).toContain('Wirkt gerade');
+    expect(settingsText).toContain('Aktuell aktiv');
     expect(settingsText).toContain('Projektstandard aktiv');
     expect(settingsText).toContain('Parallelitaet');
-    expect(settingsText).toContain('Automatik-Schwelle');
+    expect(settingsText).toContain('Sammeln bis');
     expect(
       Array.from(settings.shadowRoot.querySelectorAll('.section')).every(
         (section) => !(section as HTMLDetailsElement).open,
@@ -1339,8 +1549,8 @@ describe('Paper Glow UI contract', () => {
     expect(settingsText).toContain('Aktive Session-Anpassungen');
     expect(settingsText).toContain('Session-Regeln aktiv');
     expect(settingsText).toContain('Claude');
-    expect(settingsText).toContain('Ab Schwelle');
-    expect(settingsText).toContain('Freigeben');
+    expect(settingsText).toContain('Ab Anzahl');
+    expect(settingsText).toContain('Erst Freigabe holen');
     expect(settingsText).toContain('Session-Overrides zuruecksetzen');
   });
 
@@ -1390,7 +1600,7 @@ describe('Paper Glow UI contract', () => {
     );
     expect(workflowText).toContain('Nacharbeit im Blick');
     expect(workflowText).toContain(
-      '1 Aufgabe aus den letzten 1 Batch braucht Nacharbeit oder erneuten Versand.',
+      '1 Aufgabe aus den letzten 1 Lauf braucht Nacharbeit oder erneuten Versand.',
     );
     expect(workflowText).toContain('Claude');
   });
@@ -1488,7 +1698,7 @@ describe('Paper Glow UI contract', () => {
       workflowPanel.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
 
     expect(workflowText).toContain(
-      'Batch nicht erfolgreich. Fehler pruefen und bewusst erneut starten.',
+      'Lauf nicht erfolgreich. Fehler pruefen und bewusst erneut starten.',
     );
     expect(workflowText).toContain('Ohne offene Nacharbeit abgeschlossen.');
   });
@@ -1586,6 +1796,7 @@ describe('Paper Glow UI contract', () => {
       releasedAnnotationIds: [],
       awaitingConfirmationIds: [],
       flowActive: false,
+      lastDispatchError: null,
     };
 
     const host = document.createElement('div');
@@ -1611,10 +1822,14 @@ describe('Paper Glow UI contract', () => {
     expect(workflowText).toContain(
       'Neue Aufgaben bleiben gesammelt, bis du sie bewusst weitergibst.',
     );
-    expect(workflowText).toContain('Queue pausiert');
+    expect(workflowText).toContain('Warteliste pausiert');
+    expect(workflowText).toContain('Warteliste sammelt nur');
+    expect(workflowText).toContain(
+      'Waehle ein Uebergabeziel, bevor du die Warteliste sendest.',
+    );
     expect(workflowText).toContain('Sammelt weiter');
     expect(workflowText).toContain(
-      'Wechsle auf den aktuellen Agent, sobald die ersten Aufgaben rausgehen sollen.',
+      'Waehle ein Uebergabeziel, sobald die ersten Aufgaben starten sollen.',
     );
     expect(releaseButton.disabled).toBe(true);
   });
@@ -1637,6 +1852,7 @@ describe('Paper Glow UI contract', () => {
       releasedAnnotationIds: [],
       awaitingConfirmationIds: [],
       flowActive: false,
+      lastDispatchError: null,
     };
 
     const host = document.createElement('div');
@@ -1655,11 +1871,223 @@ describe('Paper Glow UI contract', () => {
     const workflowText =
       workflowPanel.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
 
-    expect(workflowText).toContain('Schwelle fast erreicht');
+    expect(workflowText).toContain('Sammelt bis 3');
     expect(workflowText).toContain(
-      'Noch 1 Aufgabe, dann stellt PinFlow den ersten Batch zur Freigabe bereit.',
+      'Noch 1 Aufgabe, dann stellt PinFlow den ersten Lauf zur Freigabe bereit.',
     );
-    expect(workflowText).toContain('Bereit fuer den naechsten Versand');
+    expect(workflowText).toContain('Bereit fuer den naechsten Lauf');
+  });
+
+  it('shows a visible send action for manually collected waiting tasks', async () => {
+    mockState.annotations = [
+      { id: 'note-1', metadata: { id: 'note-1', status: 'queued' } },
+      { id: 'note-2', metadata: { id: 'note-2', status: 'queued' } },
+      { id: 'note-3', metadata: { id: 'note-3', status: 'queued' } },
+    ];
+    mockState.dispatchProjectDefaults = {
+      channel: 'codex',
+      mode: 'manual',
+      threshold: 3,
+      concurrency: 2,
+      continuation: 'manual',
+    };
+    mockState.dispatchSession = {
+      overrides: { mode: 'manual', continuation: 'manual' },
+      paused: false,
+      releasedAnnotationIds: [],
+      awaitingConfirmationIds: [],
+      flowActive: false,
+      lastDispatchError: null,
+    };
+
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    render(html`<ds-workflow-panel></ds-workflow-panel>`, host);
+
+    const workflowPanel = host.querySelector(
+      'ds-workflow-panel',
+    ) as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await workflowPanel.updateComplete;
+
+    const workflowText =
+      workflowPanel.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+    const releaseButton = workflowPanel.shadowRoot.querySelector(
+      '.dispatch-callout .dispatch-btn',
+    ) as HTMLButtonElement;
+
+    expect(workflowText).toContain('Manueller Start');
+    expect(workflowText).toContain('Warteliste bereit');
+    expect(workflowText).toContain('2 Aufgaben koennen jetzt gesendet werden.');
+    expect(releaseButton.textContent).toContain('Jetzt senden (2)');
+    expect(releaseButton.disabled).toBe(false);
+
+    releaseButton.click();
+    expect(mockStore.releaseNextDispatchBatch).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows the send action directly inside the opened waiting list', async () => {
+    mockState.annotations = [
+      {
+        metadata: { id: 'note-1', status: 'queued' },
+        context: { userMessage: 'Make it larger' },
+        interaction: { selectedElement: { tagName: 'button' } },
+      },
+      {
+        metadata: { id: 'note-2', status: 'queued' },
+        context: { userMessage: 'Move this down' },
+        interaction: { selectedElement: { tagName: 'button' } },
+      },
+      {
+        metadata: { id: 'note-3', status: 'queued' },
+        context: { userMessage: 'Adjust copy' },
+        interaction: { selectedElement: { tagName: 'button' } },
+      },
+    ];
+    mockState.dispatchProjectDefaults = {
+      channel: 'auto',
+      mode: 'manual',
+      threshold: 3,
+      concurrency: 2,
+      continuation: 'manual',
+    };
+    mockState.dispatchSession = {
+      overrides: { mode: 'manual', continuation: 'manual' },
+      paused: false,
+      releasedAnnotationIds: [],
+      awaitingConfirmationIds: [],
+      flowActive: false,
+      lastDispatchError: null,
+    };
+
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    render(html`<ds-annotation-list></ds-annotation-list>`, host);
+
+    const list = host.querySelector('ds-annotation-list') as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await list.updateComplete;
+
+    const waitingHeader = list.shadowRoot.querySelector(
+      '.status-group[data-status="queued"] .status-header',
+    ) as HTMLButtonElement;
+    waitingHeader.click();
+    await list.updateComplete;
+
+    const listText = list.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+    const sendButton = list.shadowRoot.querySelector(
+      '.queue-action .queue-action-btn',
+    ) as HTMLButtonElement;
+
+    expect(listText).toContain('Warteliste bereit');
+    expect(listText).toContain('2 Aufgaben koennen jetzt gesendet werden.');
+    expect(sendButton.textContent).toContain('Jetzt senden (2)');
+    expect(sendButton.disabled).toBe(false);
+
+    sendButton.click();
+    expect(mockStore.releaseNextDispatchBatch).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows dispatch failures directly in the opened waiting list', async () => {
+    mockState.annotations = [
+      {
+        metadata: { id: 'note-1', status: 'queued' },
+        context: { userMessage: 'Try again' },
+        interaction: { selectedElement: { tagName: 'button' } },
+      },
+    ];
+    mockState.dispatchProjectDefaults = {
+      channel: 'auto',
+      mode: 'manual',
+      threshold: 3,
+      concurrency: 1,
+      continuation: 'manual',
+    };
+    mockState.dispatchSession = {
+      overrides: { mode: 'manual', continuation: 'manual' },
+      paused: false,
+      releasedAnnotationIds: [],
+      awaitingConfirmationIds: [],
+      flowActive: false,
+      lastDispatchError:
+        'Senden fehlgeschlagen. Der lokale PinFlow-Relay laeuft noch mit einer aelteren Version. Starte die Vorschau neu und versuche es erneut.',
+    };
+
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    render(html`<ds-annotation-list></ds-annotation-list>`, host);
+
+    const list = host.querySelector('ds-annotation-list') as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await list.updateComplete;
+    const waitingHeader = list.shadowRoot.querySelector(
+      '.status-group[data-status="queued"] .status-header',
+    ) as HTMLButtonElement;
+    waitingHeader.click();
+    await list.updateComplete;
+
+    const listText = list.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+    const sendButton = list.shadowRoot.querySelector(
+      '.queue-action .queue-action-btn',
+    ) as HTMLButtonElement;
+
+    expect(listText).toContain('Senden fehlgeschlagen');
+    expect(listText).toContain(
+      'Senden fehlgeschlagen. Der lokale PinFlow-Relay laeuft noch mit einer aelteren Version. Starte die Vorschau neu und versuche es erneut.',
+    );
+    expect(sendButton.textContent).toContain('Erneut senden (1)');
+  });
+
+  it('renders compact history cards around the selected source', async () => {
+    mockState.annotations = [
+      {
+        metadata: { id: 'note-history', status: 'queued' },
+        context: {
+          userMessage:
+            'Bitte diesen Bereich deutlich klarer formulieren und die Abstaende pruefen.',
+          manifestSnapshot: [
+            {
+              file: '/workspace/src/App.tsx',
+              start: { line: 42, column: 10 },
+            },
+          ],
+        },
+        interaction: {
+          selectedElement: { tagName: 'section', dataDs: 'abc12345' },
+        },
+      },
+    ];
+
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    render(
+      html`<ds-annotation-list variant="list"></ds-annotation-list>`,
+      host,
+    );
+
+    const list = host.querySelector('ds-annotation-list') as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await list.updateComplete;
+
+    const listText = list.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+    const card = list.shadowRoot.querySelector('.plain-item') as HTMLElement;
+
+    expect(listText).toContain('App.tsx:42');
+    expect(listText).toContain('Bitte diesen Bereich deutlich klarer');
+    expect(listText).toContain('Warteliste · abc12345');
+    expect(card).toBeTruthy();
   });
 
   it('renders guided confirmation flow states when a batch awaits approval', async () => {
@@ -1680,6 +2108,7 @@ describe('Paper Glow UI contract', () => {
       releasedAnnotationIds: [],
       awaitingConfirmationIds: ['note-1'],
       flowActive: true,
+      lastDispatchError: null,
     };
 
     const host = document.createElement('div');
@@ -1702,11 +2131,13 @@ describe('Paper Glow UI contract', () => {
     ) as HTMLButtonElement;
 
     expect(workflowText).toContain('Wartet auf Freigabe');
-    expect(workflowText).toContain('Naechster Batch bereit');
+    expect(workflowText).toContain('Warteliste bereit');
+    expect(workflowText).toContain('1 Aufgabe wartet auf deine Freigabe.');
+    expect(workflowText).toContain('Freigabe bereit');
     expect(workflowText).toContain(
-      'Der naechste Batch liegt bereit. Pruefe ihn und gib ihn bewusst frei.',
+      'Der naechste Lauf liegt bereit. Pruefe ihn und gib ihn bewusst frei.',
     );
-    expect(releaseButton.textContent).toContain('Batch freigeben (1)');
+    expect(releaseButton.textContent).toContain('Freigeben (1)');
     expect(releaseButton.disabled).toBe(false);
   });
 });

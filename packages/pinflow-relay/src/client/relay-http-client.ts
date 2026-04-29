@@ -20,6 +20,9 @@ import {
 import {
   AnnotationCreateResponse,
   AnnotationCreateResponseSchema,
+  AnnotationDispatchRequestBody,
+  AnnotationDispatchResponse,
+  AnnotationDispatchResponseSchema,
   AnnotationProcessRequestBody,
   QueryBySourceResponse,
   QueryBySourceResponseSchema,
@@ -52,6 +55,9 @@ import {
   ManifestStatsResponseSchema,
   ShutdownResponse,
   ShutdownResponseSchema,
+  RunnerHeartbeatRequestBody,
+  RunnerHeartbeatResponse,
+  RunnerHeartbeatResponseSchema,
   StatusResponse,
   StatusResponseSchema,
 } from '../schema.js';
@@ -160,6 +166,24 @@ export class RelayHttpClient {
       throw await this.parseError(response);
     }
     return AnnotationProcessResponseSchema.parse(await response.json());
+  }
+
+  async dispatchAnnotations(
+    body: AnnotationDispatchRequestBody,
+  ): Promise<AnnotationDispatchResponse> {
+    const apiPath = `${API_PATHS.BASE.replace(':version', 'v1')}${API_PATHS.ANNOTATION_DISPATCH}`;
+    const url = new URL(apiPath, this.baseUrl);
+    const response = await fetch(url.toString(), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+    if (!response.ok) {
+      throw await this.parseError(response);
+    }
+    return AnnotationDispatchResponseSchema.parse(await response.json());
   }
 
   async searchAnnotations({
@@ -399,6 +423,24 @@ export class RelayHttpClient {
       throw await this.parseError(response);
     }
     return StatusResponseSchema.parse(await response.json());
+  }
+
+  async sendRunnerHeartbeat(
+    body: RunnerHeartbeatRequestBody,
+  ): Promise<RunnerHeartbeatResponse> {
+    const apiPath = `${API_PATHS.BASE.replace(':version', 'v1')}${API_PATHS.RUNNER_HEARTBEAT}`;
+    const url = new URL(apiPath, this.baseUrl);
+    const response = await fetch(url.toString(), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+    if (!response.ok) {
+      throw await this.parseError(response);
+    }
+    return RunnerHeartbeatResponseSchema.parse(await response.json());
   }
 
   async getHealth({

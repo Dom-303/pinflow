@@ -21,11 +21,14 @@ import type { InitOptions } from './types.js';
 export async function runInitWizard(options: InitOptions): Promise<void> {
   clack.intro('PinFlow Setup');
 
-  await runAgentStep(options);
+  const agentResult = await runAgentStep(options);
 
   const { appRoot } = await runMonorepoStep(options, process.cwd());
 
-  await runFrameworkStep(options, appRoot);
+  await runFrameworkStep(
+    { ...options, runnerProvider: agentResult.runnerProvider },
+    appRoot,
+  );
   runGitignoreStep(options, process.cwd());
 
   clack.outro(

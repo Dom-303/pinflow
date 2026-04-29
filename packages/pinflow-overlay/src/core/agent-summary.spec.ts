@@ -56,7 +56,7 @@ describe('agent summary helpers', () => {
     );
 
     expect(summary.channelLabel).toBe('Codex');
-    expect(summary.statusLabel).toBe('Fehler');
+    expect(summary.statusLabel).toBe('Fehlgeschlagen');
     expect(summary.statusDetail).toBe('Fehler: Browser nicht verbunden');
     expect(summary.verificationLabel).toBe('Pruefung nicht moeglich');
     expect(summary.verificationDetail).toBe('Browser nicht verbunden');
@@ -79,7 +79,7 @@ describe('agent summary helpers', () => {
       }),
     );
 
-    expect(summary.statusLabel).toBe('Antwort liegt vor');
+    expect(summary.statusLabel).toBe('Erledigt');
     expect(summary.responseExcerpt).toBe(
       'Ich habe den Button-Text angepasst und die Source-Location erneut geprueft.',
     );
@@ -125,8 +125,8 @@ describe('agent summary helpers', () => {
         latestBatchStatus: 'running',
       }),
     ).toEqual({
-      title: 'Batch laeuft',
-      copy: '1 Batch laeuft bei Codex.',
+      title: 'Lauf gestartet',
+      copy: '1 Lauf ist gestartet bei Codex.',
     });
   });
 });

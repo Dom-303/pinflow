@@ -169,7 +169,8 @@ export class DsSessionSettings extends LitElement {
       }
 
       select:focus-visible {
-        outline: 2px solid color-mix(in srgb, var(--ds-brand-primary) 45%, transparent);
+        outline: 2px solid
+          color-mix(in srgb, var(--ds-brand-primary) 45%, transparent);
         outline-offset: 2px;
       }
 
@@ -373,15 +374,15 @@ export class DsSessionSettings extends LitElement {
     return mode === 'immediate'
       ? 'Sofort'
       : mode === 'threshold'
-        ? 'Ab Schwelle'
+        ? 'Ab Anzahl'
         : 'Manuell';
   }
 
   private getContinuationLabel(mode: DispatchContinuationMode) {
     return mode === 'automatic'
-      ? 'Automatisch'
+      ? 'Automatisch starten'
       : mode === 'confirm'
-        ? 'Freigeben'
+        ? 'Erst Freigabe holen'
         : 'Manuell';
   }
 
@@ -389,10 +390,10 @@ export class DsSessionSettings extends LitElement {
     return channel === 'auto'
       ? 'Aktueller Agent'
       : channel === 'queue_only'
-      ? 'Nur sammeln'
-      : channel === 'claude'
-        ? 'Claude'
-        : 'Codex';
+        ? 'Nur sammeln'
+        : channel === 'claude'
+          ? 'Claude'
+          : 'Codex';
   }
 
   override render() {
@@ -402,8 +403,10 @@ export class DsSessionSettings extends LitElement {
     const continuationLabel = this.getContinuationLabel(
       this.projectDefaults.continuation,
     );
-    const effectiveChannel = this.sessionOverrides.channel ?? this.projectDefaults.channel;
-    const effectiveMode = this.sessionOverrides.mode ?? this.projectDefaults.mode;
+    const effectiveChannel =
+      this.sessionOverrides.channel ?? this.projectDefaults.channel;
+    const effectiveMode =
+      this.sessionOverrides.mode ?? this.projectDefaults.mode;
     const effectiveContinuation =
       this.sessionOverrides.continuation ?? this.projectDefaults.continuation;
     const effectiveThreshold =
@@ -417,35 +420,53 @@ export class DsSessionSettings extends LitElement {
         <summary class="section-summary">
           <span class="summary-copy">
             <span class="section-title">Projektstandard</span>
-            <span class="section-copy">Gilt fuer neue Aufgaben in diesem Projekt.</span>
+            <span class="section-copy"
+              >Gilt fuer neue Aufgaben in diesem Projekt.</span
+            >
           </span>
-          <svg class="section-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          <svg
+            class="section-chevron"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M7 10l5 5 5-5"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
           </svg>
         </summary>
         <div class="section-body">
           <div class="summary-strip">
-            <span class="summary-pill"><strong>${modeLabel}</strong> Versand</span>
             <span class="summary-pill"
-              ><strong>${this.projectDefaults.concurrency}</strong> Parallelitaet</span
+              ><strong>${modeLabel}</strong> Senden</span
             >
             <span class="summary-pill"
-              ><strong>${this.projectDefaults.threshold}</strong> Schwelle</span
+              ><strong>${this.projectDefaults.concurrency}</strong>
+              Parallelitaet</span
             >
             <span class="summary-pill"
-              ><strong>${continuationLabel}</strong> Fortsetzung</span
+              ><strong
+                >Sammelt bis ${this.projectDefaults.threshold}</strong
+              ></span
+            >
+            <span class="summary-pill"
+              ><strong>${continuationLabel}</strong> Startart</span
             >
           </div>
           <div class="grid">
             <label>
-              Versand
+              Wann senden?
               <select
                 .value=${this.projectDefaults.mode}
                 @change=${this.handleProjectModeChange}
               >
                 <option value="manual">Manuell</option>
                 <option value="immediate">Sofort</option>
-                <option value="threshold">Ab Schwelle</option>
+                <option value="threshold">Ab Anzahl</option>
               </select>
             </label>
 
@@ -463,7 +484,7 @@ export class DsSessionSettings extends LitElement {
             </label>
 
             <label>
-              Automatik-Schwelle
+              Sammeln bis
               <select
                 .value=${String(this.projectDefaults.threshold)}
                 @change=${this.handleProjectThresholdChange}
@@ -476,13 +497,13 @@ export class DsSessionSettings extends LitElement {
             </label>
 
             <label>
-              Naechster Batch
+              Startart
               <select
                 .value=${this.projectDefaults.continuation}
                 @change=${this.handleProjectContinuationChange}
               >
-                <option value="automatic">Automatisch</option>
-                <option value="confirm">Freigeben</option>
+                <option value="automatic">Automatisch starten</option>
+                <option value="confirm">Erst Freigabe holen</option>
                 <option value="manual">Manuell</option>
               </select>
             </label>
@@ -500,8 +521,19 @@ export class DsSessionSettings extends LitElement {
                 : 'Diese Sitzung folgt aktuell dem Projektstandard.'}
             </span>
           </span>
-          <svg class="section-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          <svg
+            class="section-chevron"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M7 10l5 5 5-5"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
           </svg>
         </summary>
         <div class="section-body">
@@ -516,26 +548,34 @@ export class DsSessionSettings extends LitElement {
               : 'Keine Session-Anpassungen aktiv.'}
           </div>
           <div class="effective-state">
-            <div class="effective-title">Wirkt gerade</div>
+            <div class="effective-title">Aktuell aktiv</div>
             <div class="summary-strip">
               <span class="summary-pill">
-                <strong>${hasSessionOverrides ? 'Session-Regeln aktiv' : 'Projektstandard aktiv'}</strong>
+                <strong
+                  >${hasSessionOverrides
+                    ? 'Session-Regeln aktiv'
+                    : 'Projektstandard aktiv'}</strong
+                >
               </span>
               <span class="summary-pill"
-                ><strong>${this.getChannelLabel(effectiveChannel)}</strong> Uebergabe</span
+                ><strong>${this.getChannelLabel(effectiveChannel)}</strong>
+                Uebergabe</span
               >
               <span class="summary-pill"
-                ><strong>${this.getModeLabel(effectiveMode)}</strong> Versand</span
+                ><strong>${this.getModeLabel(effectiveMode)}</strong>
+                Senden</span
               >
               <span class="summary-pill"
                 ><strong>${effectiveConcurrency}</strong> Parallelitaet</span
               >
               <span class="summary-pill"
-                ><strong>${effectiveThreshold}</strong> Schwelle</span
+                ><strong>Sammelt bis ${effectiveThreshold}</strong></span
               >
               <span class="summary-pill"
-                ><strong>${this.getContinuationLabel(effectiveContinuation)}</strong>
-                Fortsetzung</span
+                ><strong
+                  >${this.getContinuationLabel(effectiveContinuation)}</strong
+                >
+                Startart</span
               >
             </div>
           </div>
@@ -549,29 +589,39 @@ export class DsSessionSettings extends LitElement {
                     ${this.sessionOverrides.channel
                       ? html`<span class="summary-pill"
                           ><strong
-                            >${this.getChannelLabel(this.sessionOverrides.channel)}</strong
+                            >${this.getChannelLabel(
+                              this.sessionOverrides.channel,
+                            )}</strong
                           >
                           Uebergabe</span
                         >`
                       : null}
                     ${this.sessionOverrides.mode
                       ? html`<span class="summary-pill"
-                          ><strong>${this.getModeLabel(this.sessionOverrides.mode)}</strong>
-                          Versand</span
+                          ><strong
+                            >${this.getModeLabel(
+                              this.sessionOverrides.mode,
+                            )}</strong
+                          >
+                          Senden</span
                         >`
                       : null}
                     ${this.sessionOverrides.continuation
                       ? html`<span class="summary-pill"
                           ><strong
-                            >${this.getContinuationLabel(this.sessionOverrides.continuation)}</strong
+                            >${this.getContinuationLabel(
+                              this.sessionOverrides.continuation,
+                            )}</strong
                           >
-                          Fortsetzung</span
+                          Startart</span
                         >`
                       : null}
                     ${this.sessionOverrides.threshold
                       ? html`<span class="summary-pill"
-                          ><strong>${this.sessionOverrides.threshold}</strong>
-                          Schwelle</span
+                          ><strong
+                            >Sammelt bis
+                            ${this.sessionOverrides.threshold}</strong
+                          ></span
                         >`
                       : null}
                     ${this.sessionOverrides.concurrency

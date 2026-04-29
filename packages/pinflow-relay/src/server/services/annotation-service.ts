@@ -111,6 +111,24 @@ export interface ClaimNextOptions {
   dispatchTarget?: AnnotationDispatchTarget;
 }
 
+export interface ClaimByIdsOptions {
+  annotationIds: AnnotationId[];
+  agentId?: string;
+  leaseMs?: number;
+  now?: Date;
+  dispatchTarget?: AnnotationDispatchTarget;
+}
+
+export interface ClaimByIdsResult {
+  claimed: Annotation[];
+  skippedIds: AnnotationId[];
+}
+
+export interface ReleaseByIdsResult {
+  released: Annotation[];
+  skippedIds: AnnotationId[];
+}
+
 const DEFAULT_CLAIM_AGENT_ID = 'pinflow-agent';
 const DEFAULT_CLAIM_LEASE_MS = 15 * 60 * 1000;
 
@@ -384,8 +402,7 @@ export class AnnotationService {
         return null;
       }
 
-      // Take the oldest annotation (last in the list since sorted newest-first)
-      const annotation = annotations[annotations.length - 1];
+      const annotation = this.getNextClaimCandidate(annotations);
 
       try {
         const claimed = await this.updateStatus(
@@ -415,6 +432,98 @@ export class AnnotationService {
     }
 
     return null;
+  }
+
+  /**
+   * Atomically claim selected queued annotations for a dispatch release.
+   */
+  async claimByIds(options: ClaimByIdsOptions): Promise<ClaimByIdsResult> {
+    const now = options.now ?? new Date();
+    const claimed: Annotation[] = [];
+    const skippedIds: AnnotationId[] = [];
+
+    await this.requeueExpiredLeases(now);
+
+    for (const annotationId of options.annotationIds) {
+      const annotation = await this.get(annotationId);
+      if (
+        !annotation ||
+        annotation.metadata.status !== AnnotationStatusEnum.QUEUED
+      ) {
+        skippedIds.push(annotationId);
+        continue;
+      }
+
+      try {
+        const next = await this.updateStatus(
+          annotationId,
+          AnnotationStatusEnum.CLAIMED,
+        );
+        this.setClaimMetadata(next, options, now);
+        if (options.dispatchTarget) {
+          next.dispatch = {
+            target: options.dispatchTarget,
+            assignedAt: now.toISOString(),
+          };
+        }
+        await this.storage.write(next);
+        claimed.push(next);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        if (
+          message.includes('not found') ||
+          message.includes('Invalid status transition')
+        ) {
+          skippedIds.push(annotationId);
+          continue;
+        }
+        throw error;
+      }
+    }
+
+    return { claimed, skippedIds };
+  }
+
+  /**
+   * Mark selected queued annotations as released for agent pickup without
+   * claiming them. The MCP process tool remains the single owner of claims.
+   */
+  async releaseByIds(options: ClaimByIdsOptions): Promise<ReleaseByIdsResult> {
+    const now = options.now ?? new Date();
+    const released: Annotation[] = [];
+    const skippedIds: AnnotationId[] = [];
+
+    await this.requeueExpiredLeases(now);
+
+    for (const annotationId of options.annotationIds) {
+      const annotation = await this.get(annotationId);
+      if (
+        !annotation ||
+        annotation.metadata.status !== AnnotationStatusEnum.QUEUED
+      ) {
+        skippedIds.push(annotationId);
+        continue;
+      }
+
+      if (options.dispatchTarget) {
+        annotation.dispatch = {
+          target: options.dispatchTarget,
+          assignedAt: now.toISOString(),
+        };
+      }
+
+      await this.storage.write(annotation);
+      this.emit({
+        type: WS_EVENTS.ANNOTATION_UPDATED,
+        data: {
+          id: annotation.metadata.id,
+          status: annotation.metadata.status,
+        },
+      });
+      released.push(annotation);
+    }
+
+    return { released, skippedIds };
   }
 
   /**
@@ -642,5 +751,21 @@ export class AnnotationService {
         });
       }
     }
+  }
+
+  private getNextClaimCandidate(annotations: Annotation[]): Annotation {
+    return [...annotations].sort((a, b) => {
+      const aReleased = Boolean(a.dispatch?.assignedAt);
+      const bReleased = Boolean(b.dispatch?.assignedAt);
+
+      if (aReleased !== bReleased) {
+        return aReleased ? -1 : 1;
+      }
+
+      const aTime = Date.parse(a.dispatch?.assignedAt ?? a.metadata.timestamp);
+      const bTime = Date.parse(b.dispatch?.assignedAt ?? b.metadata.timestamp);
+
+      return aTime - bTime;
+    })[0];
   }
 }

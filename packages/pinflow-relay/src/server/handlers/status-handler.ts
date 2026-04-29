@@ -5,7 +5,10 @@
  */
 import type { FastifyInstance } from 'fastify';
 import type { ManifestReader } from '@pinflow/manifest';
-import type { AnnotationService } from '../services/index.js';
+import type {
+  AnnotationService,
+  RunnerSessionService,
+} from '../services/index.js';
 import { StatusRoute } from '../routes/status.route.js';
 import { registerRoute } from '../routes/route.interface.js';
 import type { WSServer } from '../ws-server.js';
@@ -20,6 +23,8 @@ export interface StatusHandlerOptions {
   startTime: number;
   /** WebSocket server for browser connection diagnostics */
   wsServer?: WSServer;
+  /** Local runner heartbeat diagnostics */
+  runnerSessionService?: RunnerSessionService;
 }
 
 /**

@@ -235,6 +235,7 @@ describe('withPinFlow', () => {
         const result = withPinFlow({
           debug: true,
           relay: { port: 4400 },
+          runner: { autoStart: true, provider: 'codex' },
           overlay: true,
         })({});
 
@@ -248,6 +249,10 @@ describe('withPinFlow', () => {
         expect(options['debug']).toBe(true);
         expect(options['enabled']).toBe(true);
         expect(options['relay']).toEqual({ port: 4400 });
+        expect(options['runner']).toEqual({
+          autoStart: true,
+          provider: 'codex',
+        });
         expect(options['overlay']).toBe(true);
         expect(options['autoInitPath']).toBe(
           '/resolved/@pinflow/next/auto-init',
@@ -325,6 +330,7 @@ describe('withPinFlow', () => {
         const result = withPinFlow({
           debug: true,
           relay: { port: 5000, host: '0.0.0.0', bodyLimit: 5242880 },
+          runner: { autoStart: true, provider: 'codex' },
           overlay: { initialMode: 'expanded', debug: true },
         })({});
         const webpackFn = result.webpack as (
@@ -342,6 +348,7 @@ describe('withPinFlow', () => {
           debug: true,
           enabled: true,
           relay: { port: 5000, host: '0.0.0.0', bodyLimit: 5242880 },
+          runner: { autoStart: true, provider: 'codex' },
           overlay: { initialMode: 'expanded', debug: true },
           autoInitPath: '/resolved/@pinflow/next/auto-init',
         });

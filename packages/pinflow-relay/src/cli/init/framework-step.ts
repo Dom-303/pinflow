@@ -13,7 +13,7 @@ import {
   type PinFlowSetupStatus,
 } from './app-detection.js';
 import { detectPackageManager } from './detect-package-manager.js';
-import { CONFIG_SNIPPETS } from './snippets.js';
+import { getConfigSnippet } from './snippets.js';
 import type {
   FrameworkConfig,
   InitOptions,
@@ -36,14 +36,23 @@ function highlightSnippet(code: string, configFile: string): string {
 /**
  * Display the config snippet with contextual instructions.
  */
-function showConfigSnippet(framework: FrameworkConfig): void {
-  const snippet = CONFIG_SNIPPETS[framework.id];
+function showConfigSnippet(
+  framework: FrameworkConfig,
+  runnerProvider?: InitOptions['runnerProvider'],
+): void {
+  const snippet = getConfigSnippet(framework.id, runnerProvider);
   const highlighted = highlightSnippet(snippet, framework.configFile);
 
   clack.log.warn(
     `Add the following to your ${framework.configFile} to complete setup:\n`,
   );
   process.stdout.write(highlighted + '\n\n');
+
+  if (runnerProvider) {
+    clack.log.message(
+      'Your dev server will start the local PinFlow runner automatically.',
+    );
+  }
 }
 
 /**
@@ -246,12 +255,12 @@ export async function runFrameworkStep(
     if (shouldInstallPackage) {
       clack.log.info(`Would run: ${installCmd}`);
     }
-    showConfigSnippet(framework);
+    showConfigSnippet(framework, options.runnerProvider);
     return;
   }
 
   if (!shouldInstallPackage) {
-    showConfigSnippet(framework);
+    showConfigSnippet(framework, options.runnerProvider);
     return;
   }
 
@@ -273,5 +282,5 @@ export async function runFrameworkStep(
   }
 
   // Always show the config snippet
-  showConfigSnippet(framework);
+  showConfigSnippet(framework, options.runnerProvider);
 }

@@ -30,8 +30,8 @@ export class DsSidebar extends LitElement {
   private storeController = new StoreController(this);
   private static readonly COMPOSER_HEIGHT_KEY = 'pinflow:composer-height';
   private static readonly DEFAULT_COMPOSER_HEIGHT = 200;
-  private static readonly MIN_COMPOSER_HEIGHT = 170;
-  private static readonly MAX_COMPOSER_HEIGHT = 440;
+  private static readonly MIN_COMPOSER_HEIGHT = 190;
+  private static readonly MAX_COMPOSER_HEIGHT = 320;
 
   @state()
   private isScrolled = false;
@@ -94,7 +94,11 @@ export class DsSidebar extends LitElement {
         bottom: 12px;
         width: var(--ds-sidebar-width);
         background:
-          radial-gradient(circle at top right, var(--ds-shell-glow), transparent 34%),
+          radial-gradient(
+            circle at top right,
+            var(--ds-shell-glow),
+            transparent 34%
+          ),
           var(--ds-shell-gradient);
         border: 1px solid var(--ds-shell-border-soft);
         border-radius: 24px;
@@ -184,13 +188,22 @@ export class DsSidebar extends LitElement {
 
       .mini-status.active {
         color: var(--ds-text-primary);
-        border-color: color-mix(in srgb, var(--ds-brand-primary) 32%, var(--ds-pill-border));
-        background: color-mix(in srgb, var(--ds-brand-primary) 10%, var(--ds-note-surface));
+        border-color: color-mix(
+          in srgb,
+          var(--ds-brand-primary) 32%,
+          var(--ds-pill-border)
+        );
+        background: color-mix(
+          in srgb,
+          var(--ds-brand-primary) 10%,
+          var(--ds-note-surface)
+        );
       }
 
       .mini-status.active::before {
         background: var(--ds-brand-primary);
-        box-shadow: 0 0 0 4px color-mix(in srgb, var(--ds-brand-primary) 18%, transparent);
+        box-shadow: 0 0 0 4px
+          color-mix(in srgb, var(--ds-brand-primary) 18%, transparent);
       }
 
       .mini-actions {
@@ -427,10 +440,9 @@ export class DsSidebar extends LitElement {
       .composer-dock {
         display: flex;
         flex-direction: column;
-        gap: 8px;
         height: var(--composer-height, 200px);
-        min-height: 170px;
-        max-height: 440px;
+        min-height: 190px;
+        max-height: 320px;
         padding: 8px 14px 14px;
         border-top: 1px solid var(--ds-shell-border-soft);
         background:
@@ -439,7 +451,11 @@ export class DsSidebar extends LitElement {
             color-mix(in srgb, var(--ds-bg-primary) 82%, transparent),
             var(--ds-bg-primary)
           ),
-          radial-gradient(circle at bottom right, var(--ds-shell-glow), transparent 42%);
+          radial-gradient(
+            circle at bottom right,
+            var(--ds-shell-glow),
+            transparent 42%
+          );
         backdrop-filter: blur(22px);
         box-shadow: 0 -12px 26px rgba(0, 0, 0, 0.08);
         overflow: visible;
@@ -461,6 +477,8 @@ export class DsSidebar extends LitElement {
       .active-run-panel {
         display: grid;
         gap: 7px;
+        flex: 0 0 auto;
+        margin: 8px 14px 0;
         padding: 9px 10px;
         border-radius: 14px;
         border: 1px solid var(--ds-panel-border);
@@ -518,17 +536,37 @@ export class DsSidebar extends LitElement {
         width: 8px;
         height: 8px;
         border-radius: 999px;
-        background: var(--ds-text-tertiary);
+        border: 1.5px solid var(--ds-text-tertiary);
+        background: transparent;
+        box-sizing: border-box;
       }
 
+      .active-run-task[data-status='claimed'] .active-run-dot,
       .active-run-task[data-status='processing'] .active-run-dot {
-        background: var(--ds-brand-primary);
+        border-color: var(--ds-brand-primary);
+        background: transparent;
         box-shadow: 0 0 0 4px
           color-mix(in srgb, var(--ds-brand-primary) 16%, transparent);
       }
 
       .active-run-task[data-status='processed'] .active-run-dot {
+        position: relative;
+        display: grid;
+        place-items: center;
+        width: 11px;
+        height: 11px;
+        margin-left: -1.5px;
+        border-color: var(--ds-success);
         background: var(--ds-success);
+      }
+
+      .active-run-task[data-status='processed'] .active-run-dot::after {
+        content: '';
+        width: 5px;
+        height: 3px;
+        border-left: 1.3px solid var(--ds-bg-primary);
+        border-bottom: 1.3px solid var(--ds-bg-primary);
+        transform: rotate(-45deg) translateY(-0.5px);
       }
 
       .active-run-status {
@@ -571,7 +609,9 @@ export class DsSidebar extends LitElement {
   private loadComposerHeight() {
     try {
       const stored = window.localStorage.getItem(DsSidebar.COMPOSER_HEIGHT_KEY);
-      const parsed = stored ? Number(stored) : DsSidebar.DEFAULT_COMPOSER_HEIGHT;
+      const parsed = stored
+        ? Number(stored)
+        : DsSidebar.DEFAULT_COMPOSER_HEIGHT;
       return this.clampComposerHeight(parsed);
     } catch {
       return DsSidebar.DEFAULT_COMPOSER_HEIGHT;
@@ -580,7 +620,10 @@ export class DsSidebar extends LitElement {
 
   private persistComposerHeight(height: number) {
     try {
-      window.localStorage.setItem(DsSidebar.COMPOSER_HEIGHT_KEY, String(height));
+      window.localStorage.setItem(
+        DsSidebar.COMPOSER_HEIGHT_KEY,
+        String(height),
+      );
     } catch {
       // localStorage unavailable
     }
@@ -650,10 +693,13 @@ export class DsSidebar extends LitElement {
       metadata?: { id?: string };
       id?: string;
     };
-    return entry.context?.userMessage ?? entry.metadata?.id ?? entry.id ?? fallback;
+    return (
+      entry.context?.userMessage ?? entry.metadata?.id ?? entry.id ?? fallback
+    );
   }
 
   private getTaskStatusLabel(status: string) {
+    if (status === 'claimed') return 'uebernommen';
     if (status === 'processing') return 'arbeitet';
     if (status === 'processed') return 'fertig';
     if (status === 'failed') return 'Fehler';
@@ -661,7 +707,8 @@ export class DsSidebar extends LitElement {
   }
 
   private renderActiveRunPanel() {
-    const { annotations, dispatchBatches } = this.storeController.state;
+    const { annotations, dispatchBatches, runnerStatus } =
+      this.storeController.state;
     const latestBatch = dispatchBatches[0];
     const hasProcessing = annotations.some(
       (annotation) => this.getAnnotationStatus(annotation) === 'processing',
@@ -683,14 +730,20 @@ export class DsSidebar extends LitElement {
         };
       })
       .slice(0, 5);
-    const activeCount = tasks.filter((task) => task.status === 'processing').length;
-    const doneCount = tasks.filter((task) => task.status === 'processed').length;
+    const agentStartedCount = tasks.filter(
+      (task) => task.status === 'claimed' || task.status === 'processing',
+    ).length;
+    const doneCount = tasks.filter(
+      (task) => task.status === 'processed',
+    ).length;
 
     return html`
       <div class="active-run-panel">
         <div class="active-run-head">
           <p class="active-run-title">Aktiver Lauf</p>
-          <span class="active-run-meta">${doneCount}/${tasks.length} fertig</span>
+          <span class="active-run-meta"
+            >${doneCount}/${tasks.length} fertig</span
+          >
         </div>
         <div class="active-run-list">
           ${tasks.map(
@@ -705,8 +758,12 @@ export class DsSidebar extends LitElement {
             `,
           )}
         </div>
-        ${activeCount === 0
-          ? html`<span class="active-run-meta">Wartet auf den naechsten Schritt.</span>`
+        ${agentStartedCount === 0
+          ? html`<span class="active-run-meta"
+              >${runnerStatus.connected
+                ? 'Runner bereit. Wartet auf den naechsten Schritt.'
+                : 'Kein Runner verbunden.'}</span
+            >`
           : null}
       </div>
     `;
@@ -720,11 +777,12 @@ export class DsSidebar extends LitElement {
       selectedRegion,
       mode,
       theme,
-    } =
-      this.storeController.state;
+    } = this.storeController.state;
     const statusLabel = relayConnected ? 'aktiv' : 'nicht aktiv';
     const selectedLabel = selectedElement
-      ? String((selectedElement as { tagName?: string }).tagName ?? 'element').toLowerCase()
+      ? String(
+          (selectedElement as { tagName?: string }).tagName ?? 'element',
+        ).toLowerCase()
       : 'Kein Element';
     const hasSelection =
       !!selectedElement || selectedElements.length > 0 || !!selectedRegion;
@@ -740,15 +798,17 @@ export class DsSidebar extends LitElement {
       : selectedElements.length > 1
         ? 'Mehrere Elemente sind fuer einen gemeinsamen Auftrag markiert.'
         : selectedElement
-      ? 'Quelle und Kontext sind verbunden.'
-      : 'Element im Canvas markieren.';
+          ? 'Quelle und Kontext sind verbunden.'
+          : 'Element im Canvas markieren.';
 
     if (this.settingsOpen) {
       return html`
         <div class="sidebar-content">
           <ds-settings-overlay
-            .projectDefaults=${this.storeController.state.dispatchProjectDefaults}
-            .sessionOverrides=${this.storeController.state.dispatchSession.overrides}
+            .projectDefaults=${this.storeController.state
+              .dispatchProjectDefaults}
+            .sessionOverrides=${this.storeController.state.dispatchSession
+              .overrides}
             @close-settings=${this.handleCloseSettings}
             @project-defaults-change=${this.handleProjectDefaultsChange}
             @reset-session-overrides=${this.resetSessionOverrides}
@@ -883,7 +943,6 @@ export class DsSidebar extends LitElement {
                 <ds-annotation-list></ds-annotation-list>
               </div>
             </details>
-
           </div>
         </div>
 
@@ -896,8 +955,9 @@ export class DsSidebar extends LitElement {
           @pointerdown=${this.handleComposerResizeStart}
         ></div>
 
+        ${this.renderActiveRunPanel()}
+
         <div class="composer-dock">
-          ${this.renderActiveRunPanel()}
           <ds-annotation-input
             @open-settings=${this.handleOpenSettings}
           ></ds-annotation-input>

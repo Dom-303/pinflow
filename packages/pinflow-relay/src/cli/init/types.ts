@@ -51,6 +51,8 @@ export interface AgentConfig {
   readonly label: string;
   readonly hint?: string;
   readonly installType: AgentInstallType;
+  /** Runner preset for true local autostart, when PinFlow supports one. */
+  readonly runnerProvider?: 'codex' | 'claude';
   /** Shell commands to run sequentially (for installType: 'command'). */
   readonly commands?: readonly string[];
   /** Text to display for manual installs. */
@@ -79,6 +81,7 @@ export interface InitOptions {
   readonly appRoot?: string;
   readonly setupMode?: SetupMode;
   readonly yes?: boolean;
+  readonly runnerProvider?: 'codex' | 'claude';
 }
 
 const MCP_CONFIG = `{
@@ -100,6 +103,7 @@ export const AGENTS: readonly AgentConfig[] = [
     label: 'Codex',
     hint: 'recommended',
     installType: 'command',
+    runnerProvider: 'codex',
     commands: [
       'codex marketplace add Dom-303/pinflow',
       'codex mcp add pinflow -- npx -y --package @pinflow/mcp pinflow-mcp',
@@ -109,6 +113,7 @@ export const AGENTS: readonly AgentConfig[] = [
     id: 'claude-code',
     label: 'Claude Code',
     installType: 'command',
+    runnerProvider: 'claude',
     commands: [
       'claude plugin marketplace add Dom-303/pinflow',
       'claude plugin install pinflow@pinflow',

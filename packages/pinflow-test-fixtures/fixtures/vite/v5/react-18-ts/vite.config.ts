@@ -44,6 +44,10 @@ export default defineConfig({
         initialMode: 'expanded',
         initialTheme: 'light',
       },
+      runner: {
+        autoStart: true,
+        provider: 'codex',
+      },
     }),
   ],
   build: {

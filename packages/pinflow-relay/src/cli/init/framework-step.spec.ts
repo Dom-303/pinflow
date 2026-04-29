@@ -321,6 +321,29 @@ describe('runFrameworkStep', () => {
         expect.stringContaining('PinFlowWebpackPlugin'),
       );
     });
+
+    it('should include runner autostart when a runner provider is known', async () => {
+      // Arrange
+      vi.mocked(clack.select)
+        .mockResolvedValueOnce('react-vite')
+        .mockResolvedValueOnce('npm');
+      const writeSpy = vi.spyOn(process.stdout, 'write').mockReturnValue(true);
+
+      // Act
+      await runFrameworkStep(
+        { ...baseOptions, runnerProvider: 'codex' },
+        '/project',
+      );
+
+      // Assert
+      const output = writeSpy.mock.calls
+        .map(([chunk]) => String(chunk))
+        .join('\n')
+        .replace(new RegExp(`${String.fromCharCode(27)}\\[[0-9;]*m`, 'g'), '');
+      expect(output).toContain(
+        "runner: { autoStart: true, provider: 'codex' }",
+      );
+    });
   });
 
   describe('dry-run', () => {

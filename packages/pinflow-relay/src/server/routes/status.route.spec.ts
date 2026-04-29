@@ -96,4 +96,48 @@ describe('GET /status', () => {
       cleanupTestServer(sessionServer);
     }
   });
+
+  it('should include active runner diagnostics after a heartbeat', async () => {
+    const runnerServer = await createTestServer();
+
+    try {
+      const heartbeat = await runnerServer.app.inject({
+        method: 'POST',
+        url: '/api/v1/runners/heartbeat',
+        payload: {
+          runnerId: 'runner-test-1',
+          provider: 'codex',
+          label: 'Local Runner',
+          status: 'idle',
+          pid: 1234,
+        },
+      });
+
+      expectStatus(heartbeat, 200);
+
+      const response = await runnerServer.app.inject({
+        method: 'GET',
+        url: '/status',
+      });
+
+      expectStatus(response, 200);
+
+      const body = response.json();
+      expect(body.runner).toMatchObject({
+        connected: true,
+        activeCount: 1,
+        sessions: [
+          {
+            runnerId: 'runner-test-1',
+            provider: 'codex',
+            label: 'Local Runner',
+            status: 'idle',
+            pid: 1234,
+          },
+        ],
+      });
+    } finally {
+      cleanupTestServer(runnerServer);
+    }
+  });
 });

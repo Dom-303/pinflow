@@ -10,7 +10,7 @@ import { customElement, state } from 'lit/decorators.js';
 import { StoreController } from '../core/store-controller.js';
 import { themeStyles, utilityStyles } from '../styles/theme.js';
 import type { DispatchChannel } from '../core/dispatch-config.js';
-import type { PickerMode } from '../core/types.js';
+import type { CommentEntryMode, PickerMode } from '../core/types.js';
 
 /**
  * Annotation input component
@@ -181,12 +181,24 @@ export class DsAnnotationInput extends LitElement {
       .action-btn.active {
         color: var(--ds-brand-primary);
         background: var(--ds-highlight);
-        border-color: color-mix(in srgb, var(--ds-brand-primary) 38%, var(--ds-pill-border));
+        border-color: color-mix(
+          in srgb,
+          var(--ds-brand-primary) 38%,
+          var(--ds-pill-border)
+        );
       }
 
       .capture-btn {
-        background: color-mix(in srgb, var(--ds-brand-primary) 8%, var(--ds-pill-surface));
-        border-color: color-mix(in srgb, var(--ds-brand-primary) 24%, var(--ds-pill-border));
+        background: color-mix(
+          in srgb,
+          var(--ds-brand-primary) 8%,
+          var(--ds-pill-surface)
+        );
+        border-color: color-mix(
+          in srgb,
+          var(--ds-brand-primary) 24%,
+          var(--ds-pill-border)
+        );
         color: var(--ds-text-primary);
       }
 
@@ -475,7 +487,6 @@ export class DsAnnotationInput extends LitElement {
         width: 18px;
         height: 18px;
       }
-
     `,
   ];
 
@@ -488,7 +499,6 @@ export class DsAnnotationInput extends LitElement {
     if (this.undoState !== 'idle') {
       this.undoState = 'idle';
     }
-
   }
 
   private handleKeyDown(event: KeyboardEvent) {
@@ -506,7 +516,9 @@ export class DsAnnotationInput extends LitElement {
     this.channelMenuOpen = false;
     this.pickerMenuOpen = false;
     this.undoConfirmOpen = false;
-    this.storeController.store.enterCaptureMode(this.storeController.state.pickerMode);
+    this.storeController.store.enterCaptureMode(
+      this.storeController.state.pickerMode,
+    );
   }
 
   private togglePickerMenu() {
@@ -518,6 +530,10 @@ export class DsAnnotationInput extends LitElement {
   private setPickerMode(pickerMode: PickerMode) {
     this.storeController.store.setPickerMode(pickerMode);
     this.pickerMenuOpen = false;
+  }
+
+  private setCommentEntryMode(commentEntryMode: CommentEntryMode) {
+    this.storeController.store.setCommentEntryMode(commentEntryMode);
   }
 
   private toggleChannelMenu() {
@@ -561,8 +577,12 @@ export class DsAnnotationInput extends LitElement {
   }
 
   private async handleSubmit() {
-    const { selectedElement, selectedElements, selectedRegion, relayConnected } =
-      this.storeController.state;
+    const {
+      selectedElement,
+      selectedElements,
+      selectedRegion,
+      relayConnected,
+    } = this.storeController.state;
     const hasSelection =
       !!selectedElement || selectedElements.length > 0 || !!selectedRegion;
 
@@ -728,10 +748,42 @@ export class DsAnnotationInput extends LitElement {
           fill="none"
           aria-hidden="true"
         >
-          <rect x="4" y="5" width="7" height="6" rx="2" fill="currentColor" opacity="0.92" />
-          <rect x="13" y="5" width="7" height="6" rx="2" stroke="currentColor" stroke-width="1.8" />
-          <rect x="4" y="13" width="7" height="6" rx="2" stroke="currentColor" stroke-width="1.8" />
-          <rect x="13" y="13" width="7" height="6" rx="2" fill="currentColor" opacity="0.92" />
+          <rect
+            x="4"
+            y="5"
+            width="7"
+            height="6"
+            rx="2"
+            fill="currentColor"
+            opacity="0.92"
+          />
+          <rect
+            x="13"
+            y="5"
+            width="7"
+            height="6"
+            rx="2"
+            stroke="currentColor"
+            stroke-width="1.8"
+          />
+          <rect
+            x="4"
+            y="13"
+            width="7"
+            height="6"
+            rx="2"
+            stroke="currentColor"
+            stroke-width="1.8"
+          />
+          <rect
+            x="13"
+            y="13"
+            width="7"
+            height="6"
+            rx="2"
+            fill="currentColor"
+            opacity="0.92"
+          />
         </svg>
       `;
     }
@@ -757,7 +809,10 @@ export class DsAnnotationInput extends LitElement {
           stroke="currentColor"
           stroke-width="1.9"
         />
-        <path d="M14.2 14.2l-1.45 4.35-3.3-9.1 9.1 3.3-4.35 1.45z" fill="currentColor" />
+        <path
+          d="M14.2 14.2l-1.45 4.35-3.3-9.1 9.1 3.3-4.35 1.45z"
+          fill="currentColor"
+        />
       </svg>
     `;
   }
@@ -770,13 +825,15 @@ export class DsAnnotationInput extends LitElement {
       relayConnected,
       mode,
       pickerMode,
+      commentEntryMode,
       undoStack,
     } = this.storeController.state;
     const activeChannel =
       this.storeController.state.dispatchSession.overrides.channel ??
       this.storeController.state.dispatchProjectDefaults.channel;
     const hasElement = !!selectedElement;
-    const hasSelection = hasElement || selectedElements.length > 0 || !!selectedRegion;
+    const hasSelection =
+      hasElement || selectedElements.length > 0 || !!selectedRegion;
     const isCapturing = mode === 'capturing';
     const hasInput = !!this.inputValue.trim();
 
@@ -795,12 +852,12 @@ export class DsAnnotationInput extends LitElement {
             ? 'Elemente im Canvas markieren ...'
             : 'Element im Canvas markieren ...'
         : !hasSelection
-        ? pickerMode === 'region'
-          ? 'Waehle zuerst einen Bereich ...'
-          : pickerMode === 'multi'
-            ? 'Waehle zuerst mehrere Elemente ...'
-            : 'Waehle zuerst ein Element ...'
-        : 'Aenderung oder Auftrag schreiben ...';
+          ? pickerMode === 'region'
+            ? 'Waehle zuerst einen Bereich ...'
+            : pickerMode === 'multi'
+              ? 'Waehle zuerst mehrere Elemente ...'
+              : 'Waehle zuerst ein Element ...'
+          : 'Aenderung oder Auftrag schreiben ...';
     const composerState = this.getComposerState(
       relayConnected,
       hasSelection,
@@ -871,7 +928,11 @@ export class DsAnnotationInput extends LitElement {
             <div class="picker-menu-wrap">
               ${this.pickerMenuOpen
                 ? html`
-                    <div class="menu-panel picker-menu" role="menu" aria-label="Picker-Modus waehlen">
+                    <div
+                      class="menu-panel picker-menu"
+                      role="menu"
+                      aria-label="Picker-Modus waehlen"
+                    >
                       <div class="menu-heading">Picker-Modus</div>
                       ${[
                         ['element', 'Element', 'Ein Ziel mit Quellkontext'],
@@ -880,8 +941,11 @@ export class DsAnnotationInput extends LitElement {
                       ].map(
                         ([value, label, note]) => html`
                           <button
-                            class="menu-item ${pickerMode === value ? 'active' : ''}"
-                            @click=${() => this.setPickerMode(value as PickerMode)}
+                            class="menu-item ${pickerMode === value
+                              ? 'active'
+                              : ''}"
+                            @click=${() =>
+                              this.setPickerMode(value as PickerMode)}
                             role="menuitemradio"
                             aria-checked=${pickerMode === value}
                           >
@@ -910,11 +974,65 @@ export class DsAnnotationInput extends LitElement {
                           </button>
                         `,
                       )}
+                      <div class="fallback-group">
+                        <div class="menu-heading">Kommentar nach Auswahl</div>
+                        ${[
+                          [
+                            'workspace',
+                            'Im Arbeitsbereich',
+                            'Rechts unten schreiben',
+                          ],
+                          [
+                            'inline',
+                            'Direkt am Element',
+                            'Am Klickpunkt schreiben',
+                          ],
+                        ].map(
+                          ([value, label, note]) => html`
+                            <button
+                              class="menu-item ${commentEntryMode === value
+                                ? 'active'
+                                : ''}"
+                              @click=${() =>
+                                this.setCommentEntryMode(
+                                  value as CommentEntryMode,
+                                )}
+                              role="menuitemradio"
+                              aria-checked=${commentEntryMode === value}
+                            >
+                              <span class="menu-item-copy">
+                                <span class="menu-item-title">${label}</span>
+                                <span class="menu-item-note">${note}</span>
+                              </span>
+                              ${commentEntryMode === value
+                                ? html`
+                                    <svg
+                                      class="menu-check"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      aria-hidden="true"
+                                    >
+                                      <path
+                                        d="m5 12 4.5 4.5L19 7"
+                                        stroke="currentColor"
+                                        stroke-width="2.2"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                      />
+                                    </svg>
+                                  `
+                                : null}
+                            </button>
+                          `,
+                        )}
+                      </div>
                     </div>
                   `
                 : null}
               <button
-                class="action-btn picker-mode-btn ${this.pickerMenuOpen ? 'active' : ''}"
+                class="action-btn picker-mode-btn ${this.pickerMenuOpen
+                  ? 'active'
+                  : ''}"
                 @click=${this.togglePickerMenu}
                 title=${`Picker-Modus: ${
                   pickerMode === 'region'
@@ -932,7 +1050,11 @@ export class DsAnnotationInput extends LitElement {
             <div class="menu-wrap">
               ${this.channelMenuOpen
                 ? html`
-                    <div class="menu-panel" role="menu" aria-label="Weitergabe waehlen">
+                    <div
+                      class="menu-panel"
+                      role="menu"
+                      aria-label="Weitergabe waehlen"
+                    >
                       <div class="menu-heading">Weitergabe</div>
                       ${[
                         [
@@ -940,12 +1062,19 @@ export class DsAnnotationInput extends LitElement {
                           'Aktueller Agent',
                           'Nutzt den Agent, der diese Session gestartet hat',
                         ],
-                        ['queue_only', 'Nur sammeln', 'Erst sammeln, spaeter versenden'],
+                        [
+                          'queue_only',
+                          'Nur sammeln',
+                          'Erst sammeln, spaeter versenden',
+                        ],
                       ].map(
                         ([value, label, note]) => html`
                           <button
-                            class="menu-item ${activeChannel === value ? 'active' : ''}"
-                            @click=${() => this.setChannel(value as DispatchChannel)}
+                            class="menu-item ${activeChannel === value
+                              ? 'active'
+                              : ''}"
+                            @click=${() =>
+                              this.setChannel(value as DispatchChannel)}
                             role="menuitemradio"
                             aria-checked=${activeChannel === value}
                           >
@@ -977,12 +1106,18 @@ export class DsAnnotationInput extends LitElement {
                       <details class="fallback-group">
                         <summary class="fallback-summary">
                           <span>Fallbacks</span>
-                          ${activeChannel === 'codex' || activeChannel === 'claude'
+                          ${activeChannel === 'codex' ||
+                          activeChannel === 'claude'
                             ? html`<span class="fallback-summary-meta"
                                 >${flowLabel} aktiv</span
                               >`
                             : null}
-                          <svg class="fallback-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                          <svg
+                            class="fallback-chevron"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            aria-hidden="true"
+                          >
                             <path
                               d="M7 10l5 5 5-5"
                               stroke="currentColor"
@@ -999,8 +1134,11 @@ export class DsAnnotationInput extends LitElement {
                           ].map(
                             ([value, label, note]) => html`
                               <button
-                                class="menu-item ${activeChannel === value ? 'active' : ''}"
-                                @click=${() => this.setChannel(value as DispatchChannel)}
+                                class="menu-item ${activeChannel === value
+                                  ? 'active'
+                                  : ''}"
+                                @click=${() =>
+                                  this.setChannel(value as DispatchChannel)}
                                 role="menuitemradio"
                                 aria-checked=${activeChannel === value}
                               >
@@ -1036,7 +1174,9 @@ export class DsAnnotationInput extends LitElement {
                 : null}
 
               <button
-                class="action-btn menu-btn ${this.channelMenuOpen ? 'active' : ''}"
+                class="action-btn menu-btn ${this.channelMenuOpen
+                  ? 'active'
+                  : ''}"
                 @click=${this.toggleChannelMenu}
                 title=${`Weitergabe: ${flowLabel}`}
                 aria-label="Weitergabe waehlen"
@@ -1106,16 +1246,16 @@ export class DsAnnotationInput extends LitElement {
               >
                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <path
-                    d="M9 7H4v5"
+                    d="M9 14 4 9l5-5"
                     stroke="currentColor"
-                    stroke-width="1.9"
+                    stroke-width="2.1"
                     stroke-linecap="round"
                     stroke-linejoin="round"
                   />
                   <path
-                    d="M5 11a7 7 0 1 0 2.05-4.95L4 9"
+                    d="M4 9h10.5a5.5 5.5 0 1 1 0 11H11"
                     stroke="currentColor"
-                    stroke-width="1.9"
+                    stroke-width="2.1"
                     stroke-linecap="round"
                     stroke-linejoin="round"
                   />

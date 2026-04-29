@@ -12,6 +12,7 @@ import { themeStyles, utilityStyles } from '../styles/theme.js';
 import { OverlayStore } from '../core/overlay-store.js';
 import { RelayService } from '../services/relay-service.js';
 import { getAnnotationAgentSummary } from '../core/agent-summary.js';
+import { getAnnotationDispatchView } from '../core/dispatch-config.js';
 
 // Import shared context panel component
 import './ds-context-panel.js';
@@ -25,6 +26,12 @@ import './ds-context-panel.js';
 export class DsAnnotationItem extends LitElement {
   @property({ type: Object })
   annotation: Annotation | null = null;
+
+  @property({ type: Array })
+  releasedAnnotationIds: string[] = [];
+
+  @property({ type: Array })
+  awaitingConfirmationIds: string[] = [];
 
   @state()
   private expanded = false;
@@ -68,6 +75,7 @@ export class DsAnnotationItem extends LitElement {
           background var(--ds-transition-fast),
           border-color var(--ds-transition-fast),
           transform var(--ds-transition-fast);
+        min-width: 0;
       }
 
       .collapsed-row:hover {
@@ -150,6 +158,7 @@ export class DsAnnotationItem extends LitElement {
         align-items: center;
         gap: var(--ds-space-xs);
         flex-shrink: 0;
+        min-width: 0;
       }
 
       .copy-btn {
@@ -195,6 +204,15 @@ export class DsAnnotationItem extends LitElement {
         color: var(--ds-text-secondary);
         flex-shrink: 0;
         font-weight: var(--ds-font-weight-medium);
+        max-width: 104px;
+        min-width: 0;
+        white-space: nowrap;
+      }
+
+      .status-label-text {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       .status[data-status='queued'] {
@@ -202,6 +220,9 @@ export class DsAnnotationItem extends LitElement {
         border-color: var(--ds-status-ready-border);
       }
 
+      .status[data-status='awaiting_confirmation'],
+      .status[data-status='dispatching'],
+      .status[data-status='claimed'],
       .status[data-status='processing'] {
         background: var(--ds-status-running-surface);
         border-color: var(--ds-status-running-border);
@@ -234,6 +255,9 @@ export class DsAnnotationItem extends LitElement {
       .status-dot.queued {
         background: var(--ds-text-tertiary);
       }
+      .status-dot.awaiting_confirmation,
+      .status-dot.dispatching,
+      .status-dot.claimed,
       .status-dot.processing {
         background: var(--ds-warning);
       }
@@ -493,38 +517,15 @@ export class DsAnnotationItem extends LitElement {
     return date.toLocaleDateString();
   }
 
-  private getStatusLabel(status: string): string {
-    switch (status) {
-      case 'queued':
-        return 'Wartet auf Versand';
-      case 'processing':
-        return 'In Bearbeitung';
-      case 'processed':
-        return 'Uebergeben';
-      case 'failed':
-        return 'Fehlgeschlagen';
-      case 'archived':
-        return 'Archiviert';
-      default:
-        return status;
+  private getDispatchView() {
+    if (!this.annotation) {
+      return null;
     }
-  }
 
-  private getStatusNote(status: string): string {
-    switch (status) {
-      case 'queued':
-        return 'PinFlow wartet auf den naechsten Versand fuer diese Aenderung.';
-      case 'processing':
-        return 'PinFlow arbeitet gerade an dieser Aenderung.';
-      case 'processed':
-        return 'Diese Aenderung wurde bereits an den Flow uebergeben.';
-      case 'failed':
-        return 'Diese Aenderung braucht Nacharbeit oder einen neuen Versuch.';
-      case 'archived':
-        return 'Diese Aenderung liegt nur noch im Verlauf.';
-      default:
-        return '';
-    }
+    return getAnnotationDispatchView(this.annotation, {
+      releasedAnnotationIds: this.releasedAnnotationIds,
+      awaitingConfirmationIds: this.awaitingConfirmationIds,
+    });
   }
 
   private getFileName(filePath: string): string {
@@ -719,11 +720,16 @@ export class DsAnnotationItem extends LitElement {
     `;
   }
 
-  private renderStatus(status: string) {
+  private renderStatus() {
+    const view = this.getDispatchView();
+    if (!view) {
+      return nothing;
+    }
+
     return html`
-      <div class="status" data-status=${status}>
-        <span class="status-dot ${status}"></span>
-        <span>${this.getStatusLabel(status)}</span>
+      <div class="status" data-status=${view.stage}>
+        <span class="status-dot ${view.stage}"></span>
+        <span class="status-label-text">${view.statusLabel}</span>
       </div>
     `;
   }
@@ -758,7 +764,10 @@ export class DsAnnotationItem extends LitElement {
   private renderAgentSummary() {
     if (!this.annotation) return nothing;
 
-    const summary = getAnnotationAgentSummary(this.annotation);
+    const summary = getAnnotationAgentSummary(this.annotation, {
+      releasedAnnotationIds: this.releasedAnnotationIds,
+      awaitingConfirmationIds: this.awaitingConfirmationIds,
+    });
 
     return html`
       <div class="agent-summary">
@@ -930,7 +939,8 @@ export class DsAnnotationItem extends LitElement {
     }
 
     const { metadata, interaction, context } = this.annotation;
-    const { timestamp, status } = metadata;
+    const { timestamp } = metadata;
+    const dispatchView = this.getDispatchView();
     const content = context.userMessage ?? '';
     const tagName = interaction.selectedElement?.tagName?.toLowerCase() ?? null;
 
@@ -957,7 +967,7 @@ export class DsAnnotationItem extends LitElement {
     const sourceTooltip = manifestEntry
       ? `${manifestEntry.file}:${manifestEntry.start.line}`
       : null;
-    const statusNote = this.getStatusNote(status);
+    const statusNote = dispatchView?.statusDetail;
 
     // Collapsed: component info + truncated text preview
     if (!this.expanded) {
@@ -976,7 +986,7 @@ export class DsAnnotationItem extends LitElement {
               : nothing}
           </div>
           <div class="header-actions">
-            ${this.renderCopyButton()} ${this.renderStatus(status)}
+            ${this.renderCopyButton()} ${this.renderStatus()}
           </div>
         </div>
       `;
@@ -994,7 +1004,7 @@ export class DsAnnotationItem extends LitElement {
               : html`<span class="tag-name">${displayTag}</span>`}
           </div>
           <div class="header-actions">
-            ${this.renderCopyButton()} ${this.renderStatus(status)}
+            ${this.renderCopyButton()} ${this.renderStatus()}
           </div>
         </div>
 

@@ -69,6 +69,11 @@ export class StatusRoute implements RelayRoute {
       const annotationCounts = await this.annotationService.getCountByStatus();
       const clientCount = this.options.wsServer?.getClientCount() ?? 0;
       const sessions = this.options.wsServer?.getSessions() ?? [];
+      const runner = this.options.runnerSessionService?.getSnapshot() ?? {
+        connected: false,
+        activeCount: 0,
+        sessions: [],
+      };
 
       return reply.status(HTTP_STATUS.OK).send({
         relay: {
@@ -83,6 +88,7 @@ export class StatusRoute implements RelayRoute {
           clientCount,
           sessions,
         },
+        runner,
       });
     } catch (error: unknown) {
       if (error instanceof PinFlowError) {

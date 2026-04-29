@@ -9,6 +9,10 @@ import * as clack from '@clack/prompts';
 import type { AgentConfig, InitOptions } from './types.js';
 import { AGENTS } from './types.js';
 
+export interface AgentStepResult {
+  readonly runnerProvider?: 'codex' | 'claude';
+}
+
 /**
  * Check if a CLI binary exists on the system PATH.
  */
@@ -45,11 +49,27 @@ function showAgentScopeNote(): void {
   );
 }
 
+function showRunnerNote(agent: AgentConfig): void {
+  if (agent.runnerProvider) {
+    clack.log.message(
+      `The dev server config will start the local runner for ${agent.label}. No separate runner terminal is needed.`,
+    );
+    return;
+  }
+
+  clack.log.message(
+    `For true local autostart with ${agent.label}, use a custom runner command:\n  pinflow runner --provider custom --command <agent-command>`,
+  );
+}
+
 /**
  * Run the agent selection and installation step.
  */
-export async function runAgentStep(options: InitOptions): Promise<void> {
+export async function runAgentStep(
+  options: InitOptions,
+): Promise<AgentStepResult> {
   let agentIds = options.agent ? [options.agent] : undefined;
+  let runnerProvider: AgentStepResult['runnerProvider'];
 
   if (!agentIds) {
     const selected = await clack.multiselect({
@@ -83,10 +103,16 @@ export async function runAgentStep(options: InitOptions): Promise<void> {
         clack.log.info(agent.label);
         process.stdout.write(agent.manualInstructions + '\n\n');
       }
+      showRunnerNote(agent);
+      runnerProvider ??= agent.runnerProvider;
       continue;
     }
 
-    if (!agent.commands?.length) continue;
+    if (!agent.commands?.length) {
+      showRunnerNote(agent);
+      runnerProvider ??= agent.runnerProvider;
+      continue;
+    }
 
     // Command-based install
     const binary = getAgentBinary(agent);
@@ -96,6 +122,8 @@ export async function runAgentStep(options: InitOptions): Promise<void> {
       for (const cmd of agent.commands) {
         clack.log.message(`  ${cmd}`);
       }
+      showRunnerNote(agent);
+      runnerProvider ??= agent.runnerProvider;
       continue;
     }
 
@@ -107,6 +135,8 @@ export async function runAgentStep(options: InitOptions): Promise<void> {
       process.stdout.write(
         agent.commands.map((c) => `  ${c}`).join('\n') + '\n\n',
       );
+      showRunnerNote(agent);
+      runnerProvider ??= agent.runnerProvider;
       continue;
     }
 
@@ -126,5 +156,10 @@ export async function runAgentStep(options: InitOptions): Promise<void> {
     if (allCommandsSucceeded) {
       clack.log.success(`${agent.label} plugin installed.`);
     }
+
+    showRunnerNote(agent);
+    runnerProvider ??= agent.runnerProvider;
   }
+
+  return { runnerProvider };
 }

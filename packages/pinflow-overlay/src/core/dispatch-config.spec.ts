@@ -4,6 +4,7 @@ import {
   DEFAULT_DISPATCH_PROJECT_DEFAULTS,
   DEFAULT_DISPATCH_SESSION_STATE,
   analyzeDispatchQueue,
+  getAnnotationDispatchView,
   mergeDispatchConfig,
   normalizeProjectDefaults,
   normalizeSessionOverrides,
@@ -74,6 +75,7 @@ describe('dispatch-config', () => {
     const annotations = [
       { metadata: { status: 'queued' } },
       { metadata: { status: 'queued' } },
+      { metadata: { status: 'claimed' } },
       { metadata: { status: 'processing' } },
       { metadata: { status: 'processed' } },
       { metadata: { status: 'failed' } },
@@ -82,7 +84,7 @@ describe('dispatch-config', () => {
 
     expect(summarizeQueue(annotations)).toEqual({
       waiting: 2,
-      active: 1,
+      active: 2,
       completed: 1,
       failed: 1,
       archived: 1,
@@ -94,6 +96,7 @@ describe('dispatch-config', () => {
       { metadata: { id: 'ann-1', status: 'queued' } },
       { metadata: { id: 'ann-2', status: 'queued' } },
       { metadata: { id: 'ann-3', status: 'processing' } },
+      { metadata: { id: 'ann-5', status: 'claimed' } },
       { metadata: { id: 'ann-4', status: 'processed' } },
     ] as Annotation[];
 
@@ -106,10 +109,105 @@ describe('dispatch-config', () => {
     ).toEqual({
       queuedIds: ['ann-1', 'ann-2'],
       unreleasedWaitingIds: [],
-      inFlightIds: ['ann-3', 'ann-1'],
+      inFlightIds: ['ann-3', 'ann-5', 'ann-1'],
       awaitingConfirmationIds: ['ann-2'],
       releasableIds: [],
-      capacityRemaining: 1,
+      capacityRemaining: 0,
+    });
+  });
+
+  it('keeps server-released queued work in flight until an agent claims it', () => {
+    const annotations = [
+      {
+        metadata: { id: 'ann-1', status: 'queued' },
+        dispatch: { assignedAt: '2026-04-29T10:00:00.000Z' },
+      },
+      { metadata: { id: 'ann-2', status: 'queued' } },
+    ] as Annotation[];
+
+    expect(
+      analyzeDispatchQueue(annotations, {
+        releasedAnnotationIds: [],
+        awaitingConfirmationIds: [],
+        concurrency: 1,
+      }),
+    ).toEqual({
+      queuedIds: ['ann-1', 'ann-2'],
+      unreleasedWaitingIds: ['ann-2'],
+      inFlightIds: ['ann-1'],
+      awaitingConfirmationIds: [],
+      releasableIds: [],
+      capacityRemaining: 0,
+    });
+  });
+
+  it('derives provider-neutral queue item stages from dispatch tracking', () => {
+    const queued = {
+      metadata: { id: 'ann-1', status: 'queued' },
+    } as Annotation;
+
+    expect(
+      getAnnotationDispatchView(queued, {
+        releasedAnnotationIds: [],
+        awaitingConfirmationIds: [],
+      }),
+    ).toMatchObject({
+      stage: 'waiting',
+      statusLabel: 'In Warteliste',
+      nextAction: 'Warten bis die Versandregel greift oder manuell senden',
+    });
+
+    expect(
+      getAnnotationDispatchView(queued, {
+        releasedAnnotationIds: [],
+        awaitingConfirmationIds: ['ann-1'],
+      }),
+    ).toMatchObject({
+      stage: 'awaiting_confirmation',
+      statusLabel: 'Wartet auf Freigabe',
+      nextAction: 'Freigeben oder weiter sammeln',
+    });
+
+    expect(
+      getAnnotationDispatchView(queued, {
+        releasedAnnotationIds: ['ann-1'],
+        awaitingConfirmationIds: [],
+      }),
+    ).toMatchObject({
+      stage: 'dispatching',
+      statusLabel: 'Freigegeben',
+      nextAction: 'Warten bis ein Agent oder Runner uebernimmt',
+    });
+
+    expect(
+      getAnnotationDispatchView(
+        {
+          metadata: { id: 'ann-1', status: 'queued' },
+          dispatch: { assignedAt: '2026-04-29T10:00:00.000Z' },
+        } as Annotation,
+        {
+          releasedAnnotationIds: [],
+          awaitingConfirmationIds: [],
+        },
+      ),
+    ).toMatchObject({
+      stage: 'dispatching',
+      statusLabel: 'Freigegeben',
+      nextAction: 'Warten bis ein Agent oder Runner uebernimmt',
+    });
+
+    expect(
+      getAnnotationDispatchView(
+        { metadata: { id: 'ann-2', status: 'claimed' } } as Annotation,
+        {
+          releasedAnnotationIds: [],
+          awaitingConfirmationIds: [],
+        },
+      ),
+    ).toMatchObject({
+      stage: 'claimed',
+      statusLabel: 'Uebernommen',
+      nextAction: 'Warten, Agent hat uebernommen',
     });
   });
 });

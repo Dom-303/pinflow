@@ -7,6 +7,7 @@
  *   status  - Check relay status
  *   doctor  - Diagnose setup and relay health
  *   mcp     - Start MCP adapter for agent integration
+ *   runner  - Run local agent autostart worker
  */
 import { Command } from 'commander';
 import { RELAY_VERSION } from '../version.js';
@@ -16,6 +17,7 @@ import { StopCommand } from './commands/stop.command.js';
 import { StatusCommand } from './commands/status.command.js';
 import { DoctorCommand } from './commands/doctor.command.js';
 import { McpCommand } from './commands/mcp.command.js';
+import { RunnerCommand } from './commands/runner.command.js';
 
 const program = new Command();
 
@@ -50,6 +52,11 @@ program.addCommand(DoctorCommand);
  * mcp command - Start MCP adapter for agent integration
  */
 program.addCommand(McpCommand);
+
+/**
+ * runner command - Start local autostart worker
+ */
+program.addCommand(RunnerCommand);
 
 /**
  * init command - Initialize PinFlow for a coding agent

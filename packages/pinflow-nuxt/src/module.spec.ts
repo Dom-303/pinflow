@@ -30,12 +30,19 @@ const {
   mockPinFlowVitePlugin,
   MockPinFlowWebpackPlugin,
   mockEnsureRunning,
+  mockRunnerEnsureRunning,
   MockRelayControl,
+  MockRunnerControl,
   captured,
 } = vi.hoisted(() => {
   const mockEnsureRunning = vi.fn().mockResolvedValue({
     host: '127.0.0.1',
     port: 4400,
+  });
+  const mockRunnerEnsureRunning = vi.fn().mockResolvedValue({
+    running: true,
+    wasStarted: true,
+    provider: 'codex',
   });
   return {
     mockAddPlugin: vi.fn(),
@@ -49,10 +56,16 @@ const {
     })),
     MockPinFlowWebpackPlugin: vi.fn(),
     mockEnsureRunning,
+    mockRunnerEnsureRunning,
     MockRelayControl: vi.fn(function (this: {
       ensureRunning: typeof mockEnsureRunning;
     }) {
       this.ensureRunning = mockEnsureRunning;
+    }),
+    MockRunnerControl: vi.fn(function (this: {
+      ensureRunning: typeof mockRunnerEnsureRunning;
+    }) {
+      this.ensureRunning = mockRunnerEnsureRunning;
     }),
     captured: {
       moduleDefinition: undefined as CapturedModuleDefinition | undefined,
@@ -83,6 +96,7 @@ vi.mock('@pinflow/transform/plugins/webpack', () => ({
 
 vi.mock('@pinflow/relay', () => ({
   RelayControl: MockRelayControl,
+  RunnerControl: MockRunnerControl,
 }));
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -125,6 +139,11 @@ describe('pinflowModule', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockEnsureRunning.mockResolvedValue({ host: '127.0.0.1', port: 4400 });
+    mockRunnerEnsureRunning.mockResolvedValue({
+      running: true,
+      wasStarted: true,
+      provider: 'codex',
+    });
   });
 
   afterEach(() => {
@@ -270,6 +289,29 @@ describe('pinflowModule', () => {
         await callSetup({ debug: false, relay: {} }, nuxt);
 
         expect(mockAddPlugin).toHaveBeenCalled();
+      });
+
+      it('should auto-start the configured runner after relay startup', async () => {
+        const nuxt = createMockNuxt();
+
+        await callSetup(
+          {
+            debug: false,
+            relay: {},
+            runner: { autoStart: true, provider: 'codex' },
+          },
+          nuxt,
+        );
+
+        expect(MockRunnerControl).toHaveBeenCalledWith('/test/project');
+        expect(mockRunnerEnsureRunning).toHaveBeenCalledWith({
+          relayHost: '127.0.0.1',
+          relayPort: 4400,
+          provider: 'codex',
+          command: undefined,
+          args: undefined,
+          intervalMs: undefined,
+        });
       });
     });
 
@@ -517,6 +559,7 @@ describe('pinflowModule', () => {
         expect(MockPinFlowWebpackPlugin).toHaveBeenCalledWith({
           debug: true,
           relay: { port: 5000, autoStart: false },
+          runner: { autoStart: false },
           overlay: true,
         });
         expect(config.plugins.length).toBe(1);

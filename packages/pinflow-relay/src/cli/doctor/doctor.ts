@@ -27,6 +27,7 @@ export interface DoctorCheck {
     | 'manifest'
     | 'relay_health'
     | 'browser_connection'
+    | 'runner_connection'
     | 'mcp_config';
   readonly label: string;
   readonly status: DoctorCheckStatus;
@@ -89,6 +90,9 @@ export async function runDoctor(
   checks.push(relayCheck.check);
   checks.push(
     await checkBrowserConnection(relayCheck.status, deps.createRelayHttpClient),
+  );
+  checks.push(
+    await checkRunnerConnection(relayCheck.status, deps.createRelayHttpClient),
   );
   checks.push(checkMcpConfig(cwd, appRoot, homeDir));
 
@@ -435,6 +439,74 @@ async function checkBrowserConnection(
   }
 }
 
+async function checkRunnerConnection(
+  relayStatus: RelayStatus | undefined,
+  createRelayHttpClient: DoctorDependencies['createRelayHttpClient'],
+): Promise<DoctorCheck> {
+  if (
+    !relayStatus?.running ||
+    !relayStatus.lockData?.host ||
+    !relayStatus.lockData.port
+  ) {
+    return blockedCheck(
+      'runner_connection',
+      'Runner connection',
+      'relay is not running',
+    );
+  }
+
+  const client =
+    createRelayHttpClient?.(
+      relayStatus.lockData.host,
+      relayStatus.lockData.port,
+    ) ??
+    new RelayHttpClient(relayStatus.lockData.host, relayStatus.lockData.port);
+
+  try {
+    const status = await client.getStatus();
+    const runner = status.runner;
+
+    if (!runner) {
+      return {
+        id: 'runner_connection',
+        label: 'Runner connection',
+        status: 'warn',
+        summary: 'relay status does not expose runner connection data',
+        repairHint:
+          'Restart the relay so the latest PinFlow status endpoint is active.',
+      };
+    }
+
+    if (!runner.connected) {
+      return {
+        id: 'runner_connection',
+        label: 'Runner connection',
+        status: 'warn',
+        summary: 'no local autostart runner is connected',
+        repairHint:
+          'Start your app dev server with runner.autoStart enabled, or run pinflow runner manually for your configured provider.',
+      };
+    }
+
+    return {
+      id: 'runner_connection',
+      label: 'Runner connection',
+      status: 'pass',
+      summary: `${runner.activeCount} runner(s) connected: ${runner.sessions[0]?.label ?? 'unknown runner'}`,
+      details: runner.sessions.map(formatRunnerSession),
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return {
+      id: 'runner_connection',
+      label: 'Runner connection',
+      status: 'warn',
+      summary: `could not read runner status: ${message}`,
+      repairHint: 'Check pinflow status, then retry pinflow doctor.',
+    };
+  }
+}
+
 function checkMcpConfig(
   cwd: string,
   appRoot: string | undefined,
@@ -530,6 +602,19 @@ function formatBrowserSession(session: {
   const location = session.route ?? session.pageUrl ?? 'unknown route';
   const title = session.pageTitle ? ` (${session.pageTitle})` : '';
   return `${session.sessionId}: ${location}${title}`;
+}
+
+function formatRunnerSession(session: {
+  readonly runnerId: string;
+  readonly provider: string;
+  readonly label: string;
+  readonly status: string;
+  readonly currentAnnotationId?: string;
+}): string {
+  const current = session.currentAnnotationId
+    ? ` (${session.currentAnnotationId})`
+    : '';
+  return `${session.label}: ${session.provider}, ${session.status}${current}`;
 }
 
 function blockedCheck(

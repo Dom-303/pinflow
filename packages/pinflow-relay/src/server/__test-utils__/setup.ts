@@ -25,6 +25,7 @@ import {
 import { RELAY_VERSION } from '../../version.js';
 import { ManifestReader } from '@pinflow/manifest';
 import { AnnotationService } from '../services/annotation-service.js';
+import { RunnerSessionService } from '../services/runner-session-service.js';
 import { FileAnnotationStorage } from '../services/storage/index.js';
 import {
   registerHealthHandler,
@@ -34,6 +35,8 @@ import {
 } from '../handlers/index.js';
 import type { FastifyError } from 'fastify';
 import type { WSServer } from '../ws-server.js';
+import { RunnerHeartbeatRoute } from '../routes/index.js';
+import { registerRoute } from '../routes/route.interface.js';
 
 /**
  * A running test server with real services and a temp workspace.
@@ -78,6 +81,7 @@ export async function createTestServer(
     path.join(tempDir, PATHS.ANNOTATIONS_DIR),
   );
   const annotationService = new AnnotationService(annotationStorage);
+  const runnerSessionService = new RunnerSessionService();
 
   // Initialize services (creates status dirs, loads manifest)
   await annotationService.initialize();
@@ -102,7 +106,9 @@ export async function createTestServer(
     port,
     startTime,
     wsServer: options.wsServer,
+    runnerSessionService,
   });
+  registerRoute(RunnerHeartbeatRoute, { app, runnerSessionService });
   registerManifestHandlers(app, manifestReader);
   registerAnnotationHandlers(app, annotationService, manifestReader);
 

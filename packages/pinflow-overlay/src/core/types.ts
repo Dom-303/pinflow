@@ -13,6 +13,7 @@ import type {
   DispatchSessionState,
   DispatchChannel,
 } from './dispatch-config.js';
+import type { RunnerSnapshot } from '@pinflow/relay/client';
 
 /**
  * Overlay display mode
@@ -26,9 +27,20 @@ export type OverlayTheme = 'light' | 'dark';
 
 export type PickerMode = 'element' | 'region' | 'multi';
 
+export type CommentEntryMode = 'workspace' | 'inline';
+
 export interface RegionCapture {
   rect: BoundingRect;
   elements: HTMLElement[];
+}
+
+export interface InlineCommentDraft {
+  position: {
+    x: number;
+    y: number;
+  };
+  anchorRect: BoundingRect;
+  pickerMode: PickerMode;
 }
 
 export type DispatchBatchStatus =
@@ -101,9 +113,12 @@ export interface OverlayState {
   relayConnected: boolean;
   relayPort: number | null;
   relayHost: string | null;
+  runnerStatus: RunnerSnapshot;
 
   // Capture State
   pickerMode: PickerMode;
+  commentEntryMode: CommentEntryMode;
+  inlineCommentDraft: InlineCommentDraft | null;
   selectedElement: HTMLElement | null;
   selectedElements: HTMLElement[];
   selectedRegion: RegionCapture | null;

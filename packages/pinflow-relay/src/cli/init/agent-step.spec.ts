@@ -142,6 +142,21 @@ describe('runAgentStep', () => {
         expect.stringContaining('localhost app'),
       );
     });
+
+    it('should return the Codex runner provider after configuring Codex', async () => {
+      // Arrange
+      const options: InitOptions = { ...baseOptions, agent: 'codex' };
+      vi.mocked(execFileSync).mockReturnValue(Buffer.from(''));
+
+      // Act
+      const result = await runAgentStep(options);
+
+      // Assert
+      expect(result.runnerProvider).toBe('codex');
+      expect(clack.log.message).toHaveBeenCalledWith(
+        expect.stringContaining('dev server config will start the local runner'),
+      );
+    });
   });
 
   describe('manual agents', () => {

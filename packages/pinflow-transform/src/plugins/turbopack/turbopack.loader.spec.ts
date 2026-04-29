@@ -116,9 +116,20 @@ const mockRelayControl = {
   ensureRunning: vi.fn().mockResolvedValue({ host: '127.0.0.1', port: 4400 }),
 };
 
+const mockRunnerControl = {
+  ensureRunning: vi.fn().mockResolvedValue({
+    running: true,
+    wasStarted: true,
+    provider: 'codex',
+  }),
+};
+
 vi.mock('@pinflow/relay', () => ({
   RelayControl: class MockRelayControl {
     ensureRunning = mockRelayControl.ensureRunning;
+  },
+  RunnerControl: class MockRunnerControl {
+    ensureRunning = mockRunnerControl.ensureRunning;
   },
 }));
 
@@ -221,6 +232,11 @@ describe('Turbopack Loader', () => {
       host: '127.0.0.1',
       port: 4400,
     });
+    mockRunnerControl.ensureRunning.mockResolvedValue({
+      running: true,
+      wasStarted: true,
+      provider: 'codex',
+    });
 
     // Re-import to reset module-level state
     vi.resetModules();
@@ -305,6 +321,33 @@ describe('Turbopack Loader', () => {
         port: 5000,
         host: undefined,
         bodyLimit: 5242880,
+      });
+    });
+
+    it('should auto-start the configured runner after relay startup', async () => {
+      // Arrange
+      const source = 'export function App() { return <div>Hello</div>; }';
+      const context = createLoaderContext('/test/App.tsx', {
+        runner: { autoStart: true, provider: 'codex' },
+      });
+      const asyncCallback = vi.fn();
+      context.async = vi.fn(() => asyncCallback);
+      mockInjector.inject.mockReturnValue(
+        createMockInjectorResult('transformed', 1),
+      );
+
+      // Act
+      loaderModule.default.call(context, source);
+      await vi.waitFor(() => expect(asyncCallback).toHaveBeenCalled());
+
+      // Assert
+      expect(mockRunnerControl.ensureRunning).toHaveBeenCalledWith({
+        relayHost: '127.0.0.1',
+        relayPort: 4400,
+        provider: 'codex',
+        command: undefined,
+        args: undefined,
+        intervalMs: undefined,
       });
     });
 

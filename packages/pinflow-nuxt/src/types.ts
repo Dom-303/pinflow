@@ -7,6 +7,7 @@
  * @module @pinflow/nuxt/types
  */
 import type { PinFlowRuntimeOptions } from '@pinflow/runtime';
+import type { RunnerPluginOptions } from '@pinflow/transform/plugins/vite';
 import type { PinFlowVueCaptureOptions } from '@pinflow/vue/vite';
 
 export interface PinFlowNuxtOptions {
@@ -75,6 +76,13 @@ export interface PinFlowNuxtOptions {
      */
     bodyLimit?: number;
   };
+
+  /**
+   * Local runner configuration.
+   * When enabled, the Nuxt dev server starts the local PinFlow runner together
+   * with the relay so selected tasks can be handed to the configured agent.
+   */
+  runner?: RunnerPluginOptions;
 
   /**
    * Overlay UI configuration.

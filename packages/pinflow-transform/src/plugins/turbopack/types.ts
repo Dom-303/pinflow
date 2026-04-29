@@ -2,7 +2,11 @@
  * Types for the Turbopack loader
  * @module @pinflow/transform/plugins/turbopack/types
  */
-import type { RelayPluginOptions, OverlayPluginOptions } from '../types.js';
+import type {
+  RelayPluginOptions,
+  OverlayPluginOptions,
+  RunnerPluginOptions,
+} from '../types.js';
 
 /**
  * Loader options for the Turbopack self-initializing loader.
@@ -33,6 +37,12 @@ export interface TurbopackLoaderOptions {
    * the loader manages it directly.
    */
   relay?: RelayPluginOptions;
+
+  /**
+   * Local runner configuration.
+   * When enabled, the loader starts the runner after the relay is ready.
+   */
+  runner?: RunnerPluginOptions;
 
   /**
    * Overlay UI configuration.

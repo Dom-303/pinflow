@@ -38,6 +38,42 @@ export interface RelayPluginOptions {
 }
 
 /**
+ * Local runner configuration shared across bundler plugins.
+ */
+export interface RunnerPluginOptions {
+  /**
+   * Whether to auto-start the local runner when the dev server starts.
+   *
+   * @default false
+   */
+  autoStart?: boolean;
+
+  /**
+   * Runner provider preset.
+   *
+   * @default 'codex'
+   */
+  provider?: 'codex' | 'claude' | 'auto' | 'custom';
+
+  /**
+   * Custom local agent command for provider: 'custom'.
+   */
+  command?: string;
+
+  /**
+   * Custom command args. Use "{prompt}" to pass the PinFlow prompt as an arg.
+   */
+  args?: string[];
+
+  /**
+   * Runner polling interval in milliseconds.
+   *
+   * @default 2000
+   */
+  intervalMs?: number;
+}
+
+/**
  * Overlay UI configuration options shared across bundler plugins
  */
 export interface OverlayPluginOptions {

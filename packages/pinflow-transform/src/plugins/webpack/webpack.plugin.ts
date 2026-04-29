@@ -12,11 +12,12 @@ import {
   WebpackPluginOptions,
   type RelayPluginOptions,
   type OverlayPluginOptions,
+  type RunnerPluginOptions,
 } from './types.js';
 import { ManifestWriter } from '@pinflow/manifest';
 import { InjectorRegistry } from '../../core/injector.registry.js';
 import { TransformStats } from '../../core/stats.js';
-import { RelayControl } from '@pinflow/relay';
+import { RelayControl, RunnerControl } from '@pinflow/relay';
 
 /**
  * Required options after defaults are applied
@@ -25,6 +26,7 @@ interface ResolvedOptions {
   debug: boolean;
   enabled: boolean;
   relay: RelayPluginOptions;
+  runner: RunnerPluginOptions;
   overlayEnabled: boolean;
   overlayOptions: OverlayPluginOptions;
 }
@@ -47,6 +49,7 @@ export class PinFlowWebpackPlugin {
   private options: ResolvedOptions;
   private writer: ManifestWriter | undefined;
   private relayControl: RelayControl | undefined;
+  private runnerControl: RunnerControl | undefined;
 
   constructor(options: WebpackPluginOptions = {}) {
     // Disable in production by default
@@ -56,6 +59,7 @@ export class PinFlowWebpackPlugin {
       debug = false,
       enabled = !isProduction,
       relay = {},
+      runner = {},
       overlay = true,
     } = options;
 
@@ -68,6 +72,7 @@ export class PinFlowWebpackPlugin {
       debug,
       enabled,
       relay,
+      runner,
       overlayEnabled,
       overlayOptions,
     };
@@ -200,6 +205,20 @@ export class PinFlowWebpackPlugin {
         console.log(
           `[pinflow-transform][webpack-plugin] Relay running at http://${assignedHost}:${assignedPort}`,
         );
+      }
+
+      if (this.options.runner.autoStart) {
+        this.runnerControl = new RunnerControl(rootContext, {
+          debug: this.options.debug,
+        });
+        await this.runnerControl.ensureRunning({
+          relayHost: assignedHost,
+          relayPort: assignedPort,
+          provider: this.options.runner.provider ?? 'codex',
+          command: this.options.runner.command,
+          args: this.options.runner.args,
+          intervalMs: this.options.runner.intervalMs,
+        });
       }
     } catch (error) {
       // Never fail the build due to relay issues

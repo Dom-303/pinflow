@@ -20,9 +20,35 @@ pinflow status      # Check relay daemon status
 pinflow stop        # Stop relay daemon
 pinflow init        # Setup wizard (agent + framework configuration)
 pinflow mcp         # Run as MCP server via stdio
+pinflow runner      # Run local autostart worker for released tasks
 ```
 
 For use in agent MCP configuration, the standalone `pinflow-mcp` binary runs the MCP server directly over stdio without the HTTP/WebSocket relay. The init wizard can configure multiple agent clients in one run, and the choice is not exclusive. You can also run it again with another `--agent` value or add the same `pinflow` MCP server to multiple clients. The running localhost app is selected by the project dev server, browser overlay, and relay workspace, not by the agent choice.
+
+The normal autostart path is the dev server config created by `pinflow init`.
+For supported local providers it adds a runner block like this:
+
+```ts
+runner: { autoStart: true, provider: 'codex' }
+```
+
+With that config in place, starting the app dev server also starts the local
+PinFlow runner in the background.
+
+`pinflow runner` is still available as the explicit manual path. It does not
+call model APIs directly and does not need an API key from PinFlow. Instead it
+claims released tasks from the relay and starts a local agent command, for
+example the Codex CLI:
+
+```bash
+pinflow runner --provider codex
+```
+
+The default Codex preset runs `codex exec --full-auto --skip-git-repo-check -`
+and sends the PinFlow task prompt through stdin. Billing and limits therefore
+belong to the locally authenticated Codex client, not to a PinFlow API
+integration. Custom providers can be wired with `--command` and repeated
+`--arg` values.
 
 **Monorepo support:** Smart setup detects likely frontend apps, shows whether each one is already configured, partially configured, or not configured, and sets up one app per init run. Run `pinflow init --app-root <path>` to choose explicitly, or `pinflow init --manual` to use the manual flow. `pinflow.config.json` remains a single-app config with one `appRoot`.
 

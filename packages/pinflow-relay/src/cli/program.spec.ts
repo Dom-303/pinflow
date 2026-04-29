@@ -13,4 +13,10 @@ describe('relay cli program', () => {
       'doctor',
     );
   });
+
+  it('registers the runner command', () => {
+    expect(program.commands.map((command) => command.name())).toContain(
+      'runner',
+    );
+  });
 });

@@ -15,7 +15,11 @@ import {
 } from '@pinflow/core';
 import path from 'path';
 import { ManifestReader } from '@pinflow/manifest';
-import { AnnotationService, FileAnnotationStorage } from './services/index.js';
+import {
+  AnnotationService,
+  FileAnnotationStorage,
+  RunnerSessionService,
+} from './services/index.js';
 import {
   registerManifestHandlers,
   registerAnnotationHandlers,
@@ -25,7 +29,11 @@ import {
   type StatusHandlerOptions,
 } from './handlers/index.js';
 import { createWSServer, type WSServer } from './ws-server.js';
-import { AnnotationVerifyRoute, QueryBySourceRoute } from './routes/index.js';
+import {
+  AnnotationVerifyRoute,
+  QueryBySourceRoute,
+  RunnerHeartbeatRoute,
+} from './routes/index.js';
 import { registerRoute } from './routes/route.interface.js';
 import {
   serializerCompiler,
@@ -125,6 +133,7 @@ export async function createRelayServer(
     path.join(workspaceRoot, PATHS.ANNOTATIONS_DIR),
   );
   const annotationService = new AnnotationService(annotationStorage);
+  const runnerSessionService = new RunnerSessionService();
   const manifestReader = new ManifestReader(workspaceRoot);
 
   // Initialize services
@@ -132,7 +141,11 @@ export async function createRelayServer(
   manifestReader.initialize();
 
   // Register handlers — statusOptions.port is updated after listen() to reflect the bound port
-  const statusOptions: StatusHandlerOptions = { port, startTime };
+  const statusOptions: StatusHandlerOptions = {
+    port,
+    startTime,
+    runnerSessionService,
+  };
 
   // Create WebSocket server before status registration so /status can report browser clients.
   const ws = await createWSServer({
@@ -145,6 +158,7 @@ export async function createRelayServer(
   registerShutdownHandler(app);
   registerHealthHandler(app, manifestReader, annotationService);
   statusOptions.wsServer = ws;
+  registerRoute(RunnerHeartbeatRoute, { app, runnerSessionService });
   registerStatusHandler(app, manifestReader, annotationService, statusOptions);
   registerManifestHandlers(app, manifestReader);
   registerAnnotationHandlers(app, annotationService, manifestReader);

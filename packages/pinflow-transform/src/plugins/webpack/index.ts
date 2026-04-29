@@ -5,4 +5,8 @@
 export {
   PinFlowWebpackPlugin,
 } from './webpack.plugin.js';
-export type { WebpackPluginOptions, PinFlowWebpackPluginOptions } from './types.js';
+export type {
+  RunnerPluginOptions,
+  WebpackPluginOptions,
+  PinFlowWebpackPluginOptions,
+} from './types.js';

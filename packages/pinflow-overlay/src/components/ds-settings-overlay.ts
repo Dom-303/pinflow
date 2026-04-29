@@ -5,7 +5,11 @@ import type {
   DispatchSessionOverrides,
 } from '../core/dispatch-config.js';
 import { StoreController } from '../core/store-controller.js';
-import type { OverlayTheme, PickerMode } from '../core/types.js';
+import type {
+  CommentEntryMode,
+  OverlayTheme,
+  PickerMode,
+} from '../core/types.js';
 import { themeStyles, utilityStyles } from '../styles/theme.js';
 import './ds-session-settings.js';
 import './ds-workflow-panel.js';
@@ -192,7 +196,11 @@ export class DsSettingsOverlay extends LitElement {
         overflow-y: auto;
         padding: 2px 2px 0 0;
         scrollbar-width: thin;
-        scrollbar-color: color-mix(in srgb, var(--ds-text-tertiary) 34%, transparent)
+        scrollbar-color: color-mix(
+            in srgb,
+            var(--ds-text-tertiary) 34%,
+            transparent
+          )
           transparent;
       }
 
@@ -205,7 +213,11 @@ export class DsSettingsOverlay extends LitElement {
       }
 
       .sheet-body::-webkit-scrollbar-thumb {
-        background: color-mix(in srgb, var(--ds-text-tertiary) 30%, transparent);
+        background: color-mix(
+          in srgb,
+          var(--ds-text-tertiary) 30%,
+          transparent
+        );
         border-radius: 999px;
       }
 
@@ -358,7 +370,8 @@ export class DsSettingsOverlay extends LitElement {
       }
 
       button.segment-option:focus-visible {
-        outline: 2px solid color-mix(in srgb, var(--ds-brand-primary) 42%, transparent);
+        outline: 2px solid
+          color-mix(in srgb, var(--ds-brand-primary) 42%, transparent);
         outline-offset: 2px;
       }
 
@@ -517,6 +530,10 @@ export class DsSettingsOverlay extends LitElement {
     this.storeController.store.setPickerMode(pickerMode);
   }
 
+  private setCommentEntryMode(commentEntryMode: CommentEntryMode) {
+    this.storeController.store.setCommentEntryMode(commentEntryMode);
+  }
+
   private getPickerModeNote(pickerMode: PickerMode): string {
     if (pickerMode === 'region') {
       return 'Bereiche werden per Ziehen markiert und mit Koordinaten uebergeben.';
@@ -527,8 +544,15 @@ export class DsSettingsOverlay extends LitElement {
     return 'Ein Klick waehlt ein einzelnes Element mit Quellkontext.';
   }
 
+  private getCommentEntryModeNote(commentEntryMode: CommentEntryMode): string {
+    if (commentEntryMode === 'inline') {
+      return 'Nach der Auswahl direkt am Element schreiben.';
+    }
+    return 'Nach der Auswahl im rechten Arbeitsbereich schreiben.';
+  }
+
   override render() {
-    const { theme, pickerMode } = this.storeController.state;
+    const { theme, pickerMode, commentEntryMode } = this.storeController.state;
 
     return html`
       <div class="backdrop" @click=${this.handleClose}></div>
@@ -547,63 +571,72 @@ export class DsSettingsOverlay extends LitElement {
             aria-label="Einstellungen schliessen"
             title="Einstellungen schliessen"
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
               <path d="M18 6 6 18M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        <nav class="settings-nav" role="tablist" aria-label="Einstellungsbereiche">
-            <button
-              class="tab-btn ${this.activeTab === 'workspace' ? 'active' : ''}"
-              @click=${() => this.selectTab('workspace')}
-              role="tab"
-              aria-selected=${this.activeTab === 'workspace'}
-              title="Arbeitsbereich"
-            >
-              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path
-                  d="M4 7h16M4 12h10M4 17h16"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                />
-              </svg>
-            </button>
-            <button
-              class="tab-btn ${this.activeTab === 'flow' ? 'active' : ''}"
-              @click=${() => this.selectTab('flow')}
-              role="tab"
-              aria-selected=${this.activeTab === 'flow'}
-              title="Flow und Versand"
-            >
-              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path
-                  d="M5 12h5l2-5 3 10 2-5h2"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </button>
-            <button
-              class="tab-btn ${this.activeTab === 'history' ? 'active' : ''}"
-              @click=${() => this.selectTab('history')}
-              role="tab"
-              aria-selected=${this.activeTab === 'history'}
-              title="Verlauf"
-            >
-              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path
-                  d="M12 7v5l3 2m6-2a9 9 0 1 1-2.64-6.36"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </button>
+        <nav
+          class="settings-nav"
+          role="tablist"
+          aria-label="Einstellungsbereiche"
+        >
+          <button
+            class="tab-btn ${this.activeTab === 'workspace' ? 'active' : ''}"
+            @click=${() => this.selectTab('workspace')}
+            role="tab"
+            aria-selected=${this.activeTab === 'workspace'}
+            title="Arbeitsbereich"
+          >
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M4 7h16M4 12h10M4 17h16"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+              />
+            </svg>
+          </button>
+          <button
+            class="tab-btn ${this.activeTab === 'flow' ? 'active' : ''}"
+            @click=${() => this.selectTab('flow')}
+            role="tab"
+            aria-selected=${this.activeTab === 'flow'}
+            title="Flow und Versand"
+          >
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M5 12h5l2-5 3 10 2-5h2"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+          <button
+            class="tab-btn ${this.activeTab === 'history' ? 'active' : ''}"
+            @click=${() => this.selectTab('history')}
+            role="tab"
+            aria-selected=${this.activeTab === 'history'}
+            title="Verlauf"
+          >
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M12 7v5l3 2m6-2a9 9 0 1 1-2.64-6.36"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
         </nav>
 
         <div class="sheet-body scrollable">
@@ -620,8 +653,19 @@ export class DsSettingsOverlay extends LitElement {
                       ${this.getPickerModeNote(pickerMode)}
                     </span>
                   </span>
-                  <svg class="settings-card-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  <svg
+                    class="settings-card-chevron"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M7 10l5 5 5-5"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
                   </svg>
                 </summary>
                 <div class="settings-card-body">
@@ -638,9 +682,65 @@ export class DsSettingsOverlay extends LitElement {
                       ([value, label]) => html`
                         <button
                           type="button"
-                          class="segment-option ${pickerMode === value ? 'active' : ''}"
-                          @click=${() => this.setPickerMode(value as PickerMode)}
+                          class="segment-option ${pickerMode === value
+                            ? 'active'
+                            : ''}"
+                          @click=${() =>
+                            this.setPickerMode(value as PickerMode)}
                           aria-pressed=${pickerMode === value}
+                        >
+                          <strong>${label}</strong>
+                        </button>
+                      `,
+                    )}
+                  </div>
+                </div>
+              </details>
+
+              <details class="settings-card">
+                <summary class="settings-card-summary">
+                  <span class="settings-card-copy">
+                    <span class="settings-card-title"
+                      >Kommentar nach Auswahl</span
+                    >
+                    <span class="settings-card-note">
+                      ${this.getCommentEntryModeNote(commentEntryMode)}
+                    </span>
+                  </span>
+                  <svg
+                    class="settings-card-chevron"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M7 10l5 5 5-5"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </summary>
+                <div class="settings-card-body">
+                  <div
+                    class="segmented-control comment-entry-control"
+                    role="group"
+                    aria-label="Kommentar nach Auswahl"
+                  >
+                    ${[
+                      ['workspace', 'Im Arbeitsbereich'],
+                      ['inline', 'Direkt am Element'],
+                    ].map(
+                      ([value, label]) => html`
+                        <button
+                          type="button"
+                          class="segment-option ${commentEntryMode === value
+                            ? 'active'
+                            : ''}"
+                          @click=${() =>
+                            this.setCommentEntryMode(value as CommentEntryMode)}
+                          aria-pressed=${commentEntryMode === value}
                         >
                           <strong>${label}</strong>
                         </button>
@@ -658,12 +758,27 @@ export class DsSettingsOverlay extends LitElement {
                       Helle oder dunkle Arbeitsflaeche.
                     </span>
                   </span>
-                  <svg class="settings-card-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  <svg
+                    class="settings-card-chevron"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M7 10l5 5 5-5"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
                   </svg>
                 </summary>
                 <div class="settings-card-body">
-                  <div class="segmented-control theme-toggle" role="group" aria-label="Darstellung">
+                  <div
+                    class="segmented-control theme-toggle"
+                    role="group"
+                    aria-label="Darstellung"
+                  >
                     <button
                       class="theme-option ${theme === 'light' ? 'active' : ''}"
                       @click=${() => this.setTheme('light')}

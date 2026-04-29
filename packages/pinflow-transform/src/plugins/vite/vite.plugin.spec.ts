@@ -145,10 +145,23 @@ const mockRelayControl = {
   }),
 };
 
+const mockRunnerControl = {
+  ensureRunning: vi.fn().mockResolvedValue({
+    running: true,
+    wasStarted: true,
+    provider: 'codex',
+  }),
+};
+
 vi.mock('@pinflow/relay', () => ({
   RelayControl: class {
     constructor() {
       return mockRelayControl;
+    }
+  },
+  RunnerControl: class {
+    constructor() {
+      return mockRunnerControl;
     }
   },
 }));
@@ -248,6 +261,11 @@ describe('pinflow Vite plugin', () => {
       wasStarted: false,
       port: 0,
       host: '127.0.0.1',
+    });
+    mockRunnerControl.ensureRunning.mockResolvedValue({
+      running: true,
+      wasStarted: true,
+      provider: 'codex',
     });
   });
 
@@ -422,6 +440,55 @@ describe('pinflow Vite plugin', () => {
 
       // Assert
       expect(mockStatsGetInstance).toHaveBeenCalledWith('/test/workspace');
+    });
+
+    it('should auto-start the configured runner after the relay is running', async () => {
+      // Arrange
+      mockRelayControl.ensureRunning.mockResolvedValueOnce({
+        running: true,
+        wasStarted: false,
+        port: 4318,
+        host: '127.0.0.1',
+      });
+      const plugin = pinflow({
+        runner: {
+          autoStart: true,
+          provider: 'codex',
+        },
+      });
+      const config = createMockResolvedConfig({ root: '/test/workspace' });
+      callHook(plugin.configResolved, {}, config);
+
+      // Act
+      await callHook(plugin.buildStart);
+
+      // Assert
+      expect(mockRunnerControl.ensureRunning).toHaveBeenCalledWith({
+        relayHost: '127.0.0.1',
+        relayPort: 4318,
+        provider: 'codex',
+        command: undefined,
+        args: undefined,
+        intervalMs: undefined,
+      });
+    });
+
+    it('should not start the runner when runner autoStart is false', async () => {
+      // Arrange
+      const plugin = pinflow({
+        runner: {
+          autoStart: false,
+          provider: 'codex',
+        },
+      });
+      const config = createMockResolvedConfig({ root: '/test/workspace' });
+      callHook(plugin.configResolved, {}, config);
+
+      // Act
+      await callHook(plugin.buildStart);
+
+      // Assert
+      expect(mockRunnerControl.ensureRunning).not.toHaveBeenCalled();
     });
 
     it('should handle writer getInstance errors', async () => {

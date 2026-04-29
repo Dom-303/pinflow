@@ -1,5 +1,6 @@
 import type { Annotation } from '@pinflow/core';
 import type { DispatchChannel } from './dispatch-config.js';
+import { getAnnotationDispatchView } from './dispatch-config.js';
 import type { DispatchBatchStatus } from './types.js';
 
 export interface AnnotationAgentSummary {
@@ -27,13 +28,16 @@ export interface WorkflowAgentAttention {
 
 export function getAnnotationAgentSummary(
   annotation: Annotation,
+  options: {
+    releasedAnnotationIds?: string[];
+    awaitingConfirmationIds?: string[];
+  } = {},
 ): AnnotationAgentSummary {
-  const status = annotation.metadata.status;
+  const dispatchView = getAnnotationDispatchView(annotation, {
+    releasedAnnotationIds: options.releasedAnnotationIds ?? [],
+    awaitingConfirmationIds: options.awaitingConfirmationIds ?? [],
+  });
   const verification = annotation.verification;
-  const statusDetail =
-    status === 'failed' && annotation.metadata.errorDetails
-      ? `Fehler: ${annotation.metadata.errorDetails}`
-      : getStatusDetail(status);
   const verificationLabel = verification
     ? getVerificationLabel(verification.status)
     : undefined;
@@ -43,12 +47,12 @@ export function getAnnotationAgentSummary(
 
   return {
     channelLabel: getAnnotationChannelLabel(annotation),
-    statusLabel: getStatusLabel(status),
-    statusDetail,
+    statusLabel: dispatchView.statusLabel,
+    statusDetail: dispatchView.statusDetail,
     responseExcerpt: getResponseExcerpt(annotation.agentResponse?.message),
     verificationLabel,
     verificationDetail,
-    nextAction: getNextAction(annotation),
+    nextAction: dispatchView.nextAction,
   };
 }
 
@@ -78,9 +82,10 @@ export function getWorkflowAgentAttention(
   }
 
   if (input.inFlightCount > 0 || input.latestBatchStatus === 'running') {
+    const channelLabel = getChannelLabel(input.latestBatchChannel);
     return {
-      title: 'Batch laeuft',
-      copy: `1 Batch laeuft bei ${getChannelLabel(input.latestBatchChannel)}.`,
+      title: 'Lauf gestartet',
+      copy: `1 Lauf ist gestartet${channelLabel ? ` bei ${channelLabel}` : ''}.`,
     };
   }
 
@@ -101,27 +106,12 @@ function getProviderLabel(provider: string): string {
   return provider;
 }
 
-function getChannelLabel(channel: DispatchChannel | undefined): string {
+function getChannelLabel(
+  channel: DispatchChannel | undefined,
+): string | undefined {
   if (channel === 'codex') return 'Codex';
   if (channel === 'claude') return 'Claude';
-  if (channel === 'queue_only') return 'Queue';
-  return 'dem aktuellen Agent';
-}
-
-function getStatusLabel(status: string): string {
-  if (status === 'queued') return 'Wartet auf Freigabe';
-  if (status === 'claimed') return 'Von Agent uebernommen';
-  if (status === 'processing') return 'Agent arbeitet daran';
-  if (status === 'processed') return 'Antwort liegt vor';
-  if (status === 'failed') return 'Fehler';
-  if (status === 'archived') return 'Archiviert';
-  return status;
-}
-
-function getStatusDetail(status: string): string | undefined {
-  if (status === 'claimed') return 'Ein Agent hat die Aufgabe uebernommen.';
-  if (status === 'processing') return 'Der Agent arbeitet gerade daran.';
-  if (status === 'processed') return 'Die Agent-Antwort ist gespeichert.';
+  if (channel === 'queue_only') return 'der Warteliste';
   return undefined;
 }
 
@@ -130,30 +120,6 @@ function getVerificationLabel(status: string): string {
   if (status === 'uncertain') return 'Pruefung unsicher';
   if (status === 'unable') return 'Pruefung nicht moeglich';
   return status;
-}
-
-function getNextAction(annotation: Annotation): string {
-  const status = annotation.metadata.status;
-
-  if (status === 'queued') return 'Freigeben oder sammeln';
-  if (status === 'claimed') return 'Warten, Agent hat uebernommen';
-  if (status === 'processing') return 'Warten, Agent arbeitet';
-  if (status === 'failed') return 'Fehler ansehen oder erneut senden';
-  if (status === 'archived') return 'Keine Aktion noetig';
-  if (status === 'processed') {
-    if (annotation.verification?.status === 'verified') {
-      return 'Archivieren oder weiterarbeiten';
-    }
-    if (annotation.verification?.status === 'uncertain') {
-      return 'Erneut pruefen oder Quelle oeffnen';
-    }
-    if (annotation.verification?.status === 'unable') {
-      return 'Fehler ansehen oder erneut pruefen';
-    }
-    return 'Pruefen';
-  }
-
-  return 'Status pruefen';
 }
 
 function getResponseExcerpt(message: string | undefined): string | undefined {

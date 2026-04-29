@@ -20,6 +20,7 @@ import type {
   OverlayOptions,
   OverlayTheme,
   PickerMode,
+  CommentEntryMode,
   DispatchBatch,
   DispatchBatchStatus,
   UndoAction,
@@ -65,9 +66,16 @@ const DEFAULT_STATE: OverlayState = {
   relayConnected: false,
   relayPort: null,
   relayHost: null,
+  runnerStatus: {
+    connected: false,
+    activeCount: 0,
+    sessions: [],
+  },
 
   // Capture State
   pickerMode: 'element',
+  commentEntryMode: 'workspace',
+  inlineCommentDraft: null,
   selectedElement: null,
   selectedElements: [],
   selectedRegion: null,
@@ -102,6 +110,7 @@ export class OverlayStore {
   private static readonly THEME_KEY = 'pinflow:theme';
   private static readonly DISPATCH_DEFAULTS_KEY = 'pinflow:dispatchDefaults';
   private static readonly PICKER_MODE_KEY = 'pinflow:pickerMode';
+  private static readonly COMMENT_ENTRY_MODE_KEY = 'pinflow:commentEntryMode';
 
   private constructor(options?: OverlayOptions) {
     this.state = {
@@ -109,6 +118,7 @@ export class OverlayStore {
       mode: options?.initialMode ?? 'collapsed',
       theme: options?.initialTheme ?? OverlayStore.loadTheme(),
       pickerMode: OverlayStore.loadPickerMode(),
+      commentEntryMode: OverlayStore.loadCommentEntryMode(),
       sidebarWidth: options?.sidebarWidth ?? 360,
       tabOffsetY: OverlayStore.loadTabOffsetY(),
       dispatchProjectDefaults: OverlayStore.loadDispatchProjectDefaults(),
@@ -172,6 +182,18 @@ export class OverlayStore {
       // localStorage unavailable
     }
     return 'element';
+  }
+
+  private static loadCommentEntryMode(): CommentEntryMode {
+    try {
+      const stored = localStorage.getItem(OverlayStore.COMMENT_ENTRY_MODE_KEY);
+      if (stored === 'workspace' || stored === 'inline') {
+        return stored;
+      }
+    } catch {
+      // localStorage unavailable
+    }
+    return 'workspace';
   }
 
   /**
@@ -263,6 +285,7 @@ export class OverlayStore {
         awaitingConfirmationIds:
           this.state.dispatchSession.awaitingConfirmationIds,
         flowActive: this.state.dispatchSession.flowActive,
+        lastDispatchError: this.state.dispatchSession.lastDispatchError,
       },
     });
 
@@ -370,7 +393,8 @@ export class OverlayStore {
       this.pushUndoAction({
         kind: 'queued-annotation',
         label: 'Auftrag zurueckholen',
-        description: 'Entfernt den zuletzt gesammelten Auftrag aus der Warteliste.',
+        description:
+          'Entfernt den zuletzt gesammelten Auftrag aus der Warteliste.',
         annotation,
         annotationId,
       });
@@ -546,6 +570,7 @@ export class OverlayStore {
       pickerMode,
       mode: 'capturing',
       hoveredElement: null,
+      inlineCommentDraft: null,
     });
   }
 
@@ -558,6 +583,18 @@ export class OverlayStore {
     }
   }
 
+  setCommentEntryMode(commentEntryMode: CommentEntryMode): void {
+    this.setState({ commentEntryMode });
+    try {
+      localStorage.setItem(
+        OverlayStore.COMMENT_ENTRY_MODE_KEY,
+        commentEntryMode,
+      );
+    } catch {
+      // localStorage unavailable
+    }
+  }
+
   /**
    * Exit capture mode (back to expanded)
    */
@@ -565,6 +602,7 @@ export class OverlayStore {
     this.setState({
       mode: 'expanded',
       hoveredElement: null,
+      inlineCommentDraft: null,
     });
   }
 
@@ -581,6 +619,7 @@ export class OverlayStore {
       selectedElements: element ? [element] : [],
       selectedRegion: null,
       selectedEntryId: entryId,
+      inlineCommentDraft: null,
     });
   }
 
@@ -597,6 +636,7 @@ export class OverlayStore {
       runtimeContext: null,
       manifestEntry: null,
       manifestEntries: [],
+      inlineCommentDraft: null,
     });
   }
 
@@ -609,6 +649,10 @@ export class OverlayStore {
       relayPort: port ?? null,
       relayHost: host ?? null,
     });
+  }
+
+  setRunnerStatus(runnerStatus: OverlayState['runnerStatus']): void {
+    this.setState({ runnerStatus });
   }
 
   /**
@@ -635,6 +679,7 @@ export class OverlayStore {
       selectedEntryId: entryId,
       mode: 'expanded',
       hoveredElement: null,
+      inlineCommentDraft: null,
     });
 
     // Capture runtime context asynchronously
@@ -674,6 +719,35 @@ export class OverlayStore {
     }
   }
 
+  async selectElementForInlineComment(
+    element: HTMLElement,
+    position: { x: number; y: number },
+  ): Promise<void> {
+    const entryId = element.getAttribute('data-ds');
+
+    this.recordSelectionUndo('Auswahl rueckgaengig');
+
+    this.setState({
+      selectedElement: element,
+      selectedElements: [element],
+      selectedRegion: null,
+      selectedEntryId: entryId,
+      mode: 'capturing',
+      hoveredElement: null,
+      inlineCommentDraft: {
+        position,
+        anchorRect: this.toBoundingRect(element.getBoundingClientRect()),
+        pickerMode: 'element',
+      },
+    });
+
+    await this.capturePrimaryContext(element);
+
+    if (entryId) {
+      await this.resolveManifestEntries([element]);
+    }
+  }
+
   async selectMultipleElements(elements: HTMLElement[]): Promise<void> {
     const uniqueElements = Array.from(new Set(elements)).slice(0, 30);
     if (uniqueElements.length === 0) {
@@ -693,13 +767,50 @@ export class OverlayStore {
       selectedEntryId: entryId,
       mode: 'expanded',
       hoveredElement: null,
+      inlineCommentDraft: null,
     });
 
     await this.capturePrimaryContext(primaryElement);
     await this.resolveManifestEntries(uniqueElements);
   }
 
-  async selectRegion(rect: BoundingRect, elements: HTMLElement[]): Promise<void> {
+  async selectMultipleElementsForInlineComment(
+    elements: HTMLElement[],
+    position: { x: number; y: number },
+  ): Promise<void> {
+    const uniqueElements = Array.from(new Set(elements)).slice(0, 30);
+    if (uniqueElements.length === 0) {
+      return;
+    }
+
+    const primaryElement = uniqueElements[0];
+    const entryId = primaryElement.getAttribute('data-ds');
+
+    this.recordSelectionUndo('Auswahl rueckgaengig');
+
+    this.setState({
+      pickerMode: 'multi',
+      selectedElement: primaryElement,
+      selectedElements: uniqueElements,
+      selectedRegion: null,
+      selectedEntryId: entryId,
+      mode: 'capturing',
+      hoveredElement: null,
+      inlineCommentDraft: {
+        position,
+        anchorRect: this.toBoundingRect(primaryElement.getBoundingClientRect()),
+        pickerMode: 'multi',
+      },
+    });
+
+    await this.capturePrimaryContext(primaryElement);
+    await this.resolveManifestEntries(uniqueElements);
+  }
+
+  async selectRegion(
+    rect: BoundingRect,
+    elements: HTMLElement[],
+  ): Promise<void> {
     const uniqueElements = Array.from(new Set(elements)).slice(0, 30);
     const primaryElement = uniqueElements[0] ?? null;
     const entryId = primaryElement?.getAttribute('data-ds') ?? null;
@@ -714,12 +825,54 @@ export class OverlayStore {
       selectedEntryId: entryId,
       mode: 'expanded',
       hoveredElement: null,
+      inlineCommentDraft: null,
     });
 
     if (primaryElement) {
       await this.capturePrimaryContext(primaryElement);
       await this.resolveManifestEntries(uniqueElements);
     }
+  }
+
+  async selectRegionForInlineComment(
+    rect: BoundingRect,
+    elements: HTMLElement[],
+    position: { x: number; y: number },
+  ): Promise<void> {
+    const uniqueElements = Array.from(new Set(elements)).slice(0, 30);
+    const primaryElement = uniqueElements[0] ?? null;
+    const entryId = primaryElement?.getAttribute('data-ds') ?? null;
+
+    this.recordSelectionUndo('Bereich rueckgaengig');
+
+    this.setState({
+      pickerMode: 'region',
+      selectedElement: primaryElement,
+      selectedElements: uniqueElements,
+      selectedRegion: { rect, elements: uniqueElements },
+      selectedEntryId: entryId,
+      mode: 'capturing',
+      hoveredElement: null,
+      inlineCommentDraft: {
+        position,
+        anchorRect: rect,
+        pickerMode: 'region',
+      },
+    });
+
+    if (primaryElement) {
+      await this.capturePrimaryContext(primaryElement);
+      await this.resolveManifestEntries(uniqueElements);
+    }
+  }
+
+  cancelInlineComment(): void {
+    this.clearSelectionWithoutUndo();
+    this.setState({
+      inlineCommentDraft: null,
+      mode: 'expanded',
+      hoveredElement: null,
+    });
   }
 
   /**
@@ -781,7 +934,9 @@ export class OverlayStore {
           type,
           selectedElement: primaryElementModel,
           selectedElements:
-            elementModels.length > 1 || pickerMode === 'multi' || pickerMode === 'region'
+            elementModels.length > 1 ||
+            pickerMode === 'multi' ||
+            pickerMode === 'region'
               ? elementModels
               : undefined,
           region: selectedRegion
@@ -809,7 +964,11 @@ export class OverlayStore {
 
       // Clear submission state — the annotation list is already refreshed
       // by relay-service.createAnnotation() via refreshAnnotations()
-      this.setState({ isSubmitting: false });
+      this.setState({
+        isSubmitting: false,
+        inlineCommentDraft: null,
+        mode: 'expanded',
+      });
       this.recordSubmittedAnnotation(annotation);
 
       // Clear the selected element so the user can pick a new one
@@ -924,9 +1083,7 @@ export class OverlayStore {
     });
   }
 
-  private pushUndoAction(
-    action: Omit<UndoAction, 'id' | 'timestamp'>,
-  ): void {
+  private pushUndoAction(action: Omit<UndoAction, 'id' | 'timestamp'>): void {
     const nextAction: UndoAction = {
       ...action,
       id: `undo-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
@@ -943,7 +1100,9 @@ export class OverlayStore {
 
   private popUndoAction(actionId: string): void {
     this.setState({
-      undoStack: this.state.undoStack.filter((action) => action.id !== actionId),
+      undoStack: this.state.undoStack.filter(
+        (action) => action.id !== actionId,
+      ),
     });
   }
 
@@ -978,7 +1137,9 @@ export class OverlayStore {
       dispatchBatches: this.state.dispatchBatches
         .map((batch) => ({
           ...batch,
-          annotationIds: batch.annotationIds.filter((id) => id !== annotationId),
+          annotationIds: batch.annotationIds.filter(
+            (id) => id !== annotationId,
+          ),
         }))
         .filter((batch) => batch.annotationIds.length > 0),
     });
@@ -1270,7 +1431,10 @@ export class OverlayStore {
 
     if (effective.mode === 'immediate') {
       if (canContinue) {
-        this.continueDispatchFlow(effective.continuation, analysis.releasableIds);
+        this.continueDispatchFlow(
+          effective.continuation,
+          analysis.releasableIds,
+        );
         return;
       }
 
@@ -1343,7 +1507,9 @@ export class OverlayStore {
       (annotation) => annotation.metadata.status === 'queued',
     ).length;
     const processingCount = included.filter(
-      (annotation) => annotation.metadata.status === 'processing',
+      (annotation) =>
+        annotation.metadata.status === 'claimed' ||
+        annotation.metadata.status === 'processing',
     ).length;
     const completedCount = included.filter(
       (annotation) => annotation.metadata.status === 'processed',
@@ -1431,6 +1597,7 @@ export class OverlayStore {
             (id) => !annotationIds.includes(id),
           ),
         flowActive: true,
+        lastDispatchError: null,
       },
       dispatchBatches: [nextBatch, ...this.state.dispatchBatches].slice(0, 12),
     });
@@ -1444,6 +1611,64 @@ export class OverlayStore {
       }),
     );
 
+    void RelayService.getInstance()
+      .dispatchAnnotations(annotationIds, channel)
+      .catch((error: unknown) => {
+        const batchStillTracked = this.state.dispatchBatches.some(
+          (batch) => batch.id === nextBatch.id,
+        );
+
+        if (!batchStillTracked) {
+          return;
+        }
+
+        const rolledBackReleasedIds =
+          this.state.dispatchSession.releasedAnnotationIds.filter(
+            (id) => !annotationIds.includes(id),
+          );
+
+        this.setState({
+          dispatchSession: {
+            ...this.state.dispatchSession,
+            releasedAnnotationIds: rolledBackReleasedIds,
+            flowActive: rolledBackReleasedIds.length > 0,
+            lastDispatchError: OverlayStore.getDispatchErrorMessage(error),
+          },
+          dispatchBatches: this.state.dispatchBatches.filter(
+            (batch) => batch.id !== nextBatch.id,
+          ),
+        });
+
+        if (this.state.debug) {
+          console.error(
+            '[pinflow-overlay] Failed to dispatch annotations:',
+            error,
+          );
+        }
+      });
+
     return annotationIds;
+  }
+
+  private static getDispatchErrorMessage(error: unknown): string {
+    const message = error instanceof Error ? error.message : String(error);
+
+    if (
+      message.includes('404') ||
+      message.includes('Route POST') ||
+      message.includes('annotations/dispatch')
+    ) {
+      return 'Senden fehlgeschlagen. Der lokale PinFlow-Relay laeuft noch mit einer aelteren Version. Starte die Vorschau neu und versuche es erneut.';
+    }
+
+    if (
+      message.includes('not connected') ||
+      message.includes('nicht verbunden') ||
+      message.includes('Failed to fetch')
+    ) {
+      return 'Senden fehlgeschlagen. Der lokale PinFlow-Relay ist gerade nicht erreichbar. Lade die Vorschau neu oder starte PinFlow neu.';
+    }
+
+    return 'Senden fehlgeschlagen. Bitte versuche es erneut.';
   }
 }

@@ -9,6 +9,7 @@
  */
 
 import type { PinFlowRuntimeOptions } from '@pinflow/runtime';
+import type { RunnerPluginOptions } from '@pinflow/transform/plugins/vite';
 
 export type {
   PinFlowRuntimeOptions,
@@ -37,6 +38,7 @@ export interface PinFlowVuePluginOptions {
      */
     bodyLimit?: number;
   };
+  runner?: RunnerPluginOptions;
   overlay?:
     | boolean
     | {

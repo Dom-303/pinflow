@@ -17,7 +17,11 @@ export const API_PATHS = {
   ANNOTATION_RESPONSE: `/annotations/:id/response`,
   ANNOTATION_VERIFY: `/annotations/:id/verify`,
   ANNOTATION_PROCESS: `/annotations/process`,
+  ANNOTATION_DISPATCH: `/annotations/dispatch`,
   ANNOTATION_SEARCH: `/annotations/search`,
+
+  // Runner endpoints
+  RUNNER_HEARTBEAT: `/runners/heartbeat`,
 
   // Manifest endpoints
   MANIFEST: `/manifest`,

@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest';
 import { DoctorCommand } from './doctor.command.js';
 import { InitCommand } from './init.command.js';
 import { McpCommand } from './mcp.command.js';
+import { RunnerCommand } from './runner.command.js';
 import { ServeCommand } from './serve.command.js';
 import { StatusCommand } from './status.command.js';
 import { StopCommand } from './stop.command.js';
@@ -21,6 +22,9 @@ describe('relay cli command branding', () => {
     );
     expect(McpCommand.description()).toBe(
       'Start the PinFlow MCP adapter for agent integration (stdio transport)',
+    );
+    expect(RunnerCommand.description()).toBe(
+      'Run the PinFlow local agent runner',
     );
     expect(ServeCommand.description()).toBe('Start the PinFlow relay server');
     expect(StatusCommand.description()).toBe(
@@ -39,6 +43,7 @@ describe('relay cli command branding', () => {
     const stopSource = readCommandSource('stop.command.ts');
     const initSource = readCommandSource('init.command.ts');
     const mcpSource = readCommandSource('mcp.command.ts');
+    const runnerSource = readCommandSource('runner.command.ts');
 
     expect(serveSource).toContain('[pinflow-cli] Relay daemon started');
     expect(serveSource).toContain('To check status: pinflow status');
@@ -60,5 +65,8 @@ describe('relay cli command branding', () => {
       '[pinflow-cli] No workspace found, starting in dormant mode',
     );
     expect(mcpSource).toContain('[pinflow-cli] Starting MCP adapter');
+
+    expect(runnerSource).toContain('[pinflow-cli] Runner failed:');
+    expect(runnerSource).toContain('[pinflow-cli] Runner connected to relay');
   });
 });

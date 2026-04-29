@@ -11,6 +11,10 @@ PinFlow bridges running UI and source code through the current pinflow compatibi
 - **UI → Code**: User clicks an element in the browser, PinFlow captures it as an annotation with source location, runtime context, and user intent. You claim and implement it.
 - **Code → UI**: You're editing a source file and want to know what an element looks like at runtime. Query by file and line to get live props, state, and DOM snapshot.
 
+## Source-Exact Agent Rule
+
+For visual frontend work, ask PinFlow for source/runtime context with `pinflow.query.bySource` before editing, and re-query the same source location after editing when possible.
+
 ## Setup / Initialization
 
 If `pinflow.status` returns `active: false`, PinFlow is not yet configured in this workspace. The `.pinflow/` directory is created automatically when the dev server starts with the current PinFlow-compatible bundler plugin configured. Follow this procedure to set it up:
@@ -40,16 +44,16 @@ Check `dependencies` and `devDependencies` in `package.json`. Match top-down (fi
 
 ### Package Mapping
 
-| Framework     | Package                | Config file         |
-| ------------- | ---------------------- | ------------------- |
-| next          | `@pinflow/next`        | `next.config.ts`    |
-| nuxt          | `@pinflow/nuxt`        | `nuxt.config.ts`    |
-| react-vite    | `@pinflow/react`       | `vite.config.ts`    |
-| react-webpack | `@pinflow/react`       | `webpack.config.js` |
-| vue-vite      | `@pinflow/vue`         | `vite.config.ts`    |
-| vue-webpack   | `@pinflow/vue`         | `webpack.config.js` |
-| other-vite    | `@pinflow/transform`   | `vite.config.ts`    |
-| other-webpack | `@pinflow/transform`   | `webpack.config.js` |
+| Framework     | Package              | Config file         |
+| ------------- | -------------------- | ------------------- |
+| next          | `@pinflow/next`      | `next.config.ts`    |
+| nuxt          | `@pinflow/nuxt`      | `nuxt.config.ts`    |
+| react-vite    | `@pinflow/react`     | `vite.config.ts`    |
+| react-webpack | `@pinflow/react`     | `webpack.config.js` |
+| vue-vite      | `@pinflow/vue`       | `vite.config.ts`    |
+| vue-webpack   | `@pinflow/vue`       | `webpack.config.js` |
+| other-vite    | `@pinflow/transform` | `vite.config.ts`    |
+| other-webpack | `@pinflow/transform` | `webpack.config.js` |
 
 ### Package Manager Detection
 
@@ -118,23 +122,23 @@ Tool names below use their MCP registration names (e.g., `pinflow.query.bySource
 
 ### Source Query (Code → UI)
 
-| Tool                       | Purpose                                                    |
-| -------------------------- | ---------------------------------------------------------- |
+| Tool                     | Purpose                                                    |
+| ------------------------ | ---------------------------------------------------------- |
 | `pinflow.query.bySource` | Get runtime context for a source location (file + line)    |
 | `pinflow.manifest.query` | Find all manifest entries by file, component, or tag name  |
 | `pinflow.manifest.stats` | Manifest coverage statistics (entry/file/component counts) |
 
 ### Element Resolution (UI → Code)
 
-| Tool                      | Purpose                            |
-| ------------------------- | ---------------------------------- |
+| Tool                    | Purpose                            |
+| ----------------------- | ---------------------------------- |
 | `pinflow.resolve`       | Get source location for element ID |
 | `pinflow.resolve.batch` | Resolve multiple element IDs       |
 
 ### Annotation Workflow
 
-| Tool                                | Purpose                               |
-| ----------------------------------- | ------------------------------------- |
+| Tool                              | Purpose                               |
+| --------------------------------- | ------------------------------------- |
 | `pinflow.annotation.process`      | Claim next queued annotation (atomic) |
 | `pinflow.annotation.respond`      | Store your implementation message     |
 | `pinflow.annotation.updateStatus` | Mark as `processed` or `failed`       |
@@ -144,8 +148,8 @@ Tool names below use their MCP registration names (e.g., `pinflow.query.bySource
 
 ### System
 
-| Tool               | Purpose                              |
-| ------------------ | ------------------------------------ |
+| Tool             | Purpose                              |
+| ---------------- | ------------------------------------ |
 | `pinflow.status` | Relay health, manifest, queue counts |
 
 ## Using `pinflow.query.bySource`

@@ -48,6 +48,10 @@ Compatibility note: `pinflow-mcp` remains available as a temporary binary alias 
 
 The relay daemon starts automatically when you run your dev server with PinFlow configured. The MCP server connects to it on localhost and exposes the full runtime toolset to your coding agent.
 
+## Source-Exact Agent Rule
+
+For visual frontend work, ask PinFlow for source/runtime context with `pinflow.query.bySource` before editing, and re-query the same source location after editing when possible.
+
 ## MCP Tools Reference
 
 ### Source Query (Code to UI)
@@ -73,14 +77,15 @@ Resolve `data-ds` element IDs injected at build time back to their source locati
 
 Annotations are created when a developer clicks an element in the PinFlow overlay and enters intent. These tools drive the agent-side processing loop.
 
-| Tool                              | Description                                                                                     |
-| --------------------------------- | ----------------------------------------------------------------------------------------------- |
-| `pinflow.annotation.process`      | Atomically claim the next queued annotation (`claimNext`) — prevents concurrent agent conflicts |
-| `pinflow.annotation.respond`      | Attach agent response and transition annotation to `PROCESSED`                                  |
-| `pinflow.annotation.updateStatus` | Manually transition annotation status                                                           |
-| `pinflow.annotation.get`          | Retrieve annotation by ID                                                                       |
-| `pinflow.annotation.list`         | List annotations with status and filter options                                                 |
-| `pinflow.annotation.search`       | Full-text search across annotation content                                                      |
+| Tool                              | Description                                                                              |
+| --------------------------------- | ---------------------------------------------------------------------------------------- |
+| `pinflow.annotation.process`      | Claim the next queued annotation with lease metadata so other agents can see it is taken |
+| `pinflow.annotation.respond`      | Attach the agent response summary before final status update                             |
+| `pinflow.annotation.verify`       | Re-capture the source-exact live element and compare DOM text/attributes                 |
+| `pinflow.annotation.updateStatus` | Manually transition annotation status                                                    |
+| `pinflow.annotation.get`          | Retrieve annotation by ID                                                                |
+| `pinflow.annotation.list`         | List annotations with status and filter options                                          |
+| `pinflow.annotation.search`       | Full-text search across annotation content                                               |
 
 ### System
 

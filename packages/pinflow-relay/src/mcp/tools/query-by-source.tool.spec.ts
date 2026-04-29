@@ -170,6 +170,7 @@ describe('QueryBySourceTool', () => {
         column: 0,
         tolerance: 3,
         includeRuntime: false,
+        sessionId: 'tab-web',
       });
 
       // Assert
@@ -179,6 +180,7 @@ describe('QueryBySourceTool', () => {
         column: 0,
         tolerance: 3,
         includeRuntime: false,
+        sessionId: 'tab-web',
       });
     });
 
@@ -267,6 +269,91 @@ describe('QueryBySourceTool', () => {
         'src/components/Input.tsx',
       ]);
       expect(structured['reasons']).toEqual(['ambiguous_source_path']);
+    });
+
+    it('should return browser session ambiguity hint and sessions', async () => {
+      const sessions = [
+        {
+          sessionId: 'tab-web',
+          pageUrl: 'http://localhost:3000/',
+          route: '/',
+        },
+        {
+          sessionId: 'tab-admin',
+          pageUrl: 'http://localhost:3000/admin',
+          route: '/admin',
+        },
+      ];
+      const mockClient = createMockRelayClient({
+        queryBySource: vi.fn().mockResolvedValue({
+          found: true,
+          entryId: 'aB3dEf7h',
+          sourceLocation: {
+            file: 'src/components/Button.tsx',
+            start: { line: 10, column: 4 },
+          },
+          browserConnected: true,
+          browser: {
+            connected: true,
+            clientCount: 2,
+            sessions,
+          },
+          reasons: ['multiple_browser_sessions'],
+        }),
+      });
+      const tool = new QueryBySourceTool(mockClient);
+
+      const result: CallToolResult = await tool.toolCallback({
+        file: 'src/components/Button.tsx',
+        line: 10,
+      });
+
+      const structured = result.structuredContent as Record<string, unknown>;
+      expect(structured['hint']).toContain('Multiple browser sessions');
+      expect(structured['browser']).toEqual({
+        connected: true,
+        clientCount: 2,
+        sessions,
+      });
+      expect(structured['reasons']).toEqual(['multiple_browser_sessions']);
+    });
+
+    it('should return manifest stale hint from machine-readable reasons', async () => {
+      const mockClient = createMockRelayClient({
+        queryBySource: vi.fn().mockResolvedValue({
+          found: true,
+          entryId: 'sTaLe001',
+          sourceLocation: {
+            file: 'src/components/Stale.tsx',
+            start: { line: 3, column: 2 },
+          },
+          manifest: {
+            entryCount: 1,
+            fileCount: 1,
+            componentCount: 1,
+            lastUpdated: '2026-04-29T10:00:00.000Z',
+            freshness: {
+              status: 'stale',
+              stale: true,
+              reason: 'source_newer_than_manifest',
+              sourceFile: 'src/components/Stale.tsx',
+              checkedAt: '2026-04-29T10:00:01.000Z',
+              repairHint: 'Restart or refresh the dev server.',
+            },
+          },
+          reasons: ['manifest_stale'],
+        }),
+      });
+      const tool = new QueryBySourceTool(mockClient);
+
+      const result: CallToolResult = await tool.toolCallback({
+        file: 'src/components/Stale.tsx',
+        line: 3,
+      });
+
+      const structured = result.structuredContent as Record<string, unknown>;
+      expect(structured['hint']).toBe('Restart or refresh the dev server.');
+      expect(structured['reasons']).toEqual(['manifest_stale']);
     });
 
     it('should return not-rendered hint when element is not rendered', async () => {

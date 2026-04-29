@@ -37,6 +37,7 @@ Important existing conventions:
 - Prefer `pnpm nx ...` commands over ad-hoc package commands.
 - Keep changes narrowly scoped to the package actually being adapted.
 - Treat PinFlow as the upstream foundation repo, not as the active product surface in this fork and not as an EventBaer app repo.
+- For visual frontend work, ask PinFlow for source/runtime context with `pinflow.query.bySource` before editing, and re-query the same source location after editing when possible.
 
 ## UI Change Approval
 

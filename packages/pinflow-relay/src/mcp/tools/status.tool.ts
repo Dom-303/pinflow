@@ -27,27 +27,35 @@ const ManifestStatusSchema = z.object({
 
 const AnnotationQueueStatusSchema = z.object({
   queued: z.number().describe('Number of queued annotations'),
+  claimed: z.number().describe('Number of annotations claimed by an agent'),
   processing: z.number().describe('Number of annotations being processed'),
   processed: z.number().describe('Number of processed annotations'),
   failed: z.number().describe('Number of failed annotations'),
   archived: z.number().describe('Number of archived annotations'),
 });
 
+const BrowserStatusSchema = z
+  .object({
+    connected: z
+      .boolean()
+      .describe('Whether at least one browser client is connected'),
+    clientCount: z.number().describe('Number of connected browser clients'),
+  })
+  .optional();
+
 const StatusToolOutputSchema = McpToolOutputSchema.extend({
   relay: RelayStatusSchema.describe('Relay server status'),
   manifest: ManifestStatusSchema.describe('Manifest status'),
   annotations: AnnotationQueueStatusSchema.describe('Annotation queue status'),
+  browser: BrowserStatusSchema.describe('Browser connection status'),
 });
 
 type StatusToolOutput = z.infer<typeof StatusToolOutputSchema>;
 
-export class StatusTool
-  implements
-    McpToolDefinition<
-      typeof StatusToolInputSchema,
-      typeof StatusToolOutputSchema
-    >
-{
+export class StatusTool implements McpToolDefinition<
+  typeof StatusToolInputSchema,
+  typeof StatusToolOutputSchema
+> {
   name = MCP_TOOLS.STATUS;
   description =
     'Get the health status of PinFlow including relay server status, ' +
@@ -78,12 +86,20 @@ export class StatusTool
         },
         annotations: {
           queued: response.annotations.queued ?? 0,
+          claimed: response.annotations.claimed ?? 0,
           processing: response.annotations.processing ?? 0,
           processed: response.annotations.processed ?? 0,
           failed: response.annotations.failed ?? 0,
           archived: response.annotations.archived ?? 0,
         },
       };
+
+      if (response.browser) {
+        output.browser = {
+          connected: response.browser.connected,
+          clientCount: response.browser.clientCount,
+        };
+      }
 
       return {
         structuredContent: output,

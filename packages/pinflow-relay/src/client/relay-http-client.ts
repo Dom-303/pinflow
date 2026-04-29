@@ -20,6 +20,7 @@ import {
 import {
   AnnotationCreateResponse,
   AnnotationCreateResponseSchema,
+  AnnotationProcessRequestBody,
   QueryBySourceResponse,
   QueryBySourceResponseSchema,
   AnnotationGetResponse,
@@ -37,6 +38,8 @@ import {
   AnnotationUpdateResponseResponseSchema,
   AnnotationUpdateStatusResponse,
   AnnotationUpdateStatusResponseSchema,
+  AnnotationVerifyResponse,
+  AnnotationVerifyResponseSchema,
   HealthResponse,
   HealthResponseSchema,
   ManifestBatchResolveResponse,
@@ -141,7 +144,9 @@ export class RelayHttpClient {
     return AnnotationListResponseSchema.parse(await response.json());
   }
 
-  async processAnnotation(): Promise<AnnotationProcessResponse> {
+  async processAnnotation(
+    body: AnnotationProcessRequestBody = {},
+  ): Promise<AnnotationProcessResponse> {
     const apiPath = `${API_PATHS.BASE.replace(':version', 'v1')}${API_PATHS.ANNOTATION_PROCESS}`;
     const url = new URL(apiPath, this.baseUrl);
     const response = await fetch(url.toString(), {
@@ -149,7 +154,7 @@ export class RelayHttpClient {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({}),
+      body: JSON.stringify(body ?? {}),
     });
     if (!response.ok) {
       throw await this.parseError(response);
@@ -245,6 +250,24 @@ export class RelayHttpClient {
     return AnnotationUpdateStatusResponseSchema.parse(await response.json());
   }
 
+  async verifyAnnotation(
+    annotationId: AnnotationId,
+  ): Promise<AnnotationVerifyResponse> {
+    const apiPath = `${API_PATHS.BASE.replace(':version', 'v1')}${API_PATHS.ANNOTATION_VERIFY.replace(':id', annotationId)}`;
+    const url = new URL(apiPath, this.baseUrl);
+    const response = await fetch(url.toString(), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({}),
+    });
+    if (!response.ok) {
+      throw await this.parseError(response);
+    }
+    return AnnotationVerifyResponseSchema.parse(await response.json());
+  }
+
   async patchAnnotation(
     annotationId: AnnotationId,
     body: AnnotationPatchRequestBody,
@@ -338,6 +361,7 @@ export class RelayHttpClient {
     column?: number;
     tolerance?: number;
     includeRuntime?: boolean;
+    sessionId?: string;
   }): Promise<QueryBySourceResponse> {
     const apiPath = `${API_PATHS.BASE.replace(':version', 'v1')}${API_PATHS.MANIFEST_RESOLVE_BY_SOURCE}`;
     const url = new URL(apiPath, this.baseUrl);

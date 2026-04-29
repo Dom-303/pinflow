@@ -8,6 +8,7 @@ import type { ManifestReader } from '@pinflow/manifest';
 import type { AnnotationService } from '../services/index.js';
 import { StatusRoute } from '../routes/status.route.js';
 import { registerRoute } from '../routes/route.interface.js';
+import type { WSServer } from '../ws-server.js';
 
 /**
  * Options for creating the status handler
@@ -17,6 +18,8 @@ export interface StatusHandlerOptions {
   port: number;
   /** Server start time (used to calculate uptime) */
   startTime: number;
+  /** WebSocket server for browser connection diagnostics */
+  wsServer?: WSServer;
 }
 
 /**

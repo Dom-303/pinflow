@@ -155,6 +155,9 @@ export function redactSensitiveFields(
     ...SENSITIVE_FIELD_NAMES,
     ...additionalFields.map((f) => f.toLowerCase()),
   ]);
+  const normalizedSensitiveNames = new Set(
+    Array.from(sensitiveNames).map(normalizeFieldName),
+  );
 
   // Handle arrays
   if (Array.isArray(obj)) {
@@ -168,9 +171,18 @@ export function redactSensitiveFields(
     for (const key in obj) {
       if (Object.prototype.hasOwnProperty.call(obj, key)) {
         const lowerKey = key.toLowerCase();
+        const normalizedKey = normalizeFieldName(key);
         const value = obj[key];
 
-        if (sensitiveNames.has(lowerKey)) {
+        if (
+          sensitiveNames.has(lowerKey) ||
+          normalizedSensitiveNames.has(normalizedKey) ||
+          normalizedKey.includes('password') ||
+          normalizedKey.includes('secret') ||
+          normalizedKey.includes('token') ||
+          normalizedKey.includes('apikey') ||
+          normalizedKey.includes('privatekey')
+        ) {
           redacted[key] = '[REDACTED]';
         } else {
           redacted[key] = redactSensitiveFields(value, additionalFields);
@@ -183,4 +195,8 @@ export function redactSensitiveFields(
 
   // Other object types
   return obj;
+}
+
+function normalizeFieldName(fieldName: string): string {
+  return fieldName.toLowerCase().replace(/[^a-z0-9]/g, '');
 }

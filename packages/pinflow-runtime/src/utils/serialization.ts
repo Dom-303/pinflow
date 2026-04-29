@@ -108,6 +108,7 @@ export function serializeValue(
     maxTotalBytes = 262144,
     includeFunctions = false,
     replacer,
+    transformString,
     skipKeys,
     skipKeyPrefixes,
   } = options;
@@ -139,7 +140,7 @@ export function serializeValue(
     return budget.bytesUsed > maxTotalBytes;
   }
 
-  function serialize(val: unknown, depth: number): unknown {
+  function serialize(val: unknown, depth: number, key?: string): unknown {
     // Check byte budget
     if (isBudgetExceeded()) {
       trackBytes(SENTINEL_REF.TRUNCATED);
@@ -159,7 +160,9 @@ export function serializeValue(
     const type = typeof val;
 
     if (type === 'string') {
-      const str = val as string;
+      const str = transformString
+        ? transformString(val as string, key)
+        : (val as string);
       if (str.length > maxStringLength) {
         const truncated = str.slice(0, maxStringLength) + '... [truncated]';
         trackBytes(truncated);
@@ -292,7 +295,7 @@ export function serializeValue(
               const propValue = val[key];
               const serializedValue = replacer
                 ? replacer(key, propValue)
-                : serialize(propValue, depth + 1);
+                : serialize(propValue, depth + 1, key);
 
               if (serializedValue !== undefined) {
                 serialized[key] = serializedValue;

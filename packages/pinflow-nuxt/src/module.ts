@@ -62,7 +62,7 @@ export const pinflowModule = defineNuxtModule<PinFlowNuxtOptions>({
 
         if (debug) {
           console.log(
-          `[pinflow/nuxt] Relay running at http://${relayHost}:${relayPort}`,
+            `[pinflow/nuxt] Relay running at http://${relayHost}:${relayPort}`,
           );
         }
       } catch (error) {
@@ -80,17 +80,28 @@ export const pinflowModule = defineNuxtModule<PinFlowNuxtOptions>({
       parts.push(`window.__PINFLOW_RELAY_PORT__=${relayPort}`);
     }
     if (relayHost !== undefined) {
-      parts.push(
-        `window.__PINFLOW_RELAY_HOST__=${JSON.stringify(relayHost)}`,
-      );
+      parts.push(`window.__PINFLOW_RELAY_HOST__=${JSON.stringify(relayHost)}`);
     }
     if (options.overlay !== false) {
       const overlayOptions =
-        typeof options.overlay === 'object'
-          ? options.overlay
-          : {};
+        typeof options.overlay === 'object' ? options.overlay : {};
       parts.push(
         `window.__PINFLOW_OVERLAY_OPTIONS__=${JSON.stringify(overlayOptions)}`,
+      );
+    }
+    const runtimeOptions = options.runtime ?? {};
+    const captureOptions = options.capture ?? {};
+    if (Object.keys(runtimeOptions).length > 0) {
+      parts.push(
+        `window.__PINFLOW_RUNTIME_OPTIONS__=${JSON.stringify(runtimeOptions)}`,
+      );
+    }
+    if (Object.keys(captureOptions).length > 0 || debug) {
+      parts.push(
+        `window.__PINFLOW_ADAPTER_OPTIONS__=${JSON.stringify({
+          ...captureOptions,
+          debug,
+        })}`,
       );
     }
 
@@ -135,8 +146,7 @@ export const pinflowModule = defineNuxtModule<PinFlowNuxtOptions>({
         // Add webpack loader for file transforms
         config.module?.rules?.push({
           test: options.include ?? /\.(jsx|tsx|vue)$/i,
-          exclude:
-            options.exclude ?? /node_modules|\.test\.|\.spec\./i,
+          exclude: options.exclude ?? /node_modules|\.test\.|\.spec\./i,
           enforce: 'pre' as const,
           use: [
             {

@@ -1,5 +1,9 @@
 import { z } from 'zod';
 import {
+  AnnotationDispatchSchema,
+  AnnotationDispatchProviderSchema,
+} from '@pinflow/core';
+import {
   McpToolDefinition,
   McpToolOutputSchema,
   MCP_TOOLS,
@@ -7,7 +11,19 @@ import {
 } from './tool.defs.js';
 import { RelayHttpClient } from '../../client/relay-http-client.js';
 
-const AnnotationsProcessToolInputSchema = z.object({});
+const AnnotationsProcessToolInputSchema = z.object({
+  provider: AnnotationDispatchProviderSchema.optional().describe(
+    'Optional session-local provider/channel claiming this annotation',
+  ),
+  label: z
+    .string()
+    .optional()
+    .describe('Optional human-readable channel label'),
+  sessionId: z
+    .string()
+    .optional()
+    .describe('Optional session-local channel ID'),
+});
 
 type AnnotationsProcessToolInput = z.infer<
   typeof AnnotationsProcessToolInputSchema
@@ -43,6 +59,13 @@ const ProcessToolRuntimeContextSchema = z.object({
   componentState: z.unknown().optional().describe('Component state snapshot'),
 });
 
+const ProcessToolClaimSchema = z.object({
+  claimedBy: z.string().describe('Agent or process that owns the lease'),
+  claimedAt: z.string().describe('ISO 8601 claim timestamp'),
+  leaseExpiresAt: z.string().describe('ISO 8601 lease expiration time'),
+  token: z.string().describe('Opaque claim token for diagnostics'),
+});
+
 const AnnotationsProcessToolOutputSchema = McpToolOutputSchema.extend({
   found: z.boolean().describe('Whether an annotation was found and claimed'),
   annotationId: z
@@ -58,6 +81,12 @@ const AnnotationsProcessToolOutputSchema = McpToolOutputSchema.extend({
   ),
   runtimeContext: ProcessToolRuntimeContextSchema.optional().describe(
     'Runtime context (props, state)',
+  ),
+  claim: ProcessToolClaimSchema.optional().describe(
+    'Current claim and lease metadata',
+  ),
+  dispatch: AnnotationDispatchSchema.optional().describe(
+    'Provider-neutral handling assignment',
   ),
   fullAnnotation: z
     .unknown()
@@ -82,16 +111,26 @@ export class AnnotationsProcessTool implements McpToolDefinition<
     'Claim the next queued PinFlow annotation for processing (atomic — no annotation ID needed). ' +
     'This is the correct tool for picking up work. Do NOT use annotation.list to manually pick annotations. ' +
     'Returns the oldest queued annotation with full context including resolved source location. ' +
+    'The returned annotation is marked claimed with a lease, so other agents can see it is taken. ' +
     'After implementing the change, call annotation.respond then annotation.updateStatus to complete the lifecycle.';
   inputSchema = AnnotationsProcessToolInputSchema;
   outputSchema = AnnotationsProcessToolOutputSchema;
 
   constructor(private readonly relayHttpClient: RelayHttpClient) {}
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async toolCallback(_input: AnnotationsProcessToolInput) {
+  async toolCallback(input: AnnotationsProcessToolInput) {
     try {
-      const response = await this.relayHttpClient.processAnnotation();
+      const dispatchTarget =
+        input.provider || input.label || input.sessionId
+          ? {
+              provider: input.provider ?? 'other',
+              label: input.label,
+              sessionId: input.sessionId,
+            }
+          : undefined;
+      const response = await this.relayHttpClient.processAnnotation({
+        dispatchTarget,
+      });
 
       // Direct passthrough - API already returns agent-optimized format
       const output: AnnotationsProcessToolOutput = {
@@ -101,11 +140,13 @@ export class AnnotationsProcessTool implements McpToolDefinition<
         element: response.element,
         sourceLocation: response.sourceLocation,
         runtimeContext: response.runtimeContext,
+        claim: response.claim,
+        dispatch: response.dispatch,
         fullAnnotation: response.fullAnnotation,
         nextStep: response.found
           ? 'Implement the change described in userIntent. ' +
             'Then call the PinFlow source query tool with the same file and line to verify your changes in the live browser. ' +
-            'Then call pinflow.annotation.respond with your summary, then pinflow.annotation.updateStatus with status "processed".'
+            'Then call pinflow.annotation.respond with your summary, pinflow.annotation.verify, and finally pinflow.annotation.updateStatus with status "processed" if verification is confident.'
           : undefined,
       };
 

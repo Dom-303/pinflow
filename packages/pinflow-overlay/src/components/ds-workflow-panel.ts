@@ -9,6 +9,7 @@ import {
   type DispatchChannel,
   type DispatchMode,
 } from '../core/dispatch-config.js';
+import { getWorkflowAgentAttention } from '../core/agent-summary.js';
 import { themeStyles, utilityStyles } from '../styles/theme.js';
 
 @customElement('ds-workflow-panel')
@@ -535,10 +536,10 @@ export class DsWorkflowPanel extends LitElement {
     return channel === 'auto'
       ? 'Aktueller Agent'
       : channel === 'queue_only'
-      ? 'Nur sammeln'
-      : channel === 'claude'
-        ? 'Claude'
-        : 'Codex';
+        ? 'Nur sammeln'
+        : channel === 'claude'
+          ? 'Claude'
+          : 'Codex';
   }
 
   private getModeLabel(mode: DispatchMode) {
@@ -618,10 +619,7 @@ export class DsWorkflowPanel extends LitElement {
     return null;
   }
 
-  private getBatchHistoryNote(batch: {
-    status: string;
-    failedCount: number;
-  }) {
+  private getBatchHistoryNote(batch: { status: string; failedCount: number }) {
     if (batch.status === 'failed') {
       return 'Batch nicht erfolgreich. Fehler pruefen und bewusst erneut starten.';
     }
@@ -674,13 +672,17 @@ export class DsWorkflowPanel extends LitElement {
     };
   }
 
-  private getContinuationLabel(continuation: 'automatic' | 'confirm' | 'manual') {
+  private getContinuationLabel(
+    continuation: 'automatic' | 'confirm' | 'manual',
+  ) {
     if (continuation === 'automatic') return 'Automatisch';
     if (continuation === 'confirm') return 'Mit Freigabe';
     return 'Manuell';
   }
 
-  private getContinuationCopy(continuation: 'automatic' | 'confirm' | 'manual') {
+  private getContinuationCopy(
+    continuation: 'automatic' | 'confirm' | 'manual',
+  ) {
     if (continuation === 'automatic') {
       return 'PinFlow zieht neue Batches nach, sobald wieder Platz frei wird.';
     }
@@ -737,7 +739,8 @@ export class DsWorkflowPanel extends LitElement {
       analysis.unreleasedWaitingIds.length > 0 &&
       analysis.unreleasedWaitingIds.length < effective.threshold
     ) {
-      const remaining = effective.threshold - analysis.unreleasedWaitingIds.length;
+      const remaining =
+        effective.threshold - analysis.unreleasedWaitingIds.length;
       const outcome =
         effective.continuation === 'confirm'
           ? 'den ersten Batch zur Freigabe bereit'
@@ -764,7 +767,10 @@ export class DsWorkflowPanel extends LitElement {
       };
     }
 
-    if (effective.mode === 'manual' && analysis.unreleasedWaitingIds.length > 0) {
+    if (
+      effective.mode === 'manual' &&
+      analysis.unreleasedWaitingIds.length > 0
+    ) {
       return {
         title: 'Manueller Start',
         copy: `Es warten ${analysis.unreleasedWaitingIds.length} Aufgaben auf deinen naechsten Batch.`,
@@ -775,8 +781,12 @@ export class DsWorkflowPanel extends LitElement {
   }
 
   override render() {
-    const { annotations, dispatchProjectDefaults, dispatchSession, dispatchBatches } =
-      this.storeController.state;
+    const {
+      annotations,
+      dispatchProjectDefaults,
+      dispatchSession,
+      dispatchBatches,
+    } = this.storeController.state;
 
     const effective = mergeDispatchConfig(
       dispatchProjectDefaults,
@@ -805,19 +815,28 @@ export class DsWorkflowPanel extends LitElement {
       ? 'Queue pausiert'
       : effective.channel === 'queue_only'
         ? 'Sammelt Aufgaben ohne Versand'
-      : analysis.awaitingConfirmationIds.length > 0
-        ? 'Wartet auf Freigabe'
-        : analysis.inFlightIds.length > 0
-          ? 'Bearbeitet Aufgaben'
-          : summary.waiting > 0
-            ? 'Bereit fuer den naechsten Versand'
-            : 'Bereit zum Start';
+        : analysis.awaitingConfirmationIds.length > 0
+          ? 'Wartet auf Freigabe'
+          : analysis.inFlightIds.length > 0
+            ? 'Bearbeitet Aufgaben'
+            : summary.waiting > 0
+              ? 'Bereit fuer den naechsten Versand'
+              : 'Bereit zum Start';
     const latestBatch = dispatchBatches[0];
     const latestBatchFollowUp = latestBatch
       ? this.getBatchFollowUp(latestBatch)
       : null;
-    const attentionSummary = this.getAttentionSummary(dispatchBatches.slice(0, 3));
+    const attentionSummary = this.getAttentionSummary(
+      dispatchBatches.slice(0, 3),
+    );
     const nextFlowNote = this.getNextFlowNote(effective, analysis);
+    const agentAttention = getWorkflowAgentAttention({
+      annotations,
+      awaitingConfirmationCount: analysis.awaitingConfirmationIds.length,
+      inFlightCount: analysis.inFlightIds.length,
+      latestBatchChannel: latestBatch?.channel,
+      latestBatchStatus: latestBatch?.status,
+    });
 
     return html`
       <div class="panel">
@@ -833,18 +852,31 @@ export class DsWorkflowPanel extends LitElement {
             <span class="flow-summary-meta">
               ${this.getChannelLabel(effective.channel)}
             </span>
-            <svg class="flow-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            <svg
+              class="flow-chevron"
+              viewBox="0 0 24 24"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M7 10l5 5 5-5"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
             </svg>
           </summary>
           <div class="flow-section-body">
             <div class="channel-group">
-              ${([
-                ['auto', 'Aktueller Agent'],
-                ['queue_only', 'Nur sammeln'],
-                ['codex', 'Codex'],
-                ['claude', 'Claude'],
-              ] as Array<[DispatchChannel, string]>).map(
+              ${(
+                [
+                  ['auto', 'Aktueller Agent'],
+                  ['queue_only', 'Nur sammeln'],
+                  ['codex', 'Codex'],
+                  ['claude', 'Claude'],
+                ] as Array<[DispatchChannel, string]>
+              ).map(
                 ([channel, label]) => html`
                   <button
                     class="channel-btn ${effective.channel === channel
@@ -862,7 +894,9 @@ export class DsWorkflowPanel extends LitElement {
             <div class="status-overview">
               <div class="status-card">
                 <div class="status-label">Uebergabeziel</div>
-                <div class="status-value">${this.getChannelLabel(effective.channel)}</div>
+                <div class="status-value">
+                  ${this.getChannelLabel(effective.channel)}
+                </div>
                 <div class="status-note">
                   ${effective.channel === 'queue_only'
                     ? 'Neue Aufgaben bleiben gesammelt, bis du sie bewusst weitergibst.'
@@ -873,7 +907,9 @@ export class DsWorkflowPanel extends LitElement {
               </div>
               <div class="status-card">
                 <div class="status-label">Queue-Status</div>
-                <div class="status-value">${this.getModeLabel(effective.mode)}</div>
+                <div class="status-value">
+                  ${this.getModeLabel(effective.mode)}
+                </div>
                 <div class="status-note">
                   ${effective.mode === 'threshold'
                     ? `Automatisch ab ${effective.threshold} offenen Aufgaben.`
@@ -888,8 +924,9 @@ export class DsWorkflowPanel extends LitElement {
                 <div class="status-note">
                   ${effective.channel === 'queue_only'
                     ? 'Sammelt Aufgaben ohne Versand. '
-                    : ''}${effective.concurrency} parallel, Fortsetzung ${effective.continuation ===
-                  'automatic'
+                    : ''}${effective.concurrency}
+                  parallel, Fortsetzung
+                  ${effective.continuation === 'automatic'
                     ? 'automatisch'
                     : effective.continuation === 'confirm'
                       ? 'mit Freigabe'
@@ -906,6 +943,18 @@ export class DsWorkflowPanel extends LitElement {
                 </div>
               </div>
             </div>
+
+            ${agentAttention
+              ? html`
+                  <div class="flow-note">
+                    <div class="flow-note-title">Agent-Status</div>
+                    <div class="flow-note-copy">
+                      <strong>${agentAttention.title}</strong>
+                      ${agentAttention.copy}
+                    </div>
+                  </div>
+                `
+              : nothing}
           </div>
         </details>
 
@@ -917,17 +966,32 @@ export class DsWorkflowPanel extends LitElement {
                 Versandmodus, Kapazitaet und naechsten Batch steuern.
               </span>
             </span>
-            <span class="flow-summary-meta">${this.getModeLabel(effective.mode)}</span>
-            <svg class="flow-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            <span class="flow-summary-meta"
+              >${this.getModeLabel(effective.mode)}</span
+            >
+            <svg
+              class="flow-chevron"
+              viewBox="0 0 24 24"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M7 10l5 5 5-5"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
             </svg>
           </summary>
           <div class="flow-section-body">
             <div class="effective-now">
               <div class="effective-now-title">Wirksam jetzt</div>
               <div class="effective-now-copy">
-                ${this.getChannelLabel(effective.channel)}, ${this.getModeLabel(effective.mode)}, ${effective.concurrency}
-                parallel, Fortsetzung ${effective.continuation === 'automatic'
+                ${this.getChannelLabel(effective.channel)},
+                ${this.getModeLabel(effective.mode)}, ${effective.concurrency}
+                parallel, Fortsetzung
+                ${effective.continuation === 'automatic'
                   ? 'automatisch'
                   : effective.continuation === 'confirm'
                     ? 'mit Freigabe'
@@ -936,9 +1000,15 @@ export class DsWorkflowPanel extends LitElement {
             </div>
 
             <div class="summary">
-              <span class="summary-pill"><strong>${summary.waiting}</strong> Bereit</span>
-              <span class="summary-pill"><strong>${summary.active}</strong> In Arbeit</span>
-              <span class="summary-pill"><strong>${summary.completed}</strong> Erledigt</span>
+              <span class="summary-pill"
+                ><strong>${summary.waiting}</strong> Bereit</span
+              >
+              <span class="summary-pill"
+                ><strong>${summary.active}</strong> In Arbeit</span
+              >
+              <span class="summary-pill"
+                ><strong>${summary.completed}</strong> Erledigt</span
+              >
               ${analysis.awaitingConfirmationIds.length
                 ? html`<span class="summary-pill"
                     ><strong>${analysis.awaitingConfirmationIds.length}</strong>
@@ -957,7 +1027,11 @@ export class DsWorkflowPanel extends LitElement {
               <div class="controls">
                 <div class="control-pill">
                   Versand
-                  <select class="mode-select" .value=${effective.mode} @change=${this.handleModeChange}>
+                  <select
+                    class="mode-select"
+                    .value=${effective.mode}
+                    @change=${this.handleModeChange}
+                  >
                     <option value="manual">Manuell</option>
                     <option value="immediate">Sofort</option>
                     <option value="threshold">Ab Schwelle</option>
@@ -1000,11 +1074,24 @@ export class DsWorkflowPanel extends LitElement {
           <summary class="flow-summary">
             <span class="flow-summary-copy">
               <span class="title">Letzte Batches</span>
-              <span class="panel-copy">Status und Nacharbeit der letzten Laeufe.</span>
+              <span class="panel-copy"
+                >Status und Nacharbeit der letzten Laeufe.</span
+              >
             </span>
             <span class="flow-summary-meta">${dispatchBatches.length}</span>
-            <svg class="flow-chevron" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            <svg
+              class="flow-chevron"
+              viewBox="0 0 24 24"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M7 10l5 5 5-5"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
             </svg>
           </summary>
           <div class="flow-section-body">
@@ -1014,9 +1101,14 @@ export class DsWorkflowPanel extends LitElement {
                     <div class="batch-summary">
                       <div class="batch-summary-row">
                         <div class="batch-channel">
-                          ${this.getChannelLabel(latestBatch.channel as DispatchChannel)}
+                          ${this.getChannelLabel(
+                            latestBatch.channel as DispatchChannel,
+                          )}
                         </div>
-                        <div class="batch-status" data-status=${latestBatch.status}>
+                        <div
+                          class="batch-status"
+                          data-status=${latestBatch.status}
+                        >
                           ${this.getBatchStatusLabel(latestBatch.status)}
                         </div>
                       </div>
@@ -1038,15 +1130,23 @@ export class DsWorkflowPanel extends LitElement {
                       <div class="batch-summary-meta">
                         <span
                           >Freigegeben
-                          ${this.formatBatchReleasedAt(latestBatch.releasedAt)}</span
+                          ${this.formatBatchReleasedAt(
+                            latestBatch.releasedAt,
+                          )}</span
                         >
-                        <span>${latestBatch.annotationIds.length} Aufgaben</span>
+                        <span
+                          >${latestBatch.annotationIds.length} Aufgaben</span
+                        >
                         <span>${latestBatch.completedCount} fertig</span>
                         ${latestBatch.processingCount
-                          ? html`<span>${latestBatch.processingCount} aktiv</span>`
+                          ? html`<span
+                              >${latestBatch.processingCount} aktiv</span
+                            >`
                           : nothing}
                         ${latestBatch.queuedCount
-                          ? html`<span>${latestBatch.queuedCount} wartend</span>`
+                          ? html`<span
+                              >${latestBatch.queuedCount} wartend</span
+                            >`
                           : nothing}
                         ${latestBatch.failedCount
                           ? html`<span>${latestBatch.failedCount} Fehler</span>`
@@ -1056,8 +1156,12 @@ export class DsWorkflowPanel extends LitElement {
                     ${attentionSummary
                       ? html`
                           <div class="flow-note">
-                            <div class="flow-note-title">${attentionSummary.title}</div>
-                            <div class="flow-note-copy">${attentionSummary.copy}</div>
+                            <div class="flow-note-title">
+                              ${attentionSummary.title}
+                            </div>
+                            <div class="flow-note-copy">
+                              ${attentionSummary.copy}
+                            </div>
                           </div>
                         `
                       : nothing}
@@ -1067,7 +1171,9 @@ export class DsWorkflowPanel extends LitElement {
                           <div class="batch-item">
                             <div class="batch-row">
                               <div class="batch-channel">
-                                ${this.getChannelLabel(batch.channel as DispatchChannel)}
+                                ${this.getChannelLabel(
+                                  batch.channel as DispatchChannel,
+                                )}
                               </div>
                               <div
                                 class="batch-status"
@@ -1079,15 +1185,23 @@ export class DsWorkflowPanel extends LitElement {
                             <div class="batch-meta">
                               <span
                                 >Freigegeben
-                                ${this.formatBatchReleasedAt(batch.releasedAt)}</span
+                                ${this.formatBatchReleasedAt(
+                                  batch.releasedAt,
+                                )}</span
                               >
-                              <span>${batch.annotationIds.length} Aufgaben</span>
+                              <span
+                                >${batch.annotationIds.length} Aufgaben</span
+                              >
                               <span>${batch.completedCount} fertig</span>
                               ${batch.processingCount
-                                ? html`<span>${batch.processingCount} aktiv</span>`
+                                ? html`<span
+                                    >${batch.processingCount} aktiv</span
+                                  >`
                                 : nothing}
                               ${batch.queuedCount
-                                ? html`<span>${batch.queuedCount} wartend</span>`
+                                ? html`<span
+                                    >${batch.queuedCount} wartend</span
+                                  >`
                                 : nothing}
                               ${batch.failedCount
                                 ? html`<span>${batch.failedCount} Fehler</span>`
@@ -1108,10 +1222,13 @@ export class DsWorkflowPanel extends LitElement {
                 `
               : html`
                   <div class="batch-empty">
-                    <div class="batch-empty-title">Bereit fuer den ersten Batch</div>
+                    <div class="batch-empty-title">
+                      Bereit fuer den ersten Batch
+                    </div>
                     <div class="batch-empty-copy">
                       Sobald du die ersten Aufgaben freigibst oder versendest,
-                      siehst du hier Uebergabeziel, Status und Fortschritt des letzten Laufs.
+                      siehst du hier Uebergabeziel, Status und Fortschritt des
+                      letzten Laufs.
                     </div>
                   </div>
                 `}

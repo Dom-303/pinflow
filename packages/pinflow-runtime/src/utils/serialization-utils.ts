@@ -27,6 +27,12 @@ export interface SerializationOptions extends SerializationConstraints {
   replacer?: (key: string, value: unknown) => unknown;
 
   /**
+   * Optional string transformer applied before string truncation.
+   * Used by capturers to redact PII while the full string is still available.
+   */
+  transformString?: (value: string, key?: string) => string;
+
+  /**
    * Set of property keys to skip during serialization.
    * Properties with these keys are omitted from the output at any depth.
    */

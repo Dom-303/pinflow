@@ -10,9 +10,15 @@
 import { z } from 'zod';
 import {
   AnnotationContextSchema,
+  AnnotationDispatchSchema,
+  AnnotationDispatchTargetSchema,
   AnnotationIdSchema,
   AnnotationInteractionSchema,
   AnnotationSchema,
+  AnnotationVerificationComparisonSchema,
+  AnnotationVerificationDomSnapshotSchema,
+  AnnotationVerificationSchema,
+  AnnotationVerificationStatusSchema,
   InteractionModeSchema,
   ManifestEntryIdSchema,
   ManifestEntrySchema,
@@ -102,6 +108,17 @@ export type AnnotationListResponse = z.infer<
 /* =============================
  * Annotation - Process
  * ============================= */
+export const AnnotationProcessRequestBodySchema = z
+  .object({
+    dispatchTarget: AnnotationDispatchTargetSchema.optional().describe(
+      'Session-local provider/channel that will handle the claimed annotation',
+    ),
+  })
+  .nullish();
+export type AnnotationProcessRequestBody = z.infer<
+  typeof AnnotationProcessRequestBodySchema
+>;
+
 export const AnnotationProcessResponseSchema = z
   .object({
     found: z.boolean().describe('Whether an annotation was found and claimed'),
@@ -130,6 +147,12 @@ export const AnnotationProcessResponseSchema = z
       .describe('The source location'),
     runtimeContext: RuntimeContextSchema.optional().describe(
       'The runtime context',
+    ),
+    claim: AnnotationSchema.shape.metadata.shape.claim
+      .optional()
+      .describe('Claim and lease metadata for this annotation'),
+    dispatch: AnnotationDispatchSchema.optional().describe(
+      'Provider-neutral handling assignment',
     ),
     fullAnnotation: AnnotationSchema.optional().describe('The full annotation'),
   })
@@ -190,6 +213,36 @@ export const AnnotationUpdateResponseResponseSchema = z.object({
 
 export type AnnotationUpdateResponseResponse = z.infer<
   typeof AnnotationUpdateResponseResponseSchema
+>;
+
+/* =============================
+ * Annotation - Verify
+ * ============================= */
+export const AnnotationVerifyRequestParamsSchema = z.object({
+  id: AnnotationIdSchema.describe('The annotation ID to verify'),
+});
+export type AnnotationVerifyRequestParams = z.infer<
+  typeof AnnotationVerifyRequestParamsSchema
+>;
+
+export const AnnotationVerifyResponseSchema =
+  AnnotationVerificationSchema.extend({
+    annotationId: AnnotationIdSchema,
+    sourceLocation: AnnotationVerificationSchema.shape.sourceLocation,
+    runtime: z
+      .object({
+        rendered: z.boolean(),
+        elementFound: z.boolean().optional(),
+        contextCaptured: z.boolean().optional(),
+        domSnapshot: AnnotationVerificationDomSnapshotSchema.optional(),
+      })
+      .optional(),
+    comparison: AnnotationVerificationComparisonSchema.optional(),
+    status: AnnotationVerificationStatusSchema,
+    annotation: AnnotationSchema.optional(),
+  });
+export type AnnotationVerifyResponse = z.infer<
+  typeof AnnotationVerifyResponseSchema
 >;
 
 /* =============================
@@ -383,6 +436,13 @@ export const StatusResponseSchema = z.object({
     cacheHitRate: z.number(),
   }),
   annotations: z.record(AnnotationStatusSchema, z.number()),
+  browser: z
+    .object({
+      connected: z.boolean(),
+      clientCount: z.number(),
+      sessions: z.array(z.lazy(() => BrowserSessionSchema)).optional(),
+    })
+    .optional(),
 });
 
 export type StatusResponse = z.infer<typeof StatusResponseSchema>;
@@ -414,6 +474,23 @@ export const WSContextResponseSchema = z.object({
 });
 export type WSContextResponse = z.infer<typeof WSContextResponseSchema>;
 
+export const BrowserSessionSchema = z.object({
+  sessionId: z.string(),
+  pageUrl: z.string().optional(),
+  route: z.string().optional(),
+  pageTitle: z.string().optional(),
+  connectedAt: z.string().optional(),
+  lastSeenAt: z.string().optional(),
+});
+export type BrowserSession = z.infer<typeof BrowserSessionSchema>;
+
+export const BrowserSessionUpdateSchema = BrowserSessionSchema.partial().extend(
+  {
+    sessionId: z.string(),
+  },
+);
+export type BrowserSessionUpdate = z.infer<typeof BrowserSessionUpdateSchema>;
+
 /* =============================
  * Query By Source
  * ============================= */
@@ -438,11 +515,16 @@ export const QueryBySourceRequestSchema = z.object({
     .optional()
     .default(true)
     .describe('Whether to query live runtime context from the browser'),
+  sessionId: z
+    .string()
+    .optional()
+    .describe('Browser session ID to target for runtime context'),
 });
 export type QueryBySourceRequest = z.infer<typeof QueryBySourceRequestSchema>;
 
 export const QueryBySourceReasonSchema = z.enum([
   'manifest_entry_not_found',
+  'manifest_stale',
   'browser_not_connected',
   'runtime_not_requested',
   'runtime_timeout',
@@ -453,6 +535,8 @@ export const QueryBySourceReasonSchema = z.enum([
   'manifest_empty',
   'file_not_in_manifest',
   'source_line_not_found',
+  'multiple_browser_sessions',
+  'browser_session_not_found',
 ]);
 
 export const QueryBySourceMatchSchema = z.object({
@@ -516,6 +600,8 @@ export const QueryBySourceResponseSchema = z.object({
     .object({
       connected: z.boolean(),
       clientCount: z.number(),
+      sessions: z.array(BrowserSessionSchema).optional(),
+      selectedSessionId: z.string().optional(),
     })
     .optional()
     .describe('Browser connection details for runtime context capture'),
@@ -525,6 +611,24 @@ export const QueryBySourceResponseSchema = z.object({
       fileCount: z.number(),
       componentCount: z.number(),
       lastUpdated: z.string().nullable(),
+      freshness: z
+        .object({
+          status: z.enum(['fresh', 'stale', 'unknown']),
+          stale: z.boolean(),
+          reason: z.enum([
+            'source_newer_than_manifest',
+            'source_not_found',
+            'manifest_not_found',
+            'source_not_on_disk',
+            'manifest_fresh',
+          ]),
+          sourceFile: z.string(),
+          sourceMtimeMs: z.number().optional(),
+          manifestMtimeMs: z.number().optional(),
+          checkedAt: z.string(),
+          repairHint: z.string().optional(),
+        })
+        .optional(),
     })
     .optional()
     .describe('Manifest metadata at query time'),

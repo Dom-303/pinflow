@@ -66,6 +66,12 @@ describe('POST /api/v1/annotations/process', () => {
       expect(body.userIntent).toBe('First annotation');
       expect(body.element).toBeDefined();
       expect(body.element.tagName).toBe('button');
+      expect(body.fullAnnotation.metadata.status).toBe('claimed');
+      expect(body.claim).toMatchObject({
+        claimedBy: 'pinflow-agent',
+      });
+      expect(body.claim.claimedAt).toEqual(expect.any(String));
+      expect(body.claim.leaseExpiresAt).toEqual(expect.any(String));
     });
 
     it('should return sourceLocation when manifest entry exists', async () => {
@@ -116,6 +122,47 @@ describe('POST /api/v1/annotations/process', () => {
           expect(body2.annotationId).not.toBe(body1.annotationId);
         }
       }
+    });
+
+    it('should attach dispatch target from the process request', async () => {
+      const freshServer = await createTestServer({
+        manifestEntries: [manifestEntry],
+      });
+
+      await freshServer.app.inject({
+        method: 'POST',
+        url: '/api/v1/annotations',
+        payload: createAnnotationInput({
+          userMessage: 'Dispatch target',
+          dataDs: manifestEntry.id,
+        }),
+      });
+
+      const response = await freshServer.app.inject({
+        method: 'POST',
+        url: '/api/v1/annotations/process',
+        payload: {
+          dispatchTarget: {
+            provider: 'claude',
+            label: 'Claude Code',
+            sessionId: 'terminal-2',
+          },
+        },
+      });
+
+      expectStatus(response, 200);
+
+      const body = response.json();
+      expect(body.dispatch).toMatchObject({
+        target: {
+          provider: 'claude',
+          label: 'Claude Code',
+          sessionId: 'terminal-2',
+        },
+      });
+      expect(body.fullAnnotation.dispatch).toMatchObject(body.dispatch);
+
+      cleanupTestServer(freshServer);
     });
   });
 

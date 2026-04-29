@@ -18,7 +18,15 @@ import type { PinFlowVuePluginOptions } from './types.js';
  * Direct `/node_modules/` paths bypass pre-bundling and create separate
  * module instances with separate singletons, which breaks runtime capture.
  */
-const INIT_MODULE_PATH = '/@pinflow/vue-init.js';
+const INIT_MODULE_BASE_PATH = '/@pinflow/vue-init.js';
+const PINFLOW_DEV_CACHE_TAG = 'pinflow-ui-2026-04-23b';
+const INIT_MODULE_PATH = `${INIT_MODULE_BASE_PATH}?v=${PINFLOW_DEV_CACHE_TAG}`;
+
+function isInitModuleRequest(id: string): boolean {
+  return (
+    id === INIT_MODULE_BASE_PATH || id.startsWith(`${INIT_MODULE_BASE_PATH}?`)
+  );
+}
 
 /**
  * PinFlow Vite plugin for Vue projects.
@@ -44,6 +52,7 @@ const INIT_MODULE_PATH = '/@pinflow/vue-init.js';
 export function pinflow(options?: PinFlowVuePluginOptions): Plugin {
   const basePlugin = basePinFlow(options);
   const baseTransformIndexHtml = basePlugin.transformIndexHtml;
+  const baseTransform = basePlugin.transform;
   const baseResolveId =
     typeof basePlugin.resolveId === 'function' ? basePlugin.resolveId : null;
   const baseLoad =
@@ -52,14 +61,14 @@ export function pinflow(options?: PinFlowVuePluginOptions): Plugin {
   basePlugin.name = 'vite-plugin-pinflow-vue';
 
   basePlugin.resolveId = function (id, ...args) {
-    if (id === INIT_MODULE_PATH) {
+    if (isInitModuleRequest(id)) {
       return INIT_MODULE_PATH;
     }
     return baseResolveId?.call(this, id, ...args) ?? null;
   };
 
   basePlugin.load = function (id, ...args) {
-    if (id === INIT_MODULE_PATH) {
+    if (isInitModuleRequest(id)) {
       const rt = options?.runtime ?? {};
       const cap = options?.capture ?? {};
       const debug = options?.debug ?? false;
@@ -83,6 +92,35 @@ export function pinflow(options?: PinFlowVuePluginOptions): Plugin {
       ].join('\n');
     }
     return baseLoad?.call(this, id, ...args) ?? null;
+  };
+
+  basePlugin.transform = async function (code, sourceFile) {
+    const baseTransformFn =
+      typeof baseTransform === 'function' ? baseTransform : undefined;
+    const baseResult = baseTransformFn
+      ? await baseTransformFn.call(this, code, sourceFile)
+      : null;
+
+    if (
+      !baseResult ||
+      typeof baseResult !== 'object' ||
+      !('code' in baseResult)
+    ) {
+      return baseResult;
+    }
+
+    // In SSR-style Vue setups, index.html injection may not run. This guarded
+    // preamble keeps runtime capture available without changing project files.
+    const vueInitPreamble =
+      `if(typeof window!=='undefined'&&!window.__PINFLOW_VUE_INIT__){` +
+      `window.__PINFLOW_VUE_INIT__=true;` +
+      `import('${INIT_MODULE_PATH}').catch(function(){})` +
+      `}\n`;
+
+    return {
+      ...baseResult,
+      code: vueInitPreamble + baseResult.code,
+    };
   };
 
   basePlugin.transformIndexHtml = (): IndexHtmlTransformResult => {

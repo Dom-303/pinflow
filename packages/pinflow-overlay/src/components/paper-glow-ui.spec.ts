@@ -61,13 +61,11 @@ const mockState = {
     componentProps?: Record<string, unknown>;
     componentState?: Record<string, unknown>;
   },
-  manifestEntry: null as
-    | null
-    | {
-        id: string;
-        file: string;
-        start: { line: number | null; column: number | null };
-      },
+  manifestEntry: null as null | {
+    id: string;
+    file: string;
+    start: { line: number | null; column: number | null };
+  },
   dispatchProjectDefaults: {
     channel: 'auto' as const,
     mode: 'manual' as const,
@@ -113,11 +111,15 @@ import './ds-session-settings.js';
 import './ds-workflow-panel.js';
 import './ds-annotation-list.js';
 
-async function openSettingsOverlay(sidebar: HTMLElement & {
-  shadowRoot: ShadowRoot;
-  updateComplete: Promise<unknown>;
-}) {
-  const header = sidebar.shadowRoot.querySelector('ds-header') as HTMLElement & {
+async function openSettingsOverlay(
+  sidebar: HTMLElement & {
+    shadowRoot: ShadowRoot;
+    updateComplete: Promise<unknown>;
+  },
+) {
+  const header = sidebar.shadowRoot.querySelector(
+    'ds-header',
+  ) as HTMLElement & {
     shadowRoot: ShadowRoot;
     updateComplete: Promise<unknown>;
   };
@@ -285,7 +287,9 @@ describe('Paper Glow UI contract', () => {
     undoButton.click();
     await input.updateComplete;
 
-    expect(input.shadowRoot.textContent).toContain('Wirklich rueckgaengig machen?');
+    expect(input.shadowRoot.textContent).toContain(
+      'Wirklich rueckgaengig machen?',
+    );
     expect(mockStore.undoLastAction).not.toHaveBeenCalled();
 
     const confirmButton = input.shadowRoot.querySelector(
@@ -322,9 +326,7 @@ describe('Paper Glow UI contract', () => {
       'button[aria-label="Anmerkung senden"]',
     ) as HTMLButtonElement;
 
-    expect(textarea?.getAttribute('placeholder')).toBe(
-      'Relay verbinden ...',
-    );
+    expect(textarea?.getAttribute('placeholder')).toBe('Relay verbinden ...');
     expect(input.shadowRoot.textContent).not.toContain('Kommentar und Auftrag');
     expect(input.shadowRoot.textContent).not.toContain('Auswahl Kein Element');
     expect(input.shadowRoot.textContent).not.toContain('Flow Codex');
@@ -336,12 +338,16 @@ describe('Paper Glow UI contract', () => {
     expect(agentButton.textContent?.replace(/\s+/g, ' ').trim()).toBe('');
     expect(agentButton.getAttribute('title')).toContain('Aktueller Agent');
     expect(
-      input.shadowRoot.querySelector('button[aria-label="Einstellungen oeffnen"]'),
+      input.shadowRoot.querySelector(
+        'button[aria-label="Einstellungen oeffnen"]',
+      ),
     ).toBeNull();
     expect(submitButton).not.toBeNull();
     agentButton.click();
     await input.updateComplete;
-    const menuPanel = input.shadowRoot.querySelector('.menu-panel') as HTMLElement;
+    const menuPanel = input.shadowRoot.querySelector(
+      '.menu-panel',
+    ) as HTMLElement;
     const fallbackGroup = input.shadowRoot.querySelector(
       '.fallback-group',
     ) as HTMLDetailsElement;
@@ -472,11 +478,14 @@ describe('Paper Glow UI contract', () => {
 
     await picker.updateComplete;
 
-    const pickerText = picker.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+    const pickerText =
+      picker.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
 
     expect(pickerText).toContain('ESC zum Beenden');
     expect(pickerText).not.toContain('Markiere jetzt dein Zielelement');
-    expect(pickerText).not.toContain('Der helle Rahmen zeigt dir immer das aktuell getroffene Element.');
+    expect(pickerText).not.toContain(
+      'Der helle Rahmen zeigt dir immer das aktuell getroffene Element.',
+    );
     expect(pickerText).toContain('ESC');
 
     const pickerNotice = picker.shadowRoot.querySelector('.picker-toast');
@@ -653,7 +662,9 @@ describe('Paper Glow UI contract', () => {
     );
     await picker.updateComplete;
 
-    const regionBox = picker.shadowRoot.querySelector('.region-box') as HTMLElement;
+    const regionBox = picker.shadowRoot.querySelector(
+      '.region-box',
+    ) as HTMLElement;
     regionBox.dispatchEvent(
       new PointerEvent('pointerdown', {
         bubbles: true,
@@ -737,9 +748,13 @@ describe('Paper Glow UI contract', () => {
     };
     await picker.updateComplete;
 
-    window.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: 30, clientY: 30 }));
+    window.dispatchEvent(
+      new MouseEvent('click', { bubbles: true, clientX: 30, clientY: 30 }),
+    );
     pointTarget = second;
-    window.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: 110, clientY: 30 }));
+    window.dispatchEvent(
+      new MouseEvent('click', { bubbles: true, clientX: 110, clientY: 30 }),
+    );
     await picker.updateComplete;
 
     expect(picker.shadowRoot.textContent?.replace(/\s+/g, ' ')).toContain(
@@ -747,7 +762,10 @@ describe('Paper Glow UI contract', () => {
     );
 
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
-    expect(mockStore.selectMultipleElements).toHaveBeenCalledWith([first, second]);
+    expect(mockStore.selectMultipleElements).toHaveBeenCalledWith([
+      first,
+      second,
+    ]);
   });
 
   it('confirms multi picker selections from the overlay action button', async () => {
@@ -781,7 +799,9 @@ describe('Paper Glow UI contract', () => {
     };
     await picker.updateComplete;
 
-    window.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: 30, clientY: 30 }));
+    window.dispatchEvent(
+      new MouseEvent('click', { bubbles: true, clientX: 30, clientY: 30 }),
+    );
     await picker.updateComplete;
 
     const confirmButton = Array.from(
@@ -865,11 +885,15 @@ describe('Paper Glow UI contract', () => {
 
     await tab.updateComplete;
 
-    const brandMark = tab.shadowRoot.querySelector('.tab-mark svg') as SVGElement | null;
+    const brandMark = tab.shadowRoot.querySelector(
+      '.tab-mark svg',
+    ) as SVGElement | null;
     expect(brandMark).not.toBeNull();
     expect(getComputedStyle(brandMark as Element).width).toBe('52px');
-    expect(getComputedStyle(tab.shadowRoot.querySelector('.tab-mark') as Element).transform)
-      .toContain('scaleX(-1)');
+    expect(
+      getComputedStyle(tab.shadowRoot.querySelector('.tab-mark') as Element)
+        .transform,
+    ).toContain('scaleX(-1)');
   });
 
   it('renders the sidebar shell from deterministic store state', async () => {
@@ -911,7 +935,8 @@ describe('Paper Glow UI contract', () => {
 
     await sidebar.updateComplete;
 
-    const sidebarText = sidebar.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+    const sidebarText =
+      sidebar.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
 
     const workspaceTop = sidebar.shadowRoot.querySelector(
       '.workspace-top',
@@ -946,16 +971,23 @@ describe('Paper Glow UI contract', () => {
     expect(drawers).toHaveLength(1);
     expect(drawers[0].hasAttribute('open')).toBe(false);
     expect(
-      drawers[0].querySelector('.context-summary')?.textContent?.replace(/\s+/g, ' ').trim(),
+      drawers[0]
+        .querySelector('.context-summary')
+        ?.textContent?.replace(/\s+/g, ' ')
+        .trim(),
     ).toBe('Auswahl');
     expect(queueDrawers).toHaveLength(1);
     expect(queueDrawers[0].hasAttribute('open')).toBe(false);
     expect(
-      queueDrawers[0].querySelector('.queue-summary')?.textContent?.replace(/\s+/g, ' ').trim(),
+      queueDrawers[0]
+        .querySelector('.queue-summary')
+        ?.textContent?.replace(/\s+/g, ' ')
+        .trim(),
     ).toBe('Warteliste');
     expect(sidebar.shadowRoot.querySelector('.active-run-drawer')).toBeNull();
     expect(activeRunPanel).not.toBeNull();
-    const activeRunText = activeRunPanel?.textContent?.replace(/\s+/g, ' ') ?? '';
+    const activeRunText =
+      activeRunPanel?.textContent?.replace(/\s+/g, ' ') ?? '';
     expect(activeRunText).toContain('Aktiver Lauf');
     expect(activeRunText).toContain('Hero-Text kuerzen');
     expect(activeRunText).toContain('CTA schaerfen');
@@ -968,7 +1000,7 @@ describe('Paper Glow UI contract', () => {
     expect(
       Boolean(
         workspaceTop.compareDocumentPosition(composerDock) &
-          Node.DOCUMENT_POSITION_FOLLOWING,
+        Node.DOCUMENT_POSITION_FOLLOWING,
       ),
     ).toBe(true);
     expect(workspaceTop?.contains(elementPreview)).toBe(true);
@@ -1004,16 +1036,20 @@ describe('Paper Glow UI contract', () => {
       }),
     );
     await sidebar.updateComplete;
-    expect((sidebar as HTMLElement).style.getPropertyValue('--composer-height')).toBe(
-      '260px',
-    );
+    expect(
+      (sidebar as HTMLElement).style.getPropertyValue('--composer-height'),
+    ).toBe('260px');
 
     const settingsOverlay = await openSettingsOverlay(sidebar);
     const overlayText =
       settingsOverlay.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
     expect(overlayText).toContain('Arbeitsbereich anpassen');
-    expect(settingsOverlay.shadowRoot.querySelector('ds-workflow-panel')).not.toBeNull();
-    expect(settingsOverlay.shadowRoot.querySelector('ds-annotation-list')).not.toBeNull();
+    expect(
+      settingsOverlay.shadowRoot.querySelector('ds-workflow-panel'),
+    ).not.toBeNull();
+    expect(
+      settingsOverlay.shadowRoot.querySelector('ds-annotation-list'),
+    ).not.toBeNull();
     expect(settingsOverlay.shadowRoot.querySelector('.sheet')).not.toBeNull();
   });
 
@@ -1047,13 +1083,17 @@ describe('Paper Glow UI contract', () => {
     expect(sidebar.shadowRoot.querySelector('.mini-content')).not.toBeNull();
     expect(miniLogo).not.toBeNull();
     expect(miniLogo?.getAttribute('src')).toContain('pinflow-icon-light');
-    expect(sidebar.shadowRoot.querySelector('ds-annotation-input')).not.toBeNull();
+    expect(
+      sidebar.shadowRoot.querySelector('ds-annotation-input'),
+    ).not.toBeNull();
     expect(sidebar.shadowRoot.querySelector('ds-header')).toBeNull();
     expect(sidebar.shadowRoot.querySelector('.main-content')).toBeNull();
     expect(miniText).toContain('PinFlow');
     expect(miniText).toContain('aktiv');
     expect(miniText).not.toContain('Composer');
-    expect(sidebar.shadowRoot.querySelector('.mini-status.active')).not.toBeNull();
+    expect(
+      sidebar.shadowRoot.querySelector('.mini-status.active'),
+    ).not.toBeNull();
 
     expandButton?.click();
     expect(mockStore.setMode).toHaveBeenCalledWith('expanded');
@@ -1083,17 +1123,23 @@ describe('Paper Glow UI contract', () => {
     expect(
       settingsOverlay.shadowRoot.querySelectorAll('.tab-btn'),
     ).toHaveLength(3);
-    expect(settingsOverlay.shadowRoot.querySelector('.settings-nav')).not.toBeNull();
-    expect(settingsOverlay.shadowRoot.querySelector('.sheet-body.scrollable')).not.toBeNull();
-    expect(settingsOverlay.shadowRoot.querySelector('.backdrop')).not.toBeNull();
+    expect(
+      settingsOverlay.shadowRoot.querySelector('.settings-nav'),
+    ).not.toBeNull();
+    expect(
+      settingsOverlay.shadowRoot.querySelector('.sheet-body.scrollable'),
+    ).not.toBeNull();
+    expect(
+      settingsOverlay.shadowRoot.querySelector('.backdrop'),
+    ).not.toBeNull();
     expect(overlayText).toContain('Elementwahl');
     expect(overlayText).toContain('Element');
     expect(overlayText).toContain('Bereich');
     expect(overlayText).toContain('Mehrfach');
     expect(
-      Array.from(settingsOverlay.shadowRoot.querySelectorAll('.settings-card')).every(
-        (card) => !(card as HTMLDetailsElement).open,
-      ),
+      Array.from(
+        settingsOverlay.shadowRoot.querySelectorAll('.settings-card'),
+      ).every((card) => !(card as HTMLDetailsElement).open),
     ).toBe(true);
     const pickerModeButtons = Array.from(
       settingsOverlay.shadowRoot.querySelectorAll(
@@ -1144,7 +1190,10 @@ describe('Paper Glow UI contract', () => {
 
     const host = document.createElement('div');
     document.body.appendChild(host);
-    render(html`<ds-annotation-item .annotation=${annotation}></ds-annotation-item>`, host);
+    render(
+      html`<ds-annotation-item .annotation=${annotation}></ds-annotation-item>`,
+      host,
+    );
 
     const item = host.querySelector('ds-annotation-item') as HTMLElement & {
       shadowRoot: ShadowRoot;
@@ -1156,7 +1205,9 @@ describe('Paper Glow UI contract', () => {
     let itemText = item.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
     expect(itemText).toContain('In Bearbeitung');
 
-    const collapsedRow = item.shadowRoot.querySelector('.collapsed-row') as HTMLElement;
+    const collapsedRow = item.shadowRoot.querySelector(
+      '.collapsed-row',
+    ) as HTMLElement;
     collapsedRow.click();
     await item.updateComplete;
 
@@ -1164,6 +1215,62 @@ describe('Paper Glow UI contract', () => {
     expect(itemText).toContain('In Bearbeitung');
     expect(itemText).toContain('PinFlow arbeitet gerade an dieser Aenderung.');
     expect(itemText).toContain('vor');
+  });
+
+  it('renders agent summary details inside expanded annotation cards', async () => {
+    const annotation = {
+      metadata: {
+        id: 'note-agent',
+        status: 'failed',
+        timestamp: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+        errorDetails: 'Browser nicht verbunden',
+      },
+      context: {
+        userMessage: 'CTA klarer formulieren',
+      },
+      interaction: {
+        selectedElement: {
+          tagName: 'button',
+        },
+      },
+      dispatch: {
+        target: { provider: 'codex' },
+        assignedAt: '2026-04-29T12:00:00.000Z',
+      },
+      verification: {
+        status: 'unable',
+        checkedAt: '2026-04-29T12:01:00.000Z',
+        reasons: ['browser_not_connected'],
+      },
+    };
+
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    render(
+      html`<ds-annotation-item .annotation=${annotation}></ds-annotation-item>`,
+      host,
+    );
+
+    const item = host.querySelector('ds-annotation-item') as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await item.updateComplete;
+
+    const collapsedRow = item.shadowRoot.querySelector(
+      '.collapsed-row',
+    ) as HTMLElement;
+    collapsedRow.click();
+    await item.updateComplete;
+
+    const itemText = item.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+    expect(itemText).toContain('Agent-Zusammenfassung');
+    expect(itemText).toContain('Codex');
+    expect(itemText).toContain('Fehler: Browser nicht verbunden');
+    expect(itemText).toContain('Pruefung nicht moeglich');
+    expect(itemText).toContain('Browser nicht verbunden');
+    expect(itemText).toContain('Fehler ansehen oder erneut senden');
   });
 
   it('renders session settings with project defaults and an empty override state', async () => {
@@ -1260,7 +1367,9 @@ describe('Paper Glow UI contract', () => {
     document.body.appendChild(host);
     render(html`<ds-workflow-panel></ds-workflow-panel>`, host);
 
-    const workflowPanel = host.querySelector('ds-workflow-panel') as HTMLElement & {
+    const workflowPanel = host.querySelector(
+      'ds-workflow-panel',
+    ) as HTMLElement & {
       shadowRoot: ShadowRoot;
       updateComplete: Promise<unknown>;
     };
@@ -1284,6 +1393,52 @@ describe('Paper Glow UI contract', () => {
       '1 Aufgabe aus den letzten 1 Batch braucht Nacharbeit oder erneuten Versand.',
     );
     expect(workflowText).toContain('Claude');
+  });
+
+  it('renders workflow agent attention above batch history', async () => {
+    mockState.annotations = [
+      {
+        id: 'note-failed',
+        metadata: {
+          status: 'failed',
+        },
+      },
+    ];
+    mockState.dispatchBatches = [
+      {
+        id: 'batch-failed',
+        channel: 'codex',
+        annotationIds: ['note-failed'],
+        releasedAt: '2026-04-29T12:00:00.000Z',
+        status: 'failed',
+        queuedCount: 0,
+        processingCount: 0,
+        completedCount: 0,
+        failedCount: 1,
+      },
+    ];
+
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    render(html`<ds-workflow-panel></ds-workflow-panel>`, host);
+
+    const workflowPanel = host.querySelector(
+      'ds-workflow-panel',
+    ) as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await workflowPanel.updateComplete;
+
+    const workflowText =
+      workflowPanel.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+
+    expect(workflowText).toContain('Agent-Status');
+    expect(workflowText).toContain('Fehler brauchen Aufmerksamkeit');
+    expect(workflowText).toContain(
+      '1 Aufgabe ist fehlgeschlagen. Fehler in der Annotation pruefen.',
+    );
   });
 
   it('renders batch history notes for failed and completed runs', async () => {
@@ -1320,7 +1475,9 @@ describe('Paper Glow UI contract', () => {
     document.body.appendChild(host);
     render(html`<ds-workflow-panel></ds-workflow-panel>`, host);
 
-    const workflowPanel = host.querySelector('ds-workflow-panel') as HTMLElement & {
+    const workflowPanel = host.querySelector(
+      'ds-workflow-panel',
+    ) as HTMLElement & {
       shadowRoot: ShadowRoot;
       updateComplete: Promise<unknown>;
     };
@@ -1350,7 +1507,8 @@ describe('Paper Glow UI contract', () => {
 
     await preview.updateComplete;
 
-    let previewText = preview.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+    let previewText =
+      preview.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
     expect(previewText).toContain('Noch kein Element ausgewaehlt');
     expect(previewText).toContain('Elementaufnahme bereit');
     expect(previewText).toContain(
@@ -1412,7 +1570,9 @@ describe('Paper Glow UI contract', () => {
   });
 
   it('renders safe collecting states for queue-only and paused sessions', async () => {
-    mockState.annotations = [{ id: 'note-queue', metadata: { status: 'queued' } }];
+    mockState.annotations = [
+      { id: 'note-queue', metadata: { status: 'queued' } },
+    ];
     mockState.dispatchProjectDefaults = {
       channel: 'queue_only',
       mode: 'manual',
@@ -1432,7 +1592,9 @@ describe('Paper Glow UI contract', () => {
     document.body.appendChild(host);
     render(html`<ds-workflow-panel></ds-workflow-panel>`, host);
 
-    const workflowPanel = host.querySelector('ds-workflow-panel') as HTMLElement & {
+    const workflowPanel = host.querySelector(
+      'ds-workflow-panel',
+    ) as HTMLElement & {
       shadowRoot: ShadowRoot;
       updateComplete: Promise<unknown>;
     };
@@ -1481,7 +1643,9 @@ describe('Paper Glow UI contract', () => {
     document.body.appendChild(host);
     render(html`<ds-workflow-panel></ds-workflow-panel>`, host);
 
-    const workflowPanel = host.querySelector('ds-workflow-panel') as HTMLElement & {
+    const workflowPanel = host.querySelector(
+      'ds-workflow-panel',
+    ) as HTMLElement & {
       shadowRoot: ShadowRoot;
       updateComplete: Promise<unknown>;
     };
@@ -1522,7 +1686,9 @@ describe('Paper Glow UI contract', () => {
     document.body.appendChild(host);
     render(html`<ds-workflow-panel></ds-workflow-panel>`, host);
 
-    const workflowPanel = host.querySelector('ds-workflow-panel') as HTMLElement & {
+    const workflowPanel = host.querySelector(
+      'ds-workflow-panel',
+    ) as HTMLElement & {
       shadowRoot: ShadowRoot;
       updateComplete: Promise<unknown>;
     };

@@ -32,12 +32,15 @@ A developer clicks an element in the running app, types an instruction, and subm
 
 | From         | To           | Trigger                                  |
 | ------------ | ------------ | ---------------------------------------- |
-| `QUEUED`     | `PROCESSING` | Agent calls `pinflow.annotation.process` |
-| `PROCESSING` | `PROCESSED`  | Agent calls `pinflow.annotation.respond` |
+| `QUEUED`     | `CLAIMED`    | Agent calls `pinflow.annotation.process` |
+| `CLAIMED`    | `PROCESSING` | Agent starts explicit work, if needed    |
+| `CLAIMED`    | `PROCESSED`  | Agent responds, verifies, then completes |
+| `PROCESSING` | `PROCESSED`  | Agent responds, verifies, then completes |
 | `PROCESSING` | `FAILED`     | Agent error or timeout                   |
+| `FAILED`     | `QUEUED`     | Developer or agent retries the task      |
 | `PROCESSED`  | `ARCHIVED`   | Developer archives via overlay           |
 
-The agent claims an annotation atomically (preventing double-processing), edits the relevant source files, then responds with a summary. The overlay receives the state change via WebSocket and updates in real time.
+The agent claims an annotation with readable lease metadata, edits the relevant source files, responds with a summary, verifies the same live element again, and then marks the annotation `PROCESSED`. Expired leases can return to `QUEUED` with a readable failure reason and retry count.
 
 ## WebSocket Events
 

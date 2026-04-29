@@ -29,6 +29,12 @@ describe('AnnotationsProcessTool', () => {
           componentProps: { disabled: false },
           componentState: { loading: false },
         },
+        claim: {
+          claimedBy: 'pinflow-agent',
+          claimedAt: '2026-04-29T10:00:00.000Z',
+          leaseExpiresAt: '2026-04-29T10:15:00.000Z',
+          token: 'claim-token',
+        },
         fullAnnotation: { metadata: { id: 'ann_123' } },
       };
       const mockClient = createMockRelayClient({
@@ -46,7 +52,30 @@ describe('AnnotationsProcessTool', () => {
         nextStep:
           'Implement the change described in userIntent. ' +
           'Then call the PinFlow source query tool with the same file and line to verify your changes in the live browser. ' +
-          'Then call pinflow.annotation.respond with your summary, then pinflow.annotation.updateStatus with status "processed".',
+          'Then call pinflow.annotation.respond with your summary, pinflow.annotation.verify, and finally pinflow.annotation.updateStatus with status "processed" if verification is confident.',
+      });
+    });
+
+    it('should pass dispatch target input to the relay client', async () => {
+      const mockClient = createMockRelayClient({
+        processAnnotation: vi.fn().mockResolvedValue({
+          found: false,
+        }),
+      });
+      const tool = new AnnotationsProcessTool(mockClient);
+
+      await tool.toolCallback({
+        provider: 'codex',
+        label: 'Codex CLI',
+        sessionId: 'terminal-1',
+      });
+
+      expect(mockClient.processAnnotation).toHaveBeenCalledWith({
+        dispatchTarget: {
+          provider: 'codex',
+          label: 'Codex CLI',
+          sessionId: 'terminal-1',
+        },
       });
     });
 

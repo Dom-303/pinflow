@@ -58,14 +58,57 @@ agent can continue from the roadmap without relying on conversation history.
 
 ### Current Status
 
-- Overall: Phase 1 is in progress.
-- Latest completed step: `pinflow.query.bySource` now exposes stronger
-  source-match results, candidates, confidence, failure reasons, manifest
-  context, browser/runtime state, path normalization, and ambiguous source-path
-  candidates.
-- Latest verification: focused Prettier, Vitest, TypeScript, and
-  `git diff --check` passed for the changed packages.
-- UI status: no visible PinFlow UI changes have been made in this roadmap step.
+- Overall: Phase 1 build-focus tasks are implemented; Phase 2A queue/claim,
+  Phase 2B verification API, Phase 3A dispatch/channel contract work, and
+  Phase 3B browser-session awareness are implemented on branch
+  `codex/phase1-golden-path-complete`. Phase 3C Vue/Nuxt parity and Phase 3D
+  doctor diagnostics are implemented on the same branch. The remaining
+  roadmap work is now a manual local preview review, then release/tag/publish
+  only after approval.
+- Latest completed step: Release preparation. README, RELEASE.md, and
+  CHANGELOG now mention the Golden Path demo check; the release candidate has
+  fresh repo-level and demo-level verification, but no public release has been
+  created yet.
+- Latest verification: `env NX_DAEMON=false corepack pnpm run build:all`
+  passed outside the sandbox for 12 projects, running `lint`, `test`, `build`,
+  and `typecheck`. The direct WebSocket suite also passed outside the sandbox:
+  `npx vitest run packages/pinflow-relay/src/server/ws-server.spec.ts`
+  reported 5/5 tests passing. The same WebSocket test still cannot bind
+  `127.0.0.1` inside the sandbox (`listen EPERM`), and the broad Nx run cannot
+  start plugin workers inside the sandbox, so both checks need normal local
+  permissions. Package E focused verification passed with
+  `npx vitest run packages/pinflow-overlay/src/core/agent-summary.spec.ts packages/pinflow-overlay/src/components/paper-glow-ui.spec.ts`,
+  `npx tsc -p packages/pinflow-overlay/tsconfig.lib.json --noEmit`, and
+  `git diff --check`. `npx tsc -p packages/pinflow-overlay/tsconfig.spec.json --noEmit`
+  still reports pre-existing test mock typing issues in
+  `paper-glow-ui.spec.ts` and `overlay-store.undo.spec.ts`. Package 5 focused
+  verification passed with
+  `npx vitest run packages/pinflow-test-fixtures/shared/pinflow-preview.spec.ts packages/pinflow-test-fixtures/shared/fixture-installer.spec.ts`,
+  `corepack pnpm run pinflow:preview -- --prepare-only`, and
+  `corepack pnpm -C packages/pinflow-test-fixtures exec playwright test sixty-second-demo.spec.ts`.
+  The reusable target also passed with
+  `corepack pnpm nx demo-e2e pinflow-test-fixtures`; focused lint and
+  TypeScript checks passed with
+  `npx eslint packages/pinflow-test-fixtures/e2e/sixty-second-demo.spec.ts` and
+  `npx tsc -p packages/pinflow-test-fixtures/tsconfig.spec.json --noEmit`.
+  Package 6 release-prep verification passed with
+  `corepack pnpm run release:check` and
+  `corepack pnpm nx demo-e2e pinflow-test-fixtures`.
+- UI status: the approved small overlay UI update for package E has been
+  implemented. No broader overlay redesign was made.
+
+### Remaining Work Order
+
+| Order | Package                              | Status         | Scope                                                                                                    |
+| ----- | ------------------------------------ | -------------- | -------------------------------------------------------------------------------------------------------- |
+| 1     | Roadmap cleanup and verification     | Done           | Corrected stale roadmap statuses, ran local verification, and recorded the result here.                  |
+| 2     | 60-second demo definition            | Done           | Defined the first React/Vite demo flow and expected fixture behavior.                                    |
+| 3     | Overlay agent-summary planning       | Done           | Approved a small plan for existing annotation cards and workflow panel, without adding a new UI surface. |
+| 4     | Overlay agent-summary implementation | Done           | Added compact agent summaries to existing annotation cards and agent attention to the workflow panel.    |
+| 5     | Demo/fixture automation              | Done           | Added the Golden Path fixture element, source-query/HMR E2E, demo target, and stale-package guardrails.  |
+| 6     | Release preparation                  | Done           | Final checks passed, install/release docs and changelog mention the Golden Path demo check.              |
+| 7     | Local preview review                 | In progress    | Start the local PinFlow preview for manual inspection before release/tag/publish.                        |
+| 8     | Public demo or benchmark             | Optional later | Only after the core loop and release candidate are reliable.                                             |
 
 ### Completion Log
 
@@ -81,6 +124,63 @@ agent can continue from the roadmap without relying on conversation history.
   `ambiguous_source_path` with `pathCandidates` for monorepo ambiguity.
 - 2026-04-28: Split runtime context failures so PinFlow can distinguish
   "element found" from "context capture failed."
+- 2026-04-29: Added manifest freshness reporting for `query.bySource`, including
+  `manifest_stale`, per-file freshness metadata, and repair hints when source
+  files are newer than the manifest.
+- 2026-04-29: Added runtime privacy coverage and tightened redaction so
+  props/state strings are redacted before truncation and camelCase sensitive
+  fields like `sessionToken` are redacted.
+- 2026-04-29: Hardened `data-ds` ID stability so HMR/Fast Refresh can reuse
+  nearby IDs when source positions move slightly without reusing one old ID for
+  multiple moved elements.
+- 2026-04-29: Added the same source-exact agent rule to Codex/Claude-facing
+  docs: query PinFlow before visual frontend edits and re-query after editing
+  when possible.
+- 2026-04-29: Started Phase 2A by formalizing the backend annotation queue with
+  `claimed`, claim/lease metadata, expired-lease requeueing, readable
+  `errorDetails`, retry counts, and MCP/status docs so parallel agents can see
+  when work is already taken.
+- 2026-04-29: Added Phase 2B verification API: `pinflow.annotation.verify`,
+  `POST /api/v1/annotations/:id/verify`, persisted latest verification results,
+  and minimal before/after DOM tag/text/attribute comparison.
+- 2026-04-29: Started Phase 3A by adding provider-neutral dispatch metadata to
+  annotations and `pinflow.annotation.process`, including session-local channel
+  selection for Codex, Claude, manual handling, and other MCP-compatible agents.
+- 2026-04-29: Added Phase 3B browser-session awareness: WS clients announce
+  session metadata, the relay tracks connected sessions, `query.bySource`
+  exposes multiple tab/route ambiguity, and agents can retry with a specific
+  `sessionId`.
+- 2026-04-29: Started Phase 3C Vue/Nuxt parity by adding a guarded Vue/Vite
+  runtime init fallback for SSR-style setups and passing Nuxt runtime/capture
+  options into the client Vue adapter.
+- 2026-04-29: Added Phase 3D doctor diagnostics: `pinflow doctor` now checks
+  app/root setup, framework/package setup, manifest, relay health, browser
+  connection, and common MCP config files with clear repair hints.
+- 2026-04-29: Defined the first 60-second demo flow around the existing
+  React/Vite TypeScript preview fixture, including source/runtime expectations,
+  post-edit verification expectations, non-goals, and the later automation path
+  for package F.
+- 2026-04-29: Planned the overlay agent-summary follow-up for package E:
+  extend existing annotation cards and the existing workflow panel with compact
+  agent/channel, error, verification, and next-step information. No UI code was
+  changed in this planning step.
+- 2026-04-29: Implemented the approved overlay agent-summary follow-up:
+  annotation cards now expose agent/channel, failure, verification, and
+  next-step details, and the workflow panel now surfaces compact agent attention
+  for failed, waiting, or running work.
+- 2026-04-29: Verified package E with focused overlay tests, overlay lib
+  TypeScript, and `git diff --check`. The full overlay spec TypeScript check
+  still has older mock typing cleanup left.
+- 2026-04-29: Added package 5 demo/fixture automation: the React/Vite
+  TypeScript fixture now has a stable Golden Path element, the preview local
+  registry no longer proxies PinFlow packages from npm, fixture preview installs
+  force a fresh same-workspace package install, and
+  `sixty-second-demo.spec.ts` verifies source mapping, live runtime
+  `query.bySource`, HMR text update, and re-query.
+- 2026-04-29: Completed package 6 release preparation without publishing:
+  README, RELEASE.md, and CHANGELOG now call out the Golden Path demo check,
+  `corepack pnpm run release:check` passed, and
+  `corepack pnpm nx demo-e2e pinflow-test-fixtures` passed.
 
 ## Product Principles
 
@@ -131,17 +231,17 @@ annotation -> `query.bySource` -> agent edit target.
 
 ### Build Focus
 
-- [ ] Harden stable `data-ds` identity across HMR, Fast Refresh, and small source
+- [x] Harden stable `data-ds` identity across HMR, Fast Refresh, and small source
       moves.
-- [ ] Make manifest staleness visible and actionable.
+- [x] Make manifest staleness visible and actionable.
 - [x] Normalize source paths across app roots, workspaces, and monorepos.
 - [x] Upgrade `pinflow.query.bySource` into the central source-to-live-UI tool.
 - [x] Return candidates and confidence when multiple live elements match.
 - [x] Return specific failure reasons when a source location is not rendered.
-- [ ] Keep React/Next props and state capture small, serializable, and redacted.
+- [x] Keep React/Next props and state capture small, serializable, and redacted.
 - [x] Preserve capture failure reasons instead of silently omitting unavailable
       runtime context.
-- [ ] Write agent rules that tell Codex and Claude to query PinFlow before visual
+- [x] Write agent rules that tell Codex and Claude to query PinFlow before visual
       frontend edits.
 
 ### Acceptance Criteria
@@ -180,17 +280,17 @@ hit the right live UI place.
 
 ### Build Focus
 
-- [ ] Formalize queue states: queued, claimed, processing, processed, failed, and
+- [x] Formalize queue states: queued, claimed, processing, processed, failed, and
       archived.
-- [ ] Add a simple claim/lease model so parallel agents do not process the same
+- [x] Add a simple claim/lease model so parallel agents do not process the same
       annotation invisibly.
-- [ ] Show agent response summaries, failure reasons, and next action in the
+- [x] Show agent response summaries, failure reasons, and next action in the
       overlay.
-- [ ] Keep annotation artifacts local and readable.
-- [ ] Add re-capture for an existing annotation after an edit.
-- [ ] Add a minimal comparison between pre-edit and post-edit DOM/text/attribute
+- [x] Keep annotation artifacts local and readable.
+- [x] Add re-capture for an existing annotation after an edit.
+- [x] Add a minimal comparison between pre-edit and post-edit DOM/text/attribute
       context.
-- [ ] Define the first verification API only around the golden path before
+- [x] Define the first verification API only around the golden path before
       generalizing.
 
 ### Acceptance Criteria
@@ -220,13 +320,13 @@ more complete multi-agent, multi-framework tool.
 
 ### Build Focus
 
-- [ ] Add a provider-neutral dispatch contract for Codex, Claude, and manual
+- [x] Add a provider-neutral dispatch contract for Codex, Claude, and manual
       handling.
-- [ ] Support session-level channel selection without mutating project defaults.
-- [ ] Improve Vue/Nuxt parity using lessons from the React/Next golden path.
-- [ ] Model multiple routes/tabs as explicit sessions instead of implicit global
+- [x] Support session-level channel selection without mutating project defaults.
+- [x] Improve Vue/Nuxt parity using lessons from the React/Next golden path.
+- [x] Model multiple routes/tabs as explicit sessions instead of implicit global
       state.
-- [ ] Strengthen `pinflow doctor` checks for relay health, browser connection,
+- [x] Strengthen `pinflow doctor` checks for relay health, browser connection,
       manifest presence, app root, framework package, and setup status.
 - [ ] Consider public demos or benchmarks only after the core loop is reliable.
 
@@ -259,7 +359,8 @@ These are the highest-value small steps to take from this roadmap.
 
 ### 1. Define The 60-Second Demo
 
-Status: not started.
+Status: done. See
+[`2026-04-29-pinflow-60-second-demo-definition.md`](../reports/2026-04-29-pinflow-60-second-demo-definition.md).
 
 Create a small demo script and fixture expectation for:
 
@@ -293,7 +394,8 @@ Done when the gap list is concrete and testable.
 
 ### 3. Specify `pinflow doctor`
 
-Status: not started.
+Status: done. Implemented as `pinflow doctor`, with `/status` exposing browser
+connection/session data for the browser-connected check.
 
 Keep the first version boring and useful:
 
@@ -310,7 +412,9 @@ repair hint.
 
 ### 4. Tighten Agent Rules
 
-Status: not started.
+Status: done. Added the same source-exact rule to `skills/pinflow/SKILL.md`,
+`pinflow-power/POWER.md`, `packages/pinflow-mcp/README.md`, `AGENTS.md`, and
+`CLAUDE.md`.
 
 Codex and Claude should get the same simple instruction:
 
@@ -322,8 +426,11 @@ it.
 
 ### 5. Add Confidence And Failure Tests
 
-Status: partially done for `query.bySource`; still open for stale manifest,
-wrong route/session, and broader runtime edge cases.
+Status: mostly done for Phase 1 and Phase 3B. Covered multiple source matches,
+ambiguous source paths, stale manifest, source file not found, source line not
+found, no browser connected, element not rendered, runtime timeout, context
+capture failure, multiple browser sessions, and missing explicit browser
+session targets.
 
 Before adding clever detection, add tests for honest uncertainty:
 

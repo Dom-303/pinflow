@@ -8,7 +8,6 @@ interface MockNuxt {
     dev: boolean;
     rootDir: string;
     pinflow?: PinFlowNuxtOptions;
-    pinflow?: PinFlowNuxtOptions;
     app: {
       head: {
         script: Array<{ innerHTML: string }>;
@@ -20,10 +19,7 @@ interface MockNuxt {
 interface CapturedModuleDefinition {
   meta: Record<string, unknown>;
   defaults: PinFlowNuxtOptions;
-  setup: (
-    options: PinFlowNuxtOptions,
-    nuxt: MockNuxt,
-  ) => Promise<void> | void;
+  setup: (options: PinFlowNuxtOptions, nuxt: MockNuxt) => Promise<void> | void;
 }
 
 const {
@@ -320,6 +316,36 @@ describe('pinflowModule', () => {
         const innerHTML = scripts[0].innerHTML;
         expect(innerHTML).toContain('__PINFLOW_OVERLAY_OPTIONS__=');
         expect(innerHTML).toContain('"initialMode":"expanded"');
+        expect(innerHTML).toContain('"debug":true');
+      });
+
+      it('should inject runtime and adapter options for the client plugin', async () => {
+        const nuxt = createMockNuxt();
+
+        await callSetup(
+          {
+            debug: true,
+            relay: {},
+            overlay: false,
+            runtime: {
+              phase: 2,
+              redactPII: false,
+              blockSelectors: ['.secret'],
+            },
+            capture: {
+              maxTreeDepth: 12,
+            },
+          },
+          nuxt,
+        );
+
+        const innerHTML = nuxt.options.app.head.script[0].innerHTML;
+        expect(innerHTML).toContain('__PINFLOW_RUNTIME_OPTIONS__=');
+        expect(innerHTML).toContain('"phase":2');
+        expect(innerHTML).toContain('"redactPII":false');
+        expect(innerHTML).toContain('"blockSelectors":[".secret"]');
+        expect(innerHTML).toContain('__PINFLOW_ADAPTER_OPTIONS__=');
+        expect(innerHTML).toContain('"maxTreeDepth":12');
         expect(innerHTML).toContain('"debug":true');
       });
 

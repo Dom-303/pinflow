@@ -11,6 +11,7 @@ import type { Annotation } from '@pinflow/core';
 import { themeStyles, utilityStyles } from '../styles/theme.js';
 import { OverlayStore } from '../core/overlay-store.js';
 import { RelayService } from '../services/relay-service.js';
+import { getAnnotationAgentSummary } from '../core/agent-summary.js';
 
 // Import shared context panel component
 import './ds-context-panel.js';
@@ -284,6 +285,46 @@ export class DsAnnotationItem extends LitElement {
       }
 
       /* ======== Agent response ======== */
+      .agent-summary {
+        display: grid;
+        gap: 8px;
+        margin-top: var(--ds-space-sm);
+        padding: 10px 12px;
+        background: var(--ds-note-surface);
+        border: 1px solid var(--ds-chrome-divider);
+        border-radius: 12px;
+      }
+
+      .agent-summary-title {
+        font-size: var(--ds-font-size-xs);
+        font-weight: var(--ds-font-weight-semibold);
+        color: var(--ds-text-primary);
+      }
+
+      .agent-summary-grid {
+        display: grid;
+        gap: 6px;
+      }
+
+      .agent-summary-row {
+        display: grid;
+        grid-template-columns: minmax(84px, max-content) minmax(0, 1fr);
+        gap: 8px;
+        align-items: start;
+        font-size: var(--ds-font-size-xs);
+        line-height: 1.45;
+      }
+
+      .agent-summary-label {
+        color: var(--ds-text-tertiary);
+      }
+
+      .agent-summary-value {
+        min-width: 0;
+        color: var(--ds-text-secondary);
+        word-break: break-word;
+      }
+
       .agent-response {
         margin-top: var(--ds-space-sm);
         padding: 10px 12px;
@@ -680,7 +721,7 @@ export class DsAnnotationItem extends LitElement {
 
   private renderStatus(status: string) {
     return html`
-        <div class="status" data-status=${status}>
+      <div class="status" data-status=${status}>
         <span class="status-dot ${status}"></span>
         <span>${this.getStatusLabel(status)}</span>
       </div>
@@ -710,6 +751,46 @@ export class DsAnnotationItem extends LitElement {
           Assistent
         </div>
         ${message ? html`<div class="agent-message">${message}</div>` : nothing}
+      </div>
+    `;
+  }
+
+  private renderAgentSummary() {
+    if (!this.annotation) return nothing;
+
+    const summary = getAnnotationAgentSummary(this.annotation);
+
+    return html`
+      <div class="agent-summary">
+        <div class="agent-summary-title">Agent-Zusammenfassung</div>
+        <div class="agent-summary-grid">
+          ${summary.channelLabel
+            ? this.renderAgentSummaryRow('Agent', summary.channelLabel)
+            : nothing}
+          ${this.renderAgentSummaryRow(
+            'Status',
+            summary.statusDetail || summary.statusLabel,
+          )}
+          ${summary.verificationLabel
+            ? this.renderAgentSummaryRow('Pruefung', summary.verificationLabel)
+            : nothing}
+          ${summary.verificationDetail
+            ? this.renderAgentSummaryRow('Grund', summary.verificationDetail)
+            : nothing}
+          ${summary.responseExcerpt
+            ? this.renderAgentSummaryRow('Antwort', summary.responseExcerpt)
+            : nothing}
+          ${this.renderAgentSummaryRow('Naechster Schritt', summary.nextAction)}
+        </div>
+      </div>
+    `;
+  }
+
+  private renderAgentSummaryRow(label: string, value: string) {
+    return html`
+      <div class="agent-summary-row">
+        <span class="agent-summary-label">${label}</span>
+        <span class="agent-summary-value">${value}</span>
       </div>
     `;
   }
@@ -929,7 +1010,9 @@ export class DsAnnotationItem extends LitElement {
                   @keydown=${this.handleEditKeyDown}
                   @blur=${this.saveEdit}
                 ></textarea>
-                <div class="edit-hint">Enter zum Speichern, Esc zum Abbrechen</div>
+                <div class="edit-hint">
+                  Enter zum Speichern, Esc zum Abbrechen
+                </div>
               `
             : html`
                 <p
@@ -940,7 +1023,7 @@ export class DsAnnotationItem extends LitElement {
                   ${content}
                 </p>
               `}
-          ${this.renderAgentResponse()}
+          ${this.renderAgentSummary()} ${this.renderAgentResponse()}
 
           <ds-context-panel .props=${props} .state=${state}></ds-context-panel>
         </div>

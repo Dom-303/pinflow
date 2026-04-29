@@ -44,7 +44,7 @@ export function buildPreviewPlan(
     },
     {
       label: 'install',
-      command: `FIXTURE_ID=${options.fixtureId} REGISTRY_URL=${PINFLOW_PREVIEW_REGISTRY_URL} REGISTRY_PORT=${PINFLOW_PREVIEW_REGISTRY_PORT} corepack pnpm exec tsx packages/pinflow-test-fixtures/scripts/install-fixture.ts`,
+      command: `FIXTURE_ID=${options.fixtureId} REGISTRY_URL=${PINFLOW_PREVIEW_REGISTRY_URL} REGISTRY_PORT=${PINFLOW_PREVIEW_REGISTRY_PORT} FORCE_REINSTALL=1 corepack pnpm exec tsx packages/pinflow-test-fixtures/scripts/install-fixture.ts`,
       cwd: workspaceRoot,
     },
   ];

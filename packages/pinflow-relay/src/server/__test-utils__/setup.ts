@@ -33,6 +33,7 @@ import {
   registerAnnotationHandlers,
 } from '../handlers/index.js';
 import type { FastifyError } from 'fastify';
+import type { WSServer } from '../ws-server.js';
 
 /**
  * A running test server with real services and a temp workspace.
@@ -48,6 +49,7 @@ export interface CreateTestServerOptions {
   manifestEntries?: ManifestEntry[];
   port?: number;
   startTime?: number;
+  wsServer?: WSServer;
 }
 
 /**
@@ -99,6 +101,7 @@ export async function createTestServer(
   registerStatusHandler(app, manifestReader, annotationService, {
     port,
     startTime,
+    wsServer: options.wsServer,
   });
   registerManifestHandlers(app, manifestReader);
   registerAnnotationHandlers(app, annotationService, manifestReader);

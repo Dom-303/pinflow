@@ -26,6 +26,17 @@ pnpm run registry:publish
 FIXTURE_ID=vite-v5-react-18-ts pnpm run registry:install
 ```
 
+Run the canonical source-exact demo check before publishing:
+
+```bash
+corepack pnpm run pinflow:preview -- --prepare-only
+corepack pnpm nx demo-e2e pinflow-test-fixtures
+```
+
+This starts the React/Vite fixture, resolves the Golden Path element back to
+source, queries live runtime context through the relay, applies a small HMR
+text edit, and queries the same source location again.
+
 For broader confidence, run the fixture matrix that mirrors CI:
 
 ```bash

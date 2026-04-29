@@ -6,6 +6,9 @@
  *
  * @module @pinflow/nuxt/types
  */
+import type { PinFlowRuntimeOptions } from '@pinflow/runtime';
+import type { PinFlowVueCaptureOptions } from '@pinflow/vue/vite';
+
 export interface PinFlowNuxtOptions {
   /**
    * File pattern to include for transformation.
@@ -27,6 +30,16 @@ export interface PinFlowNuxtOptions {
    * @default false
    */
   debug?: boolean;
+
+  /**
+   * RuntimeManager configuration passed to the client plugin.
+   */
+  runtime?: PinFlowRuntimeOptions;
+
+  /**
+   * Vue adapter capture configuration passed to the client plugin.
+   */
+  capture?: PinFlowVueCaptureOptions;
 
   /**
    * Relay server configuration.

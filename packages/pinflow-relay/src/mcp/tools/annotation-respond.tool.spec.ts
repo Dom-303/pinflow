@@ -32,7 +32,7 @@ describe('AnnotationsRespondTool', () => {
         success: true,
         annotationId: 'ann_123',
         nextStep:
-          'Call pinflow.annotation.updateStatus with annotationId "ann_123" and status "processed" to complete the lifecycle.',
+          'Call pinflow.annotation.verify with annotationId "ann_123" before marking the annotation processed.',
       });
     });
 

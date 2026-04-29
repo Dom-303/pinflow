@@ -67,6 +67,8 @@ export class StatusRoute implements RelayRoute {
       const version = request.server.getDecorator<string>('relayVersion');
       const manifestStats = this.manifestReader.getStats();
       const annotationCounts = await this.annotationService.getCountByStatus();
+      const clientCount = this.options.wsServer?.getClientCount() ?? 0;
+      const sessions = this.options.wsServer?.getSessions() ?? [];
 
       return reply.status(HTTP_STATUS.OK).send({
         relay: {
@@ -76,6 +78,11 @@ export class StatusRoute implements RelayRoute {
         },
         manifest: manifestStats,
         annotations: annotationCounts,
+        browser: {
+          connected: clientCount > 0,
+          clientCount,
+          sessions,
+        },
       });
     } catch (error: unknown) {
       if (error instanceof PinFlowError) {

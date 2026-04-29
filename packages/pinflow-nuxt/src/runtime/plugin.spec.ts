@@ -64,6 +64,12 @@ describe('runtime/plugin', () => {
     delete (globalThis as unknown as Record<string, unknown>)[
       '__PINFLOW_OVERLAY_OPTIONS__'
     ];
+    delete (globalThis as unknown as Record<string, unknown>)[
+      '__PINFLOW_RUNTIME_OPTIONS__'
+    ];
+    delete (globalThis as unknown as Record<string, unknown>)[
+      '__PINFLOW_ADAPTER_OPTIONS__'
+    ];
   });
 
   it('should register a plugin function via defineNuxtPlugin', () => {
@@ -77,6 +83,35 @@ describe('runtime/plugin', () => {
     expect(mockGetInstance).toHaveBeenCalled();
     expect(mockCreateVueAdapter).toHaveBeenCalledWith({});
     expect(mockInitialize).toHaveBeenCalledWith({
+      adapter: { name: 'vue-adapter' },
+    });
+  });
+
+  it('should pass injected runtime and adapter options into RuntimeManager', async () => {
+    (globalThis as unknown as Record<string, unknown>)[
+      '__PINFLOW_RUNTIME_OPTIONS__'
+    ] = {
+      phase: 2,
+      redactPII: false,
+      blockSelectors: ['.secret'],
+    };
+    (globalThis as unknown as Record<string, unknown>)[
+      '__PINFLOW_ADAPTER_OPTIONS__'
+    ] = {
+      maxTreeDepth: 12,
+      debug: true,
+    };
+
+    await getPluginFn()();
+
+    expect(mockCreateVueAdapter).toHaveBeenCalledWith({
+      maxTreeDepth: 12,
+      debug: true,
+    });
+    expect(mockInitialize).toHaveBeenCalledWith({
+      phase: 2,
+      redactPII: false,
+      blockSelectors: ['.secret'],
       adapter: { name: 'vue-adapter' },
     });
   });

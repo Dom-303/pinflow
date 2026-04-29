@@ -7,8 +7,6 @@ import { describe, it, expect } from 'vitest';
 import {
   PinFlowError,
   PinFlowErrorCode,
-  PinFlowError,
-  PinFlowErrorCode,
   type ProblemDetails,
 } from './index.js';
 

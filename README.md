@@ -550,6 +550,12 @@ Statuswechsel über WebSocket.
 pnpm run pinflow:preview:vite-react
 ```
 
+Der wiederholbare Golden-Path-Democheck laeuft separat:
+
+```bash
+corepack pnpm nx demo-e2e pinflow-test-fixtures
+```
+
 Für den vollständigen Repo-Check:
 
 ```bash

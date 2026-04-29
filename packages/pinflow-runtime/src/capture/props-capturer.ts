@@ -6,7 +6,12 @@
 import type { FrameworkAdapter } from '../adapters/adapter.interface.js';
 import type { CaptureResult, PropsCaptureOptions } from './types.js';
 import { serializeValue } from '../utils/serialization.js';
-import { isRecord, redactPII, redactSensitiveFields } from '@pinflow/core';
+import {
+  isRecord,
+  redactPII,
+  redactSensitiveFields,
+  redactText,
+} from '@pinflow/core';
 import { ContextCaptureError } from '../errors/index.js';
 
 /**
@@ -48,6 +53,10 @@ export class PropsCapturer {
         maxProperties: this.options.maxProperties,
         maxTotalBytes: this.options.maxTotalBytes,
         includeFunctions: false,
+        transformString:
+          this.options.redactPII !== false
+            ? (value) => redactText(value)
+            : undefined,
         skipKeys: this.options.skipKeys,
         skipKeyPrefixes: this.options.skipKeyPrefixes,
       });

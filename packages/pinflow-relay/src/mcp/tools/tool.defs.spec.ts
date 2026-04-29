@@ -16,6 +16,7 @@ describe('tool.defs', () => {
       );
       expect(MCP_TOOLS.ANNOTATION_PROCESS).toBe('pinflow.annotation.process');
       expect(MCP_TOOLS.ANNOTATION_RESPOND).toBe('pinflow.annotation.respond');
+      expect(MCP_TOOLS.ANNOTATION_VERIFY).toBe('pinflow.annotation.verify');
       expect(MCP_TOOLS.ANNOTATION_SEARCH).toBe('pinflow.annotation.search');
       expect(MCP_TOOLS.STATUS).toBe('pinflow.status');
     });

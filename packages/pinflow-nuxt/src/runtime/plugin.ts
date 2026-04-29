@@ -9,15 +9,28 @@ import { RuntimeManager } from '@pinflow/runtime';
 import { createVueAdapter } from '@pinflow/vue';
 
 export default defineNuxtPlugin(async () => {
+  const win = window as unknown as Window & Record<string, unknown>;
+  const runtimeOptions =
+    typeof win.__PINFLOW_RUNTIME_OPTIONS__ === 'object' &&
+    win.__PINFLOW_RUNTIME_OPTIONS__ !== null
+      ? (win.__PINFLOW_RUNTIME_OPTIONS__ as Record<string, unknown>)
+      : {};
+  const adapterOptions =
+    typeof win.__PINFLOW_ADAPTER_OPTIONS__ === 'object' &&
+    win.__PINFLOW_ADAPTER_OPTIONS__ !== null
+      ? (win.__PINFLOW_ADAPTER_OPTIONS__ as Record<string, unknown>)
+      : {};
+
   RuntimeManager.getInstance().initialize({
-    adapter: createVueAdapter({}),
+    ...runtimeOptions,
+    adapter: createVueAdapter({ ...adapterOptions }),
   });
 
   // Initialize overlay if options were injected by the module's head script
-  const win = window as unknown as Window & Record<string, unknown>;
   if (win.__PINFLOW_OVERLAY_OPTIONS__) {
     try {
-      const { initOverlay } = await import('@pinflow/overlay');
+      const overlayPackage = '@pinflow/overlay';
+      const { initOverlay } = await import(overlayPackage);
       await initOverlay();
     } catch (e) {
       console.warn(

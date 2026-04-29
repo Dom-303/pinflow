@@ -8,7 +8,7 @@
  */
 
 import { API_PATHS, WS_EVENTS } from '@pinflow/core';
-import type { WSMessage } from '../schema.js';
+import type { BrowserSessionUpdate, WSMessage } from '../schema.js';
 
 /**
  * WebSocket event handler type
@@ -19,6 +19,11 @@ type WSEventHandler = (data: unknown) => void;
  * Connection state
  */
 type ConnectionState = 'disconnected' | 'connecting' | 'connected';
+
+type RelayWSClientOptions = {
+  debug?: boolean;
+  session?: BrowserSessionUpdate;
+};
 
 /**
  * Browser WebSocket client for relay server
@@ -42,6 +47,8 @@ export class RelayWSClient {
   private debug: boolean;
   /** WebSocket URL */
   private url: URL;
+  /** Browser session metadata sent to the relay on connection */
+  private session: BrowserSessionUpdate;
 
   /** Connection state */
   private _state: ConnectionState = 'disconnected';
@@ -49,10 +56,11 @@ export class RelayWSClient {
   constructor(
     private host: string,
     private port: number,
-    options?: { debug?: boolean },
+    options?: RelayWSClientOptions,
   ) {
     this.debug = options?.debug ?? false;
     this.url = new URL(API_PATHS.WS, `ws://${this.host}:${this.port}`);
+    this.session = this.createSession(options?.session);
   }
 
   /**
@@ -95,6 +103,7 @@ export class RelayWSClient {
           console.log('[pinflow-relay][ws-client] Connected');
         }
 
+        this.send(WS_EVENTS.BROWSER_SESSION_UPDATE, this.session);
         this.handleMessage(WS_EVENTS.CONNECTED, {});
       };
 
@@ -230,6 +239,34 @@ export class RelayWSClient {
         }
       }
     });
+  }
+
+  private createSession(session?: BrowserSessionUpdate): BrowserSessionUpdate {
+    const globalContext = globalThis as {
+      location?: {
+        href?: string;
+        pathname?: string;
+        search?: string;
+        hash?: string;
+      };
+      document?: { title?: string };
+      crypto?: { randomUUID?: () => string };
+    };
+    const location = globalContext.location;
+    const route =
+      location?.pathname !== undefined
+        ? `${location.pathname}${location.search ?? ''}${location.hash ?? ''}`
+        : undefined;
+
+    return {
+      sessionId:
+        session?.sessionId ??
+        globalContext.crypto?.randomUUID?.() ??
+        `browser-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+      pageUrl: session?.pageUrl ?? location?.href,
+      route: session?.route ?? route,
+      pageTitle: session?.pageTitle ?? globalContext.document?.title,
+    };
   }
 
   /**

@@ -54,6 +54,35 @@ describe('PUT /api/v1/annotations/:id/response', () => {
     );
   });
 
+  it('should store agent response on a claimed annotation', async () => {
+    const createResp = await server.app.inject({
+      method: 'POST',
+      url: '/api/v1/annotations',
+      payload: createAnnotationInput(),
+    });
+    const id = createResp.json().metadata.id;
+
+    await server.app.inject({
+      method: 'PUT',
+      url: `/api/v1/annotations/${id}/status`,
+      payload: { status: 'claimed' },
+    });
+
+    const response = await server.app.inject({
+      method: 'PUT',
+      url: `/api/v1/annotations/${id}/response`,
+      payload: { message: 'Implemented the requested change' },
+    });
+
+    expectStatus(response, 200);
+
+    const body = response.json();
+    expect(body.annotation.metadata.status).toBe('claimed');
+    expect(body.annotation.agentResponse.message).toBe(
+      'Implemented the requested change',
+    );
+  });
+
   it('should return 400 when neither message nor patchBundle is provided', async () => {
     // Create and transition to processing
     const createResp = await server.app.inject({

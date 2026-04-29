@@ -15,6 +15,7 @@ export const API_PATHS = {
   ANNOTATION_BY_ID: `/annotations/:id`,
   ANNOTATION_STATUS: `/annotations/:id/status`,
   ANNOTATION_RESPONSE: `/annotations/:id/response`,
+  ANNOTATION_VERIFY: `/annotations/:id/verify`,
   ANNOTATION_PROCESS: `/annotations/process`,
   ANNOTATION_SEARCH: `/annotations/search`,
 
@@ -55,6 +56,7 @@ export const WS_EVENTS = {
   // Context request/response events (relay↔browser bidirectional)
   CONTEXT_REQUEST: 'context:request',
   CONTEXT_RESPONSE: 'context:response',
+  BROWSER_SESSION_UPDATE: 'browser:session:update',
 } as const;
 
 /**
@@ -104,12 +106,14 @@ export const PATHS = {
   // Subdirectories
   ANNOTATIONS_DIR: '.pinflow/annotations',
   ANNOTATIONS_QUEUED: '.pinflow/annotations/queued',
+  ANNOTATIONS_CLAIMED: '.pinflow/annotations/claimed',
   ANNOTATIONS_PROCESSING: '.pinflow/annotations/processing',
   ANNOTATIONS_PROCESSED: '.pinflow/annotations/processed',
   ANNOTATIONS_FAILED: '.pinflow/annotations/failed',
   ANNOTATIONS_ARCHIVED: '.pinflow/annotations/archived',
   LEGACY_ANNOTATIONS_DIR: '.pinflow/annotations',
   LEGACY_ANNOTATIONS_QUEUED: '.pinflow/annotations/queued',
+  LEGACY_ANNOTATIONS_CLAIMED: '.pinflow/annotations/claimed',
   LEGACY_ANNOTATIONS_PROCESSING: '.pinflow/annotations/processing',
   LEGACY_ANNOTATIONS_PROCESSED: '.pinflow/annotations/processed',
   LEGACY_ANNOTATIONS_FAILED: '.pinflow/annotations/failed',

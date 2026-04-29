@@ -3,7 +3,7 @@
  *
  * Uses real AnnotationService and ManifestReader backed by temp directories.
  */
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import {
   createTestServer,
   cleanupTestServer,
@@ -48,5 +48,52 @@ describe('GET /status', () => {
     expect(body.manifest.fileCount).toBe(1);
     expect(body.annotations).toBeDefined();
     expect(body.annotations.queued).toBe(0);
+    expect(body.browser).toEqual({
+      connected: false,
+      clientCount: 0,
+      sessions: [],
+    });
+  });
+
+  it('should include connected browser session diagnostics', async () => {
+    const sessionServer = await createTestServer({
+      wsServer: {
+        broadcast: vi.fn(),
+        getClientCount: () => 1,
+        getSessions: () => [
+          {
+            sessionId: 'tab-web',
+            route: '/dashboard',
+            pageTitle: 'Dashboard',
+          },
+        ],
+        requestContext: vi.fn(),
+        close: vi.fn(),
+      },
+    });
+
+    try {
+      const response = await sessionServer.app.inject({
+        method: 'GET',
+        url: '/status',
+      });
+
+      expectStatus(response, 200);
+
+      const body = response.json();
+      expect(body.browser).toEqual({
+        connected: true,
+        clientCount: 1,
+        sessions: [
+          {
+            sessionId: 'tab-web',
+            route: '/dashboard',
+            pageTitle: 'Dashboard',
+          },
+        ],
+      });
+    } finally {
+      cleanupTestServer(sessionServer);
+    }
   });
 });

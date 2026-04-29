@@ -1,4 +1,6 @@
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
+import { describe, expect, it, vi } from 'vitest';
+
 import { StatusTool } from './status.tool.js';
 import { createMockRelayClient } from '../__test-utils__/mock-relay-client.js';
 import { MCP_TOOLS } from './tool.defs.js';
@@ -24,6 +26,7 @@ describe('StatusTool', () => {
         },
         annotations: {
           queued: 3,
+          claimed: 2,
           processing: 1,
           processed: 10,
           failed: 2,
@@ -66,10 +69,44 @@ describe('StatusTool', () => {
       const structured = result.structuredContent as Record<string, unknown>;
       expect(structured['annotations']).toEqual({
         queued: 0,
+        claimed: 0,
         processing: 0,
         processed: 0,
         failed: 0,
         archived: 0,
+      });
+    });
+
+    it('should expose browser connection status when available', async () => {
+      // Arrange
+      const mockClient = createMockRelayClient({
+        getStatus: vi.fn().mockResolvedValue({
+          relay: { version: '0.1.0', uptime: 0, port: 9876 },
+          manifest: {
+            entryCount: 0,
+            fileCount: 0,
+            componentCount: 0,
+            lastUpdated: null,
+            cacheHitRate: 0,
+          },
+          annotations: {},
+          browser: {
+            connected: true,
+            clientCount: 2,
+            sessions: [{ sessionId: 'tab-web', route: '/' }],
+          },
+        }),
+      });
+      const tool = new StatusTool(mockClient);
+
+      // Act
+      const result: CallToolResult = await tool.toolCallback({});
+
+      // Assert
+      const structured = result.structuredContent as Record<string, unknown>;
+      expect(structured['browser']).toEqual({
+        connected: true,
+        clientCount: 2,
       });
     });
 

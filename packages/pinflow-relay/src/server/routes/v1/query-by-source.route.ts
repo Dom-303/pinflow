@@ -81,7 +81,8 @@ export class QueryBySourceRoute implements RelayRoute {
     }>,
   ) {
     try {
-      const { file, line, column, tolerance, includeRuntime } = request.body;
+      const { file, line, column, tolerance, includeRuntime, sessionId } =
+        request.body;
       const stats = this.manifestReader.getStats();
       const manifest = {
         entryCount: stats.entryCount,
@@ -161,17 +162,43 @@ export class QueryBySourceRoute implements RelayRoute {
         candidates,
         reasons,
       };
+      const freshness = this.manifestReader.getFreshnessForFile(entry.file);
+      response.manifest = {
+        ...manifest,
+        freshness,
+      };
+      if (freshness.stale) {
+        reasons.push('manifest_stale');
+      }
 
       // Optional runtime query via WS
       if (includeRuntime) {
         const clientCount = this.wsServer.getClientCount();
+        const sessions = this.wsServer.getSessions();
         response.browserConnected = clientCount > 0;
         response.browser = {
           connected: response.browserConnected,
           clientCount,
+          ...(sessions.length > 0 ? { sessions } : {}),
+          ...(sessionId ? { selectedSessionId: sessionId } : {}),
         };
         if (response.browserConnected) {
-          const wsResult = await this.wsServer.requestContext(entry.id);
+          if (!sessionId && clientCount > 1) {
+            reasons.push('multiple_browser_sessions');
+          }
+          const sessionMissing =
+            Boolean(sessionId) &&
+            !sessions.some((session) => session.sessionId === sessionId);
+          if (sessionMissing) {
+            reasons.push('browser_session_not_found');
+            return reply.status(HTTP_STATUS.OK).send(response);
+          }
+
+          const wsResult = sessionId
+            ? await this.wsServer.requestContext(entry.id, undefined, {
+                sessionId,
+              })
+            : await this.wsServer.requestContext(entry.id);
           if (wsResult) {
             response.runtime = {
               rendered: wsResult.rendered ?? false,

@@ -76,8 +76,16 @@ html {
 body {
   font-family: var(--font-sans);
   background:
-    radial-gradient(circle at top left, rgba(255, 255, 255, 0.85), transparent 30%),
-    radial-gradient(circle at top right, rgba(255, 232, 204, 0.5), transparent 32%),
+    radial-gradient(
+      circle at top left,
+      rgba(255, 255, 255, 0.85),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at top right,
+      rgba(255, 232, 204, 0.5),
+      transparent 32%
+    ),
     linear-gradient(180deg, #f8f4ec 0%, #f2ece2 100%);
   color: var(--color-text-body);
   line-height: 1.6;
@@ -109,8 +117,11 @@ code {
   top: 0;
   bottom: 0;
   width: var(--sidebar-width);
-  background:
-    linear-gradient(180deg, rgba(255, 251, 246, 0.92) 0%, rgba(248, 241, 231, 0.94) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 251, 246, 0.92) 0%,
+    rgba(248, 241, 231, 0.94) 100%
+  );
   border-right: 1px solid var(--color-border-primary);
   box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.45);
   display: flex;
@@ -165,7 +176,11 @@ code {
   border-radius: 10px;
   background:
     radial-gradient(circle at top, rgba(255, 255, 255, 0.9), transparent 70%),
-    linear-gradient(180deg, rgba(255, 252, 247, 0.94), rgba(242, 234, 224, 0.92));
+    linear-gradient(
+      180deg,
+      rgba(255, 252, 247, 0.94),
+      rgba(242, 234, 224, 0.92)
+    );
   border: 1px solid rgba(115, 95, 78, 0.14);
   box-shadow: var(--shadow-sm);
   flex-shrink: 0;
@@ -352,8 +367,16 @@ code {
 
 .preview-rail-card-accent {
   background:
-    radial-gradient(circle at top right, rgba(180, 83, 9, 0.12), transparent 55%),
-    linear-gradient(180deg, rgba(255, 251, 245, 0.92), rgba(249, 240, 228, 0.92));
+    radial-gradient(
+      circle at top right,
+      rgba(180, 83, 9, 0.12),
+      transparent 55%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255, 251, 245, 0.92),
+      rgba(249, 240, 228, 0.92)
+    );
 }
 
 .preview-rail-card strong {
@@ -387,7 +410,11 @@ code {
   padding: 1.15rem;
   border-radius: 32px;
   background:
-    radial-gradient(circle at top right, rgba(235, 210, 176, 0.3), transparent 36%),
+    radial-gradient(
+      circle at top right,
+      rgba(235, 210, 176, 0.3),
+      transparent 36%
+    ),
     linear-gradient(180deg, rgba(255, 252, 247, 0.9), rgba(247, 241, 233, 0.92));
   border: 1px solid rgba(115, 95, 78, 0.12);
   box-shadow: var(--shadow-md);
@@ -403,7 +430,11 @@ code {
   overflow: hidden;
   background:
     radial-gradient(circle at top, rgba(255, 255, 255, 0.82), transparent 54%),
-    radial-gradient(circle at bottom, rgba(255, 215, 170, 0.18), transparent 55%),
+    radial-gradient(
+      circle at bottom,
+      rgba(255, 215, 170, 0.18),
+      transparent 55%
+    ),
     linear-gradient(180deg, #f6f0e8 0%, #f2ebe1 100%);
   border: 1px solid rgba(115, 95, 78, 0.12);
 }
@@ -509,7 +540,11 @@ code {
   align-items: center;
   justify-content: center;
   border-radius: 999px;
-  background: linear-gradient(135deg, rgba(180, 83, 9, 0.92), rgba(245, 158, 11, 0.92));
+  background: linear-gradient(
+    135deg,
+    rgba(180, 83, 9, 0.92),
+    rgba(245, 158, 11, 0.92)
+  );
   color: white;
   font-size: 0.9rem;
   font-weight: 800;
@@ -536,8 +571,11 @@ code {
 .placeholder-card {
   min-height: 220px;
   align-content: start;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(250, 244, 235, 0.86));
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.86),
+    rgba(250, 244, 235, 0.86)
+  );
 }
 
 .placeholder-label {
@@ -552,6 +590,33 @@ code {
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.golden-path-demo {
+  border-color: rgba(15, 118, 110, 0.22);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.86),
+    rgba(241, 250, 247, 0.76)
+  );
+}
+
+.golden-path-demo-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  align-items: center;
+}
+
+.golden-path-action {
+  border-color: rgba(15, 118, 110, 0.32);
+  background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
+  color: #f0fdfa;
+}
+
+.golden-path-action:hover {
+  background: linear-gradient(135deg, #115e59 0%, #134e4a 100%);
+  border-color: rgba(15, 118, 110, 0.52);
 }
 
 @media (max-width: 1100px) {

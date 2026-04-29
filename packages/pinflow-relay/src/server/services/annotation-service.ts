@@ -8,10 +8,12 @@ import type {
   AgentResponse,
   Annotation,
   AnnotationContext,
+  AnnotationDispatchTarget,
   AnnotationId,
   AnnotationInteraction,
   AnnotationStatus,
   AnnotationSummary,
+  AnnotationVerification,
   InteractionMode,
   ManifestEntry,
   ManifestEntryId,
@@ -22,6 +24,7 @@ import {
   generateAnnotationId,
   WS_EVENTS,
 } from '@pinflow/core';
+import { randomUUID } from 'crypto';
 import type { AnnotationStorageProvider } from './storage/annotation-storage.js';
 
 /**
@@ -29,6 +32,7 @@ import type { AnnotationStorageProvider } from './storage/annotation-storage.js'
  */
 const STATUSES: readonly AnnotationStatus[] = [
   AnnotationStatusEnum.QUEUED,
+  AnnotationStatusEnum.CLAIMED,
   AnnotationStatusEnum.PROCESSING,
   AnnotationStatusEnum.PROCESSED,
   AnnotationStatusEnum.FAILED,
@@ -40,7 +44,15 @@ const STATUSES: readonly AnnotationStatus[] = [
  */
 const VALID_TRANSITIONS: Record<AnnotationStatus, AnnotationStatus[]> = {
   [AnnotationStatusEnum.QUEUED]: [
+    AnnotationStatusEnum.CLAIMED,
     AnnotationStatusEnum.PROCESSING,
+    AnnotationStatusEnum.ARCHIVED,
+  ],
+  [AnnotationStatusEnum.CLAIMED]: [
+    AnnotationStatusEnum.QUEUED,
+    AnnotationStatusEnum.PROCESSING,
+    AnnotationStatusEnum.PROCESSED,
+    AnnotationStatusEnum.FAILED,
     AnnotationStatusEnum.ARCHIVED,
   ],
   [AnnotationStatusEnum.PROCESSING]: [
@@ -90,6 +102,17 @@ export interface SearchAnnotationsResult {
 export interface UpdateStatusOptions {
   errorDetails?: string;
 }
+
+export interface ClaimNextOptions {
+  maxRetries?: number;
+  agentId?: string;
+  leaseMs?: number;
+  now?: Date;
+  dispatchTarget?: AnnotationDispatchTarget;
+}
+
+const DEFAULT_CLAIM_AGENT_ID = 'pinflow-agent';
+const DEFAULT_CLAIM_LEASE_MS = 15 * 60 * 1000;
 
 /**
  * Event types emitted by AnnotationService
@@ -179,6 +202,7 @@ export class AnnotationService {
   ): Promise<ListAnnotationsResult> {
     const statuses = options.status ?? [
       AnnotationStatusEnum.QUEUED,
+      AnnotationStatusEnum.CLAIMED,
       AnnotationStatusEnum.PROCESSING,
       AnnotationStatusEnum.PROCESSED,
       AnnotationStatusEnum.FAILED,
@@ -237,6 +261,21 @@ export class AnnotationService {
     if (options.errorDetails !== undefined) {
       annotation.metadata.errorDetails = options.errorDetails;
     }
+    if (newStatus === AnnotationStatusEnum.CLAIMED) {
+      this.setClaimMetadata(annotation, {});
+    } else if (newStatus === AnnotationStatusEnum.QUEUED) {
+      delete annotation.metadata.claim;
+      if (currentStatus === AnnotationStatusEnum.FAILED) {
+        annotation.metadata.retryCount =
+          (annotation.metadata.retryCount ?? 0) + 1;
+      }
+    } else if (
+      newStatus === AnnotationStatusEnum.PROCESSED ||
+      newStatus === AnnotationStatusEnum.FAILED ||
+      newStatus === AnnotationStatusEnum.ARCHIVED
+    ) {
+      delete annotation.metadata.claim;
+    }
 
     // Write to new location
     await this.storage.write(annotation);
@@ -270,6 +309,7 @@ export class AnnotationService {
     }
 
     annotation.metadata.status = AnnotationStatusEnum.ARCHIVED;
+    delete annotation.metadata.claim;
     await this.storage.write(annotation);
     await this.storage.remove(id, currentStatus);
 
@@ -306,6 +346,7 @@ export class AnnotationService {
   async getCountByStatus(): Promise<Record<AnnotationStatus, number>> {
     const counts: Record<AnnotationStatus, number> = {
       [AnnotationStatusEnum.QUEUED]: 0,
+      [AnnotationStatusEnum.CLAIMED]: 0,
       [AnnotationStatusEnum.PROCESSING]: 0,
       [AnnotationStatusEnum.PROCESSED]: 0,
       [AnnotationStatusEnum.FAILED]: 0,
@@ -322,7 +363,18 @@ export class AnnotationService {
   /**
    * Atomically claim the next queued annotation for processing.
    */
-  async claimNext(maxRetries = 3): Promise<Annotation | null> {
+  async claimNext(
+    optionsOrMaxRetries: ClaimNextOptions | number = {},
+  ): Promise<Annotation | null> {
+    const options =
+      typeof optionsOrMaxRetries === 'number'
+        ? { maxRetries: optionsOrMaxRetries }
+        : optionsOrMaxRetries;
+    const maxRetries = options.maxRetries ?? 3;
+    const now = options.now ?? new Date();
+
+    await this.requeueExpiredLeases(now);
+
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       const { annotations } = await this.list({
         status: [AnnotationStatusEnum.QUEUED],
@@ -336,10 +388,19 @@ export class AnnotationService {
       const annotation = annotations[annotations.length - 1];
 
       try {
-        return await this.updateStatus(
+        const claimed = await this.updateStatus(
           annotation.metadata.id,
-          AnnotationStatusEnum.PROCESSING,
+          AnnotationStatusEnum.CLAIMED,
         );
+        this.setClaimMetadata(claimed, options, now);
+        if (options.dispatchTarget) {
+          claimed.dispatch = {
+            target: options.dispatchTarget,
+            assignedAt: now.toISOString(),
+          };
+        }
+        await this.storage.write(claimed);
+        return claimed;
       } catch (error) {
         // Race condition - another agent claimed it first, retry with next
         const message = error instanceof Error ? error.message : String(error);
@@ -368,10 +429,13 @@ export class AnnotationService {
       throw new Error(`Annotation not found: ${id}`);
     }
 
-    if (annotation.metadata.status !== AnnotationStatusEnum.PROCESSING) {
+    if (
+      annotation.metadata.status !== AnnotationStatusEnum.CLAIMED &&
+      annotation.metadata.status !== AnnotationStatusEnum.PROCESSING
+    ) {
       throw new Error(
         `Cannot respond to annotation in '${annotation.metadata.status}' status. ` +
-          `Must be in '${AnnotationStatusEnum.PROCESSING}' status.`,
+          `Must be in '${AnnotationStatusEnum.CLAIMED}' or '${AnnotationStatusEnum.PROCESSING}' status.`,
       );
     }
 
@@ -415,6 +479,29 @@ export class AnnotationService {
   }
 
   /**
+   * Persist the latest verification result on an annotation.
+   */
+  async recordVerification(
+    id: string,
+    verification: AnnotationVerification,
+  ): Promise<Annotation> {
+    const annotation = await this.get(id);
+    if (!annotation) {
+      throw new Error(`Annotation not found: ${id}`);
+    }
+
+    annotation.verification = verification;
+
+    await this.storage.write(annotation);
+    this.emit({
+      type: WS_EVENTS.ANNOTATION_UPDATED,
+      data: { id, status: annotation.metadata.status },
+    });
+
+    return annotation;
+  }
+
+  /**
    * Search annotations by various criteria.
    */
   async search(
@@ -425,6 +512,7 @@ export class AnnotationService {
 
     const statuses = status ?? [
       AnnotationStatusEnum.QUEUED,
+      AnnotationStatusEnum.CLAIMED,
       AnnotationStatusEnum.PROCESSING,
       AnnotationStatusEnum.PROCESSED,
       AnnotationStatusEnum.FAILED,
@@ -493,6 +581,65 @@ export class AnnotationService {
         listener(event);
       } catch {
         // Ignore listener errors
+      }
+    }
+  }
+
+  private setClaimMetadata(
+    annotation: Annotation,
+    options: Pick<
+      ClaimNextOptions,
+      'agentId' | 'leaseMs' | 'dispatchTarget'
+    > = {},
+    now = new Date(),
+  ): void {
+    const leaseMs = options.leaseMs ?? DEFAULT_CLAIM_LEASE_MS;
+    const claimedBy =
+      options.agentId ??
+      options.dispatchTarget?.label ??
+      options.dispatchTarget?.provider ??
+      DEFAULT_CLAIM_AGENT_ID;
+    annotation.metadata.claim = {
+      claimedBy,
+      claimedAt: now.toISOString(),
+      leaseExpiresAt: new Date(now.getTime() + leaseMs).toISOString(),
+      token: randomUUID(),
+    };
+  }
+
+  private async requeueExpiredLeases(now: Date): Promise<void> {
+    for (const status of [
+      AnnotationStatusEnum.CLAIMED,
+      AnnotationStatusEnum.PROCESSING,
+    ] as const) {
+      const annotations = await this.storage.listByStatus(status);
+
+      for (const annotation of annotations) {
+        const claim = annotation.metadata.claim;
+        if (!claim) {
+          continue;
+        }
+
+        if (new Date(claim.leaseExpiresAt).getTime() > now.getTime()) {
+          continue;
+        }
+
+        annotation.metadata.status = AnnotationStatusEnum.QUEUED;
+        annotation.metadata.retryCount =
+          (annotation.metadata.retryCount ?? 0) + 1;
+        annotation.metadata.errorDetails = `Claim lease expired for agent ${claim.claimedBy}`;
+        delete annotation.metadata.claim;
+
+        await this.storage.write(annotation);
+        await this.storage.remove(annotation.metadata.id, status);
+
+        this.emit({
+          type: WS_EVENTS.ANNOTATION_UPDATED,
+          data: {
+            id: annotation.metadata.id,
+            status: AnnotationStatusEnum.QUEUED,
+          },
+        });
       }
     }
   }

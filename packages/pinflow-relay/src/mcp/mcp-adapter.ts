@@ -25,6 +25,7 @@ import { AnnotationsListTool } from './tools/annotation-list.tool.js';
 import { AnnotationsProcessTool } from './tools/annotation-process.tool.js';
 import { AnnotationsUpdateStatusTool } from './tools/annotation-update-status.tool.js';
 import { AnnotationsRespondTool } from './tools/annotation-respond.tool.js';
+import { AnnotationVerifyTool } from './tools/annotation-verify.tool.js';
 import { AnnotationsSearchTool } from './tools/annotation-search.tool.js';
 import { StatusTool } from './tools/status.tool.js';
 import { QueryBySourceTool } from './tools/query-by-source.tool.js';
@@ -113,6 +114,7 @@ export class McpAdapter {
       new AnnotationsProcessTool(relayHttpClient),
       new AnnotationsUpdateStatusTool(relayHttpClient),
       new AnnotationsRespondTool(relayHttpClient),
+      new AnnotationVerifyTool(relayHttpClient),
       new AnnotationsSearchTool(relayHttpClient),
       new StatusTool(relayHttpClient),
       new QueryBySourceTool(relayHttpClient),

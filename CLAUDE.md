@@ -27,6 +27,10 @@ PinFlow is a pixel-to-code development tool, based on PinFlow, that lets develop
 
 **Don't over-engineer.** Match the complexity of existing code. No premature abstractions, no speculative features, no redundant tests.
 
+**Source-exact frontend workflow.** For visual frontend work, ask PinFlow for
+source/runtime context with `pinflow.query.bySource` before editing, and
+re-query the same source location after editing when possible.
+
 **Ask before visible UI changes.** Do not change the visible PinFlow UI,
 overlay layout, styling, copy, README screenshots/assets, or user workflow
 surfaces without first explaining what would change and getting user approval.

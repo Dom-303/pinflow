@@ -22,6 +22,7 @@ export const MCP_TOOLS = {
   ANNOTATION_UPDATE_STATUS: 'pinflow.annotation.updateStatus',
   ANNOTATION_PROCESS: 'pinflow.annotation.process',
   ANNOTATION_RESPOND: 'pinflow.annotation.respond',
+  ANNOTATION_VERIFY: 'pinflow.annotation.verify',
   ANNOTATION_SEARCH: 'pinflow.annotation.search',
   // Query tools
   QUERY_BY_SOURCE: 'pinflow.query.bySource',
@@ -39,6 +40,7 @@ export const MCP_TOOL_COMPAT_ALIASES: Record<McpToolName, string[]> = {
   [MCP_TOOLS.ANNOTATION_UPDATE_STATUS]: ['pinflow.annotation.updateStatus'],
   [MCP_TOOLS.ANNOTATION_PROCESS]: ['pinflow.annotation.process'],
   [MCP_TOOLS.ANNOTATION_RESPOND]: ['pinflow.annotation.respond'],
+  [MCP_TOOLS.ANNOTATION_VERIFY]: ['pinflow.annotation.verify'],
   [MCP_TOOLS.ANNOTATION_SEARCH]: ['pinflow.annotation.search'],
   [MCP_TOOLS.QUERY_BY_SOURCE]: ['pinflow.query.bySource'],
   [MCP_TOOLS.STATUS]: ['pinflow.status'],

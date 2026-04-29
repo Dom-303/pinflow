@@ -5,10 +5,13 @@ import { RelayWSClient } from './relay-ws-client.js';
 let mockInstances: MockWebSocket[];
 
 class MockWebSocket {
+  static OPEN = 1;
+  readyState = MockWebSocket.OPEN;
   onopen: (() => void) | null = null;
   onmessage: ((event: { data: string }) => void) | null = null;
   onclose: ((event: { code: number; reason: string }) => void) | null = null;
   onerror: ((event: unknown) => void) | null = null;
+  send = vi.fn();
   close = vi.fn();
 
   constructor() {
@@ -66,6 +69,32 @@ describe('RelayWSClient', () => {
       lastWs().onopen?.();
 
       expect(handler).toHaveBeenCalledWith({});
+    });
+
+    it('should announce browser session metadata on open', () => {
+      client = new RelayWSClient('127.0.0.1', 9876, {
+        session: {
+          sessionId: 'tab-web',
+          pageUrl: 'http://localhost:3000/dashboard?filter=open',
+          route: '/dashboard',
+          pageTitle: 'Dashboard',
+        },
+      });
+
+      client.connect();
+      lastWs().onopen?.();
+
+      expect(lastWs().send).toHaveBeenCalledWith(
+        JSON.stringify({
+          event: WS_EVENTS.BROWSER_SESSION_UPDATE,
+          data: {
+            sessionId: 'tab-web',
+            pageUrl: 'http://localhost:3000/dashboard?filter=open',
+            route: '/dashboard',
+            pageTitle: 'Dashboard',
+          },
+        }),
+      );
     });
   });
 

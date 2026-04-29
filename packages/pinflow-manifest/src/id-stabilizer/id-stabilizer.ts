@@ -42,6 +42,14 @@ import {
 const CACHE_SCHEMA_VERSION = '1.0.0';
 
 const DEFAULT_CACHE_FILE = 'id-cache.json';
+const MAX_HMR_LINE_DRIFT = 8;
+const MAX_HMR_COLUMN_DRIFT = 40;
+
+interface PendingFileMigration {
+  targetFileHash: string;
+  oldIds: Map<string, string>;
+  claimedOldPositions: Set<string>;
+}
 
 export class IDStabilizer implements IDGenerator, IDCacheControl {
   /** Alphabet matching core's id-generator.ts (base58, no ambiguous chars) */
@@ -83,6 +91,13 @@ export class IDStabilizer implements IDGenerator, IDCacheControl {
     content: string;
     hash: string;
   } | null = null;
+
+  /**
+   * Previous ID maps retained while a changed file is being transformed.
+   * This lets HMR/Fast Refresh keep data-ds stable when elements move a few
+   * lines but keep their relative order.
+   */
+  private pendingMigrations: Map<string, PendingFileMigration> = new Map();
 
   constructor(
     private cacheDir: string,
@@ -164,8 +179,8 @@ export class IDStabilizer implements IDGenerator, IDCacheControl {
 
     const entry = this.cache.get(filePath);
 
-    // Case 1: File not in cache OR file hash changed (content changed)
-    if (!entry || entry.fileHash !== fileHash) {
+    // Case 1: File not in cache
+    if (!entry) {
       const newId = this.generateDeterministicId(`${fileHash}:${positionKey}`);
       const newEntry: IDCacheEntry = {
         fileHash,
@@ -187,6 +202,35 @@ export class IDStabilizer implements IDGenerator, IDCacheControl {
       return newId;
     }
 
+    // Case 2: File hash changed (content changed). Preserve nearby IDs from
+    // the previous hash during this transform pass instead of blindly changing
+    // every data-ds ID.
+    if (entry.fileHash !== fileHash) {
+      const migration = this.getOrCreateMigration(filePath, fileHash, entry);
+      const migratedId = this.claimNearbyMigratedId(migration, positionKey);
+      const newId =
+        migratedId ??
+        this.generateDeterministicId(`${fileHash}:${positionKey}`);
+
+      const newEntry: IDCacheEntry = {
+        fileHash,
+        filePath,
+        ids: new Map([[positionKey, newId]]),
+        timestamp: Date.now(),
+      };
+      this.cache.set(filePath, newEntry);
+      this.isDirty = true;
+      this.stats.misses++;
+
+      if (this.options.debug) {
+        console.log(
+          `[pinflow-manifest][id-stabilizer] Cache miss (hash changed): ${filePath} → ${newId}`,
+        );
+      }
+
+      return newId;
+    }
+
     // Case 2: File hash matches (content unchanged), check position
     const existingId = entry.ids.get(positionKey);
 
@@ -202,10 +246,16 @@ export class IDStabilizer implements IDGenerator, IDCacheControl {
       return existingId;
     }
 
-    // Case 3: New position in existing file
-    const newId = this.generateDeterministicId(
-      `${entry.fileHash}:${positionKey}`,
-    );
+    // Case 3: New position in existing file. If this file is currently being
+    // migrated from a previous hash, try to carry forward the next nearby ID.
+    const migration = this.pendingMigrations.get(filePath);
+    const migratedId =
+      migration?.targetFileHash === fileHash
+        ? this.claimNearbyMigratedId(migration, positionKey)
+        : undefined;
+    const newId =
+      migratedId ??
+      this.generateDeterministicId(`${entry.fileHash}:${positionKey}`);
     entry.ids.set(positionKey, newId);
     entry.timestamp = Date.now();
     this.stats.misses++;
@@ -218,6 +268,93 @@ export class IDStabilizer implements IDGenerator, IDCacheControl {
     }
 
     return newId;
+  }
+
+  private getOrCreateMigration(
+    filePath: string,
+    targetFileHash: string,
+    previousEntry: IDCacheEntry,
+  ): PendingFileMigration {
+    const existing = this.pendingMigrations.get(filePath);
+    if (existing?.targetFileHash === targetFileHash) {
+      return existing;
+    }
+
+    const migration: PendingFileMigration = {
+      targetFileHash,
+      oldIds: new Map(previousEntry.ids),
+      claimedOldPositions: new Set(),
+    };
+    this.pendingMigrations.set(filePath, migration);
+    return migration;
+  }
+
+  private claimNearbyMigratedId(
+    migration: PendingFileMigration,
+    newPositionKey: string,
+  ): string | undefined {
+    const newPosition = this.parsePositionKey(newPositionKey);
+    if (!newPosition) {
+      return undefined;
+    }
+
+    const candidates = Array.from(migration.oldIds.entries())
+      .filter(([oldPositionKey]) => {
+        if (migration.claimedOldPositions.has(oldPositionKey)) {
+          return false;
+        }
+        const oldPosition = this.parsePositionKey(oldPositionKey);
+        if (!oldPosition) {
+          return false;
+        }
+
+        const lineDistance = Math.abs(oldPosition.line - newPosition.line);
+        const columnDistance = Math.abs(
+          oldPosition.column - newPosition.column,
+        );
+        return (
+          lineDistance <= MAX_HMR_LINE_DRIFT &&
+          columnDistance <= MAX_HMR_COLUMN_DRIFT
+        );
+      })
+      .sort(([a], [b]) => this.comparePositionKeys(a, b));
+
+    const claimed = candidates[0];
+    if (!claimed) {
+      return undefined;
+    }
+
+    migration.claimedOldPositions.add(claimed[0]);
+    return claimed[1];
+  }
+
+  private comparePositionKeys(a: string, b: string): number {
+    const aPosition = this.parsePositionKey(a);
+    const bPosition = this.parsePositionKey(b);
+    if (!aPosition || !bPosition) {
+      return a.localeCompare(b);
+    }
+    if (aPosition.line !== bPosition.line) {
+      return aPosition.line - bPosition.line;
+    }
+    if (aPosition.column !== bPosition.column) {
+      return aPosition.column - bPosition.column;
+    }
+    return (aPosition.offset ?? 0) - (bPosition.offset ?? 0);
+  }
+
+  private parsePositionKey(
+    positionKey: string,
+  ): { line: number; column: number; offset?: number } | null {
+    const [line, column, offset] = positionKey.split(':').map(Number);
+    if (!Number.isFinite(line) || !Number.isFinite(column)) {
+      return null;
+    }
+    return {
+      line,
+      column,
+      offset: Number.isFinite(offset) ? offset : undefined,
+    };
   }
 
   /**

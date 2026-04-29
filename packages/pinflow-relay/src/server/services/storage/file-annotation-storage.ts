@@ -2,7 +2,7 @@
  * FileAnnotationStorage - Disk-based implementation of AnnotationStorageProvider.
  *
  * Stores annotations as JSON files organized by status:
- *   <baseDir>/{queued,processing,processed,failed,archived}/<id>.json
+ *   <baseDir>/{queued,claimed,processing,processed,failed,archived}/<id>.json
  */
 import type { Annotation, AnnotationStatus } from '@pinflow/core';
 import { migrateAnnotation } from '@pinflow/core';

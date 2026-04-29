@@ -9,6 +9,7 @@ import { PATTERNS } from '../constants/index.js';
 
 export enum AnnotationStatusEnum {
   QUEUED = 'queued',
+  CLAIMED = 'claimed',
   PROCESSING = 'processing',
   PROCESSED = 'processed',
   FAILED = 'failed',
@@ -17,6 +18,7 @@ export enum AnnotationStatusEnum {
 
 export const AnnotationStatusSchema = z.enum([
   AnnotationStatusEnum.QUEUED,
+  AnnotationStatusEnum.CLAIMED,
   AnnotationStatusEnum.PROCESSING,
   AnnotationStatusEnum.PROCESSED,
   AnnotationStatusEnum.FAILED,
@@ -93,6 +95,21 @@ export const AnnotationMetadataSchema = z.object({
     .string()
     .optional()
     .describe('Details about any errors that occurred'),
+  retryCount: z
+    .number()
+    .int()
+    .nonnegative()
+    .optional()
+    .describe('Number of times this annotation was returned to the queue'),
+  claim: z
+    .object({
+      claimedBy: z.string().describe('Agent or process that owns the lease'),
+      claimedAt: z.string().describe('ISO 8601 claim timestamp'),
+      leaseExpiresAt: z.string().describe('ISO 8601 lease expiration time'),
+      token: z.string().describe('Opaque claim token for diagnostics'),
+    })
+    .optional()
+    .describe('Current claim and lease metadata'),
 });
 
 export const SelectedElementSchema = z.object({
@@ -185,12 +202,92 @@ export const AgentResponseSchema = z.object({
   message: z.string().optional().describe('Message from the agent'),
 });
 
+export const AnnotationDispatchProviderSchema = z.enum([
+  'codex',
+  'claude',
+  'manual',
+  'other',
+]);
+
+export const AnnotationDispatchTargetSchema = z.object({
+  provider: AnnotationDispatchProviderSchema.describe(
+    'Provider-neutral channel handling this annotation',
+  ),
+  label: z.string().optional().describe('Human-readable channel label'),
+  sessionId: z
+    .string()
+    .optional()
+    .describe('Session-local channel ID, without mutating project defaults'),
+});
+
+export const AnnotationDispatchSchema = z.object({
+  target: AnnotationDispatchTargetSchema,
+  assignedAt: z.string().describe('ISO 8601 dispatch assignment timestamp'),
+});
+
+export const AnnotationVerificationStatusSchema = z.enum([
+  'verified',
+  'uncertain',
+  'unable',
+]);
+
+export const AnnotationVerificationDomSnapshotSchema = z.object({
+  tagName: z.string().optional(),
+  innerText: z.string().optional(),
+  attributes: z.record(z.string(), z.string()).optional(),
+});
+
+export const AnnotationVerificationFieldComparisonSchema = z.object({
+  before: z.string().optional(),
+  after: z.string().optional(),
+  changed: z.boolean(),
+});
+
+export const AnnotationVerificationAttributeComparisonSchema = z.object({
+  before: z.record(z.string(), z.string()).optional(),
+  after: z.record(z.string(), z.string()).optional(),
+  changed: z.boolean(),
+  changedKeys: z.array(z.string()),
+});
+
+export const AnnotationVerificationComparisonSchema = z.object({
+  tagName: AnnotationVerificationFieldComparisonSchema,
+  innerText: AnnotationVerificationFieldComparisonSchema,
+  attributes: AnnotationVerificationAttributeComparisonSchema,
+});
+
+export const AnnotationVerificationSchema = z.object({
+  status: AnnotationVerificationStatusSchema,
+  checkedAt: z.string().describe('ISO 8601 verification timestamp'),
+  reasons: z
+    .array(z.string())
+    .describe('Machine-readable verification reasons'),
+  sourceLocation: z
+    .object({
+      file: z.string(),
+      start: ManifestEntrySchema.shape.start,
+      end: ManifestEntrySchema.shape.end,
+      tagName: z.string().optional(),
+      componentName: z.string().optional(),
+    })
+    .optional(),
+  before: AnnotationVerificationDomSnapshotSchema.optional(),
+  after: AnnotationVerificationDomSnapshotSchema.optional(),
+  comparison: AnnotationVerificationComparisonSchema.optional(),
+});
+
 export const AnnotationSchema = z.object({
   metadata: AnnotationMetadataSchema.describe('Annotation metadata'),
   interaction: AnnotationInteractionSchema.describe('User interaction details'),
   context: AnnotationContextSchema.describe('Context at time of interaction'),
   agentResponse: AgentResponseSchema.optional().describe(
     "Agent's response if processed",
+  ),
+  dispatch: AnnotationDispatchSchema.optional().describe(
+    'Provider-neutral agent or manual handling assignment',
+  ),
+  verification: AnnotationVerificationSchema.optional().describe(
+    'Latest verification result for this annotation',
   ),
 });
 
@@ -216,6 +313,13 @@ export type AnnotationInteraction = z.infer<typeof AnnotationInteractionSchema>;
 export type AnnotationContext = z.infer<typeof AnnotationContextSchema>;
 export type AnnotationMetadata = z.infer<typeof AnnotationMetadataSchema>;
 export type AgentResponse = z.infer<typeof AgentResponseSchema>;
+export type AnnotationDispatch = z.infer<typeof AnnotationDispatchSchema>;
+export type AnnotationDispatchTarget = z.infer<
+  typeof AnnotationDispatchTargetSchema
+>;
+export type AnnotationVerification = z.infer<
+  typeof AnnotationVerificationSchema
+>;
 
 export type InteractionMode = z.infer<typeof InteractionModeSchema>;
 export type InteractionType = z.infer<typeof InteractionTypeSchema>;

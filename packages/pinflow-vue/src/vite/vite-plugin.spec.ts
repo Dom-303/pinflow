@@ -6,6 +6,9 @@ vi.mock('@pinflow/transform/plugins/vite', () => ({
   pinflow: vi.fn(
     (options?: Record<string, unknown>): Plugin => ({
       name: 'vite-plugin-pinflow-transform',
+      transform: options?._baseTransformResult
+        ? async () => options._baseTransformResult as { code: string }
+        : undefined,
       transformIndexHtml: options?._baseTags
         ? () => ({ html: '', tags: options._baseTags as HtmlTagDescriptor[] })
         : undefined,
@@ -14,6 +17,8 @@ vi.mock('@pinflow/transform/plugins/vite', () => ({
 }));
 
 import { pinflow } from './vite-plugin.js';
+
+const VUE_INIT_PATH = '/@pinflow/vue-init.js?v=pinflow-ui-2026-04-23b';
 
 describe('pinflow (vue/vite)', () => {
   it('should rename the plugin to vite-plugin-pinflow-vue', () => {
@@ -40,7 +45,16 @@ describe('pinflow (vue/vite)', () => {
 
       const result = resolveId.call({}, '/@pinflow/vue-init.js');
 
-      expect(result).toBe('/@pinflow/vue-init.js');
+      expect(result).toBe(VUE_INIT_PATH);
+    });
+
+    it('should resolve cache-busted init requests to the current init module path', () => {
+      const plugin = pinflow();
+      const resolveId = plugin.resolveId as (id: string) => string | null;
+
+      const result = resolveId.call({}, '/@pinflow/vue-init.js?v=older-build');
+
+      expect(result).toBe(VUE_INIT_PATH);
     });
 
     it('should return null for unrelated IDs', () => {
@@ -58,7 +72,7 @@ describe('pinflow (vue/vite)', () => {
       const plugin = pinflow();
       const load = plugin.load as (id: string) => string | null;
 
-      const result = load.call({}, '/@pinflow/vue-init.js');
+      const result = load.call({}, VUE_INIT_PATH);
 
       expect(result).toContain(`from '@pinflow/runtime'`);
       expect(result).toContain(`from '@pinflow/vue'`);
@@ -70,7 +84,7 @@ describe('pinflow (vue/vite)', () => {
       const plugin = pinflow();
       const load = plugin.load as (id: string) => string | null;
 
-      const result = load.call({}, '/@pinflow/vue-init.js');
+      const result = load.call({}, VUE_INIT_PATH);
 
       expect(result).toContain('phase: 1');
       expect(result).toContain('debug: false');
@@ -85,7 +99,7 @@ describe('pinflow (vue/vite)', () => {
       });
       const load = plugin.load as (id: string) => string | null;
 
-      const result = load.call({}, '/@pinflow/vue-init.js');
+      const result = load.call({}, VUE_INIT_PATH);
 
       expect(result).toContain('phase: 2');
       expect(result).toContain('redactPII: false');
@@ -98,7 +112,7 @@ describe('pinflow (vue/vite)', () => {
       });
       const load = plugin.load as (id: string) => string | null;
 
-      const result = load.call({}, '/@pinflow/vue-init.js');
+      const result = load.call({}, VUE_INIT_PATH);
 
       expect(result).toContain('maxTreeDepth: 25');
     });
@@ -107,10 +121,11 @@ describe('pinflow (vue/vite)', () => {
       const plugin = pinflow({ debug: true });
       const load = plugin.load as (id: string) => string | null;
 
-      const result = load.call({}, '/@pinflow/vue-init.js');
+      const result = load.call({}, VUE_INIT_PATH);
 
       // debug appears in both initialize() and createVueAdapter()
-      const debugMatches = result.match(/debug: true/g);
+      expect(result).not.toBeNull();
+      const debugMatches = result!.match(/debug: true/g);
       expect(debugMatches).toHaveLength(2);
     });
 
@@ -139,9 +154,7 @@ describe('pinflow (vue/vite)', () => {
       );
       expect(runtimeTag).toBeDefined();
       expect(runtimeTag?.injectTo).toBe('body');
-      expect(runtimeTag?.children).toContain(
-        `import('/@pinflow/vue-init.js');`,
-      );
+      expect(runtimeTag?.children).toContain(`import('${VUE_INIT_PATH}');`);
     });
 
     it('should preserve base plugin tags', () => {
@@ -173,6 +186,28 @@ describe('pinflow (vue/vite)', () => {
 
       const tags = (result as { tags: HtmlTagDescriptor[] }).tags;
       expect(tags).toHaveLength(1);
+    });
+  });
+
+  describe('transform', () => {
+    it('should inject a guarded Vue runtime init preamble after base transform', async () => {
+      const plugin = pinflow({
+        _baseTransformResult: { code: 'export const value = 1;' },
+      } as never);
+      const transform = plugin.transform as (
+        code: string,
+        sourceFile: string,
+      ) => Promise<{ code: string } | null>;
+
+      const result = await transform.call(
+        {},
+        'export const value = 1;',
+        '/src/example.vue',
+      );
+
+      expect(result?.code).toContain('window.__PINFLOW_VUE_INIT__');
+      expect(result?.code).toContain(`import('${VUE_INIT_PATH}')`);
+      expect(result?.code).toContain('export const value = 1;');
     });
   });
 });

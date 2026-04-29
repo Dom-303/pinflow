@@ -22,9 +22,10 @@ import {
   registerStatusHandler,
   registerHealthHandler,
   registerShutdownHandler,
+  type StatusHandlerOptions,
 } from './handlers/index.js';
 import { createWSServer, type WSServer } from './ws-server.js';
-import { QueryBySourceRoute } from './routes/index.js';
+import { AnnotationVerifyRoute, QueryBySourceRoute } from './routes/index.js';
 import { registerRoute } from './routes/route.interface.js';
 import {
   serializerCompiler,
@@ -131,14 +132,9 @@ export async function createRelayServer(
   manifestReader.initialize();
 
   // Register handlers — statusOptions.port is updated after listen() to reflect the bound port
-  const statusOptions = { port, startTime };
-  registerShutdownHandler(app);
-  registerHealthHandler(app, manifestReader, annotationService);
-  registerStatusHandler(app, manifestReader, annotationService, statusOptions);
-  registerManifestHandlers(app, manifestReader);
-  registerAnnotationHandlers(app, annotationService, manifestReader);
+  const statusOptions: StatusHandlerOptions = { port, startTime };
 
-  // Create WebSocket server
+  // Create WebSocket server before status registration so /status can report browser clients.
   const ws = await createWSServer({
     app,
     annotationService,
@@ -146,8 +142,21 @@ export async function createRelayServer(
     debug,
   });
 
+  registerShutdownHandler(app);
+  registerHealthHandler(app, manifestReader, annotationService);
+  statusOptions.wsServer = ws;
+  registerStatusHandler(app, manifestReader, annotationService, statusOptions);
+  registerManifestHandlers(app, manifestReader);
+  registerAnnotationHandlers(app, annotationService, manifestReader);
+
   // Register routes that depend on WebSocket server
   registerRoute(QueryBySourceRoute, { app, manifestReader, wsServer: ws });
+  registerRoute(AnnotationVerifyRoute, {
+    app,
+    annotationService,
+    manifestReader,
+    wsServer: ws,
+  });
 
   // Error handler
   app.setErrorHandler((error: FastifyError, _request, reply) => {

@@ -39,6 +39,12 @@ const QueryBySourceToolInputSchema = z.object({
     .describe(
       'Whether to query live runtime context from the browser (default: true)',
     ),
+  sessionId: z
+    .string()
+    .optional()
+    .describe(
+      'Browser session ID to target when multiple browser tabs/routes are connected',
+    ),
 });
 
 type QueryBySourceToolInput = z.infer<typeof QueryBySourceToolInputSchema>;
@@ -76,6 +82,19 @@ const QueryBySourceToolOutputSchema = McpToolOutputSchema.extend({
     .object({
       connected: z.boolean(),
       clientCount: z.number(),
+      sessions: z
+        .array(
+          z.object({
+            sessionId: z.string(),
+            pageUrl: z.string().optional(),
+            route: z.string().optional(),
+            pageTitle: z.string().optional(),
+            connectedAt: z.string().optional(),
+            lastSeenAt: z.string().optional(),
+          }),
+        )
+        .optional(),
+      selectedSessionId: z.string().optional(),
     })
     .optional(),
   manifest: z
@@ -84,6 +103,24 @@ const QueryBySourceToolOutputSchema = McpToolOutputSchema.extend({
       fileCount: z.number(),
       componentCount: z.number(),
       lastUpdated: z.string().nullable(),
+      freshness: z
+        .object({
+          status: z.enum(['fresh', 'stale', 'unknown']),
+          stale: z.boolean(),
+          reason: z.enum([
+            'source_newer_than_manifest',
+            'source_not_found',
+            'manifest_not_found',
+            'source_not_on_disk',
+            'manifest_fresh',
+          ]),
+          sourceFile: z.string(),
+          sourceMtimeMs: z.number().optional(),
+          manifestMtimeMs: z.number().optional(),
+          checkedAt: z.string(),
+          repairHint: z.string().optional(),
+        })
+        .optional(),
     })
     .optional(),
   match: QueryBySourceMatchSchema.optional(),
@@ -119,7 +156,14 @@ export class QueryBySourceTool implements McpToolDefinition<
     browserConnected?: boolean;
     runtime?: { rendered?: boolean };
     reasons?: Array<z.infer<typeof QueryBySourceReasonSchema>>;
+    manifest?: { freshness?: { repairHint?: string } };
   }): string | undefined {
+    if (result.reasons?.includes('manifest_stale')) {
+      return (
+        result.manifest?.freshness?.repairHint ??
+        'The source file changed after the manifest was generated. Restart or refresh the dev server, then retry the PinFlow query.'
+      );
+    }
     if (result.reasons?.includes('ambiguous_source_match')) {
       return (
         'Multiple manifest entries match this source location. ' +
@@ -130,6 +174,18 @@ export class QueryBySourceTool implements McpToolDefinition<
       return (
         'This source path matches multiple manifest files. ' +
         'Retry with one of pathCandidates as the file value so PinFlow can query the intended app/root.'
+      );
+    }
+    if (result.reasons?.includes('multiple_browser_sessions')) {
+      return (
+        'Multiple browser sessions are connected. ' +
+        'Inspect browser.sessions and retry with sessionId for the tab or route that should provide live runtime context.'
+      );
+    }
+    if (result.reasons?.includes('browser_session_not_found')) {
+      return (
+        'The requested browser session is not connected. ' +
+        'Use one of browser.sessions as sessionId, or ask the user to open the intended page and retry.'
       );
     }
     if (!result.found) {

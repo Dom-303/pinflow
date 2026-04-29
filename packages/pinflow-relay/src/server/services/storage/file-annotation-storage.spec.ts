@@ -23,6 +23,7 @@ import { FileAnnotationStorage } from './file-annotation-storage.js';
 
 const STATUSES: readonly AnnotationStatus[] = [
   AnnotationStatusEnum.QUEUED,
+  AnnotationStatusEnum.CLAIMED,
   AnnotationStatusEnum.PROCESSING,
   AnnotationStatusEnum.PROCESSED,
   AnnotationStatusEnum.FAILED,
@@ -93,7 +94,9 @@ describe('FileAnnotationStorage', () => {
     });
 
     it('should ignore legacy annotation directories outside the active .pinflow storage', async () => {
-      const legacyBaseDir = mkdtempSync(path.join(tmpdir(), 'file-storage-legacy-'));
+      const legacyBaseDir = mkdtempSync(
+        path.join(tmpdir(), 'file-storage-legacy-'),
+      );
       const legacyQueuedDir = path.join(legacyBaseDir, 'queued');
       mkdirSync(legacyQueuedDir, { recursive: true });
       writeFileSync(
@@ -103,7 +106,9 @@ describe('FileAnnotationStorage', () => {
 
       await storage.initialize(STATUSES);
 
-      expect(existsSync(path.join(baseDir, 'queued', 'legacy01.json'))).toBe(false);
+      expect(existsSync(path.join(baseDir, 'queued', 'legacy01.json'))).toBe(
+        false,
+      );
 
       rmSync(legacyBaseDir, { recursive: true, force: true });
     });

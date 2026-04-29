@@ -306,7 +306,7 @@ describe('IDStabilizer', () => {
         expect(stats.hits).toBe(0);
       });
 
-      it('should generate new ID when file content changes', async () => {
+      it('should keep ID stable when file content changes at the same position', async () => {
         // Arrange
         await stabilizer.initialize();
         const position = createPosition(10, 10);
@@ -322,7 +322,7 @@ describe('IDStabilizer', () => {
         );
 
         // Assert
-        expect(id2).not.toBe(id1);
+        expect(id2).toBe(id1);
         expect(id1).toMatch(ID_FORMAT);
         expect(id2).toMatch(ID_FORMAT);
       });
@@ -345,6 +345,55 @@ describe('IDStabilizer', () => {
         // Assert
         const stats = stabilizer.getCacheStats();
         expect(stats.misses).toBe(2);
+      });
+
+      it('should reuse nearby cached ID when source moves slightly during HMR', async () => {
+        // Arrange
+        await stabilizer.initialize();
+        const oldPosition = createPosition(10, 4, 100);
+        const movedPosition = createPosition(11, 4, 118);
+
+        // Act
+        const idBeforeMove = stabilizer.getStableId(
+          createFileIdentity('/Button.tsx', '<button>Save</button>'),
+          oldPosition,
+        );
+        const idAfterMove = stabilizer.getStableId(
+          createFileIdentity('/Button.tsx', '\n<button>Save</button>'),
+          movedPosition,
+        );
+
+        // Assert
+        expect(idAfterMove).toBe(idBeforeMove);
+      });
+
+      it('should not reuse the same nearby cached ID for two moved elements', async () => {
+        // Arrange
+        await stabilizer.initialize();
+
+        const firstId = stabilizer.getStableId(
+          createFileIdentity('/List.tsx', '<ul><li>A</li><li>B</li></ul>'),
+          createPosition(10, 4, 100),
+        );
+        const secondId = stabilizer.getStableId(
+          createFileIdentity('/List.tsx', '<ul><li>A</li><li>B</li></ul>'),
+          createPosition(11, 4, 118),
+        );
+
+        // Act
+        const firstMovedId = stabilizer.getStableId(
+          createFileIdentity('/List.tsx', '\n<ul><li>A</li><li>B</li></ul>'),
+          createPosition(11, 4, 119),
+        );
+        const secondMovedId = stabilizer.getStableId(
+          createFileIdentity('/List.tsx', '\n<ul><li>A</li><li>B</li></ul>'),
+          createPosition(12, 4, 137),
+        );
+
+        // Assert
+        expect(firstMovedId).toBe(firstId);
+        expect(secondMovedId).toBe(secondId);
+        expect(firstMovedId).not.toBe(secondMovedId);
       });
     });
 
@@ -504,8 +553,9 @@ describe('IDStabilizer', () => {
           createPosition(1, 0),
         );
 
-        // Assert - 2 file hashes (content changed) + 2 ID hashes = 4
-        expect(h64Spy).toHaveBeenCalledTimes(4);
+        // Assert - 2 file hashes (content changed) + 1 ID hash.
+        // The second call reuses the migrated ID instead of hashing a new ID.
+        expect(h64Spy).toHaveBeenCalledTimes(3);
       });
 
       it('should recompute hash when switching to a different file', async () => {
@@ -1125,7 +1175,7 @@ describe('IDStabilizer', () => {
       expect(id1).not.toBe(id2);
     });
 
-    it('should produce different IDs for same position in different file content', async () => {
+    it('should keep IDs stable for same position in changed file content', async () => {
       // Arrange
       await stabilizer.initialize();
       const position = createPosition(10, 10);
@@ -1143,7 +1193,7 @@ describe('IDStabilizer', () => {
       // Assert
       expect(id1).toMatch(ID_FORMAT);
       expect(id2).toMatch(ID_FORMAT);
-      expect(id1).not.toBe(id2);
+      expect(id1).toBe(id2);
     });
   });
 });

@@ -5,7 +5,7 @@
  * WSServer is mocked since the test harness doesn't wire WebSocket.
  */
 import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'fs';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, utimesSync } from 'fs';
 import path from 'path';
 import { tmpdir } from 'os';
 import Fastify, { type FastifyInstance, type FastifyError } from 'fastify';
@@ -30,6 +30,7 @@ function createMockWSServer(overrides?: Partial<WSServer>): WSServer {
   return {
     broadcast: vi.fn(),
     getClientCount: vi.fn().mockReturnValue(0),
+    getSessions: vi.fn().mockReturnValue([]),
     requestContext: vi.fn().mockResolvedValue(null),
     close: vi.fn(),
     ...overrides,
@@ -85,16 +86,38 @@ describe('POST /api/v1/manifest/resolve-by-source', () => {
     componentName: 'Input',
   });
 
+  const staleEntry = createEntry('sTaLe001', {
+    file: 'src/components/Stale.tsx',
+    start: { line: 3, column: 2 },
+    tagName: 'section',
+    componentName: 'Stale',
+    fileHash: 'old-hash',
+  });
+
   beforeAll(async () => {
     // Create isolated temp workspace with manifest
     tempDir = mkdtempSync(path.join(tmpdir(), 'relay-qbs-test-'));
     const manifestDir = path.dirname(path.join(tempDir, PATHS.MANIFEST_FILE));
     mkdirSync(manifestDir, { recursive: true });
-    const entries = [buttonEntry, spanEntry, inputEntry, adminInputEntry];
+    const entries = [
+      buttonEntry,
+      spanEntry,
+      inputEntry,
+      adminInputEntry,
+      staleEntry,
+    ];
     writeFileSync(
       path.join(tempDir, PATHS.MANIFEST_FILE),
       entries.map((e) => JSON.stringify(e)).join('\n') + '\n',
     );
+    const staleSourcePath = path.join(tempDir, 'src/components/Stale.tsx');
+    mkdirSync(path.dirname(staleSourcePath), { recursive: true });
+    writeFileSync(
+      staleSourcePath,
+      'export function Stale() { return <section />; }\n',
+    );
+    const newerThanManifest = new Date(Date.now() + 10_000);
+    utimesSync(staleSourcePath, newerThanManifest, newerThanManifest);
 
     // Create services
     manifestReader = new ManifestReader(tempDir);
@@ -325,6 +348,34 @@ describe('POST /api/v1/manifest/resolve-by-source', () => {
     expect(response.json().found).toBe(false);
   });
 
+  it('should report stale manifest freshness when source file changed after manifest generation', async () => {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/manifest/resolve-by-source',
+      payload: {
+        file: 'src/components/Stale.tsx',
+        line: 3,
+        includeRuntime: false,
+      },
+    });
+
+    expect(response.statusCode).toBe(200);
+
+    const body = response.json();
+    expect(body.found).toBe(true);
+    expect(body.entryId).toBe('sTaLe001');
+    expect(body.reasons).toContain('manifest_stale');
+    expect(body.manifest.freshness).toEqual(
+      expect.objectContaining({
+        status: 'stale',
+        stale: true,
+        reason: 'source_newer_than_manifest',
+        sourceFile: 'src/components/Stale.tsx',
+      }),
+    );
+    expect(body.manifest.freshness.repairHint).toContain('Restart or refresh');
+  });
+
   it('should report browserConnected:false when no WS clients', async () => {
     const response = await app.inject({
       method: 'POST',
@@ -396,6 +447,136 @@ describe('POST /api/v1/manifest/resolve-by-source', () => {
     // Reset for other tests
     vi.mocked(mockWsServer.getClientCount).mockReturnValue(0);
     vi.mocked(mockWsServer.requestContext).mockResolvedValue(null);
+  });
+
+  it('should expose connected browser sessions when runtime target is ambiguous', async () => {
+    const sessions = [
+      {
+        sessionId: 'tab-web',
+        pageUrl: 'http://localhost:3000/',
+        route: '/',
+        pageTitle: 'Web',
+      },
+      {
+        sessionId: 'tab-admin',
+        pageUrl: 'http://localhost:3000/admin',
+        route: '/admin',
+        pageTitle: 'Admin',
+      },
+    ];
+    vi.mocked(mockWsServer.getClientCount).mockReturnValue(2);
+    vi.mocked(mockWsServer.getSessions).mockReturnValue(sessions);
+    vi.mocked(mockWsServer.requestContext).mockResolvedValue({
+      requestId: 'test-req',
+      success: true,
+      rendered: true,
+    });
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/manifest/resolve-by-source',
+      payload: {
+        file: 'src/components/Input.tsx',
+        line: 5,
+        includeRuntime: true,
+      },
+    });
+
+    expect(response.statusCode).toBe(200);
+
+    const body = response.json();
+    expect(body.browser).toEqual({
+      connected: true,
+      clientCount: 2,
+      sessions,
+    });
+    expect(body.reasons).toContain('multiple_browser_sessions');
+    expect(mockWsServer.requestContext).toHaveBeenCalledWith('iNp1iNp1');
+
+    vi.mocked(mockWsServer.getClientCount).mockReturnValue(0);
+    vi.mocked(mockWsServer.getSessions).mockReturnValue([]);
+    vi.mocked(mockWsServer.requestContext).mockResolvedValue(null);
+  });
+
+  it('should request runtime context from an explicit browser session', async () => {
+    const sessions = [
+      {
+        sessionId: 'tab-web',
+        pageUrl: 'http://localhost:3000/',
+        route: '/',
+      },
+      {
+        sessionId: 'tab-admin',
+        pageUrl: 'http://localhost:3000/admin',
+        route: '/admin',
+      },
+    ];
+    vi.mocked(mockWsServer.getClientCount).mockReturnValue(2);
+    vi.mocked(mockWsServer.getSessions).mockReturnValue(sessions);
+    vi.mocked(mockWsServer.requestContext).mockResolvedValue({
+      requestId: 'test-req',
+      success: true,
+      rendered: true,
+    });
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/manifest/resolve-by-source',
+      payload: {
+        file: 'src/components/Input.tsx',
+        line: 5,
+        includeRuntime: true,
+        sessionId: 'tab-admin',
+      },
+    });
+
+    expect(response.statusCode).toBe(200);
+
+    const body = response.json();
+    expect(body.browser.selectedSessionId).toBe('tab-admin');
+    expect(body.reasons).not.toContain('multiple_browser_sessions');
+    expect(mockWsServer.requestContext).toHaveBeenCalledWith(
+      'iNp1iNp1',
+      undefined,
+      { sessionId: 'tab-admin' },
+    );
+
+    vi.mocked(mockWsServer.getClientCount).mockReturnValue(0);
+    vi.mocked(mockWsServer.getSessions).mockReturnValue([]);
+    vi.mocked(mockWsServer.requestContext).mockResolvedValue(null);
+  });
+
+  it('should explain when an explicit browser session is not connected', async () => {
+    vi.mocked(mockWsServer.requestContext).mockClear();
+    vi.mocked(mockWsServer.getClientCount).mockReturnValue(1);
+    vi.mocked(mockWsServer.getSessions).mockReturnValue([
+      {
+        sessionId: 'tab-web',
+        pageUrl: 'http://localhost:3000/',
+        route: '/',
+      },
+    ]);
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/manifest/resolve-by-source',
+      payload: {
+        file: 'src/components/Input.tsx',
+        line: 5,
+        includeRuntime: true,
+        sessionId: 'tab-missing',
+      },
+    });
+
+    expect(response.statusCode).toBe(200);
+
+    const body = response.json();
+    expect(body.browser.selectedSessionId).toBe('tab-missing');
+    expect(body.reasons).toContain('browser_session_not_found');
+    expect(mockWsServer.requestContext).not.toHaveBeenCalled();
+
+    vi.mocked(mockWsServer.getClientCount).mockReturnValue(0);
+    vi.mocked(mockWsServer.getSessions).mockReturnValue([]);
   });
 
   it('should distinguish rendered element from missing runtime context', async () => {

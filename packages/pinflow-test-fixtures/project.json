@@ -3,17 +3,11 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
   "sourceRoot": "packages/pinflow-test-fixtures/shared",
-  "tags": [
-    "scope:test",
-    "type:test",
-    "npm:private"
-  ],
+  "tags": ["scope:test", "type:test", "npm:private"],
   "targets": {
     "lint": {
       "executor": "@nx/eslint:lint",
-      "outputs": [
-        "{options.outputFile}"
-      ],
+      "outputs": ["{options.outputFile}"],
       "options": {
         "eslintConfig": "eslint.config.mjs",
         "lintFilePatterns": [
@@ -24,9 +18,7 @@
     },
     "test": {
       "executor": "@nx/vitest:test",
-      "outputs": [
-        "{projectRoot}/test-output"
-      ],
+      "outputs": ["{projectRoot}/test-output"],
       "options": {
         "config": "packages/pinflow-test-fixtures/vite.config.ts"
       },
@@ -38,14 +30,10 @@
     },
     "integration": {
       "executor": "@nx/vitest:test",
-      "outputs": [
-        "{projectRoot}/test-output"
-      ],
+      "outputs": ["{projectRoot}/test-output"],
       "options": {
         "config": "packages/pinflow-test-fixtures/vite.config.ts",
-        "testPathPattern": [
-          "integration"
-        ]
+        "testPathPattern": ["integration"]
       }
     },
     "e2e": {
@@ -59,6 +47,13 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "corepack pnpm exec playwright test preview-overlay-boot.spec.ts",
+        "cwd": "{projectRoot}"
+      }
+    },
+    "demo-e2e": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "corepack pnpm exec playwright test sixty-second-demo.spec.ts",
         "cwd": "{projectRoot}"
       }
     },

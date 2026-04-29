@@ -709,10 +709,14 @@ describe('PropsCapturer', () => {
       // Assert
       expect(result.success).toBe(true);
       expect(result.data).toEqual(afterFields);
-      expect(mockSerializeValue).toHaveBeenCalledWith(rawProps, {
-        maxDepth: 8,
-        includeFunctions: false,
-      });
+      expect(mockSerializeValue).toHaveBeenCalledWith(
+        rawProps,
+        expect.objectContaining({
+          maxDepth: 8,
+          includeFunctions: false,
+          transformString: expect.any(Function),
+        }),
+      );
       expect(mockRedactPII).toHaveBeenCalledWith(serialized);
       expect(mockRedactSensitiveFields).toHaveBeenCalledWith(afterPII);
     });

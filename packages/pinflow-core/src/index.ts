@@ -26,6 +26,10 @@ export * from './lib/migrations/annotation-migrations.js';
 
 // Export privacy patterns and redaction
 export * from './privacy/patterns.js';
-export { redactPII, redactSensitiveFields } from './privacy/redaction.js';
+export {
+  redactPII,
+  redactSensitiveFields,
+  redactText,
+} from './privacy/redaction.js';
 export type { RedactionOptions } from './privacy/redaction.js';
 export * from './privacy/redaction-utils.js';

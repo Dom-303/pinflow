@@ -1,6 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
+import { describe, expect, it } from 'vitest';
+
+import { DoctorCommand } from './doctor.command.js';
 import { InitCommand } from './init.command.js';
 import { McpCommand } from './mcp.command.js';
 import { ServeCommand } from './serve.command.js';
@@ -23,12 +26,16 @@ describe('relay cli command branding', () => {
     expect(StatusCommand.description()).toBe(
       'Check whether the PinFlow relay is running',
     );
+    expect(DoctorCommand.description()).toBe(
+      'Diagnose PinFlow setup and relay health',
+    );
     expect(StopCommand.description()).toBe('Stop the running PinFlow relay');
   });
 
   it('uses pinflow-preferring help text in command output', () => {
     const serveSource = readCommandSource('serve.command.ts');
     const statusSource = readCommandSource('status.command.ts');
+    const doctorSource = readCommandSource('doctor.command.ts');
     const stopSource = readCommandSource('stop.command.ts');
     const initSource = readCommandSource('init.command.ts');
     const mcpSource = readCommandSource('mcp.command.ts');
@@ -40,6 +47,8 @@ describe('relay cli command branding', () => {
     expect(statusSource).toContain('[pinflow-cli] Relay is running');
     expect(statusSource).toContain('Start with: pinflow serve');
 
+    expect(doctorSource).toContain('[pinflow-cli] Doctor failed:');
+
     expect(stopSource).toContain('[pinflow-cli] Stopping relay daemon...');
     expect(stopSource).toContain('[pinflow-cli] Relay daemon stopped');
 
@@ -47,7 +56,9 @@ describe('relay cli command branding', () => {
     expect(initSource).toContain('[pinflow-cli] Init failed:');
 
     expect(mcpSource).toContain('[pinflow-cli] Failed to start MCP adapter:');
-    expect(mcpSource).toContain('[pinflow-cli] No workspace found, starting in dormant mode');
+    expect(mcpSource).toContain(
+      '[pinflow-cli] No workspace found, starting in dormant mode',
+    );
     expect(mcpSource).toContain('[pinflow-cli] Starting MCP adapter');
   });
 });

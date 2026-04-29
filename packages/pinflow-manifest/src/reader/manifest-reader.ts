@@ -4,7 +4,7 @@
  * Provides fast element ID to source location resolution.
  * Maintains full entry map for O(1) lookups.
  */
-import { existsSync, readFileSync, watchFile, unwatchFile } from 'fs';
+import { existsSync, readFileSync, statSync, watchFile, unwatchFile } from 'fs';
 import path from 'path';
 import { PATHS, type ManifestEntry } from '@pinflow/core';
 
@@ -60,6 +60,24 @@ export const ManifestUpdateEventSchema = z.object({
 export type ManifestResolveResult = z.infer<typeof ManifestResolveResultSchema>;
 export type ManifestReaderStats = z.infer<typeof ManifestReaderStatsSchema>;
 export type ManifestUpdateEvent = z.infer<typeof ManifestUpdateEventSchema>;
+export type ManifestFreshnessStatus = 'fresh' | 'stale' | 'unknown';
+
+export interface ManifestFreshness {
+  status: ManifestFreshnessStatus;
+  stale: boolean;
+  reason:
+    | 'source_newer_than_manifest'
+    | 'source_not_found'
+    | 'manifest_not_found'
+    | 'source_not_on_disk'
+    | 'manifest_fresh';
+  sourceFile: string;
+  sourceMtimeMs?: number;
+  manifestMtimeMs?: number;
+  checkedAt: string;
+  repairHint?: string;
+}
+
 export type SourceMatchConfidence = 'high' | 'medium' | 'low';
 export type SourceMatchStrategy =
   | 'exact_line_and_column'
@@ -166,6 +184,73 @@ export class ManifestReader {
     return Array.from(ids)
       .map((id) => this.entries.get(id))
       .filter((e): e is ManifestEntry => e !== undefined);
+  }
+
+  /**
+   * Compare a manifest entry's source file mtime against the manifest file mtime.
+   *
+   * This is intentionally filesystem-based rather than inferred from cache state:
+   * agents need an inspectable reason when source changed after the manifest was
+   * generated, but PinFlow should avoid pretending unknown freshness is stale.
+   */
+  getFreshnessForFile(filePath: string): ManifestFreshness {
+    const sourceFile = this.normalizeFilePath(filePath);
+    const checkedAt = new Date().toISOString();
+
+    if (!existsSync(this.manifestPath)) {
+      return {
+        status: 'unknown',
+        stale: false,
+        reason: 'manifest_not_found',
+        sourceFile,
+        checkedAt,
+        repairHint: 'Start PinFlow in the app so it can generate a manifest.',
+      };
+    }
+
+    const absoluteSourcePath = path.isAbsolute(sourceFile)
+      ? sourceFile
+      : path.join(this.workspaceRoot, sourceFile);
+
+    if (!existsSync(absoluteSourcePath)) {
+      return {
+        status: 'unknown',
+        stale: false,
+        reason: 'source_not_found',
+        sourceFile,
+        manifestMtimeMs: statSync(this.manifestPath).mtimeMs,
+        checkedAt,
+        repairHint:
+          'Check that the source file path is correct for the app root connected to PinFlow.',
+      };
+    }
+
+    const manifestMtimeMs = statSync(this.manifestPath).mtimeMs;
+    const sourceMtimeMs = statSync(absoluteSourcePath).mtimeMs;
+
+    if (sourceMtimeMs > manifestMtimeMs) {
+      return {
+        status: 'stale',
+        stale: true,
+        reason: 'source_newer_than_manifest',
+        sourceFile,
+        sourceMtimeMs,
+        manifestMtimeMs,
+        checkedAt,
+        repairHint:
+          'Restart or refresh the dev server so PinFlow can rebuild the manifest for the changed source file.',
+      };
+    }
+
+    return {
+      status: 'fresh',
+      stale: false,
+      reason: 'manifest_fresh',
+      sourceFile,
+      sourceMtimeMs,
+      manifestMtimeMs,
+      checkedAt,
+    };
   }
 
   /**

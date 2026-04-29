@@ -13,10 +13,16 @@ import type { ManifestReader } from '@pinflow/manifest';
 import type { AnnotationService } from './services/index.js';
 import crypto from 'crypto';
 import {
+  BrowserSessionUpdateSchema,
   WSContextResponseSchema,
+  type BrowserSession,
   type WSMessage,
   type WSContextResponse,
 } from '../schema.js';
+
+export interface WSRequestContextOptions {
+  sessionId?: string;
+}
 
 /**
  * WebSocket server instance
@@ -26,10 +32,13 @@ export interface WSServer {
   broadcast(event: string, data: unknown): void;
   /** Get connected client count */
   getClientCount(): number;
+  /** Get known browser sessions */
+  getSessions(): BrowserSession[];
   /** Request runtime context from browser for a given entry ID */
   requestContext(
     entryId: string,
     timeoutMs?: number,
+    options?: WSRequestContextOptions,
   ): Promise<WSContextResponse | null>;
   /** Clean up resources */
   close(): void;
@@ -66,6 +75,7 @@ export async function createWSServer(
   } = options;
 
   const clients: Set<WebSocket> = new Set();
+  const sessions = new Map<WebSocket, BrowserSession>();
   const unsubscribers: Array<() => void> = [];
   const pendingRequests = new Map<
     string,
@@ -99,7 +109,17 @@ export async function createWSServer(
         const msg: WSMessage = JSON.parse(
           typeof raw === 'string' ? raw : raw.toString(),
         );
-        if (msg.event === WS_EVENTS.CONTEXT_RESPONSE) {
+        if (msg.event === WS_EVENTS.BROWSER_SESSION_UPDATE) {
+          const update = BrowserSessionUpdateSchema.parse(msg.data);
+          const now = new Date().toISOString();
+          const current = sessions.get(socket);
+          sessions.set(socket, {
+            ...current,
+            ...update,
+            connectedAt: current?.connectedAt ?? now,
+            lastSeenAt: now,
+          });
+        } else if (msg.event === WS_EVENTS.CONTEXT_RESPONSE) {
           const response = WSContextResponseSchema.parse(msg.data);
           const pending = pendingRequests.get(response.requestId);
           if (pending) {
@@ -115,6 +135,7 @@ export async function createWSServer(
 
     socket.on('close', () => {
       clients.delete(socket);
+      sessions.delete(socket);
       if (debug) {
         console.log(
           `[pinflow-relay][ws] Client disconnected (total: ${clients.size})`,
@@ -127,6 +148,7 @@ export async function createWSServer(
         console.error('[pinflow-relay][ws] Socket error:', error);
       }
       clients.delete(socket);
+      sessions.delete(socket);
     });
   });
 
@@ -186,8 +208,15 @@ export async function createWSServer(
   function requestContext(
     entryId: string,
     timeoutMs = 3000,
+    options?: WSRequestContextOptions,
   ): Promise<WSContextResponse | null> {
     if (clients.size === 0) return Promise.resolve(null);
+    const targetClient = options?.sessionId
+      ? findClientBySessionId(options.sessionId)
+      : undefined;
+    if (options?.sessionId && !targetClient) {
+      return Promise.resolve(null);
+    }
 
     const requestId = crypto.randomUUID();
     return new Promise((resolve) => {
@@ -197,8 +226,22 @@ export async function createWSServer(
       }, timeoutMs);
 
       pendingRequests.set(requestId, { resolve, timer });
-      broadcast(WS_EVENTS.CONTEXT_REQUEST, { requestId, entryId });
+      const data = { requestId, entryId, sessionId: options?.sessionId };
+      if (targetClient) {
+        sendMessage(targetClient, WS_EVENTS.CONTEXT_REQUEST, data);
+      } else {
+        broadcast(WS_EVENTS.CONTEXT_REQUEST, data);
+      }
     });
+  }
+
+  function findClientBySessionId(sessionId: string): WebSocket | undefined {
+    for (const [client, session] of sessions) {
+      if (session.sessionId === sessionId) {
+        return client;
+      }
+    }
+    return undefined;
   }
 
   return {
@@ -206,6 +249,12 @@ export async function createWSServer(
 
     getClientCount(): number {
       return clients.size;
+    },
+
+    getSessions(): BrowserSession[] {
+      return Array.from(sessions.values()).sort((a, b) =>
+        a.sessionId.localeCompare(b.sessionId),
+      );
     },
 
     requestContext,

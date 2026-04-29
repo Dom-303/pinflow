@@ -49,7 +49,8 @@ const components: ComponentConfig[] = [
   {
     id: 'advanced-hooks',
     title: 'Advanced Hooks',
-    description: 'Demo fuer komplexere Hook-Muster und interaktive Zustandslogik.',
+    description:
+      'Demo fuer komplexere Hook-Muster und interaktive Zustandslogik.',
     component: AdvancedHooks,
   },
   {
@@ -104,13 +105,15 @@ const components: ComponentConfig[] = [
   {
     id: 'edge-cases',
     title: 'Edge Cases',
-    description: 'Sammelstelle fuer schwierige oder ungewoehnliche UI-Randfaelle.',
+    description:
+      'Sammelstelle fuer schwierige oder ungewoehnliche UI-Randfaelle.',
     component: EdgeCases,
   },
   {
     id: 'error-boundaries',
     title: 'Error Boundaries',
-    description: 'Fehlerszenarien fuer robuste Overlay- und Mapping-Pruefungen.',
+    description:
+      'Fehlerszenarien fuer robuste Overlay- und Mapping-Pruefungen.',
     component: ErrorBoundaries,
   },
   {
@@ -163,7 +166,8 @@ const components: ComponentConfig[] = [
   {
     id: 'portals',
     title: 'Portals',
-    description: 'Portale und Layer fuer Overlay, Fokus und z-index-nahe Pruefungen.',
+    description:
+      'Portale und Layer fuer Overlay, Fokus und z-index-nahe Pruefungen.',
     component: Portals,
   },
   {
@@ -195,8 +199,7 @@ const components: ComponentConfig[] = [
   {
     id: 's-v-g-elements',
     title: 'SVG-Elemente',
-    description:
-      'Vektorbasierte UI-Bausteine fuer Auswahl- und Tooltip-Flows.',
+    description: 'Vektorbasierte UI-Bausteine fuer Auswahl- und Tooltip-Flows.',
     component: SVGElements,
   },
   {
@@ -208,13 +211,15 @@ const components: ComponentConfig[] = [
   {
     id: 'smoke-test',
     title: 'Smoke-Test',
-    description: 'Schneller Gesamtcheck fuer PinFlow-Verhalten in der Vorschau.',
+    description:
+      'Schneller Gesamtcheck fuer PinFlow-Verhalten in der Vorschau.',
     component: SmokeTest,
   },
   {
     id: 'styling',
     title: 'Styling',
-    description: 'Designnahe UI fuer Stilvarianten, Zustandsfarben und Oberflaechen.',
+    description:
+      'Designnahe UI fuer Stilvarianten, Zustandsfarben und Oberflaechen.',
     component: Styling,
   },
   {
@@ -271,12 +276,14 @@ function HomeIntro() {
             src={pinflowWordmarkSloganLight}
             alt="PinFlow - Pin it. Flow it. Ship it."
           />
-          <h1 className="preview-home-title">Vorschau links. Workflow rechts.</h1>
+          <h1 className="preview-home-title">
+            Vorschau links. Workflow rechts.
+          </h1>
           <h1 className="page-title">PinFlow</h1>
           <p className="page-description">
             Vorschau fuer reale UI-Muster links, eigentliche Arbeitsflaeche
-            rechts. So bleibt Test-Coverage sichtbar, ohne den Produktbereich
-            zu verwischen.
+            rechts. So bleibt Test-Coverage sichtbar, ohne den Produktbereich zu
+            verwischen.
           </p>
           <div className="preview-home-actions" aria-label="Schnellstart">
             <span>UI-Muster pruefen</span>
@@ -290,6 +297,8 @@ function HomeIntro() {
           </div>
         </div>
       </article>
+
+      <GoldenPathDemo />
 
       <section className="preview-home-section preview-home-section-flow">
         <div className="preview-home-section-head">
@@ -340,8 +349,8 @@ function HomeIntro() {
           <article>
             <strong>UI auswaehlen</strong>
             <p>
-              Komponenten, verschachtelte Bereiche und dynamische Zustandswechsel
-              lassen sich direkt im Canvas markieren.
+              Komponenten, verschachtelte Bereiche und dynamische
+              Zustandswechsel lassen sich direkt im Canvas markieren.
             </p>
           </article>
           <article>
@@ -354,8 +363,8 @@ function HomeIntro() {
           <article>
             <strong>Technische Randfaelle pruefen</strong>
             <p>
-              Advanced Hooks, Portals, SSR und andere Muster bleiben bewusst
-              in der Navigation, damit die Demo fachlich aussagekraeftig bleibt.
+              Advanced Hooks, Portals, SSR und andere Muster bleiben bewusst in
+              der Navigation, damit die Demo fachlich aussagekraeftig bleibt.
             </p>
           </article>
         </div>
@@ -401,6 +410,38 @@ function HomeIntro() {
   );
 }
 
+function GoldenPathDemo() {
+  const [checks, setChecks] = useState(1);
+
+  return (
+    <section
+      className="preview-home-section golden-path-demo"
+      data-demo-id="pinflow-60-second-golden-path"
+    >
+      <div className="preview-home-section-head">
+        <h2>60-Sekunden Golden Path</h2>
+        <p>
+          Dieses Element bleibt bewusst klein und stabil, damit PinFlow den Weg
+          von sichtbarer UI zu Source, Runtime-Kontext und Re-Capture pruefen
+          kann.
+        </p>
+      </div>
+      <div className="golden-path-demo-body">
+        <button
+          className="golden-path-action"
+          type="button"
+          onClick={() => setChecks((value) => value + 1)}
+        >
+          Start source-exact edit
+        </button>
+        <p>
+          Live-Checks: <strong>{checks}</strong>
+        </p>
+      </div>
+    </section>
+  );
+}
+
 export function App() {
   const [activeComponent, setActiveComponent] = useState('home');
 
@@ -411,7 +452,10 @@ export function App() {
 
   return (
     <div className="app">
-      <Navigation activeItem={activeComponent} onNavigate={setActiveComponent} />
+      <Navigation
+        activeItem={activeComponent}
+        onNavigate={setActiveComponent}
+      />
 
       <main className="main-content">
         <div className="content-wrapper">
@@ -422,7 +466,9 @@ export function App() {
               <header className="page-header">
                 <div className="preview-kicker">PinFlow Vorschau</div>
                 <h1 className="page-title">{currentComponent.title}</h1>
-                <p className="page-description">{currentComponent.description}</p>
+                <p className="page-description">
+                  {currentComponent.description}
+                </p>
                 <div className="preview-callout">
                   <strong>Hinweis:</strong> Die linke Seite bleibt bewusst eine
                   Vorschau fuer echte UI-Muster. Die rechte PinFlow-Flaeche ist
@@ -430,7 +476,9 @@ export function App() {
                 </div>
               </header>
 
-              <div className="component-section">{Component ? <Component /> : null}</div>
+              <div className="component-section">
+                {Component ? <Component /> : null}
+              </div>
             </>
           )}
         </div>

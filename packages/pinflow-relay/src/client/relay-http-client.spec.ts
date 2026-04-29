@@ -125,6 +125,16 @@ describe('RelayHttpClient', () => {
       expect(url).toContain('ann_123');
       expect(url).toContain('/status');
     });
+
+    it('should include annotation ID in path for verifyAnnotation', async () => {
+      await client.verifyAnnotation('ann_123').catch(() => {
+        //
+      });
+
+      const url = fetchSpy.mock.calls[0][0] as string;
+      expect(url).toContain('ann_123');
+      expect(url).toContain('/verify');
+    });
   });
 
   describe('request bodies', () => {
@@ -138,11 +148,9 @@ describe('RelayHttpClient', () => {
     });
 
     it('should POST entry IDs for batch resolve', async () => {
-      await client
-        .batchResolveManifestEntries(['ds_1', 'ds_2'])
-        .catch(() => {
-          //
-        });
+      await client.batchResolveManifestEntries(['ds_1', 'ds_2']).catch(() => {
+        //
+      });
 
       const body = JSON.parse(fetchSpy.mock.calls[0][1].body);
       expect(body).toEqual({ entryIds: ['ds_1', 'ds_2'] });
@@ -169,6 +177,50 @@ describe('RelayHttpClient', () => {
 
       const body = JSON.parse(fetchSpy.mock.calls[0][1].body);
       expect(body).toEqual({ message: 'Done' });
+    });
+
+    it('should POST dispatch target for processAnnotation', async () => {
+      await client
+        .processAnnotation({
+          dispatchTarget: {
+            provider: 'manual',
+            label: 'Manual review',
+            sessionId: 'desk-1',
+          },
+        })
+        .catch(() => {
+          //
+        });
+
+      const body = JSON.parse(fetchSpy.mock.calls[0][1].body);
+      expect(body).toEqual({
+        dispatchTarget: {
+          provider: 'manual',
+          label: 'Manual review',
+          sessionId: 'desk-1',
+        },
+      });
+    });
+
+    it('should POST session target for queryBySource', async () => {
+      await client
+        .queryBySource({
+          file: 'src/App.tsx',
+          line: 12,
+          includeRuntime: true,
+          sessionId: 'tab-admin',
+        })
+        .catch(() => {
+          //
+        });
+
+      const body = JSON.parse(fetchSpy.mock.calls[0][1].body);
+      expect(body).toEqual({
+        file: 'src/App.tsx',
+        line: 12,
+        includeRuntime: true,
+        sessionId: 'tab-admin',
+      });
     });
 
     it('should POST nonce for shutdown', async () => {

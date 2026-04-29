@@ -58,7 +58,7 @@ function getServer(adapter: McpAdapter) {
 
 describe('McpAdapter', () => {
   describe('active mode', () => {
-    it('should register all 12 tools', () => {
+    it('should register all 13 tools', () => {
       // Act
       const adapter = new McpAdapter({
         mode: 'active',
@@ -68,15 +68,13 @@ describe('McpAdapter', () => {
 
       // Assert
       const server = getServer(adapter);
-      expect(server.registeredTools.size).toBe(12);
+      expect(server.registeredTools.size).toBe(13);
       expect(server.registeredTools.has('pinflow.resolve')).toBe(true);
       expect(server.registeredTools.has('pinflow.resolve.batch')).toBe(true);
       expect(server.registeredTools.has('pinflow.manifest.stats')).toBe(true);
       expect(server.registeredTools.has('pinflow.manifest.query')).toBe(true);
       expect(server.registeredTools.has('pinflow.annotation.get')).toBe(true);
-      expect(server.registeredTools.has('pinflow.annotation.list')).toBe(
-        true,
-      );
+      expect(server.registeredTools.has('pinflow.annotation.list')).toBe(true);
       expect(server.registeredTools.has('pinflow.annotation.process')).toBe(
         true,
       );
@@ -84,6 +82,9 @@ describe('McpAdapter', () => {
         server.registeredTools.has('pinflow.annotation.updateStatus'),
       ).toBe(true);
       expect(server.registeredTools.has('pinflow.annotation.respond')).toBe(
+        true,
+      );
+      expect(server.registeredTools.has('pinflow.annotation.verify')).toBe(
         true,
       );
       expect(server.registeredTools.has('pinflow.annotation.search')).toBe(

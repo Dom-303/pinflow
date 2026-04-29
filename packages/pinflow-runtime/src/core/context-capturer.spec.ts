@@ -120,7 +120,9 @@ describe('ContextCapturer', () => {
       const options: ContextCapturerOptions = {
         adapter,
         phase: 2,
-        maxDepth: 15,
+        serialization: {
+          maxDepth: 15,
+        },
         redactPII: false,
         debug: true,
       };

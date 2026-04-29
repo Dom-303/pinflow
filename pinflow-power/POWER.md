@@ -33,6 +33,10 @@ PinFlow bridges running UI and source code. It is based on PinFlow and maps ever
 - **UI → Code**: User clicks an element in the browser, PinFlow captures it as an annotation with source location, runtime context, and user intent. You claim and implement it.
 - **Code → UI**: You're editing a source file and want to know what an element looks like at runtime. Query by file and line to get live props, state, and DOM snapshot.
 
+## Source-Exact Agent Rule
+
+For visual frontend work, ask PinFlow for source/runtime context with `pinflow.query.bySource` before editing, and re-query the same source location after editing when possible.
+
 ## Editing Components (Code → UI)
 
 **Why query runtime state?** Source code alone doesn't tell you what props a component actually received, whether a conditional branch rendered, what CSS classes were applied, or what text the user sees. The current PinFlow-compatible runtime query tool, `pinflow.query.bySource`, gives you the live truth from the browser.
@@ -75,23 +79,23 @@ PinFlow bridges running UI and source code. It is based on PinFlow and maps ever
 
 These tool names still use the current compatibility namespace.
 
-| Tool                       | Purpose                                                    |
-| -------------------------- | ---------------------------------------------------------- |
+| Tool                     | Purpose                                                    |
+| ------------------------ | ---------------------------------------------------------- |
 | `pinflow.query.bySource` | Get runtime context for a source location (file + line)    |
 | `pinflow.manifest.query` | Find all manifest entries by file, component, or tag name  |
 | `pinflow.manifest.stats` | Manifest coverage statistics (entry/file/component counts) |
 
 ### Element Resolution (UI → Code)
 
-| Tool                      | Purpose                            |
-| ------------------------- | ---------------------------------- |
+| Tool                    | Purpose                            |
+| ----------------------- | ---------------------------------- |
 | `pinflow.resolve`       | Get source location for element ID |
 | `pinflow.resolve.batch` | Resolve multiple element IDs       |
 
 ### Annotation Workflow
 
-| Tool                                | Purpose                               |
-| ----------------------------------- | ------------------------------------- |
+| Tool                              | Purpose                               |
+| --------------------------------- | ------------------------------------- |
 | `pinflow.annotation.process`      | Claim next queued annotation (atomic) |
 | `pinflow.annotation.respond`      | Store your implementation message     |
 | `pinflow.annotation.updateStatus` | Mark as `processed` or `failed`       |
@@ -101,8 +105,8 @@ These tool names still use the current compatibility namespace.
 
 ### System
 
-| Tool               | Purpose                              |
-| ------------------ | ------------------------------------ |
+| Tool             | Purpose                              |
+| ---------------- | ------------------------------------ |
 | `pinflow.status` | Relay health, manifest, queue counts |
 
 ## Using `pinflow.query.bySource`

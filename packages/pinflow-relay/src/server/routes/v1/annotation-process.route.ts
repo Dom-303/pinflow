@@ -15,6 +15,8 @@ import path from 'path';
 import {
   AnnotationProcessResponse,
   AnnotationProcessResponseSchema,
+  AnnotationProcessRequestBody,
+  AnnotationProcessRequestBodySchema,
 } from '../../../schema.js';
 import { AnnotationService } from '../../services/index.js';
 import { RelayErrorResponse, RelayErrorResponseSchema } from '../../types.js';
@@ -42,12 +44,14 @@ export class AnnotationProcessRoute implements RelayRoute {
     );
 
     app.withTypeProvider<ZodTypeProvider>().route<{
+      Body: AnnotationProcessRequestBody;
       Reply: AnnotationProcessResponse | RelayErrorResponse;
     }>({
       url,
       method,
       handler: handler.bind(route),
       schema: {
+        body: AnnotationProcessRequestBodySchema,
         response: {
           200: AnnotationProcessResponseSchema,
           400: RelayErrorResponseSchema,
@@ -58,13 +62,15 @@ export class AnnotationProcessRoute implements RelayRoute {
   }
 
   async handler(
-    _request: FastifyRequest,
+    request: FastifyRequest<{ Body: AnnotationProcessRequestBody }>,
     reply: FastifyReply<{
       Reply: AnnotationProcessResponse | RelayErrorResponse;
     }>,
   ): Promise<AnnotationProcessResponse> {
     try {
-      const annotation = await this.annotationService.claimNext();
+      const annotation = await this.annotationService.claimNext({
+        dispatchTarget: request.body?.dispatchTarget,
+      });
 
       if (!annotation) {
         return reply.status(HTTP_STATUS.NOT_FOUND).send({
@@ -109,6 +115,8 @@ export class AnnotationProcessRoute implements RelayRoute {
               componentState: runtimeCtx.componentState,
             }
           : undefined,
+        claim: annotation.metadata.claim,
+        dispatch: annotation.dispatch,
         fullAnnotation: annotation,
       });
     } catch (error: unknown) {

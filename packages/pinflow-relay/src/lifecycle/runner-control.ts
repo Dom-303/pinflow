@@ -13,9 +13,12 @@ export interface RunnerEnsureOptions {
   relayHost: string;
   relayPort: number;
   provider?: string;
+  model?: string;
+  surface?: 'terminal' | 'background' | 'external';
   command?: string;
   args?: string[];
   intervalMs?: number;
+  rawOutput?: boolean;
 }
 
 export interface RunnerEnsureResult {
@@ -49,9 +52,12 @@ export class RunnerControl {
 
     const child = this.spawn({
       provider,
+      model: options.model,
+      surface: options.surface,
       command: options.command,
       args: options.args,
       intervalMs: options.intervalMs,
+      rawOutput: options.rawOutput,
     });
 
     if (!child.pid) {
@@ -69,15 +75,21 @@ export class RunnerControl {
 
   spawn({
     provider,
+    model,
     command,
     args,
     intervalMs,
+    rawOutput,
     detached = true,
+    surface,
   }: {
     provider: string;
+    model?: string;
+    surface?: 'terminal' | 'background' | 'external';
     command?: string;
     args?: string[];
     intervalMs?: number;
+    rawOutput?: boolean;
     detached?: boolean;
   }): ChildProcess {
     const cliEntry = resolveCliEntryPath();
@@ -87,12 +99,22 @@ export class RunnerControl {
       cliArgs.push('--command', command);
     }
 
+    if (model) {
+      cliArgs.push('--model', model);
+    }
+
+    cliArgs.push('--surface', surface ?? (detached ? 'background' : 'terminal'));
+
     for (const arg of args ?? []) {
       cliArgs.push('--arg', arg);
     }
 
     if (intervalMs && intervalMs > 0) {
       cliArgs.push('--interval', String(intervalMs));
+    }
+
+    if (rawOutput) {
+      cliArgs.push('--raw');
     }
 
     if (this.debug) {

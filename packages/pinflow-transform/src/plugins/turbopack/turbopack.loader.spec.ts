@@ -328,7 +328,7 @@ describe('Turbopack Loader', () => {
       // Arrange
       const source = 'export function App() { return <div>Hello</div>; }';
       const context = createLoaderContext('/test/App.tsx', {
-        runner: { autoStart: true, provider: 'codex' },
+        runner: { autoStart: true, provider: 'codex', model: 'gpt-5.5' },
       });
       const asyncCallback = vi.fn();
       context.async = vi.fn(() => asyncCallback);
@@ -345,10 +345,35 @@ describe('Turbopack Loader', () => {
         relayHost: '127.0.0.1',
         relayPort: 4400,
         provider: 'codex',
+        model: 'gpt-5.5',
         command: undefined,
         args: undefined,
         intervalMs: undefined,
       });
+    });
+
+    it('should auto-start the configured runner in auto mode', async () => {
+      // Arrange
+      const source = 'export function App() { return <div>Hello</div>; }';
+      const context = createLoaderContext('/test/App.tsx', {
+        runner: { mode: 'auto', provider: 'codex' },
+      });
+      const asyncCallback = vi.fn();
+      context.async = vi.fn(() => asyncCallback);
+      mockInjector.inject.mockReturnValue(
+        createMockInjectorResult('transformed', 1),
+      );
+
+      // Act
+      loaderModule.default.call(context, source);
+      await vi.waitFor(() => expect(asyncCallback).toHaveBeenCalled());
+
+      // Assert
+      expect(mockRunnerControl.ensureRunning).toHaveBeenCalledWith(
+        expect.objectContaining({
+          provider: 'codex',
+        }),
+      );
     });
 
     it('should handle init failure gracefully and return original source', async () => {

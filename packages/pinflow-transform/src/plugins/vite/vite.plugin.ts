@@ -25,6 +25,7 @@ import {
   isInjectorFileExtension,
 } from '../../core/injector.registry.js';
 import { RelayControl, RunnerControl } from '@pinflow/relay';
+import { shouldStartRunner } from '../types.js';
 
 const OVERLAY_INIT_MODULE_BASE_PATH = '/@pinflow/overlay-init.js';
 const PINFLOW_DEV_CACHE_TAG = 'pinflow-ui-2026-04-23b';
@@ -140,7 +141,7 @@ export function pinflow(options: VitePluginOptions = {}): Plugin {
     exclude = /node_modules|\.test\.|\.spec\./i,
     debug = false,
     relay: relayOptions = {},
-    runner: runnerOptions,
+    runner: runnerOptions = {},
     overlay: overlayOption = true,
     rootDir,
   } = options;
@@ -260,12 +261,13 @@ export function pinflow(options: VitePluginOptions = {}): Plugin {
             );
           }
 
-          if (runnerOptions?.autoStart) {
+          if (shouldStartRunner(runnerOptions)) {
             runnerControl = new RunnerControl(rootContext, { debug });
             await runnerControl.ensureRunning({
               relayHost,
               relayPort,
               provider: runnerOptions.provider ?? 'codex',
+              model: runnerOptions.model,
               command: runnerOptions.command,
               args: runnerOptions.args,
               intervalMs: runnerOptions.intervalMs,

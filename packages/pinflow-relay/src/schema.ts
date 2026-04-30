@@ -247,6 +247,57 @@ export type AnnotationUpdateResponseResponse = z.infer<
 >;
 
 /* =============================
+ * Annotation - Run Evidence
+ * ============================= */
+export const AnnotationRunEvidenceRequestParamsSchema = z.object({
+  id: AnnotationIdSchema.describe(
+    'The annotation ID whose latest run evidence should be returned',
+  ),
+});
+export type AnnotationRunEvidenceRequestParams = z.infer<
+  typeof AnnotationRunEvidenceRequestParamsSchema
+>;
+
+export const AnnotationRunEvidenceChangedFileSchema = z.object({
+  path: z.string(),
+});
+export type AnnotationRunEvidenceChangedFile = z.infer<
+  typeof AnnotationRunEvidenceChangedFileSchema
+>;
+
+export const AnnotationRunEvidenceSchema = z.object({
+  annotationId: AnnotationIdSchema,
+  runId: z.string(),
+  runDir: z.string(),
+  status: z.enum(['claimed', 'processing', 'processed', 'failed']),
+  provider: z.string(),
+  label: z.string(),
+  model: z.string().optional(),
+  startedAt: z.string(),
+  finishedAt: z.string().optional(),
+  exitCode: z.number().nullable().optional(),
+  errorDetails: z.string().optional(),
+  promptPath: z.string(),
+  contextPath: z.string().optional(),
+  transcriptPath: z.string(),
+  diffPath: z.string(),
+  hasDiff: z.boolean(),
+  changedFiles: z.array(AnnotationRunEvidenceChangedFileSchema),
+  additions: z.number().int().min(0),
+  deletions: z.number().int().min(0),
+});
+export type AnnotationRunEvidence = z.infer<typeof AnnotationRunEvidenceSchema>;
+
+export const AnnotationRunEvidenceResponseSchema = z.object({
+  found: z.boolean(),
+  annotationId: AnnotationIdSchema,
+  evidence: AnnotationRunEvidenceSchema.optional(),
+});
+export type AnnotationRunEvidenceResponse = z.infer<
+  typeof AnnotationRunEvidenceResponseSchema
+>;
+
+/* =============================
  * Annotation - Verify
  * ============================= */
 export const AnnotationVerifyRequestParamsSchema = z.object({
@@ -455,13 +506,22 @@ export type ShutdownResponse = z.infer<typeof ShutdownResponseSchema>;
  * ============================= */
 export const RunnerStatusSchema = z.enum(['idle', 'processing', 'stopping']);
 export type RunnerStatus = z.infer<typeof RunnerStatusSchema>;
+export const RunnerSurfaceSchema = z.enum([
+  'terminal',
+  'background',
+  'external',
+]);
+export type RunnerSurface = z.infer<typeof RunnerSurfaceSchema>;
 
 export const RunnerSessionSchema = z.object({
   runnerId: z.string().min(1),
   provider: z.string().min(1),
   label: z.string().min(1),
   status: RunnerStatusSchema,
+  surface: RunnerSurfaceSchema.optional(),
   currentAnnotationId: AnnotationIdSchema.optional(),
+  currentRunId: z.string().min(1).optional(),
+  currentRunDir: z.string().min(1).optional(),
   pid: z.number().int().positive().optional(),
   lastSeenAt: z.string(),
 });
@@ -472,7 +532,10 @@ export const RunnerHeartbeatRequestBodySchema = z.object({
   provider: RunnerSessionSchema.shape.provider,
   label: RunnerSessionSchema.shape.label,
   status: RunnerStatusSchema,
+  surface: RunnerSessionSchema.shape.surface,
   currentAnnotationId: AnnotationIdSchema.optional(),
+  currentRunId: RunnerSessionSchema.shape.currentRunId,
+  currentRunDir: RunnerSessionSchema.shape.currentRunDir,
   pid: RunnerSessionSchema.shape.pid,
 });
 export type RunnerHeartbeatRequestBody = z.infer<

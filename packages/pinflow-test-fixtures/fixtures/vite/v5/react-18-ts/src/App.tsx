@@ -1,7 +1,13 @@
 import { useState } from 'react';
 import { Navigation } from './Navigation';
+import architectureVisual from '../../../../../../../assets/architecture.png';
+import codeToUiVisual from '../../../../../../../assets/code-to-ui.png';
+import localSetupFlowVisual from '../../../../../../../assets/local-setup-flow.png';
+import pinflowOverviewVisual from '../../../../../../../assets/pinflow-overview.png';
 import pinflowStackedLight from '../../../../../../../assets/pinflow-stacked-light.png';
 import pinflowWordmarkSloganLight from '../../../../../../../assets/pinflow-wordmark-slogan-light.png';
+import uiToCodeVisual from '../../../../../../../assets/ui-to-code.png';
+import workflowLoopVisual from '../../../../../../../assets/workflow-loop.png';
 import {
   AdvancedHooks,
   BasicElements,
@@ -36,21 +42,24 @@ interface ComponentConfig {
   id: string;
   title: string;
   description: string;
+  testFocus: string;
   component?: React.ComponentType;
 }
 
 const components: ComponentConfig[] = [
   {
     id: 'home',
-    title: 'PinFlow',
+    title: 'Developer Canvas',
     description:
-      'Visuelle Arbeitsoberflaeche fuer UI-Auswahl, Annotationen und Agenten-Workflows.',
+      'Technische Testflaeche fuer UI-Auswahl, Annotationen und Agenten-Workflows.',
+    testFocus: 'Gesamtfluss von Auswahl bis Repo-Diff',
   },
   {
     id: 'advanced-hooks',
     title: 'Advanced Hooks',
     description:
       'Demo fuer komplexere Hook-Muster und interaktive Zustandslogik.',
+    testFocus: 'Reducer, Refs, Custom Hooks und Layout-Effekte',
     component: AdvancedHooks,
   },
   {
@@ -58,6 +67,7 @@ const components: ComponentConfig[] = [
     title: 'Basic Elements',
     description:
       'Kleine UI-Bausteine fuer Markierung, Mapping und erste Anmerkungen.',
+    testFocus: 'Headings, Buttons, Inputs und einfache DOM-Ziele',
     component: BasicElements,
   },
   {
@@ -65,6 +75,7 @@ const components: ComponentConfig[] = [
     title: 'Children API',
     description:
       'Verschachtelte Child-Strukturen fuer Auswahlpfade und Komponentenauflosung.',
+    testFocus: 'Children.map, cloneElement und erzeugte Child-Strukturen',
     component: ChildrenManipulation,
   },
   {
@@ -72,6 +83,7 @@ const components: ComponentConfig[] = [
     title: 'Compound Components',
     description:
       'Gekoppelte Komponenten mit geteiltem Zustand und enger Layout-Beziehung.',
+    testFocus: 'Tabs, Accordion und Komponentenfamilien',
     component: CompoundComponents,
   },
   {
@@ -79,6 +91,7 @@ const components: ComponentConfig[] = [
     title: 'Bedingtes Rendering',
     description:
       'Wechselnde Renderpfade fuer Zustandswechsel, Sichtbarkeit und Ausnahmen.',
+    testFocus: 'Sichtbare, versteckte und ersetzte UI-Zweige',
     component: ConditionalRendering,
   },
   {
@@ -86,6 +99,7 @@ const components: ComponentConfig[] = [
     title: 'Context API',
     description:
       'Kontextbasierte Komponentenhierarchie fuer Source-Mapping und Auswahl.',
+    testFocus: 'Provider, Consumer und tiefe Kontext-Nutzung',
     component: Context,
   },
   {
@@ -93,6 +107,7 @@ const components: ComponentConfig[] = [
     title: 'Tiefe Hierarchien',
     description:
       'Komplexe Tiefe fuer robustes Element-Picking und Komponentenauflosung.',
+    testFocus: 'Auswahl durch viele DOM- und Komponentenebenen',
     component: DeeplyNested,
   },
   {
@@ -100,6 +115,7 @@ const components: ComponentConfig[] = [
     title: 'Dynamische Inhalte',
     description:
       'Lebendige Inhalte fuer Annotationen an wechselnden UI-Stellen.',
+    testFocus: 'Hinzufuegen, Entfernen und Umordnen dynamischer Elemente',
     component: DynamicContent,
   },
   {
@@ -107,6 +123,7 @@ const components: ComponentConfig[] = [
     title: 'Edge Cases',
     description:
       'Sammelstelle fuer schwierige oder ungewoehnliche UI-Randfaelle.',
+    testFocus: 'Null, undefined, leere Fragmente und seltene Renderwerte',
     component: EdgeCases,
   },
   {
@@ -114,12 +131,14 @@ const components: ComponentConfig[] = [
     title: 'Error Boundaries',
     description:
       'Fehlerszenarien fuer robuste Overlay- und Mapping-Pruefungen.',
+    testFocus: 'Fehlerzustand, Recovery und stabile Overlay-Anbindung',
     component: ErrorBoundaries,
   },
   {
     id: 'event-handlers',
     title: 'Event-Handler',
     description: 'Interaktive Teststrecke fuer Klicks, Fokus und Delegation.',
+    testFocus: 'Click, Change, Submit und Fokus-Flows',
     component: EventHandlers,
   },
   {
@@ -127,6 +146,7 @@ const components: ComponentConfig[] = [
     title: 'Fragments',
     description:
       'Mehrteilige React-Strukturen fuer Auswahl, Mapping und Layoutlogik.',
+    testFocus: 'Fragment-Grenzen ohne zusaetzliche DOM-Wrapper',
     component: Fragments,
   },
   {
@@ -134,12 +154,14 @@ const components: ComponentConfig[] = [
     title: 'HOCs',
     description:
       'Higher-Order-Component-Beispiele fuer Komponentennamen und Huelle.',
+    testFocus: 'Gewrappte Komponenten und lesbare Source-Zuordnung',
     component: HOCs,
   },
   {
     id: 'lazy-loading',
     title: 'Lazy Loading',
     description: 'Asynchrone UI fuer Load-Zustaende und nachgeladene Bereiche.',
+    testFocus: 'Suspense, Fallback und spaeter sichtbare Komponenten',
     component: LazyLoading,
   },
   {
@@ -147,6 +169,7 @@ const components: ComponentConfig[] = [
     title: 'Lists',
     description:
       'Listenansichten fuer wiederholte Elemente und strukturierte Auswahl.',
+    testFocus: 'Wiederholte Items, Keys und stabile Zielauswahl',
     component: Lists,
   },
   {
@@ -154,6 +177,7 @@ const components: ComponentConfig[] = [
     title: 'Member Expressions',
     description:
       'Komponentenreferenzen und Source-Zuordnung in tieferen Zugriffspfaden.',
+    testFocus: 'Namespace- und Member-Komponenten im Source-Mapping',
     component: MemberExpressions,
   },
   {
@@ -161,6 +185,7 @@ const components: ComponentConfig[] = [
     title: 'Memo',
     description:
       'Memoisierte Komponentenflaeche fuer stabile Referenzen im Preview-Canvas.',
+    testFocus: 'memo, callbacks und Ref-Forwarding',
     component: Memo,
   },
   {
@@ -168,18 +193,21 @@ const components: ComponentConfig[] = [
     title: 'Portals',
     description:
       'Portale und Layer fuer Overlay, Fokus und z-index-nahe Pruefungen.',
+    testFocus: 'Modal-, Tooltip- und Portal-Ziele ausserhalb der Hierarchie',
     component: Portals,
   },
   {
     id: 'react18-features',
     title: 'React 18 Features',
     description: 'Aktuelle React-Features fuer moderne App-Flows in der Demo.',
+    testFocus: 'Transitions, deferred values und useId',
     component: React18Features,
   },
   {
     id: 'ref-patterns',
     title: 'Ref Patterns',
     description: 'Ref-basierte Strukturen fuer Fokus und Elementzugriff.',
+    testFocus: 'useRef, Callback-Refs, forwardRef und Messpunkte',
     component: RefPatterns,
   },
   {
@@ -187,6 +215,7 @@ const components: ComponentConfig[] = [
     title: 'Render Props',
     description:
       'Dynamisch erzeugte UI ueber Render Props fuer Preview und Mapping.',
+    testFocus: 'Render-Prop-Ausgabe und dynamische Child-Funktionen',
     component: RenderProps,
   },
   {
@@ -194,18 +223,21 @@ const components: ComponentConfig[] = [
     title: 'SSR & Hydration',
     description:
       'Hydrationsfaelle fuer serverseitig gerenderte Komponenten und Overlay-Start.',
+    testFocus: 'Client-only Bereiche, Hydration und Browser-Guards',
     component: SSRHydration,
   },
   {
     id: 's-v-g-elements',
     title: 'SVG-Elemente',
     description: 'Vektorbasierte UI-Bausteine fuer Auswahl- und Tooltip-Flows.',
+    testFocus: 'SVG-Knoten, Icons und grafische Auswahlziele',
     component: SVGElements,
   },
   {
     id: 'self-closing',
     title: 'Self-Closing Tags',
     description: 'Kompakte Syntaxfaelle fuer Parser und Komponentenauflosung.',
+    testFocus: 'Self-closing JSX und kompakte Elementquellen',
     component: SelfClosing,
   },
   {
@@ -213,6 +245,7 @@ const components: ComponentConfig[] = [
     title: 'Smoke-Test',
     description:
       'Schneller Gesamtcheck fuer PinFlow-Verhalten in der Vorschau.',
+    testFocus: 'Basis-Auswahl, Kommentar, Status und stabiler Testlauf',
     component: SmokeTest,
   },
   {
@@ -220,6 +253,7 @@ const components: ComponentConfig[] = [
     title: 'Styling',
     description:
       'Designnahe UI fuer Stilvarianten, Zustandsfarben und Oberflaechen.',
+    testFocus: 'Klassen, Inline-Styles und visuelle Varianten',
     component: Styling,
   },
   {
@@ -227,47 +261,149 @@ const components: ComponentConfig[] = [
     title: 'TypeScript Features',
     description:
       'Typisierte Komponentenflaeche fuer robuste Source- und Runtime-Mappings.',
+    testFocus: 'Generics, Props-Typen und typisierte Komponenten',
     component: TypeScriptFeatures,
   },
 ];
 
+interface ProductDemoProps {
+  onOpenCanvas: () => void;
+}
+
+interface AreaHeaderProps {
+  onOpenCanvas: () => void;
+  onOpenPinFlow: () => void;
+}
+
+function AreaHeader({
+  onOpenCanvas,
+  onOpenPinFlow,
+}: AreaHeaderProps) {
+  return (
+    <header className="area-header">
+      <nav className="area-switcher" aria-label="Bereich wechseln">
+        <button
+          type="button"
+          className="active"
+          onClick={onOpenPinFlow}
+        >
+          PinFlow
+        </button>
+        <button
+          type="button"
+          onClick={onOpenCanvas}
+        >
+          Developer Canvas
+        </button>
+      </nav>
+    </header>
+  );
+}
+
+function ProductDemo({ onOpenCanvas }: ProductDemoProps) {
+  return (
+    <section className="product-demo">
+      <section className="product-hero">
+        <div className="product-hero-copy">
+          <img
+            className="product-hero-wordmark"
+            src={pinflowWordmarkSloganLight}
+            alt="PinFlow - Pin it. Flow it. Ship it."
+          />
+          <span className="product-kicker">Local UI-to-code workflow</span>
+          <h1>Mark the UI. Ship the diff.</h1>
+          <p>
+            PinFlow verbindet Feedback direkt aus dem Browser mit dem lokalen
+            Coding-Agent. Am Ende zaehlt nicht eine Notiz, sondern ein echter
+            Git-Diff im Repo.
+          </p>
+          <div className="product-actions">
+            <button type="button" onClick={onOpenCanvas}>
+              Developer Canvas oeffnen
+            </button>
+            <a href="#workflow">Workflow ansehen</a>
+          </div>
+        </div>
+        <figure className="product-hero-visual">
+          <img src={pinflowOverviewVisual} alt="PinFlow Workflow-Uebersicht" />
+        </figure>
+      </section>
+
+      <section id="workflow" className="product-flow">
+        <div className="product-section-copy">
+          <span className="product-kicker">Der Kern</span>
+          <h2>Vom sichtbaren Problem zum lokalen Code-Diff.</h2>
+          <p>
+            Der Browser ist die Eingabe. Der lokale Runner ist die Ausfuehrung.
+            Das Repo bleibt die Wahrheit.
+          </p>
+        </div>
+        <div className="product-flow-grid">
+          <article>
+            <img src={uiToCodeVisual} alt="UI-Auswahl wird zu Code-Kontext" />
+            <span>01</span>
+            <strong>UI markieren</strong>
+          </article>
+          <article>
+            <img src={workflowLoopVisual} alt="PinFlow Workflow Loop" />
+            <span>02</span>
+            <strong>Runner uebernimmt</strong>
+          </article>
+          <article>
+            <img src={codeToUiVisual} alt="Code-Aenderung landet wieder in der UI" />
+            <span>03</span>
+            <strong>Diff pruefen</strong>
+          </article>
+        </div>
+      </section>
+
+      <section className="product-split">
+        <div className="product-section-copy">
+          <span className="product-kicker">Lokale Ausfuehrung</span>
+          <h2>PinFlow startet dort, wo dein Projekt wirklich liegt.</h2>
+          <p>
+            Ein Dev-Befehl verbindet Preview, Relay und Runner. Der Nutzer sieht
+            den Ablauf, waehrend der Agent im lokalen Workspace arbeitet.
+          </p>
+        </div>
+        <img src={localSetupFlowVisual} alt="Lokaler PinFlow Setup Flow" />
+      </section>
+
+      <section className="product-split product-split-dark">
+        <div className="product-section-copy">
+          <span className="product-kicker">Architektur</span>
+          <h2>Eine klare Schicht zwischen Browser und Coding-Agent.</h2>
+          <p>
+            Annotation, Kontext, Runner-Evidence und Repo-Diff bleiben getrennt,
+            aber nachvollziehbar verbunden.
+          </p>
+        </div>
+        <img src={architectureVisual} alt="PinFlow Architektur" />
+      </section>
+    </section>
+  );
+}
+
 function HomeIntro() {
   return (
     <section className="preview-home">
-      <section className="preview-rail">
-        <article className="preview-rail-card">
-          <span className="preview-rail-label">Linke Seite</span>
-          <strong>Vorschau-Demo</strong>
-          <p>
-            Diese linke Seite bleibt bewusst eine Vorschau fuer echte React-
-            Muster, Auswahlpfade und Mapping-Faelle.
-          </p>
-        </article>
-        <article className="preview-rail-card">
-          <span className="preview-rail-label">Rechte Seite</span>
-          <strong>PinFlow-Arbeitsbereich</strong>
-          <p>
-            Der eigentliche Arbeitsbereich fuer Annotationen, Queue und
-            Agenten-Flow liegt rechts und wird ueber den Launcher geoeffnet.
-          </p>
-        </article>
-        <article className="preview-rail-card preview-rail-card-accent">
-          <span className="preview-rail-label">Naechster Schritt</span>
-          <strong>Launcher oeffnen</strong>
-          <p>
-            Nutze das halb sichtbare PinFlow-Logo am rechten Rand, um direkt in
-            Kommentare, Queue und Versand zu springen.
-          </p>
-        </article>
-      </section>
-
       <article className="preview-home-hero">
         <div className="preview-home-hero-art">
-          <img
-            className="preview-home-hero-image"
-            src={pinflowStackedLight}
-            alt="PinFlow"
-          />
+          <div className="preview-home-device" aria-hidden="true">
+            <img
+              className="preview-home-hero-image"
+              src={pinflowStackedLight}
+              alt=""
+            />
+            <div className="preview-home-proof">
+              <span>Picker</span>
+              <strong>Element erkannt</strong>
+            </div>
+            <div className="preview-home-proof preview-home-proof-alt">
+              <span>Runner</span>
+              <strong>Diff geschrieben</strong>
+            </div>
+          </div>
         </div>
         <div className="preview-home-hero-copy">
           <span className="preview-kicker">PinFlow Vorschau</span>
@@ -276,134 +412,87 @@ function HomeIntro() {
             src={pinflowWordmarkSloganLight}
             alt="PinFlow - Pin it. Flow it. Ship it."
           />
-          <h1 className="preview-home-title">
-            Vorschau links. Workflow rechts.
-          </h1>
-          <h1 className="page-title">PinFlow</h1>
+          <h1 className="preview-home-title">UI markieren. Code aendern.</h1>
           <p className="page-description">
-            Vorschau fuer reale UI-Muster links, eigentliche Arbeitsflaeche
-            rechts. So bleibt Test-Coverage sichtbar, ohne den Produktbereich zu
-            verwischen.
+            Diese Vorschau ist ein lokales Test-Labor: links echte React-Muster,
+            rechts der PinFlow-Arbeitsbereich fuer Kommentare, Runner und
+            Repo-Diffs.
           </p>
-          <div className="preview-home-actions" aria-label="Schnellstart">
-            <span>UI-Muster pruefen</span>
-            <span>Launcher oeffnen</span>
-            <span>Queue testen</span>
+          <div className="preview-home-flowline" aria-label="PinFlow Ablauf">
+            <span>Element waehlen</span>
+            <span>Kommentar senden</span>
+            <span>Diff im Repo pruefen</span>
           </div>
-          <div className="preview-callout">
-            <strong>Wichtig:</strong> Die eigentliche PinFlow-Arbeitsflaeche
-            liegt rechts. Klicke auf das halb sichtbare PinFlow-Logo am rechten
-            Bildschirmrand, um den Arbeitsbereich auszuklappen.
+          <div className="preview-home-statusbar" aria-label="Laborstatus">
+            <div>
+              <span>Canvas</span>
+              <strong>28 Tests</strong>
+            </div>
+            <div>
+              <span>Runner</span>
+              <strong>Live</strong>
+            </div>
+            <div>
+              <span>Truth</span>
+              <strong>Git diff</strong>
+            </div>
           </div>
         </div>
       </article>
 
       <GoldenPathDemo />
 
-      <section className="preview-home-section preview-home-section-flow">
-        <div className="preview-home-section-head">
-          <h2>So nutzt du diese Vorschau</h2>
+      <section className="preview-home-system">
+        <article>
+          <span className="preview-rail-label">Canvas</span>
+          <strong>React-Muster bleiben sichtbar.</strong>
           <p>
-            Die Vorschau bleibt absichtlich technisch aussagekraeftig, aber der
-            eigentliche Produktfluss ist klar in drei Schritten organisiert.
+            Die Navigation links sammelt echte Komponentenfaelle fuer Picker,
+            Source-Mapping und Runtime-Kontext.
           </p>
-        </div>
-        <div className="preview-home-flow">
-          <article>
-            <span className="preview-flow-step">1</span>
-            <strong>Canvas pruefen</strong>
-            <p>
-              Navigiere links durch echte React-Muster und markiere die Stelle,
-              an der du eine Aenderung oder Rueckmeldung brauchst.
-            </p>
-          </article>
-          <article>
-            <span className="preview-flow-step">2</span>
-            <strong>Workspace oeffnen</strong>
-            <p>
-              Oeffne rechts den PinFlow-Arbeitsbereich, um Kontext, Kommentar
-              und Versandmodus fuer die gewaehlte Stelle zu steuern.
-            </p>
-          </article>
-          <article>
-            <span className="preview-flow-step">3</span>
-            <strong>Flow ausloesen</strong>
-            <p>
-              Entscheide, ob du sammelst, sofort versendest oder die Queue den
-              naechsten Batch automatisch weiterzieht.
-            </p>
-          </article>
-        </div>
+        </article>
+        <article>
+          <span className="preview-rail-label">Workflow</span>
+          <strong>PinFlow arbeitet rechts.</strong>
+          <p>
+            Der Launcher oeffnet Kommentare, Warteliste, Runner-Status und den
+            Nachweis, ob ein Code-Diff entstanden ist.
+          </p>
+        </article>
+        <article>
+          <span className="preview-rail-label">Wahrheit</span>
+          <strong>Das Repo entscheidet.</strong>
+          <p>
+            Ein erledigter Auftrag zaehlt erst, wenn die Aenderung als normaler
+            lokaler Git-Diff sichtbar ist.
+          </p>
+        </article>
       </section>
 
-      <section className="preview-home-section">
+      <section className="preview-home-section preview-home-assets">
         <div className="preview-home-section-head">
-          <h2>Wofuer diese Demo gedacht ist</h2>
+          <h2>Produkt-Visuals</h2>
           <p>
-            Diese Flaeche simuliert echte React-Oberflaechen, damit du Picker,
-            Kommentare, Mapping und spaetere Agenten-Workflows gegen
-            realistische UI-Muster pruefen kannst.
+            Dieselben Bilder erklaeren auch die Produktdemo. Im Canvas bleiben
+            sie als schnelle technische Referenz sichtbar.
           </p>
         </div>
-        <div className="preview-home-points">
-          <article>
-            <strong>UI auswaehlen</strong>
-            <p>
-              Komponenten, verschachtelte Bereiche und dynamische
-              Zustandswechsel lassen sich direkt im Canvas markieren.
-            </p>
-          </article>
-          <article>
-            <strong>Annotationen pruefen</strong>
-            <p>
-              Die rechte PinFlow-Flaeche ist der eigentliche Arbeitsbereich fuer
-              Annotationen, Queue und Versand.
-            </p>
-          </article>
-          <article>
-            <strong>Technische Randfaelle pruefen</strong>
-            <p>
-              Advanced Hooks, Portals, SSR und andere Muster bleiben bewusst in
-              der Navigation, damit die Demo fachlich aussagekraeftig bleibt.
-            </p>
-          </article>
-        </div>
-      </section>
-
-      <section className="preview-home-section">
-        <div className="preview-home-section-head">
-          <h2>Bildmaterial, das noch ersetzt wird</h2>
-          <p>
-            Die alten Platzhalter-Visuals sind absichtlich raus. Diese drei
-            Bereiche bleiben als Platzhalter stehen, bis die finalen PinFlow-
-            Bilder vorliegen.
-          </p>
-        </div>
-        <div className="preview-home-placeholders">
-          <article className="placeholder-card">
-            <span className="placeholder-label">Demo</span>
-            <strong>PinFlow Demo-Visual wird aktualisiert</strong>
-            <p>
-              Hier kommt spaeter die neue Vorschau-Grafik fuer den linken
-              Demo-Canvas hinein.
-            </p>
-          </article>
-          <article className="placeholder-card">
-            <span className="placeholder-label">Code zu UI</span>
-            <strong>Visual fuer Rueckmeldung zu Frontend</strong>
-            <p>
-              Der alte Uebergang von Code zu UI wird durch ein neues PinFlow-
-              Motiv ersetzt.
-            </p>
-          </article>
-          <article className="placeholder-card">
-            <span className="placeholder-label">Architektur</span>
-            <strong>Architektur-Grafik wird ueberarbeitet</strong>
-            <p>
-              Die technische Uebersicht bleibt bewusst als Platzhalter, bis das
-              neue PinFlow-Diagramm vorliegt.
-            </p>
-          </article>
+        <div className="preview-home-asset-list">
+          <div>
+            <img src={uiToCodeVisual} alt="UI zu Code" />
+            <span>Demo</span>
+            <strong>UI-Auswahl wird Code-Kontext</strong>
+          </div>
+          <div>
+            <img src={workflowLoopVisual} alt="Workflow Loop" />
+            <span>Code zu UI</span>
+            <strong>Runner fuehrt lokal aus</strong>
+          </div>
+          <div>
+            <img src={architectureVisual} alt="Architektur" />
+            <span>Architektur</span>
+            <strong>Browser, Relay und Agent sauber getrennt</strong>
+          </div>
         </div>
       </section>
     </section>
@@ -443,36 +532,61 @@ function GoldenPathDemo() {
 }
 
 export function App() {
-  const [activeComponent, setActiveComponent] = useState('home');
+  const [activeComponent, setActiveComponent] = useState('product-demo');
 
   const currentComponent =
     components.find((c) => c.id === activeComponent) || components[0];
   const Component = currentComponent.component;
   const isHome = currentComponent.id === 'home';
+  const isProductDemo = activeComponent === 'product-demo';
+  const openPinFlow = () => setActiveComponent('product-demo');
+  const openCanvas = () => setActiveComponent('home');
 
   return (
-    <div className="app">
-      <Navigation
-        activeItem={activeComponent}
-        onNavigate={setActiveComponent}
-      />
+    <div className={`app ${isProductDemo ? 'product-mode' : 'canvas-mode'}`}>
+      {isProductDemo ? (
+        <AreaHeader onOpenCanvas={openCanvas} onOpenPinFlow={openPinFlow} />
+      ) : null}
+      {!isProductDemo ? (
+        <Navigation
+          activeItem={activeComponent}
+          onNavigate={setActiveComponent}
+          onOpenPinFlow={openPinFlow}
+        />
+      ) : null}
 
       <main className="main-content">
         <div className="content-wrapper">
-          {isHome ? (
+          {isProductDemo ? (
+            <ProductDemo onOpenCanvas={openCanvas} />
+          ) : isHome ? (
             <HomeIntro />
           ) : (
             <>
               <header className="page-header">
-                <div className="preview-kicker">PinFlow Vorschau</div>
-                <h1 className="page-title">{currentComponent.title}</h1>
-                <p className="page-description">
-                  {currentComponent.description}
-                </p>
-                <div className="preview-callout">
-                  <strong>Hinweis:</strong> Die linke Seite bleibt bewusst eine
-                  Vorschau fuer echte UI-Muster. Die rechte PinFlow-Flaeche ist
-                  der eigentliche Arbeitsbereich.
+                <div className="page-header-main">
+                  <div>
+                    <div className="preview-kicker">Labor-Testflaeche</div>
+                    <h1 className="page-title">{currentComponent.title}</h1>
+                    <p className="page-description">
+                      {currentComponent.description}
+                    </p>
+                  </div>
+                  <div className="page-header-signal" aria-hidden="true">
+                    <span>UI</span>
+                    <span>Context</span>
+                    <span>Diff</span>
+                  </div>
+                </div>
+                <div className="preview-lab-strip" aria-label="Testziel">
+                  <div>
+                    <span>Testet</span>
+                    <strong>{currentComponent.testFocus}</strong>
+                  </div>
+                  <div>
+                    <span>Ablauf</span>
+                    <strong>Element markieren, Kommentar senden, Diff pruefen</strong>
+                  </div>
                 </div>
               </header>
 

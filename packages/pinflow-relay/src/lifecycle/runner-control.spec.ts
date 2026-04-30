@@ -1,4 +1,5 @@
 import { spawn } from 'node:child_process';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { RunnerControl } from './runner-control.js';
 import { RelayHttpClient } from '../client/relay-http-client.js';
@@ -84,6 +85,8 @@ describe('RunnerControl', () => {
         'runner',
         '--provider',
         'codex',
+        '--surface',
+        'background',
         '--interval',
         '750',
         '--debug',
@@ -118,10 +121,41 @@ describe('RunnerControl', () => {
         'custom',
         '--command',
         'my-agent',
+        '--surface',
+        'terminal',
         '--arg',
         'run',
         '--arg',
         '--fast',
+      ],
+      expect.objectContaining({
+        detached: false,
+        stdio: 'inherit',
+        cwd: '/test/workspace',
+      }),
+    );
+  });
+
+  it('should pass an explicit runner model to the spawned process', () => {
+    const control = new RunnerControl('/test/workspace');
+
+    control.spawn({
+      provider: 'codex',
+      model: 'gpt-5.5',
+      detached: false,
+    });
+
+    expect(spawn).toHaveBeenCalledWith(
+      process.execPath,
+      [
+        expect.stringContaining('main.js'),
+        'runner',
+        '--provider',
+        'codex',
+        '--model',
+        'gpt-5.5',
+        '--surface',
+        'terminal',
       ],
       expect.objectContaining({
         detached: false,

@@ -45,7 +45,7 @@ export default defineConfig({
         initialTheme: 'light',
       },
       runner: {
-        autoStart: true,
+        mode: 'auto',
         provider: 'codex',
       },
     }),

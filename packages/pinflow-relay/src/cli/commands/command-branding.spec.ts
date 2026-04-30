@@ -3,7 +3,9 @@ import { resolve } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
+import { DevCommand } from './dev.command.js';
 import { DoctorCommand } from './doctor.command.js';
+import { ExternalCommand } from './external.command.js';
 import { InitCommand } from './init.command.js';
 import { McpCommand } from './mcp.command.js';
 import { RunnerCommand } from './runner.command.js';
@@ -33,6 +35,12 @@ describe('relay cli command branding', () => {
     expect(DoctorCommand.description()).toBe(
       'Diagnose PinFlow setup and relay health',
     );
+    expect(DevCommand.description()).toBe(
+      'Start PinFlow relay, runner, and app dev command',
+    );
+    expect(ExternalCommand.description()).toBe(
+      'Claim and complete PinFlow tasks from an external visible agent',
+    );
     expect(StopCommand.description()).toBe('Stop the running PinFlow relay');
   });
 
@@ -44,6 +52,8 @@ describe('relay cli command branding', () => {
     const initSource = readCommandSource('init.command.ts');
     const mcpSource = readCommandSource('mcp.command.ts');
     const runnerSource = readCommandSource('runner.command.ts');
+    const devSource = readCommandSource('dev.command.ts');
+    const externalSource = readCommandSource('external.command.ts');
 
     expect(serveSource).toContain('[pinflow-cli] Relay daemon started');
     expect(serveSource).toContain('To check status: pinflow status');
@@ -68,5 +78,19 @@ describe('relay cli command branding', () => {
 
     expect(runnerSource).toContain('[pinflow-cli] Runner failed:');
     expect(runnerSource).toContain('[pinflow-cli] Runner connected to relay');
+
+    expect(devSource).toContain('[pinflow-cli] Dev failed:');
+
+    expect(externalSource).toContain('[pinflow-cli] External handoff:');
+    expect(externalSource).toContain('[pinflow-cli] External claim failed:');
+  });
+
+  it('exposes explicit runner model configuration without making it the default', () => {
+    expect(RunnerCommand.options.map((option) => option.long)).toContain(
+      '--model',
+    );
+
+    const runnerSource = readCommandSource('runner.command.ts');
+    expect(runnerSource).toContain('model: options.model');
   });
 });

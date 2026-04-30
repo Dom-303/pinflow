@@ -40,6 +40,22 @@ These options apply when `overlay` is set to an object instead of a boolean.
 | `initialMode` | `'collapsed' \| 'expanded'` | `'collapsed'` | Initial display mode for the overlay |
 | `debug`       | `boolean`                   | `false`       | Enable debug logging in the overlay  |
 
+### Shared Options — Runner
+
+These options apply to the `runner` field across all bundler plugins.
+
+| Option      | Type                               | Default    | Description                                      |
+| ----------- | ---------------------------------- | ---------- | ------------------------------------------------ |
+| `mode`      | `'auto' \| 'manual' \| 'external'` | `'manual'` | Runner ownership mode. Use `'auto'` to start it. |
+| `autoStart` | `boolean`                          | `false`    | Legacy alias for `mode: 'auto'`                  |
+| `provider`  | `'codex' \| 'claude' \| 'custom'`  | `'codex'`  | Local runner provider preset                     |
+| `model`     | `string`                           | local default | Optional provider model override              |
+
+Use `mode: 'auto'` for a simple one-command setup. Use `mode: 'manual'` when a
+terminal-owned runner is started separately, for example with `pinflow runner`.
+Use `mode: 'external'` when an editor extension or desktop agent owns the
+runner process and only the relay/browser wiring should come from the bundler.
+
 ---
 
 ### Vite Plugin
@@ -52,6 +68,7 @@ pinflow({
   exclude: /node_modules|\.test\.|\.spec\./i,
   debug: false,
   relay: { autoStart: true, port: 0, host: '127.0.0.1', bodyLimit: 10485760 },
+  runner: { mode: 'auto', provider: 'codex' },
   overlay: true,
   rootDir: undefined, // Override root directory for .pinflow/ artifacts
 });
@@ -77,6 +94,7 @@ new PinFlowWebpackPlugin({
   enabled: true,
   debug: false,
   relay: { autoStart: true, port: 0, host: '127.0.0.1' },
+  runner: { mode: 'auto', provider: 'codex' },
   overlay: true,
 });
 ```
@@ -115,6 +133,7 @@ Turbopack has no plugin system, so the loader is self-initializing — it manage
             enabled: true,
             debug: false,
             relay: { autoStart: true, port: 0, host: '127.0.0.1' },
+            runner: { mode: 'auto', provider: 'codex' },
             overlay: false,
             autoInitPath: undefined,
           },

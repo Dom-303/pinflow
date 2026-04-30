@@ -40,9 +40,25 @@ export interface RelayPluginOptions {
 /**
  * Local runner configuration shared across bundler plugins.
  */
+export type RunnerMode = 'auto' | 'manual' | 'external';
+
 export interface RunnerPluginOptions {
   /**
+   * Runner ownership mode.
+   *
+   * - "auto": start the local runner together with the dev server.
+   * - "manual": do not start a runner; the user starts one explicitly.
+   * - "external": do not start a runner; another tool or extension owns it.
+   *
+   * When omitted, the legacy autoStart flag is still honored.
+   *
+   * @default 'manual'
+   */
+  mode?: RunnerMode;
+
+  /**
    * Whether to auto-start the local runner when the dev server starts.
+   * Prefer mode: 'auto' for new configs.
    *
    * @default false
    */
@@ -54,6 +70,11 @@ export interface RunnerPluginOptions {
    * @default 'codex'
    */
   provider?: 'codex' | 'claude' | 'auto' | 'custom';
+
+  /**
+   * Optional provider model override. Omit to use the local agent default.
+   */
+  model?: string;
 
   /**
    * Custom local agent command for provider: 'custom'.
@@ -71,6 +92,20 @@ export interface RunnerPluginOptions {
    * @default 2000
    */
   intervalMs?: number;
+}
+
+export function shouldStartRunner(
+  runner?: Pick<RunnerPluginOptions, 'mode' | 'autoStart'>,
+): boolean {
+  if (!runner) {
+    return false;
+  }
+
+  if (runner.mode) {
+    return runner.mode === 'auto';
+  }
+
+  return runner.autoStart === true;
 }
 
 /**

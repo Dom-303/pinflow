@@ -18,6 +18,7 @@ import type {
   AnnotationId,
 } from '@pinflow/core';
 import type { RunnerSnapshot } from '@pinflow/relay/client';
+import type { AnnotationRunEvidenceResponse } from '@pinflow/relay/client';
 import { AnnotationStatusEnum, WS_EVENTS } from '@pinflow/core';
 import { BridgeDispatch } from '@pinflow/runtime';
 import type { DispatchChannel } from '../core/dispatch-config.js';
@@ -396,6 +397,13 @@ export class RelayService {
   async getAnnotation(annotationId: AnnotationId): Promise<Annotation | null> {
     if (!this.relayHttpClient) return null;
     return this.relayHttpClient.getAnnotation(annotationId);
+  }
+
+  async getAnnotationRunEvidence(
+    annotationId: AnnotationId,
+  ): Promise<AnnotationRunEvidenceResponse | null> {
+    if (!this.relayHttpClient) return null;
+    return this.relayHttpClient.getAnnotationRunEvidence(annotationId);
   }
 
   /**

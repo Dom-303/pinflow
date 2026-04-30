@@ -76,8 +76,10 @@ export interface PinFlowNextOptions {
    * When enabled, the dev server starts the runner after the relay is ready.
    */
   runner?: {
+    mode?: 'auto' | 'manual' | 'external';
     autoStart?: boolean;
     provider?: 'codex' | 'claude' | 'auto' | 'custom';
+    model?: string;
     command?: string;
     args?: string[];
     intervalMs?: number;

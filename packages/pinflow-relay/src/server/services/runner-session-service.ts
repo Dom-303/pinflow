@@ -22,7 +22,10 @@ export class RunnerSessionService {
       provider: body.provider,
       label: body.label,
       status: body.status,
+      surface: body.surface,
       currentAnnotationId: body.currentAnnotationId,
+      currentRunId: body.currentRunId,
+      currentRunDir: body.currentRunDir,
       pid: body.pid,
       lastSeenAt: new Date(this.now()).toISOString(),
     };

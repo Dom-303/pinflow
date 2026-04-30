@@ -18,6 +18,7 @@ import { ManifestWriter } from '@pinflow/manifest';
 import { InjectorRegistry } from '../../core/injector.registry.js';
 import { TransformStats } from '../../core/stats.js';
 import { RelayControl, RunnerControl } from '@pinflow/relay';
+import { shouldStartRunner } from '../types.js';
 
 /**
  * Required options after defaults are applied
@@ -207,7 +208,7 @@ export class PinFlowWebpackPlugin {
         );
       }
 
-      if (this.options.runner.autoStart) {
+      if (shouldStartRunner(this.options.runner)) {
         this.runnerControl = new RunnerControl(rootContext, {
           debug: this.options.debug,
         });
@@ -215,6 +216,7 @@ export class PinFlowWebpackPlugin {
           relayHost: assignedHost,
           relayPort: assignedPort,
           provider: this.options.runner.provider ?? 'codex',
+          model: this.options.runner.model,
           command: this.options.runner.command,
           args: this.options.runner.args,
           intervalMs: this.options.runner.intervalMs,

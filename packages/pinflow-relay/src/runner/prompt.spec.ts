@@ -29,7 +29,10 @@ describe('buildRunnerPrompt', () => {
         },
         fullAnnotation: {},
       },
-      { workspaceRoot: '/repo' },
+      {
+        workspaceRoot: '/repo',
+        contextPath: '.pinflow/runs/2026-04/2026-04-30/test/context.json',
+      },
     );
 
     expect(prompt).toContain('Make the heading smaller.');
@@ -37,5 +40,8 @@ describe('buildRunnerPrompt', () => {
     expect(prompt).toContain('Line: 42');
     expect(prompt).toContain('data-ds: abc12345');
     expect(prompt).toContain('Do not use external APIs');
+    expect(prompt).toContain('Props keys: tone');
+    expect(prompt).toContain('Full context file: .pinflow/runs/');
+    expect(prompt).not.toContain(JSON.stringify({ tone: 'calm' }, null, 2));
   });
 });

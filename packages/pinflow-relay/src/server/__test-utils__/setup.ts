@@ -110,7 +110,7 @@ export async function createTestServer(
   });
   registerRoute(RunnerHeartbeatRoute, { app, runnerSessionService });
   registerManifestHandlers(app, manifestReader);
-  registerAnnotationHandlers(app, annotationService, manifestReader);
+  registerAnnotationHandlers(app, annotationService, manifestReader, tempDir);
 
   // Error handler (same as http-server.ts)
   app.setErrorHandler((error: FastifyError, _request, reply) => {

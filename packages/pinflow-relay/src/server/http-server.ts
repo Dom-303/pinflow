@@ -98,15 +98,7 @@ export async function createRelayServer(
   // Create Fastify instance
   const app = Fastify({
     bodyLimit,
-    logger: debug
-      ? {
-          level: 'info',
-          transport: {
-            target: 'pino-pretty',
-            options: { colorize: true },
-          },
-        }
-      : false,
+    logger: debug ? { level: 'info' } : false,
   });
 
   // Decorate the app with the nonce
@@ -161,7 +153,7 @@ export async function createRelayServer(
   registerRoute(RunnerHeartbeatRoute, { app, runnerSessionService });
   registerStatusHandler(app, manifestReader, annotationService, statusOptions);
   registerManifestHandlers(app, manifestReader);
-  registerAnnotationHandlers(app, annotationService, manifestReader);
+  registerAnnotationHandlers(app, annotationService, manifestReader, workspaceRoot);
 
   // Register routes that depend on WebSocket server
   registerRoute(QueryBySourceRoute, { app, manifestReader, wsServer: ws });

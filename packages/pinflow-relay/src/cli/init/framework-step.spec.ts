@@ -341,7 +341,7 @@ describe('runFrameworkStep', () => {
         .join('\n')
         .replace(new RegExp(`${String.fromCharCode(27)}\\[[0-9;]*m`, 'g'), '');
       expect(output).toContain(
-        "runner: { autoStart: true, provider: 'codex' }",
+        "runner: { mode: 'auto', provider: 'codex' }",
       );
     });
   });

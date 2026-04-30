@@ -73,6 +73,11 @@ const mockState = {
     timestamp: string;
   }>,
   relayConnected: false,
+  runnerStatus: {
+    connected: false,
+    activeCount: 0,
+    sessions: [],
+  },
   mode: 'expanded',
   theme: 'light' as const,
   tabOffsetY: 50,
@@ -175,6 +180,11 @@ describe('Paper Glow UI contract', () => {
     mockState.dispatchBatches = [];
     mockState.undoStack = [];
     mockState.relayConnected = false;
+    mockState.runnerStatus = {
+      connected: false,
+      activeCount: 0,
+      sessions: [],
+    };
     mockState.mode = 'expanded';
     mockState.theme = 'light';
     mockState.runtimeContext = null;
@@ -1200,6 +1210,55 @@ describe('Paper Glow UI contract', () => {
     expect(settingsOverlay.shadowRoot.querySelector('.sheet')).not.toBeNull();
   });
 
+  it('renders active run progress for direct processing annotations without a batch', async () => {
+    mockState.annotations = [
+      {
+        id: 'note-inline',
+        metadata: { id: 'note-inline', status: 'processing' },
+        context: { userMessage: 'Logo groesser machen' },
+      },
+    ];
+    mockState.dispatchBatches = [];
+    mockState.relayConnected = true;
+    mockState.runnerStatus = {
+      connected: true,
+      activeCount: 1,
+      sessions: [
+        {
+          runnerId: 'runner-1',
+          provider: 'codex',
+          label: 'PinFlow Runner (codex)',
+          status: 'processing',
+          surface: 'terminal',
+          currentAnnotationId: 'note-inline',
+          lastSeenAt: '2026-04-30T18:45:00.000Z',
+        },
+      ],
+    };
+
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    render(html`<ds-sidebar></ds-sidebar>`, host);
+
+    const sidebar = host.querySelector('ds-sidebar') as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+    };
+
+    await sidebar.updateComplete;
+
+    const activeRunPanel = sidebar.shadowRoot.querySelector(
+      '.active-run-panel',
+    ) as HTMLElement | null;
+    const activeRunText =
+      activeRunPanel?.textContent?.replace(/\s+/g, ' ') ?? '';
+
+    expect(activeRunPanel).not.toBeNull();
+    expect(activeRunText).toContain('Aktiver Lauf');
+    expect(activeRunText).toContain('Logo groesser machen');
+    expect(activeRunText).toContain('arbeitet');
+  });
+
   it('renders the mini composer mode with only essential controls', async () => {
     mockState.mode = 'mini';
     mockState.relayConnected = true;
@@ -1318,8 +1377,8 @@ describe('Paper Glow UI contract', () => {
     await embeddedSettings.updateComplete;
     const settingsText =
       embeddedSettings.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
-    expect(settingsText).toContain('Projektstandard');
-    expect(settingsText).toContain('Session-Verhalten');
+    expect(settingsText).toContain('Standard fuer dieses Projekt');
+    expect(settingsText).toContain('Nur diese Sitzung');
 
     const closeButton = settingsOverlay.shadowRoot.querySelector(
       'button[aria-label="Einstellungen schliessen"]',
@@ -1483,6 +1542,80 @@ describe('Paper Glow UI contract', () => {
     expect(itemText).toContain('Fehler ansehen oder erneut senden');
   });
 
+  it('renders run evidence as repo proof inside expanded annotation cards', async () => {
+    const annotation = {
+      metadata: {
+        id: 'note-evidence',
+        status: 'processed',
+        timestamp: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
+      },
+      context: {
+        userMessage: 'Bild groesser machen',
+      },
+      interaction: {
+        selectedElement: {
+          tagName: 'img',
+        },
+      },
+      dispatch: {
+        target: { provider: 'codex' },
+        assignedAt: '2026-04-30T12:00:00.000Z',
+      },
+    };
+
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    render(
+      html`<ds-annotation-item .annotation=${annotation}></ds-annotation-item>`,
+      host,
+    );
+
+    const item = host.querySelector('ds-annotation-item') as HTMLElement & {
+      shadowRoot: ShadowRoot;
+      updateComplete: Promise<unknown>;
+      requestUpdate: () => void;
+      runEvidence?: unknown;
+    };
+
+    await item.updateComplete;
+
+    const collapsedRow = item.shadowRoot.querySelector(
+      '.collapsed-row',
+    ) as HTMLElement;
+    collapsedRow.click();
+    await item.updateComplete;
+
+    item.runEvidence = {
+      annotationId: 'note-evidence',
+      runId: '120000-note-evidence',
+      runDir: '.pinflow/runs/2026-04/2026-04-30/120000-note-evidence',
+      status: 'processed',
+      provider: 'codex',
+      label: 'PinFlow Runner (codex)',
+      model: 'gpt-5.5',
+      startedAt: '2026-04-30T12:00:00.000Z',
+      promptPath:
+        '.pinflow/runs/2026-04/2026-04-30/120000-note-evidence/prompt.md',
+      transcriptPath:
+        '.pinflow/runs/2026-04/2026-04-30/120000-note-evidence/transcript.log',
+      diffPath:
+        '.pinflow/runs/2026-04/2026-04-30/120000-note-evidence/diff.patch',
+      hasDiff: true,
+      changedFiles: [{ path: 'src/index.css' }],
+      additions: 1,
+      deletions: 1,
+    };
+    item.requestUpdate();
+    await item.updateComplete;
+
+    const itemText = item.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
+    expect(itemText).toContain('Repo-Beweis');
+    expect(itemText).toContain('Diff vorhanden');
+    expect(itemText).toContain('codex · gpt-5.5');
+    expect(itemText).toContain('src/index.css');
+    expect(itemText).toContain('.pinflow/runs/2026-04/2026-04-30');
+  });
+
   it('renders session settings with project defaults and an empty override state', async () => {
     const host = document.createElement('div');
     document.body.appendChild(host);
@@ -1505,14 +1638,14 @@ describe('Paper Glow UI contract', () => {
 
     const settingsText =
       settings.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
-    expect(settingsText).toContain('Projektstandard');
-    expect(settingsText).toContain('Session-Verhalten');
-    expect(settingsText).toContain('Session folgt Projektstandard');
-    expect(settingsText).toContain('Keine Session-Anpassungen aktiv');
+    expect(settingsText).toContain('Standard fuer dieses Projekt');
+    expect(settingsText).toContain('Nur diese Sitzung');
+    expect(settingsText).toContain('Nutzt Projektstandard');
+    expect(settingsText).toContain('Keine eigenen Regeln aktiv');
     expect(settingsText).toContain('Aktuell aktiv');
     expect(settingsText).toContain('Projektstandard aktiv');
-    expect(settingsText).toContain('Parallelitaet');
-    expect(settingsText).toContain('Sammeln bis');
+    expect(settingsText).toContain('gleichzeitig');
+    expect(settingsText).toContain('Senden ab');
     expect(
       Array.from(settings.shadowRoot.querySelectorAll('.section')).every(
         (section) => !(section as HTMLDetailsElement).open,
@@ -1546,12 +1679,12 @@ describe('Paper Glow UI contract', () => {
 
     const settingsText =
       settings.shadowRoot.textContent?.replace(/\s+/g, ' ') ?? '';
-    expect(settingsText).toContain('Aktive Session-Anpassungen');
-    expect(settingsText).toContain('Session-Regeln aktiv');
+    expect(settingsText).toContain('Eigene Regeln fuer diese Sitzung');
+    expect(settingsText).toContain('Sitzungsregeln aktiv');
     expect(settingsText).toContain('Claude');
-    expect(settingsText).toContain('Ab Anzahl');
+    expect(settingsText).toContain('Ab Menge');
     expect(settingsText).toContain('Erst Freigabe holen');
-    expect(settingsText).toContain('Session-Overrides zuruecksetzen');
+    expect(settingsText).toContain('Sitzungsregeln zuruecksetzen');
   });
 
   it('renders mixed batch outcomes as a guided partial-success state', async () => {

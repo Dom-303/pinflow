@@ -1,17 +1,37 @@
-import { spawn, type ChildProcessByStdio } from 'node:child_process';
-import type { Writable } from 'node:stream';
+import {
+  execFile,
+  spawn,
+  type ChildProcessByStdio,
+} from 'node:child_process';
+import { createHash } from 'node:crypto';
+import path from 'node:path';
+import type { Readable, Writable } from 'node:stream';
+import { promisify } from 'node:util';
 import {
   AnnotationStatusEnum,
   PinFlowErrorCode,
   type Annotation,
+  type AnnotationDispatchTarget,
   type AnnotationStatus,
 } from '@pinflow/core';
 import { RelayHttpClient, RelayError } from '../client/relay-http-client.js';
 import type {
   AnnotationProcessResponse,
   RunnerHeartbeatRequestBody,
+  RunnerSurface,
   RunnerStatus,
 } from '../schema.js';
+import {
+  FileRunEvidenceStore,
+  type RunEvidenceRecorder,
+  type RunEvidenceStore,
+} from './evidence-store.js';
+import {
+  dedupeConciseOutput,
+  formatConciseChunk,
+  type RunOutputMode,
+} from './output-format.js';
+import { buildRunContextPayload } from './context-payload.js';
 import { buildRunnerPrompt } from './prompt.js';
 
 export interface RunnerCommandConfig {
@@ -31,7 +51,9 @@ export interface PinflowRunnerOptions {
   once: boolean;
   dryRun: boolean;
   debug?: boolean;
+  outputMode?: RunOutputMode;
   runnerId?: string;
+  surface?: RunnerSurface;
 }
 
 export interface ProcessSpawner {
@@ -41,9 +63,9 @@ export interface ProcessSpawner {
     options: {
       cwd: string;
       env: NodeJS.ProcessEnv;
-      stdio: ['pipe', 'inherit', 'inherit'];
+      stdio: ['pipe', 'pipe', 'pipe'];
     },
-  ): ChildProcessByStdio<Writable, null, null>;
+  ): ChildProcessByStdio<Writable, Readable, Readable>;
 }
 
 export interface RunnerClient {
@@ -73,6 +95,244 @@ const DEFAULT_SPAWNER: ProcessSpawner = {
   spawn: (command, args, options) => spawn(command, args, options),
 };
 
+export interface WorkspaceInspector {
+  snapshot(workspaceRoot: string): Promise<string>;
+  diff(workspaceRoot: string, beforeSnapshot?: string): Promise<string>;
+}
+
+export type ProviderPreflightResult =
+  | { ok: true; details?: string }
+  | { ok: false; errorDetails: string };
+
+export interface ProviderPreflight {
+  check(input: {
+    provider: string;
+    workspaceRoot: string;
+    command: RunnerCommandConfig;
+  }): Promise<ProviderPreflightResult>;
+}
+
+const execFileAsync = promisify(execFile);
+const providerPreflightCache = new Map<string, ProviderPreflightResult>();
+
+const DEFAULT_WORKSPACE_INSPECTOR: WorkspaceInspector = {
+  async snapshot(workspaceRoot) {
+    const status = await execFileAsync(
+      'git',
+      ['status', '--porcelain=v1', '--untracked-files=all', '--', '.'],
+      {
+        cwd: workspaceRoot,
+        env: { ...process.env, FORCE_COLOR: '0' },
+      },
+    );
+    const unstagedDiff = await gitDiff(workspaceRoot, [
+      'diff',
+      '--no-ext-diff',
+      '--binary',
+      '--',
+      '.',
+    ]);
+    const stagedDiff = await gitDiff(workspaceRoot, [
+      'diff',
+      '--cached',
+      '--no-ext-diff',
+      '--binary',
+      '--',
+      '.',
+    ]);
+    return JSON.stringify({
+      status: status.stdout,
+      diffFingerprints: diffFingerprints({
+        unstaged: unstagedDiff,
+        staged: stagedDiff,
+      }),
+    });
+  },
+  async diff(workspaceRoot, beforeSnapshot) {
+    const unstagedDiff = await gitDiff(workspaceRoot, [
+      'diff',
+      '--no-ext-diff',
+      '--binary',
+      '--',
+      '.',
+    ]);
+    const stagedDiff = await gitDiff(workspaceRoot, [
+      'diff',
+      '--cached',
+      '--no-ext-diff',
+      '--binary',
+      '--',
+      '.',
+    ]);
+    const beforeFingerprints = readSnapshotFingerprints(beforeSnapshot);
+
+    return formatWorkspaceDiff({
+      unstaged: filterNewDiffChunks(
+        unstagedDiff,
+        'unstaged',
+        beforeFingerprints,
+      ),
+      staged: filterNewDiffChunks(stagedDiff, 'staged', beforeFingerprints),
+    });
+  },
+};
+
+async function gitDiff(
+  workspaceRoot: string,
+  args: string[],
+): Promise<string> {
+  const result = await execFileAsync('git', args, {
+    cwd: workspaceRoot,
+    env: { ...process.env, FORCE_COLOR: '0' },
+    maxBuffer: 50 * 1024 * 1024,
+  });
+  return result.stdout;
+}
+
+interface GitDiffChunk {
+  scope: 'unstaged' | 'staged';
+  path: string;
+  content: string;
+}
+
+function normalizeDiffChunkContent(content: string): string {
+  return `${content.trimEnd()}\n`;
+}
+
+function hashContent(content: string): string {
+  return createHash('sha256')
+    .update(normalizeDiffChunkContent(content))
+    .digest('hex');
+}
+
+function parseGitDiffChunks(
+  diff: string,
+  scope: 'unstaged' | 'staged',
+): GitDiffChunk[] {
+  const chunks: GitDiffChunk[] = [];
+  const lines = diff.split('\n');
+  let current: { path: string; lines: string[] } | null = null;
+
+  const flush = () => {
+    if (!current) return;
+    chunks.push({
+      scope,
+      path: current.path,
+      content: `${current.lines.join('\n')}\n`,
+    });
+    current = null;
+  };
+
+  for (const line of lines) {
+    const match = /^diff --git a\/(.+) b\/(.+)$/.exec(line);
+    if (match) {
+      flush();
+      current = { path: match[2], lines: [line] };
+      continue;
+    }
+
+    if (current) {
+      current.lines.push(line);
+    }
+  }
+
+  flush();
+  return chunks;
+}
+
+export function diffFingerprints(input: {
+  unstaged: string;
+  staged: string;
+}): Record<string, string> {
+  const fingerprints: Record<string, string> = {};
+  for (const chunk of [
+    ...parseGitDiffChunks(input.unstaged, 'unstaged'),
+    ...parseGitDiffChunks(input.staged, 'staged'),
+  ]) {
+    fingerprints[`${chunk.scope}:${chunk.path}`] = hashContent(chunk.content);
+  }
+  return fingerprints;
+}
+
+function readSnapshotFingerprints(
+  snapshot: string | undefined,
+): Record<string, string> {
+  if (!snapshot) return {};
+  try {
+    const parsed = JSON.parse(snapshot) as {
+      diffFingerprints?: Record<string, string>;
+    };
+    return parsed.diffFingerprints ?? {};
+  } catch {
+    return {};
+  }
+}
+
+export function filterNewDiffChunks(
+  diff: string,
+  scope: 'unstaged' | 'staged',
+  beforeFingerprints: Record<string, string>,
+): string {
+  return parseGitDiffChunks(diff, scope)
+    .filter((chunk) => {
+      const key = `${chunk.scope}:${chunk.path}`;
+      return beforeFingerprints[key] !== hashContent(chunk.content);
+    })
+    .map((chunk) => chunk.content)
+    .join('');
+}
+
+function formatWorkspaceDiff(input: {
+  unstaged: string;
+  staged: string;
+}): string {
+  return [
+    input.unstaged,
+    input.staged ? `\n# Staged changes changed during this run\n${input.staged}` : '',
+  ]
+    .filter(Boolean)
+    .join('');
+}
+
+const DEFAULT_PROVIDER_PREFLIGHT: ProviderPreflight = {
+  async check({ provider, workspaceRoot, command }) {
+    if (provider !== 'codex' && provider !== 'claude') {
+      return { ok: true };
+    }
+
+    const cacheKey = [
+      provider,
+      workspaceRoot,
+      command.command,
+      ...command.args,
+    ].join('\0');
+    const cached = providerPreflightCache.get(cacheKey);
+    if (cached) return cached;
+
+    try {
+      const result = await execFileAsync(command.command, ['--version'], {
+        cwd: workspaceRoot,
+        env: { ...process.env, FORCE_COLOR: '0' },
+        timeout: 5_000,
+      });
+      const version = (result.stdout || result.stderr).trim();
+      const passed = {
+        ok: true,
+        details: version ? `${provider} CLI: ${version}` : undefined,
+      } satisfies ProviderPreflightResult;
+      providerPreflightCache.set(cacheKey, passed);
+      return passed;
+    } catch (error) {
+      const failed = {
+        ok: false,
+        errorDetails: formatCommandStartError(error, command.command),
+      } satisfies ProviderPreflightResult;
+      providerPreflightCache.set(cacheKey, failed);
+      return failed;
+    }
+  },
+};
+
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -88,10 +348,64 @@ function renderArgs(args: string[], prompt: string): string[] {
   return args.map((arg) => (arg === '{prompt}' ? prompt : arg));
 }
 
+function formatErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+function formatCommand(command: RunnerCommandConfig): string {
+  return [command.command, ...command.args].join(' ');
+}
+
+function extractConfiguredModel(command: RunnerCommandConfig): string | undefined {
+  const modelFlagIndex = command.args.findIndex(
+    (arg) => arg === '-m' || arg === '--model',
+  );
+  return modelFlagIndex >= 0 ? command.args[modelFlagIndex + 1] : undefined;
+}
+
+function formatCommandStartError(error: unknown, command: string): string {
+  const message = formatErrorMessage(error);
+  if (message.includes('ENOENT')) {
+    return `Runner command "${command}" was not found. Install the selected provider CLI or configure a custom runner command.`;
+  }
+  return `Runner command could not start: ${message}`;
+}
+
+function formatRunnerExitError(
+  provider: string,
+  command: RunnerCommandConfig,
+  result: { code: number | null; stdout: string; stderr: string },
+): string {
+  const output = `${result.stdout}\n${result.stderr}`;
+  const configuredModel = extractConfiguredModel(command);
+  const unsupportedCodexModel = output.match(
+    /The '([^']+)' model requires a newer version of Codex/i,
+  );
+
+  if (provider === 'codex' && unsupportedCodexModel) {
+    const model = configuredModel ?? unsupportedCodexModel[1];
+    return `Codex CLI is too old for model "${model}". Update the Codex CLI/app used by this runner, or choose a model supported by that local Codex installation.`;
+  }
+
+  return `Runner command exited with code ${result.code}.`;
+}
+
+function toDispatchProvider(
+  provider: string,
+): AnnotationDispatchTarget['provider'] {
+  if (provider === 'codex' || provider === 'claude' || provider === 'manual') {
+    return provider;
+  }
+  return 'other';
+}
+
 export class PinflowRunner {
   private stopped = false;
   private readonly client: RunnerClient;
   private readonly spawner: ProcessSpawner;
+  private readonly workspaceInspector: WorkspaceInspector;
+  private readonly evidenceStore: RunEvidenceStore;
+  private readonly providerPreflight: ProviderPreflight;
   private readonly runnerId: string;
 
   constructor(
@@ -99,11 +413,19 @@ export class PinflowRunner {
     deps: {
       client?: RunnerClient;
       spawner?: ProcessSpawner;
+      workspaceInspector?: WorkspaceInspector;
+      evidenceStore?: RunEvidenceStore;
+      providerPreflight?: ProviderPreflight;
     } = {},
   ) {
     this.client =
       deps.client ?? new RelayHttpClient(options.relayHost, options.relayPort);
     this.spawner = deps.spawner ?? DEFAULT_SPAWNER;
+    this.workspaceInspector =
+      deps.workspaceInspector ?? DEFAULT_WORKSPACE_INSPECTOR;
+    this.evidenceStore = deps.evidenceStore ?? new FileRunEvidenceStore();
+    this.providerPreflight =
+      deps.providerPreflight ?? DEFAULT_PROVIDER_PREFLIGHT;
     this.runnerId =
       options.runnerId ?? `runner-${process.pid}-${Date.now().toString(36)}`;
   }
@@ -135,7 +457,7 @@ export class PinflowRunner {
     try {
       task = await this.client.processAnnotation({
         dispatchTarget: {
-          provider: 'other',
+          provider: toDispatchProvider(this.options.provider),
           label: this.options.label,
         },
       });
@@ -153,31 +475,85 @@ export class PinflowRunner {
       return 'idle';
     }
 
+    const recorder = await this.evidenceStore.createRun({
+      annotationId: task.annotationId,
+      provider: this.options.provider,
+      label: this.options.label,
+      workspaceRoot: this.options.workspaceRoot,
+      command: this.options.command,
+      userIntent: task.userIntent,
+      sourceLocation: task.sourceLocation,
+    });
+    const contextPath = path.relative(
+      this.options.workspaceRoot,
+      recorder.paths.contextPath,
+    );
     const prompt = buildRunnerPrompt(task, {
       workspaceRoot: this.options.workspaceRoot,
+      contextPath,
     });
+    await recorder.writeContext(
+      await buildRunContextPayload(task, {
+        workspaceRoot: this.options.workspaceRoot,
+      }),
+    );
+    await recorder.writePrompt(prompt);
+    await recorder.appendTranscript(
+      `[pinflow-runner] Claimed annotation ${task.annotationId}\n`,
+    );
+    await recorder.appendTranscript(
+      `[pinflow-runner] Command: ${formatCommand(this.options.command)}\n`,
+    );
+    console.error(
+      `[pinflow-runner] Run evidence: ${recorder.paths.runDir}`,
+    );
+    if ((this.options.outputMode ?? 'concise') === 'concise') {
+      console.error(
+        '[pinflow-runner] Live output is concise. Use --raw for full provider output.',
+      );
+    }
 
     await this.client.updateAnnotationStatus(
       task.annotationId,
       AnnotationStatusEnum.PROCESSING,
       {},
     );
+    await recorder.updateSummary({ status: 'processing' });
 
-    let result: { code: number | null };
+    const preflight = await this.preflightProvider(recorder);
+    if (!preflight.ok) {
+      await this.failTask(task.annotationId, preflight.errorDetails, recorder);
+      await this.sendHeartbeat('idle');
+      return 'processed';
+    }
+
+    let beforeSnapshot: string;
+    try {
+      beforeSnapshot = await this.getWorkspaceSnapshot();
+    } catch (error) {
+      await this.failTask(
+        task.annotationId,
+        `Runner could not verify workspace diff before starting the agent: ${formatErrorMessage(error)}`,
+        recorder,
+      );
+      await this.sendHeartbeat('idle');
+      return 'processed';
+    }
+
+    let result: { code: number | null; stdout: string; stderr: string };
     const stopProcessingHeartbeat = this.startHeartbeatLoop(
       'processing',
       task.annotationId,
+      recorder,
     );
     try {
-      result = await this.runCommand(prompt);
+      result = await this.runCommand(prompt, recorder);
     } catch (error) {
       stopProcessingHeartbeat();
-      await this.client.updateAnnotationStatus(
+      await this.failTask(
         task.annotationId,
-        AnnotationStatusEnum.FAILED,
-        {
-          errorDetails: `Runner command could not start: ${error instanceof Error ? error.message : String(error)}`,
-        },
+        formatCommandStartError(error, this.options.command.command),
+        recorder,
       );
       await this.sendHeartbeat('idle');
       return 'processed';
@@ -185,6 +561,30 @@ export class PinflowRunner {
     stopProcessingHeartbeat();
 
     if (result.code === 0) {
+      let afterSnapshot: string;
+      try {
+        afterSnapshot = await this.getWorkspaceSnapshot();
+      } catch (error) {
+        await this.failTask(
+          task.annotationId,
+          `Runner could not verify workspace diff after the agent finished: ${formatErrorMessage(error)}`,
+          recorder,
+        );
+        await this.sendHeartbeat('idle');
+        return 'processed';
+      }
+
+      if (afterSnapshot === beforeSnapshot) {
+        await this.failTask(
+          task.annotationId,
+          'Runner command finished successfully but did not create a new workspace diff.',
+          recorder,
+        );
+        await this.sendHeartbeat('idle');
+        return 'processed';
+      }
+
+      await this.writeWorkspaceDiff(recorder, beforeSnapshot);
       await this.client.updateAnnotationResponse(
         task.annotationId,
         `Runner finished successfully with ${this.options.label}.`,
@@ -194,28 +594,82 @@ export class PinflowRunner {
         AnnotationStatusEnum.PROCESSED,
         {},
       );
+      await recorder.updateSummary({
+        status: 'processed',
+        exitCode: result.code,
+        finishedAt: new Date().toISOString(),
+      });
       await this.sendHeartbeat('idle');
       return 'processed';
     }
 
-    await this.client.updateAnnotationStatus(
+    await this.failTask(
       task.annotationId,
-      AnnotationStatusEnum.FAILED,
-      {
-        errorDetails: `Runner command exited with code ${result.code}.`,
-      },
+      formatRunnerExitError(this.options.provider, this.options.command, result),
+      recorder,
+      result.code,
     );
     await this.sendHeartbeat('idle');
     return 'processed';
   }
 
+  private async getWorkspaceSnapshot(): Promise<string> {
+    return this.workspaceInspector.snapshot(this.options.workspaceRoot);
+  }
+
+  private async writeWorkspaceDiff(
+    recorder: RunEvidenceRecorder,
+    beforeSnapshot: string,
+  ): Promise<void> {
+    const diff = await this.workspaceInspector.diff(
+      this.options.workspaceRoot,
+      beforeSnapshot,
+    );
+    await recorder.writeDiff(diff || '# No git patch output was available.\n');
+  }
+
+  private async failTask(
+    annotationId: string,
+    errorDetails: string,
+    recorder: RunEvidenceRecorder,
+    exitCode?: number | null,
+  ): Promise<void> {
+    await recorder.appendTranscript(`[pinflow-runner] Failed: ${errorDetails}\n`);
+    await recorder.updateSummary({
+      status: 'failed',
+      errorDetails,
+      exitCode,
+      finishedAt: new Date().toISOString(),
+    });
+    await this.client.updateAnnotationStatus(
+      annotationId,
+      AnnotationStatusEnum.FAILED,
+      { errorDetails },
+    );
+  }
+
+  private async preflightProvider(
+    recorder: RunEvidenceRecorder,
+  ): Promise<{ ok: true } | { ok: false; errorDetails: string }> {
+    const result = await this.providerPreflight.check({
+      provider: this.options.provider,
+      workspaceRoot: this.options.workspaceRoot,
+      command: this.options.command,
+    });
+    if (result.ok && result.details) {
+      await recorder.appendTranscript(`[pinflow-runner] ${result.details}\n`);
+    }
+    return result.ok ? { ok: true } : result;
+  }
+
   private startHeartbeatLoop(
     status: RunnerStatus,
     currentAnnotationId?: string,
+    recorder?: RunEvidenceRecorder,
   ): () => void {
-    void this.sendHeartbeat(status, currentAnnotationId);
+    void this.sendHeartbeat(status, currentAnnotationId, recorder);
     const interval = setInterval(() => {
-      void this.sendHeartbeat(status, currentAnnotationId);
+      void this.sendHeartbeat(status, currentAnnotationId, recorder);
     }, 5_000);
 
     return () => clearInterval(interval);
@@ -224,6 +678,7 @@ export class PinflowRunner {
   private async sendHeartbeat(
     status: RunnerStatus,
     currentAnnotationId?: string,
+    recorder?: RunEvidenceRecorder,
   ): Promise<void> {
     try {
       await this.client.sendRunnerHeartbeat({
@@ -231,7 +686,10 @@ export class PinflowRunner {
         provider: this.options.provider,
         label: this.options.label,
         status,
+        surface: this.options.surface ?? 'terminal',
         currentAnnotationId,
+        currentRunId: recorder?.paths.runId,
+        currentRunDir: recorder?.paths.runDir,
         pid: process.pid,
       });
     } catch (error) {
@@ -282,7 +740,10 @@ export class PinflowRunner {
     return 'dry-run';
   }
 
-  private runCommand(prompt: string): Promise<{ code: number | null }> {
+  private runCommand(
+    prompt: string,
+    recorder: RunEvidenceRecorder,
+  ): Promise<{ code: number | null; stdout: string; stderr: string }> {
     const args =
       this.options.command.promptMode === 'arg'
         ? renderArgs(this.options.command.args, prompt)
@@ -294,7 +755,7 @@ export class PinflowRunner {
         ...process.env,
         PINFLOW_RUNNER: '1',
       },
-      stdio: ['pipe', 'inherit', 'inherit'],
+      stdio: ['pipe', 'pipe', 'pipe'],
     });
 
     if (this.options.command.promptMode === 'stdin') {
@@ -304,8 +765,66 @@ export class PinflowRunner {
     }
 
     return new Promise((resolve, reject) => {
+      let stdout = '';
+      let stderr = '';
+      let stdoutPendingLine = '';
+      let stderrPendingLine = '';
+      const transcriptWrites: Array<Promise<void>> = [];
+      const outputMode = this.options.outputMode ?? 'concise';
+      const seenVisibleLines = new Set<string>();
+
+      const writeVisibleOutput = (
+        stream: Pick<Writable, 'write'>,
+        pendingLine: string,
+        text: string,
+      ): string => {
+        if (outputMode === 'raw') {
+          stream.write(text);
+          return '';
+        }
+
+        const formatted = formatConciseChunk(pendingLine + text);
+        const output = dedupeConciseOutput(
+          formatted.output,
+          seenVisibleLines,
+        );
+        if (output) {
+          stream.write(output);
+        }
+        return formatted.pendingLine;
+      };
+
+      child.stdout.on('data', (chunk: Buffer) => {
+        const text = chunk.toString();
+        stdout += text;
+        stdoutPendingLine = writeVisibleOutput(
+          process.stdout,
+          stdoutPendingLine,
+          text,
+        );
+        transcriptWrites.push(recorder.appendTranscript(text));
+      });
+      child.stderr.on('data', (chunk: Buffer) => {
+        const text = chunk.toString();
+        stderr += text;
+        stderrPendingLine = writeVisibleOutput(
+          process.stderr,
+          stderrPendingLine,
+          text,
+        );
+        transcriptWrites.push(recorder.appendTranscript(text));
+      });
       child.on('error', reject);
-      child.on('exit', (code) => resolve({ code }));
+      child.on('exit', (code) => {
+        transcriptWrites.push(
+          recorder.appendTranscript(
+            `[pinflow-runner] Command exited with code ${code}\n`,
+          ),
+        );
+        void Promise.all(transcriptWrites).then(() =>
+          resolve({ code, stdout, stderr }),
+        );
+      });
     });
   }
 }
@@ -314,10 +833,12 @@ export function resolveRunnerCommand({
   provider,
   command,
   args,
+  model,
 }: {
   provider: string;
   command?: string;
   args?: string[];
+  model?: string;
 }): RunnerCommandConfig {
   if (command) {
     return {
@@ -328,9 +849,15 @@ export function resolveRunnerCommand({
   }
 
   if (provider === 'codex' || provider === 'auto') {
+    const codexArgs = ['exec', '--full-auto', '--skip-git-repo-check'];
+    if (model?.trim()) {
+      codexArgs.push('-m', model.trim());
+    }
+    codexArgs.push('-');
+
     return {
       command: 'codex',
-      args: ['exec', '--full-auto', '--skip-git-repo-check', '-'],
+      args: codexArgs,
       promptMode: 'stdin',
     };
   }

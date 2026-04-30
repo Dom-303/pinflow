@@ -19,4 +19,24 @@ describe('relay cli program', () => {
       'runner',
     );
   });
+
+  it('registers the dev command', () => {
+    expect(program.commands.map((command) => command.name())).toContain('dev');
+  });
+
+  it('registers the external handoff command', () => {
+    expect(program.commands.map((command) => command.name())).toContain(
+      'external',
+    );
+  });
+
+  it('registers the run evidence command', () => {
+    expect(program.commands.map((command) => command.name())).toContain('runs');
+  });
+
+  it('registers the short follow command', () => {
+    expect(program.commands.map((command) => command.name())).toContain(
+      'follow',
+    );
+  });
 });

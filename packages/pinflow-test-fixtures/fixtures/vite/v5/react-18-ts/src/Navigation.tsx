@@ -3,6 +3,7 @@
  * Sidebar navigation for the PinFlow demo canvas
  */
 
+import { useState } from 'react';
 import pinflowIcon from '../../../../../../../assets/pinflow-icon-light.png';
 
 export interface NavItem {
@@ -12,57 +13,67 @@ export interface NavItem {
 }
 
 export const navItems: NavItem[] = [
-  { id: 'home', label: 'Home', section: 'Vorschau' },
-  { id: 'advanced-hooks', label: 'Advanced Hooks', section: 'React-Muster' },
-  { id: 'basic-elements', label: 'Grundelemente', section: 'React-Muster' },
+  { id: 'home', label: 'Developer Canvas', section: 'Start' },
+  { id: 'smoke-test', label: 'Smoke-Test', section: 'Start' },
+  { id: 'basic-elements', label: 'Grundelemente', section: 'Normale UI' },
+  { id: 'styling', label: 'Styling', section: 'Normale UI' },
+  { id: 's-v-g-elements', label: 'SVG-Elemente', section: 'Normale UI' },
+  { id: 'lists', label: 'Listen', section: 'Normale UI' },
+  { id: 'event-handlers', label: 'Event-Handler', section: 'Normale UI' },
   {
-    id: 'children-manipulation',
-    label: 'Children API',
-    section: 'React-Muster',
-  },
-  {
-    id: 'compound-components',
-    label: 'Compound Components',
-    section: 'React-Muster',
+    id: 'advanced-hooks',
+    label: 'Advanced Hooks',
+    section: 'Interaktion & Zustand',
   },
   {
     id: 'conditional-rendering',
     label: 'Bedingtes Rendering',
-    section: 'React-Muster',
-  },
-  { id: 'context', label: 'Context API', section: 'React-Muster' },
-  {
-    id: 'deeply-nested',
-    label: 'Tiefe Hierarchien',
-    section: 'React-Muster',
+    section: 'Interaktion & Zustand',
   },
   {
     id: 'dynamic-content',
     label: 'Dynamische Inhalte',
-    section: 'React-Muster',
+    section: 'Interaktion & Zustand',
   },
-  { id: 'edge-cases', label: 'Edge Cases', section: 'React-Muster' },
+  { id: 'context', label: 'Context API', section: 'Interaktion & Zustand' },
   {
-    id: 'error-boundaries',
-    label: 'Error Boundaries',
-    section: 'React-Muster',
+    id: 'ref-patterns',
+    label: 'Ref-Patterns',
+    section: 'Interaktion & Zustand',
   },
-  { id: 'event-handlers', label: 'Event-Handler', section: 'React-Muster' },
-  { id: 'fragments', label: 'Fragmente', section: 'React-Muster' },
-  { id: 'h-o-cs', label: 'HOCs', section: 'React-Muster' },
-  { id: 'lists', label: 'Listen', section: 'React-Muster' },
+  {
+    id: 'children-manipulation',
+    label: 'Children API',
+    section: 'React-Struktur',
+  },
+  {
+    id: 'compound-components',
+    label: 'Compound Components',
+    section: 'React-Struktur',
+  },
+  {
+    id: 'deeply-nested',
+    label: 'Tiefe Hierarchien',
+    section: 'React-Struktur',
+  },
+  { id: 'fragments', label: 'Fragmente', section: 'React-Struktur' },
+  { id: 'h-o-cs', label: 'HOCs', section: 'React-Struktur' },
   {
     id: 'member-expressions',
     label: 'Member Expressions',
-    section: 'React-Muster',
+    section: 'React-Struktur',
   },
-  { id: 'memo', label: 'Memo', section: 'React-Muster' },
-  { id: 'ref-patterns', label: 'Ref-Patterns', section: 'React-Muster' },
-  { id: 'render-props', label: 'Render Props', section: 'React-Muster' },
+  { id: 'memo', label: 'Memo', section: 'React-Struktur' },
+  { id: 'render-props', label: 'Render Props', section: 'React-Struktur' },
   {
     id: 'self-closing',
     label: 'Self-Closing Tags',
-    section: 'React-Muster',
+    section: 'React-Struktur',
+  },
+  {
+    id: 'type-script-features',
+    label: 'TypeScript Features',
+    section: 'React-Struktur',
   },
   {
     id: 'lazy-loading',
@@ -81,26 +92,48 @@ export const navItems: NavItem[] = [
     section: 'Rendering & Laufzeit',
   },
   {
-    id: 's-v-g-elements',
-    label: 'SVG-Elemente',
+    id: 'error-boundaries',
+    label: 'Error Boundaries',
     section: 'Rendering & Laufzeit',
   },
-  { id: 'styling', label: 'Styling', section: 'Rendering & Laufzeit' },
-  {
-    id: 'type-script-features',
-    label: 'TypeScript Features',
-    section: 'Rendering & Laufzeit',
-  },
-  { id: 'smoke-test', label: 'Smoke-Test', section: 'Validierung' },
+  { id: 'edge-cases', label: 'Edge Cases', section: 'Randfaelle' },
 ];
 
 interface NavigationProps {
   activeItem: string;
   onNavigate: (id: string) => void;
+  onOpenPinFlow: () => void;
 }
 
-export function Navigation({ activeItem, onNavigate }: NavigationProps) {
+export function Navigation({
+  activeItem,
+  onNavigate,
+  onOpenPinFlow,
+}: NavigationProps) {
   const sections = [...new Set(navItems.map((item) => item.section))];
+  const [openSections, setOpenSections] = useState<Set<string>>(() => new Set());
+
+  const toggleSection = (section: string) => {
+    setOpenSections((current) => {
+      const next = new Set(current);
+
+      if (next.has(section)) {
+        next.delete(section);
+      } else {
+        next.add(section);
+      }
+
+      return next;
+    });
+  };
+
+  const handleNavigate = (item: NavItem) => {
+    if (item.section) {
+      setOpenSections((current) => new Set(current).add(item.section!));
+    }
+
+    onNavigate(item.id);
+  };
 
   return (
     <div className="sidebar">
@@ -113,30 +146,56 @@ export function Navigation({ activeItem, onNavigate }: NavigationProps) {
             <span className="sidebar-brand-tag">Vorschau-Canvas</span>
             <span className="sidebar-logo-text">PinFlow Vorschau</span>
             <span className="sidebar-logo-subtext">
-              React-Canvas fuer Auswahl, Mapping und Annotationen
+              Lokales Labor fuer Picker, Runner und Repo-Diffs
             </span>
           </div>
         </div>
+        <div className="sidebar-lab-meta" aria-label="Laborstatus">
+          <span>Local</span>
+          <span>Repo truth</span>
+        </div>
+        <nav className="sidebar-area-switcher" aria-label="Bereich wechseln">
+          <button type="button" onClick={onOpenPinFlow}>
+            PinFlow
+          </button>
+          <button type="button" className="active">
+            Developer Canvas
+          </button>
+        </nav>
       </div>
 
       <nav className="sidebar-nav">
-        {sections.map((section) => (
-          <div key={section} className="sidebar-section">
-            <div className="sidebar-section-title">{section}</div>
-            {navItems
-              .filter((item) => item.section === section)
-              .map((item) => (
-                <div
-                  key={item.id}
-                  data-page-id={item.id}
-                  className={`sidebar-link ${activeItem === item.id ? 'active' : ''}`}
-                  onClick={() => onNavigate(item.id)}
-                >
-                  {item.label}
-                </div>
-              ))}
-          </div>
-        ))}
+        {sections.map((section) => {
+          const sectionItems = navItems.filter((item) => item.section === section);
+          const isOpen = section ? openSections.has(section) : true;
+
+          return (
+            <div key={section} className="sidebar-section">
+              <button
+                type="button"
+                className={`sidebar-section-toggle ${isOpen ? 'open' : ''}`}
+                aria-expanded={isOpen}
+                onClick={() => section && toggleSection(section)}
+              >
+                <span>{section}</span>
+                <span>{sectionItems.length}</span>
+              </button>
+              <div className={`sidebar-section-panel ${isOpen ? 'open' : ''}`}>
+                {sectionItems.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    data-page-id={item.id}
+                    className={`sidebar-link ${activeItem === item.id ? 'active' : ''}`}
+                    onClick={() => handleNavigate(item)}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        })}
       </nav>
     </div>
   );

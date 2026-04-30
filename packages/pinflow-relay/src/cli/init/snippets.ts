@@ -7,7 +7,7 @@ import type { FrameworkId } from './types.js';
 type RunnerProvider = 'codex' | 'claude';
 
 function runnerObject(provider: RunnerProvider): string {
-  return `runner: { autoStart: true, provider: '${provider}' }`;
+  return `runner: { mode: 'auto', provider: '${provider}' }`;
 }
 
 /**

@@ -15,6 +15,7 @@ export const API_PATHS = {
   ANNOTATION_BY_ID: `/annotations/:id`,
   ANNOTATION_STATUS: `/annotations/:id/status`,
   ANNOTATION_RESPONSE: `/annotations/:id/response`,
+  ANNOTATION_EVIDENCE: `/annotations/:id/evidence`,
   ANNOTATION_VERIFY: `/annotations/:id/verify`,
   ANNOTATION_PROCESS: `/annotations/process`,
   ANNOTATION_DISPATCH: `/annotations/dispatch`,

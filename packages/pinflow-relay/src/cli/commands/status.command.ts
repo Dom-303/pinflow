@@ -1,23 +1,36 @@
 import { Command } from 'commander';
+import path from 'node:path';
 import { RelayControl } from '../../lifecycle/relay-control.js';
 import { getWorkspaceRoot } from '../utils.js';
 
+interface StatusCommandOptions {
+  appRoot?: string;
+}
+
 export const StatusCommand = new Command('status')
   .description('Check whether the PinFlow relay is running')
-  .action(async () => {
+  .option(
+    '--app-root <path>',
+    'PinFlow app workspace root. Defaults to the nearest configured app.',
+  )
+  .action(async (options: StatusCommandOptions) => {
     try {
-      await status();
+      await status(options);
     } catch (error) {
       console.error(`[pinflow-cli] Failed to check relay status: ${error}`);
       process.exit(1);
     }
   });
 
-async function status() {
-  const workspaceRoot = getWorkspaceRoot();
+async function status(options: StatusCommandOptions) {
+  const workspaceRoot = options.appRoot
+    ? path.resolve(process.cwd(), options.appRoot)
+    : getWorkspaceRoot();
 
   if (!workspaceRoot) {
-    console.error('[pinflow-cli] No workspace root found');
+    console.error(
+      '[pinflow-cli] No PinFlow app workspace found. Run inside a configured app or pass --app-root <path>.',
+    );
     process.exit(1);
   }
 

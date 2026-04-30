@@ -485,6 +485,7 @@ describe('PinFlowWebpackPlugin', () => {
         runner: {
           autoStart: true,
           provider: 'codex',
+          model: 'gpt-5.5',
         },
       });
 
@@ -496,10 +497,31 @@ describe('PinFlowWebpackPlugin', () => {
         relayHost: '127.0.0.1',
         relayPort: 3042,
         provider: 'codex',
+        model: 'gpt-5.5',
         command: undefined,
         args: undefined,
         intervalMs: undefined,
       });
+    });
+
+    it('should auto-start the configured runner in auto mode', async () => {
+      // Arrange
+      const { initializePlugin } = await setupPlugin({
+        runner: {
+          mode: 'auto',
+          provider: 'codex',
+        },
+      });
+
+      // Act
+      await initializePlugin();
+
+      // Assert
+      expect(mockRunnerControl.ensureRunning).toHaveBeenCalledWith(
+        expect.objectContaining({
+          provider: 'codex',
+        }),
+      );
     });
 
     it('should not auto-start the runner when runner autoStart is false', async () => {
@@ -507,6 +529,22 @@ describe('PinFlowWebpackPlugin', () => {
       const { initializePlugin } = await setupPlugin({
         runner: {
           autoStart: false,
+          provider: 'codex',
+        },
+      });
+
+      // Act
+      await initializePlugin();
+
+      // Assert
+      expect(mockRunnerControl.ensureRunning).not.toHaveBeenCalled();
+    });
+
+    it('should not auto-start the runner in manual mode', async () => {
+      // Arrange
+      const { initializePlugin } = await setupPlugin({
+        runner: {
+          mode: 'manual',
           provider: 'codex',
         },
       });

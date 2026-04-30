@@ -5,7 +5,9 @@
 export {
   PinFlowWebpackPlugin,
 } from './webpack.plugin.js';
+export { shouldStartRunner } from '../types.js';
 export type {
+  RunnerMode,
   RunnerPluginOptions,
   WebpackPluginOptions,
   PinFlowWebpackPluginOptions,

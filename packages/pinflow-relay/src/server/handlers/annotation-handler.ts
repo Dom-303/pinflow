@@ -9,6 +9,7 @@ import {
   AnnotationDispatchRoute,
   AnnotationListRoute,
   AnnotationGetRoute,
+  AnnotationRunEvidenceRoute,
   AnnotationDeleteRoute,
   AnnotationPatchRoute,
   AnnotationSearchRoute,
@@ -25,6 +26,7 @@ export function registerAnnotationHandlers(
   app: FastifyInstance,
   annotationService: AnnotationService,
   manifestReader: ManifestReader,
+  workspaceRoot: string,
 ): void {
   /**
    * POST /api/v1/annotations
@@ -43,6 +45,15 @@ export function registerAnnotationHandlers(
   registerRoute(AnnotationListRoute, {
     app,
     annotationService,
+  });
+
+  /**
+   * GET /api/v1/annotations/:id/evidence
+   * Return the latest local run evidence for an annotation
+   */
+  registerRoute(AnnotationRunEvidenceRoute, {
+    app,
+    workspaceRoot,
   });
 
   /**

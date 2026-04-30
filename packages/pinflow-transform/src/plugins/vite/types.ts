@@ -6,9 +6,15 @@ import type {
   RelayPluginOptions,
   OverlayPluginOptions,
   RunnerPluginOptions,
+  RunnerMode,
 } from '../types.js';
 
-export type { RelayPluginOptions, OverlayPluginOptions, RunnerPluginOptions };
+export type {
+  RelayPluginOptions,
+  OverlayPluginOptions,
+  RunnerPluginOptions,
+  RunnerMode,
+};
 
 /**
  * Configuration options for the Vite plugin

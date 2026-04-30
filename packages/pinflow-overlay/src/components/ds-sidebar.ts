@@ -710,26 +710,41 @@ export class DsSidebar extends LitElement {
     const { annotations, dispatchBatches, runnerStatus } =
       this.storeController.state;
     const latestBatch = dispatchBatches[0];
-    const hasProcessing = annotations.some(
-      (annotation) => this.getAnnotationStatus(annotation) === 'processing',
+    const activeAnnotations = annotations.filter((annotation) =>
+      ['claimed', 'processing'].includes(this.getAnnotationStatus(annotation)),
     );
+    const hasActiveAnnotations = activeAnnotations.length > 0;
 
-    if (!latestBatch || (latestBatch.status !== 'running' && !hasProcessing)) {
+    if (
+      (!latestBatch || latestBatch.status !== 'running') &&
+      !hasActiveAnnotations
+    ) {
       return null;
     }
 
-    const tasks = latestBatch.annotationIds
-      .map((id) => {
-        const annotation = annotations.find(
-          (entry) => this.getAnnotationId(entry) === id,
-        );
-        return {
-          id,
-          label: annotation ? this.getAnnotationLabel(annotation, id) : id,
-          status: annotation ? this.getAnnotationStatus(annotation) : 'queued',
-        };
-      })
-      .slice(0, 5);
+    const tasks = (
+      latestBatch?.status === 'running'
+        ? latestBatch.annotationIds.map((id) => {
+            const annotation = annotations.find(
+              (entry) => this.getAnnotationId(entry) === id,
+            );
+            return {
+              id,
+              label: annotation ? this.getAnnotationLabel(annotation, id) : id,
+              status: annotation
+                ? this.getAnnotationStatus(annotation)
+                : 'queued',
+            };
+          })
+        : activeAnnotations.map((annotation) => {
+            const id = this.getAnnotationId(annotation);
+            return {
+              id,
+              label: this.getAnnotationLabel(annotation, id),
+              status: this.getAnnotationStatus(annotation),
+            };
+          })
+    ).slice(0, 5);
     const agentStartedCount = tasks.filter(
       (task) => task.status === 'claimed' || task.status === 'processing',
     ).length;

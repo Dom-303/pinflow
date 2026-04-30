@@ -13,7 +13,7 @@ import {
   defineNuxtModule,
   extendWebpackConfig,
 } from '@nuxt/kit';
-import { pinflow } from '@pinflow/transform/plugins/vite';
+import { pinflow, shouldStartRunner } from '@pinflow/transform/plugins/vite';
 import { PinFlowWebpackPlugin } from '@pinflow/transform/plugins/webpack';
 import type { PinFlowNuxtOptions } from './types.js';
 
@@ -40,6 +40,7 @@ export const pinflowModule = defineNuxtModule<PinFlowNuxtOptions>({
     const { resolve } = createResolver(import.meta.url);
     const debug = options.debug ?? false;
     const forceTransform = !!process.env.PINFLOW_FORCE_TRANSFORM;
+    const runnerOptions = options.runner ?? {};
 
     // 1. Start relay to discover actual host/port.
     //    Nuxt bypasses Vite's transformIndexHtml, so the Vite plugin's
@@ -66,16 +67,17 @@ export const pinflowModule = defineNuxtModule<PinFlowNuxtOptions>({
           );
         }
 
-        if (options.runner?.autoStart) {
+        if (shouldStartRunner(runnerOptions)) {
           const { RunnerControl } = await import('@pinflow/relay');
           const runnerControl = new RunnerControl(nuxt.options.rootDir);
           await runnerControl.ensureRunning({
             relayHost,
             relayPort,
-            provider: options.runner.provider ?? 'codex',
-            command: options.runner.command,
-            args: options.runner.args,
-            intervalMs: options.runner.intervalMs,
+            provider: runnerOptions.provider ?? 'codex',
+            model: runnerOptions.model,
+            command: runnerOptions.command,
+            args: runnerOptions.args,
+            intervalMs: runnerOptions.intervalMs,
           });
         }
       } catch (error) {
@@ -137,11 +139,16 @@ export const pinflowModule = defineNuxtModule<PinFlowNuxtOptions>({
     //    so transforms run during `nuxi build` (production) too.
     addVitePlugin(
       () => {
+        const downstreamRunner = {
+          ...runnerOptions,
+          mode: 'manual' as const,
+          autoStart: false,
+        };
         const plugin = pinflow({
           ...options,
           rootDir: nuxt.options.rootDir,
           relay: { ...options.relay, autoStart: false },
-          runner: { ...options.runner, autoStart: false },
+          runner: downstreamRunner,
         });
         // The Vite plugin defaults to `apply: 'serve'` (dev-only). During
         // `nuxi build` Vite runs in build mode and skips serve-only plugins.
@@ -176,7 +183,11 @@ export const pinflowModule = defineNuxtModule<PinFlowNuxtOptions>({
           new PinFlowWebpackPlugin({
             debug,
             relay: { ...options.relay, autoStart: false },
-            runner: { ...options.runner, autoStart: false },
+            runner: {
+              ...runnerOptions,
+              mode: 'manual',
+              autoStart: false,
+            },
             overlay: options.overlay,
           }),
         );

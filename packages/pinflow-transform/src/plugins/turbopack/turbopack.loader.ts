@@ -23,6 +23,7 @@ import {
 import { ManifestWriter } from '@pinflow/manifest';
 import { TransformStats } from '../../core/stats.js';
 import { RelayControl, RunnerControl } from '@pinflow/relay';
+import { shouldStartRunner } from '../types.js';
 import { PATHS } from '@pinflow/core';
 import { FileTimings } from '../../core/types.js';
 import path from 'path';
@@ -71,7 +72,7 @@ async function doInit(
   rootContext: string,
   options: TurbopackLoaderOptions,
 ): Promise<void> {
-  const { debug = false, relay = {}, runner } = options;
+  const { debug = false, relay = {}, runner = {} } = options;
 
   if (debug) {
     console.log(`${LOG_PREFIX} Initializing singletons...`);
@@ -102,11 +103,12 @@ async function doInit(
         console.log(`${LOG_PREFIX} Relay running at http://${host}:${port}`);
       }
 
-      if (runner?.autoStart) {
+      if (shouldStartRunner(runner)) {
         await new RunnerControl(rootContext, { debug }).ensureRunning({
           relayHost: host,
           relayPort: port,
           provider: runner.provider ?? 'codex',
+          model: runner.model,
           command: runner.command,
           args: runner.args,
           intervalMs: runner.intervalMs,

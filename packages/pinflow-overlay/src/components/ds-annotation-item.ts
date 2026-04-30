@@ -8,6 +8,7 @@
 import { LitElement, html, css, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import type { Annotation } from '@pinflow/core';
+import type { AnnotationRunEvidence } from '@pinflow/relay/client';
 import { themeStyles, utilityStyles } from '../styles/theme.js';
 import { OverlayStore } from '../core/overlay-store.js';
 import { RelayService } from '../services/relay-service.js';
@@ -50,6 +51,18 @@ export class DsAnnotationItem extends LitElement {
 
   @state()
   private copied = false;
+
+  @state()
+  private runEvidence: AnnotationRunEvidence | null = null;
+
+  @state()
+  private runEvidenceLoading = false;
+
+  @state()
+  private runEvidenceLoadedFor: string | null = null;
+
+  @state()
+  private runPathCopied = false;
 
   static override styles = [
     themeStyles,
@@ -388,6 +401,100 @@ export class DsAnnotationItem extends LitElement {
         font-family: var(--ds-font-mono);
       }
 
+      .run-evidence {
+        display: grid;
+        gap: 8px;
+        margin-top: var(--ds-space-sm);
+        padding: 10px 12px;
+        background: var(--ds-panel-surface);
+        border: 1px solid var(--ds-chrome-divider);
+        border-radius: 12px;
+      }
+
+      .run-evidence-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--ds-space-xs);
+        font-size: var(--ds-font-size-xs);
+        font-weight: var(--ds-font-weight-semibold);
+        color: var(--ds-text-primary);
+      }
+
+      .run-proof {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        color: var(--ds-success);
+        font-weight: var(--ds-font-weight-medium);
+        white-space: nowrap;
+      }
+
+      .run-proof-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+      }
+
+      .run-evidence-grid {
+        display: grid;
+        gap: 6px;
+      }
+
+      .run-file-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        min-width: 0;
+      }
+
+      .run-file {
+        max-width: 100%;
+        padding: 2px 6px;
+        border: 1px solid var(--ds-pill-border);
+        border-radius: 8px;
+        background: var(--ds-pill-surface);
+        color: var(--ds-text-secondary);
+        font-family: var(--ds-font-mono);
+        font-size: var(--ds-font-size-xs);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .run-path {
+        display: flex;
+        align-items: center;
+        gap: var(--ds-space-xs);
+        min-width: 0;
+      }
+
+      .run-path-text {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-family: var(--ds-font-mono);
+      }
+
+      .run-path-copy {
+        flex-shrink: 0;
+        padding: 2px 6px;
+        border: 1px solid var(--ds-pill-border);
+        border-radius: 8px;
+        background: var(--ds-pill-surface);
+        color: var(--ds-text-secondary);
+        font: inherit;
+        font-size: var(--ds-font-size-xs);
+        cursor: pointer;
+      }
+
+      .run-path-copy:hover {
+        color: var(--ds-text-primary);
+        border-color: var(--ds-panel-border-strong);
+      }
+
       /* Context panel spacing */
       ds-context-panel {
         margin-top: var(--ds-space-sm);
@@ -547,6 +654,19 @@ export class DsAnnotationItem extends LitElement {
       this.editing = false;
       this.confirmingDelete = false;
       this.confirmingUndo = false;
+    } else {
+      void this.loadRunEvidence();
+    }
+  }
+
+  protected override updated(changed: Map<string, unknown>) {
+    if (changed.has('annotation')) {
+      this.runEvidence = null;
+      this.runEvidenceLoadedFor = null;
+      this.runEvidenceLoading = false;
+      if (this.expanded) {
+        void this.loadRunEvidence();
+      }
     }
   }
 
@@ -590,6 +710,43 @@ export class DsAnnotationItem extends LitElement {
     this.copied = true;
     setTimeout(() => {
       this.copied = false;
+    }, 1500);
+  }
+
+  private canShowRunEvidence(): boolean {
+    const status = this.annotation?.metadata.status;
+    return status === 'processed' || status === 'failed';
+  }
+
+  private async loadRunEvidence(): Promise<void> {
+    if (!this.annotation || !this.canShowRunEvidence()) return;
+
+    const annotationId = this.annotation.metadata.id;
+    if (this.runEvidenceLoading || this.runEvidenceLoadedFor === annotationId) {
+      return;
+    }
+
+    this.runEvidenceLoading = true;
+    try {
+      const relay = RelayService.getInstance();
+      const response = await relay.getAnnotationRunEvidence(annotationId);
+      this.runEvidence = response?.evidence ?? null;
+      this.runEvidenceLoadedFor = annotationId;
+    } catch {
+      this.runEvidence = null;
+      this.runEvidenceLoadedFor = annotationId;
+    } finally {
+      this.runEvidenceLoading = false;
+    }
+  }
+
+  private async handleCopyRunPath(e: Event) {
+    e.stopPropagation();
+    if (!this.runEvidence) return;
+    await navigator.clipboard.writeText(this.runEvidence.runDir);
+    this.runPathCopied = true;
+    setTimeout(() => {
+      this.runPathCopied = false;
     }, 1500);
   }
 
@@ -800,6 +957,90 @@ export class DsAnnotationItem extends LitElement {
       <div class="agent-summary-row">
         <span class="agent-summary-label">${label}</span>
         <span class="agent-summary-value">${value}</span>
+      </div>
+    `;
+  }
+
+  private renderRunEvidence() {
+    if (!this.canShowRunEvidence()) return nothing;
+
+    if (this.runEvidenceLoading) {
+      return html`
+        <div class="run-evidence">
+          <div class="run-evidence-title">Repo-Beweis</div>
+          ${this.renderAgentSummaryRow('Status', 'Run-Beweis wird geladen')}
+        </div>
+      `;
+    }
+
+    if (!this.runEvidence) {
+      return html`
+        <div class="run-evidence">
+          <div class="run-evidence-title">Repo-Beweis</div>
+          ${this.renderAgentSummaryRow(
+            'Status',
+            'Noch kein Run-Beweis gefunden',
+          )}
+        </div>
+      `;
+    }
+
+    const evidence = this.runEvidence;
+    const diffLabel = evidence.hasDiff
+      ? `${evidence.changedFiles.length} Datei${
+          evidence.changedFiles.length === 1 ? '' : 'en'
+        }, +${evidence.additions}/-${evidence.deletions}`
+      : 'Kein Diff gefunden';
+    const modelLabel = evidence.model
+      ? `${evidence.provider} · ${evidence.model}`
+      : evidence.provider;
+
+    return html`
+      <div class="run-evidence">
+        <div class="run-evidence-title">
+          <span>Repo-Beweis</span>
+          ${evidence.hasDiff
+            ? html`<span class="run-proof"
+                ><span class="run-proof-dot"></span>Diff vorhanden</span
+              >`
+            : nothing}
+        </div>
+        <div class="run-evidence-grid">
+          ${this.renderAgentSummaryRow('Modell', modelLabel)}
+          ${this.renderAgentSummaryRow('Diff', diffLabel)}
+          ${evidence.changedFiles.length
+            ? html`
+                <div class="agent-summary-row">
+                  <span class="agent-summary-label">Geaendert</span>
+                  <span class="agent-summary-value">
+                    <span class="run-file-list">
+                      ${evidence.changedFiles.map(
+                        (file: { path: string }) =>
+                          html`<span class="run-file" title=${file.path}
+                            >${file.path}</span
+                          >`,
+                      )}
+                    </span>
+                  </span>
+                </div>
+              `
+            : nothing}
+          <div class="agent-summary-row">
+            <span class="agent-summary-label">Run</span>
+            <span class="agent-summary-value run-path">
+              <span class="run-path-text" title=${evidence.runDir}
+                >${evidence.runDir}</span
+              >
+              <button
+                class="run-path-copy"
+                @click=${this.handleCopyRunPath}
+                title="Run-Pfad kopieren"
+              >
+                ${this.runPathCopied ? 'Kopiert' : 'Kopieren'}
+              </button>
+            </span>
+          </div>
+        </div>
       </div>
     `;
   }
@@ -1033,7 +1274,8 @@ export class DsAnnotationItem extends LitElement {
                   ${content}
                 </p>
               `}
-          ${this.renderAgentSummary()} ${this.renderAgentResponse()}
+          ${this.renderAgentSummary()} ${this.renderRunEvidence()}
+          ${this.renderAgentResponse()}
 
           <ds-context-panel .props=${props} .state=${state}></ds-context-panel>
         </div>

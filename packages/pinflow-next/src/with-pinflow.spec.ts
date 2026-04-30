@@ -235,7 +235,7 @@ describe('withPinFlow', () => {
         const result = withPinFlow({
           debug: true,
           relay: { port: 4400 },
-          runner: { autoStart: true, provider: 'codex' },
+          runner: { mode: 'auto', provider: 'codex' },
           overlay: true,
         })({});
 
@@ -250,7 +250,7 @@ describe('withPinFlow', () => {
         expect(options['enabled']).toBe(true);
         expect(options['relay']).toEqual({ port: 4400 });
         expect(options['runner']).toEqual({
-          autoStart: true,
+          mode: 'auto',
           provider: 'codex',
         });
         expect(options['overlay']).toBe(true);

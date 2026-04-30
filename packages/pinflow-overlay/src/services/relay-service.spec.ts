@@ -14,6 +14,7 @@ const {
   mockDisconnect,
   mockGetHealth,
   mockGetStatus,
+  mockGetAnnotationRunEvidence,
   mockListAnnotations,
   mockDispatchAnnotations,
   mockSetRelayConnection,
@@ -30,6 +31,7 @@ const {
   mockDisconnect: vi.fn(),
   mockGetHealth: vi.fn(),
   mockGetStatus: vi.fn(),
+  mockGetAnnotationRunEvidence: vi.fn(),
   mockListAnnotations: vi.fn(),
   mockDispatchAnnotations: vi.fn(),
   mockSetRelayConnection: vi.fn(),
@@ -46,6 +48,7 @@ vi.mock('@pinflow/relay/client', () => ({
     return {
       getHealth: mockGetHealth,
       getStatus: mockGetStatus,
+      getAnnotationRunEvidence: mockGetAnnotationRunEvidence,
       listAnnotations: mockListAnnotations,
       dispatchAnnotations: mockDispatchAnnotations,
     };

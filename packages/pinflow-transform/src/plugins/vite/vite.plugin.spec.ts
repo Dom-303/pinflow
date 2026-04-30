@@ -454,6 +454,7 @@ describe('pinflow Vite plugin', () => {
         runner: {
           autoStart: true,
           provider: 'codex',
+          model: 'gpt-5.5',
         },
       });
       const config = createMockResolvedConfig({ root: '/test/workspace' });
@@ -467,10 +468,33 @@ describe('pinflow Vite plugin', () => {
         relayHost: '127.0.0.1',
         relayPort: 4318,
         provider: 'codex',
+        model: 'gpt-5.5',
         command: undefined,
         args: undefined,
         intervalMs: undefined,
       });
+    });
+
+    it('should auto-start the configured runner in auto mode', async () => {
+      // Arrange
+      const plugin = pinflow({
+        runner: {
+          mode: 'auto',
+          provider: 'codex',
+        },
+      });
+      const config = createMockResolvedConfig({ root: '/test/workspace' });
+      callHook(plugin.configResolved, {}, config);
+
+      // Act
+      await callHook(plugin.buildStart);
+
+      // Assert
+      expect(mockRunnerControl.ensureRunning).toHaveBeenCalledWith(
+        expect.objectContaining({
+          provider: 'codex',
+        }),
+      );
     });
 
     it('should not start the runner when runner autoStart is false', async () => {
@@ -478,6 +502,24 @@ describe('pinflow Vite plugin', () => {
       const plugin = pinflow({
         runner: {
           autoStart: false,
+          provider: 'codex',
+        },
+      });
+      const config = createMockResolvedConfig({ root: '/test/workspace' });
+      callHook(plugin.configResolved, {}, config);
+
+      // Act
+      await callHook(plugin.buildStart);
+
+      // Assert
+      expect(mockRunnerControl.ensureRunning).not.toHaveBeenCalled();
+    });
+
+    it('should not start the runner in manual mode', async () => {
+      // Arrange
+      const plugin = pinflow({
+        runner: {
+          mode: 'manual',
           provider: 'codex',
         },
       });

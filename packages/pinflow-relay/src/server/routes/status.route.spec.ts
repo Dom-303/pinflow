@@ -109,6 +109,9 @@ describe('GET /status', () => {
           provider: 'codex',
           label: 'Local Runner',
           status: 'idle',
+          surface: 'terminal',
+          currentRunId: '010203-ann_abc',
+          currentRunDir: '/repo/.pinflow/runs/2026-04/2026-04-30/010203-ann_abc',
           pid: 1234,
         },
       });
@@ -132,6 +135,10 @@ describe('GET /status', () => {
             provider: 'codex',
             label: 'Local Runner',
             status: 'idle',
+            surface: 'terminal',
+            currentRunId: '010203-ann_abc',
+            currentRunDir:
+              '/repo/.pinflow/runs/2026-04/2026-04-30/010203-ann_abc',
             pid: 1234,
           },
         ],

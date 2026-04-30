@@ -7,6 +7,7 @@
 export { AnnotationCreateRoute } from './v1/annotation-create.route.js';
 export { AnnotationDispatchRoute } from './v1/annotation-dispatch.route.js';
 export { AnnotationGetRoute } from './v1/annotation-get.route.js';
+export { AnnotationRunEvidenceRoute } from './v1/annotation-run-evidence.route.js';
 export { AnnotationListRoute } from './v1/annotation-list.route.js';
 export { AnnotationProcessRoute } from './v1/annotation-process.route.js';
 export { AnnotationSearchRoute } from './v1/annotation-search.route.js';

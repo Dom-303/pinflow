@@ -374,7 +374,7 @@ export class DsSessionSettings extends LitElement {
     return mode === 'immediate'
       ? 'Sofort'
       : mode === 'threshold'
-        ? 'Ab Anzahl'
+        ? 'Ab Menge'
         : 'Manuell';
   }
 
@@ -419,7 +419,7 @@ export class DsSessionSettings extends LitElement {
       <details class="section" data-theme=${theme}>
         <summary class="section-summary">
           <span class="summary-copy">
-            <span class="section-title">Projektstandard</span>
+            <span class="section-title">Standard fuer dieses Projekt</span>
             <span class="section-copy"
               >Gilt fuer neue Aufgaben in diesem Projekt.</span
             >
@@ -446,12 +446,10 @@ export class DsSessionSettings extends LitElement {
             >
             <span class="summary-pill"
               ><strong>${this.projectDefaults.concurrency}</strong>
-              Parallelitaet</span
+              gleichzeitig</span
             >
             <span class="summary-pill"
-              ><strong
-                >Sammelt bis ${this.projectDefaults.threshold}</strong
-              ></span
+              ><strong>Senden ab ${this.projectDefaults.threshold}</strong></span
             >
             <span class="summary-pill"
               ><strong>${continuationLabel}</strong> Startart</span
@@ -471,7 +469,7 @@ export class DsSessionSettings extends LitElement {
             </label>
 
             <label>
-              Parallelitaet
+              Gleichzeitig
               <select
                 .value=${String(this.projectDefaults.concurrency)}
                 @change=${this.handleProjectConcurrencyChange}
@@ -484,7 +482,7 @@ export class DsSessionSettings extends LitElement {
             </label>
 
             <label>
-              Sammeln bis
+              Senden ab
               <select
                 .value=${String(this.projectDefaults.threshold)}
                 @change=${this.handleProjectThresholdChange}
@@ -514,11 +512,11 @@ export class DsSessionSettings extends LitElement {
       <details class="section" data-theme=${theme}>
         <summary class="section-summary">
           <span class="summary-copy">
-            <span class="section-title">Session-Verhalten</span>
+            <span class="section-title">Nur diese Sitzung</span>
             <span class="section-copy">
               ${hasSessionOverrides
-                ? 'Aktive Anpassungen gelten nur fuer diese Sitzung.'
-                : 'Diese Sitzung folgt aktuell dem Projektstandard.'}
+                ? 'Eigene Regeln gelten nur bis zum Schliessen.'
+                : 'Diese Sitzung nutzt den Projektstandard.'}
             </span>
           </span>
           <svg
@@ -539,13 +537,13 @@ export class DsSessionSettings extends LitElement {
         <div class="section-body">
           <div class="session-state ${hasSessionOverrides ? 'active' : ''}">
             ${hasSessionOverrides
-              ? 'Session-Overrides sind aktiv'
-              : 'Session folgt Projektstandard'}
+              ? 'Eigene Sitzungsregeln aktiv'
+              : 'Nutzt Projektstandard'}
           </div>
           <div class="session-note">
             ${hasSessionOverrides
-              ? 'Aktive Session-Anpassungen uebersteuern nur diese laufende Sitzung.'
-              : 'Keine Session-Anpassungen aktiv.'}
+              ? 'Diese Regeln gelten nur fuer die laufende Sitzung.'
+              : 'Keine eigenen Regeln aktiv.'}
           </div>
           <div class="effective-state">
             <div class="effective-title">Aktuell aktiv</div>
@@ -553,7 +551,7 @@ export class DsSessionSettings extends LitElement {
               <span class="summary-pill">
                 <strong
                   >${hasSessionOverrides
-                    ? 'Session-Regeln aktiv'
+                    ? 'Sitzungsregeln aktiv'
                     : 'Projektstandard aktiv'}</strong
                 >
               </span>
@@ -566,10 +564,10 @@ export class DsSessionSettings extends LitElement {
                 Senden</span
               >
               <span class="summary-pill"
-                ><strong>${effectiveConcurrency}</strong> Parallelitaet</span
+                ><strong>${effectiveConcurrency}</strong> gleichzeitig</span
               >
               <span class="summary-pill"
-                ><strong>Sammelt bis ${effectiveThreshold}</strong></span
+                ><strong>Senden ab ${effectiveThreshold}</strong></span
               >
               <span class="summary-pill"
                 ><strong
@@ -583,7 +581,7 @@ export class DsSessionSettings extends LitElement {
             ? html`
                 <div class="session-overrides">
                   <div class="session-overrides-title">
-                    Aktive Session-Anpassungen
+                    Eigene Regeln fuer diese Sitzung
                   </div>
                   <div class="summary-strip">
                     ${this.sessionOverrides.channel
@@ -619,7 +617,7 @@ export class DsSessionSettings extends LitElement {
                     ${this.sessionOverrides.threshold
                       ? html`<span class="summary-pill"
                           ><strong
-                            >Sammelt bis
+                            >Senden ab
                             ${this.sessionOverrides.threshold}</strong
                           ></span
                         >`
@@ -627,7 +625,7 @@ export class DsSessionSettings extends LitElement {
                     ${this.sessionOverrides.concurrency
                       ? html`<span class="summary-pill"
                           ><strong>${this.sessionOverrides.concurrency}</strong>
-                          Parallelitaet</span
+                          gleichzeitig</span
                         >`
                       : null}
                   </div>
@@ -637,7 +635,7 @@ export class DsSessionSettings extends LitElement {
           ${hasSessionOverrides
             ? html`
                 <button class="reset-btn" @click=${this.handleResetSession}>
-                  Session-Overrides zuruecksetzen
+                  Sitzungsregeln zuruecksetzen
                 </button>
               `
             : null}

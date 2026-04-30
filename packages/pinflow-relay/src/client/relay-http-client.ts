@@ -39,6 +39,8 @@ import {
   AnnotationSearchResponseSchema,
   AnnotationUpdateResponseResponse,
   AnnotationUpdateResponseResponseSchema,
+  AnnotationRunEvidenceResponse,
+  AnnotationRunEvidenceResponseSchema,
   AnnotationUpdateStatusResponse,
   AnnotationUpdateStatusResponseSchema,
   AnnotationVerifyResponse,
@@ -245,6 +247,20 @@ export class RelayHttpClient {
       throw await this.parseError(response);
     }
     return AnnotationUpdateResponseResponseSchema.parse(await response.json());
+  }
+
+  async getAnnotationRunEvidence(
+    annotationId: AnnotationId,
+  ): Promise<AnnotationRunEvidenceResponse> {
+    const apiPath = `${API_PATHS.BASE.replace(':version', 'v1')}${API_PATHS.ANNOTATION_EVIDENCE.replace(':id', annotationId)}`;
+    const url = new URL(apiPath, this.baseUrl);
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+    });
+    if (!response.ok) {
+      throw await this.parseError(response);
+    }
+    return AnnotationRunEvidenceResponseSchema.parse(await response.json());
   }
 
   async updateAnnotationStatus(

@@ -28,6 +28,7 @@ const {
   mockExtendWebpackConfig,
   mockResolve,
   mockPinFlowVitePlugin,
+  mockShouldStartRunner,
   MockPinFlowWebpackPlugin,
   mockEnsureRunning,
   mockRunnerEnsureRunning,
@@ -54,6 +55,10 @@ const {
       name: 'vite-plugin-pinflow',
       apply: 'serve' as string | undefined,
     })),
+    mockShouldStartRunner: vi.fn(
+      (runner?: { mode?: string; autoStart?: boolean }) =>
+        runner?.mode ? runner.mode === 'auto' : runner?.autoStart === true,
+    ),
     MockPinFlowWebpackPlugin: vi.fn(),
     mockEnsureRunning,
     mockRunnerEnsureRunning,
@@ -88,6 +93,7 @@ vi.mock('@nuxt/kit', () => ({
 
 vi.mock('@pinflow/transform/plugins/vite', () => ({
   pinflow: (opts: unknown) => mockPinFlowVitePlugin(opts),
+  shouldStartRunner: (runner: unknown) => mockShouldStartRunner(runner),
 }));
 
 vi.mock('@pinflow/transform/plugins/webpack', () => ({
@@ -298,7 +304,7 @@ describe('pinflowModule', () => {
           {
             debug: false,
             relay: {},
-            runner: { autoStart: true, provider: 'codex' },
+            runner: { autoStart: true, provider: 'codex', model: 'gpt-5.5' },
           },
           nuxt,
         );
@@ -308,10 +314,30 @@ describe('pinflowModule', () => {
           relayHost: '127.0.0.1',
           relayPort: 4400,
           provider: 'codex',
+          model: 'gpt-5.5',
           command: undefined,
           args: undefined,
           intervalMs: undefined,
         });
+      });
+
+      it('should auto-start the configured runner in auto mode', async () => {
+        const nuxt = createMockNuxt();
+
+        await callSetup(
+          {
+            debug: false,
+            relay: {},
+            runner: { mode: 'auto', provider: 'codex' },
+          },
+          nuxt,
+        );
+
+        expect(mockRunnerEnsureRunning).toHaveBeenCalledWith(
+          expect.objectContaining({
+            provider: 'codex',
+          }),
+        );
       });
     });
 
@@ -444,6 +470,7 @@ describe('pinflowModule', () => {
             overlay: true,
             rootDir: '/test/project',
             relay: { port: 3001, autoStart: false },
+            runner: { mode: 'manual', autoStart: false },
           }),
         );
 
@@ -559,7 +586,7 @@ describe('pinflowModule', () => {
         expect(MockPinFlowWebpackPlugin).toHaveBeenCalledWith({
           debug: true,
           relay: { port: 5000, autoStart: false },
-          runner: { autoStart: false },
+          runner: { mode: 'manual', autoStart: false },
           overlay: true,
         });
         expect(config.plugins.length).toBe(1);

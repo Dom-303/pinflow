@@ -7,6 +7,11 @@ declare module 'vscode' {
     subscriptions: Disposable[];
   }
 
+  export class Uri {
+    readonly fsPath: string;
+    static file(path: string): Uri;
+  }
+
   export interface StatusBarItem extends Disposable {
     text: string;
     tooltip?: string;
@@ -31,6 +36,11 @@ declare module 'vscode' {
   export class TreeItem {
     label?: string;
     description?: string;
+    command?: {
+      command: string;
+      title: string;
+      arguments?: readonly unknown[];
+    };
     constructor(label: string, collapsibleState?: number);
   }
 
@@ -48,6 +58,7 @@ declare module 'vscode' {
   export const window: {
     createStatusBarItem(alignment: number, priority?: number): StatusBarItem;
     showInformationMessage(message: string): Thenable<string | undefined>;
+    showTextDocument(uri: Uri): Thenable<unknown>;
     createTerminal(options: { name: string; cwd?: string }): {
       sendText(text: string): void;
       show(): void;

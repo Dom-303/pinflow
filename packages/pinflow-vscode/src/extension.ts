@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 
 import { startStandardWorkflow } from './core/commands.js';
+import { openLatestRunEvidence } from './core/evidence-commands.js';
 import {
   buildPinFlowPanelItems,
   type PinFlowPanelItem,
@@ -59,9 +60,24 @@ export function activate(context: vscode.ExtensionContext): void {
       terminal.show();
     }),
     vscode.commands.registerCommand('pinflow.openLatestRun', async () => {
-      await vscode.window.showInformationMessage(
-        'PinFlow run evidence viewer is coming in the next package.',
-      );
+      const workspaceRoot = getCurrentWorkspaceRoot();
+
+      if (!workspaceRoot) {
+        await vscode.window.showInformationMessage(
+          'Open a configured PinFlow workspace first.',
+        );
+        return;
+      }
+
+      await openLatestRunEvidence(workspaceRoot, {
+        openFile: openEvidenceFile,
+        showInformationMessage: (message) =>
+          vscode.window.showInformationMessage(message),
+      });
+    }),
+    vscode.commands.registerCommand('pinflow.openEvidenceFile', async (filePath) => {
+      if (typeof filePath !== 'string') return;
+      await openEvidenceFile(filePath);
     }),
     vscode.commands.registerCommand('pinflow.startWorkflow', () => {
       const workspaceRoot = getCurrentWorkspaceRoot();
@@ -103,6 +119,10 @@ function getCurrentWorkspaceRoot(): string | undefined {
   return getPinFlowWorkspaceStatus(workspaceFolder).workspaceRoot;
 }
 
+async function openEvidenceFile(filePath: string): Promise<void> {
+  await vscode.window.showTextDocument(vscode.Uri.file(filePath));
+}
+
 class PinFlowTreeDataProvider
   implements vscode.TreeDataProvider<PinFlowPanelItem>
 {
@@ -123,6 +143,7 @@ class PinFlowTreeDataProvider
       vscode.TreeItemCollapsibleState.None,
     );
     item.description = element.description;
+    item.command = element.command;
     return item;
   }
 

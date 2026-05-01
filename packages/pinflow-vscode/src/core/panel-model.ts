@@ -1,21 +1,20 @@
-import { readdir, readFile } from 'node:fs/promises';
-import type { Dirent } from 'node:fs';
 import path from 'node:path';
 
+import {
+  findLatestRunEvidence,
+  type PinFlowRunEvidence,
+  type PinFlowRunSummary,
+} from './run-evidence.js';
 import type { PinFlowWorkspaceResult } from './workspace.js';
 
 export interface PinFlowPanelItem {
   readonly label: string;
   readonly description?: string;
-}
-
-interface RunSummary {
-  readonly annotationId?: string;
-  readonly status?: string;
-  readonly provider?: string;
-  readonly startedAt?: string;
-  readonly finishedAt?: string;
-  readonly diffPath?: string;
+  readonly command?: {
+    readonly command: string;
+    readonly title: string;
+    readonly arguments?: readonly unknown[];
+  };
 }
 
 export async function buildPinFlowPanelItems(
@@ -29,14 +28,19 @@ export async function buildPinFlowPanelItems(
   }
 
   const latestRun = status.workspaceRoot
-    ? await findLatestRunSummary(status.workspaceRoot)
+    ? await findLatestRunEvidence(status.workspaceRoot)
     : null;
 
   if (status.status === 'relay-missing') {
     return [
       { label: 'Relay missing' },
-      { label: runnerLabel(latestRun) },
-      { label: latestRun ? latestRunLabel(latestRun) : 'No run evidence yet' },
+      { label: runnerLabel(latestRun?.summary ?? null) },
+      {
+        label: latestRun
+          ? latestRunLabel(latestRun.summary)
+          : 'No run evidence yet',
+      },
+      ...buildEvidenceItems(latestRun, status.workspaceRoot),
       { label: 'Start with PinFlow: Start Workflow' },
     ];
   }
@@ -47,60 +51,20 @@ export async function buildPinFlowPanelItems(
         ? `Relay ready at ${status.relay.host}:${status.relay.port}`
         : 'Relay ready',
     },
-    { label: runnerLabel(latestRun) },
-    { label: latestRun ? latestRunLabel(latestRun) : 'No run evidence yet' },
-    { label: latestRun?.diffPath ? 'Diff evidence recorded' : 'No diff yet' },
+    { label: runnerLabel(latestRun?.summary ?? null) },
+    {
+      label: latestRun ? latestRunLabel(latestRun.summary) : 'No run evidence yet',
+    },
+    {
+      label: latestRun?.hasDiff
+        ? diffEvidenceLabel(latestRun)
+        : 'No diff yet',
+    },
+    ...buildEvidenceItems(latestRun, status.workspaceRoot),
   ];
 }
 
-async function findLatestRunSummary(
-  workspaceRoot: string,
-): Promise<RunSummary | null> {
-  const summaryPaths = await findSummaryFiles(
-    path.join(workspaceRoot, '.pinflow', 'runs'),
-  );
-  const summaries: RunSummary[] = [];
-
-  for (const summaryPath of summaryPaths) {
-    try {
-      summaries.push(JSON.parse(await readFile(summaryPath, 'utf8')) as RunSummary);
-    } catch {
-      // Ignore partially written run evidence.
-    }
-  }
-
-  summaries.sort((left, right) => summaryTime(right) - summaryTime(left));
-
-  return summaries[0] ?? null;
-}
-
-async function findSummaryFiles(dir: string): Promise<string[]> {
-  let entries: Dirent[];
-  try {
-    entries = await readdir(dir, { withFileTypes: true });
-  } catch {
-    return [];
-  }
-
-  const files: string[] = [];
-
-  for (const entry of entries) {
-    const entryPath = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      files.push(...(await findSummaryFiles(entryPath)));
-    } else if (entry.isFile() && entry.name === 'summary.json') {
-      files.push(entryPath);
-    }
-  }
-
-  return files;
-}
-
-function summaryTime(summary: RunSummary): number {
-  return new Date(summary.finishedAt ?? summary.startedAt ?? 0).getTime();
-}
-
-function runnerLabel(summary: RunSummary | null): string {
+function runnerLabel(summary: PinFlowRunSummary | null): string {
   if (!summary) return 'Runner idle';
 
   return `Runner ${formatRunStatus(summary.status)} via ${
@@ -108,7 +72,7 @@ function runnerLabel(summary: RunSummary | null): string {
   }`;
 }
 
-function latestRunLabel(summary: RunSummary): string {
+function latestRunLabel(summary: PinFlowRunSummary): string {
   return `Latest run: ${summary.annotationId ?? 'unknown annotation'}`;
 }
 
@@ -117,4 +81,46 @@ function formatRunStatus(status?: string): string {
   if (status === 'processing') return 'working';
   if (status === 'failed') return 'failed';
   return status ?? 'unknown';
+}
+
+function diffEvidenceLabel(evidence: PinFlowRunEvidence): string {
+  const fileLabel =
+    evidence.changedFiles.length === 1
+      ? '1 file'
+      : `${evidence.changedFiles.length} files`;
+
+  return `Repo diff exists: ${fileLabel}, +${evidence.additions} -${evidence.deletions}`;
+}
+
+function buildEvidenceItems(
+  evidence: PinFlowRunEvidence | null,
+  workspaceRoot?: string,
+): PinFlowPanelItem[] {
+  if (!evidence) return [];
+
+  const items: PinFlowPanelItem[] = [
+    evidence.promptPath
+      ? fileItem('Open prompt.md', evidence.promptPath)
+      : null,
+    evidence.transcriptPath
+      ? fileItem('Open transcript.log', evidence.transcriptPath)
+      : null,
+    evidence.diffPath ? fileItem('Open diff.patch', evidence.diffPath) : null,
+    ...evidence.changedFiles.map((file) =>
+      fileItem('Changed: ' + file.path, path.join(workspaceRoot ?? '', file.path)),
+    ),
+  ].filter((item): item is PinFlowPanelItem => Boolean(item));
+
+  return items;
+}
+
+function fileItem(label: string, filePath: string): PinFlowPanelItem {
+  return {
+    label,
+    command: {
+      command: 'pinflow.openEvidenceFile',
+      title: label,
+      arguments: [filePath],
+    },
+  };
 }

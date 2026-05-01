@@ -77,6 +77,21 @@ describe('buildPinFlowPanelItems', () => {
       diffPath:
         '.pinflow/runs/2026-05/2026-05-01/120000-ann_abc12345_1/diff.patch',
     });
+    await writeFile(path.join(runDir, 'prompt.md'), '# Prompt\n', 'utf8');
+    await writeFile(path.join(runDir, 'transcript.log'), 'done\n', 'utf8');
+    await writeFile(
+      path.join(runDir, 'diff.patch'),
+      [
+        'diff --git a/src/app.ts b/src/app.ts',
+        '--- a/src/app.ts',
+        '+++ b/src/app.ts',
+        '@@ -1 +1 @@',
+        '-old',
+        '+new',
+        '',
+      ].join('\n'),
+      'utf8',
+    );
 
     const status: PinFlowWorkspaceResult = {
       status: 'ready',
@@ -97,7 +112,17 @@ describe('buildPinFlowPanelItems', () => {
       'Relay ready at 127.0.0.1:4317',
       'Runner done via codex',
       'Latest run: ann_abc12345_1',
-      'Diff evidence recorded',
+      'Repo diff exists: 1 file, +1 -1',
+      'Open prompt.md',
+      'Open transcript.log',
+      'Open diff.patch',
+      'Changed: src/app.ts',
+    ]);
+    expect(items.slice(4).map((item) => item.command?.command)).toEqual([
+      'pinflow.openEvidenceFile',
+      'pinflow.openEvidenceFile',
+      'pinflow.openEvidenceFile',
+      'pinflow.openEvidenceFile',
     ]);
   });
 });

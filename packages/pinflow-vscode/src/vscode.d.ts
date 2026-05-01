@@ -14,6 +14,32 @@ declare module 'vscode' {
     show(): void;
   }
 
+  export interface Event<T> {
+    (listener: (event: T) => unknown): Disposable;
+  }
+
+  export class EventEmitter<T> implements Disposable {
+    readonly event: Event<T>;
+    fire(data: T): void;
+    dispose(): void;
+  }
+
+  export const TreeItemCollapsibleState: {
+    readonly None: number;
+  };
+
+  export class TreeItem {
+    label?: string;
+    description?: string;
+    constructor(label: string, collapsibleState?: number);
+  }
+
+  export interface TreeDataProvider<T> {
+    readonly onDidChangeTreeData?: Event<T | undefined | null | void>;
+    getTreeItem(element: T): TreeItem;
+    getChildren(element?: T): T[] | Thenable<T[]>;
+  }
+
   export const StatusBarAlignment: {
     readonly Left: number;
     readonly Right: number;
@@ -22,10 +48,14 @@ declare module 'vscode' {
   export const window: {
     createStatusBarItem(alignment: number, priority?: number): StatusBarItem;
     showInformationMessage(message: string): Thenable<string | undefined>;
-    createTerminal(name: string): {
+    createTerminal(options: { name: string; cwd?: string }): {
       sendText(text: string): void;
       show(): void;
     };
+    registerTreeDataProvider<T>(
+      viewId: string,
+      treeDataProvider: TreeDataProvider<T>,
+    ): Disposable;
   };
 
   export const commands: {
@@ -33,6 +63,7 @@ declare module 'vscode' {
       command: string,
       callback: (...args: unknown[]) => unknown,
     ): Disposable;
+    executeCommand(command: string): Thenable<unknown>;
   };
 
   export const workspace: {

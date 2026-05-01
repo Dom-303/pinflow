@@ -13,9 +13,11 @@
   },
   "activationEvents": [
     "onStartupFinished",
+    "onView:pinflow.status",
     "onCommand:pinflow.openPanel",
     "onCommand:pinflow.followRuns",
-    "onCommand:pinflow.openLatestRun"
+    "onCommand:pinflow.openLatestRun",
+    "onCommand:pinflow.startWorkflow"
   ],
   "categories": [
     "Other"
@@ -36,8 +38,21 @@
         "command": "pinflow.openLatestRun",
         "title": "PinFlow: Open Latest Run",
         "category": "PinFlow"
+      },
+      {
+        "command": "pinflow.startWorkflow",
+        "title": "PinFlow: Start Workflow",
+        "category": "PinFlow"
       }
-    ]
+    ],
+    "views": {
+      "explorer": [
+        {
+          "id": "pinflow.status",
+          "name": "PinFlow"
+        }
+      ]
+    }
   },
   "scripts": {
     "build": "tsc -p tsconfig.lib.json",

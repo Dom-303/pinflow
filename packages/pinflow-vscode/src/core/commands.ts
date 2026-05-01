@@ -1,3 +1,5 @@
+import { formatPinFlowCliCommand } from './cli-command.js';
+
 export interface WorkflowTerminal {
   sendText(text: string): void;
   show(): void;
@@ -13,10 +15,10 @@ export function startStandardWorkflow(
   createTerminal: TerminalFactory,
 ): void {
   const devTerminal = createTerminal('PinFlow Dev', workspaceRoot);
-  devTerminal.sendText('pinflow dev');
+  devTerminal.sendText(formatPinFlowCliCommand(workspaceRoot, ['dev']));
   devTerminal.show();
 
   const followTerminal = createTerminal('PinFlow Follow', workspaceRoot);
-  followTerminal.sendText('pinflow follow');
+  followTerminal.sendText(formatPinFlowCliCommand(workspaceRoot, ['follow']));
   followTerminal.show();
 }

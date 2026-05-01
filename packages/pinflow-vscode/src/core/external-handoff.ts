@@ -1,3 +1,5 @@
+import { getPinFlowCliInvocation } from './cli-command.js';
+
 export interface ExternalHandoffClaim {
   readonly annotationId: string;
   readonly promptPath: string;
@@ -30,17 +32,18 @@ export async function claimExternalHandoff(
   workspaceRoot: string,
   actions: ExternalHandoffActions,
 ): Promise<ExternalHandoffClaim | null> {
+  const invocation = getPinFlowCliInvocation(workspaceRoot, [
+    'external',
+    'claim',
+    '--provider',
+    'codex',
+    '--label',
+    'VS Code',
+    '--json',
+  ]);
   const result = await actions.runCommand(
-    'pinflow',
-    [
-      'external',
-      'claim',
-      '--provider',
-      'codex',
-      '--label',
-      'VS Code',
-      '--json',
-    ],
+    invocation.command,
+    invocation.args,
     { cwd: workspaceRoot },
   );
   const claim = parseClaimJson(result.stdout);
@@ -71,17 +74,19 @@ export async function completeExternalHandoff(
     return false;
   }
 
+  const invocation = getPinFlowCliInvocation(workspaceRoot, [
+    'external',
+    'complete',
+    claim.annotationId,
+    '--run-dir',
+    claim.runDir,
+    '--message',
+    'Completed from VS Code external handoff.',
+  ]);
+
   await actions.runCommand(
-    'pinflow',
-    [
-      'external',
-      'complete',
-      claim.annotationId,
-      '--run-dir',
-      claim.runDir,
-      '--message',
-      'Completed from VS Code external handoff.',
-    ],
+    invocation.command,
+    invocation.args,
     { cwd: workspaceRoot },
   );
   actions.showInformationMessage(
@@ -96,17 +101,19 @@ export async function failExternalHandoff(
   reason: string,
   actions: ExternalHandoffActions,
 ): Promise<void> {
+  const invocation = getPinFlowCliInvocation(workspaceRoot, [
+    'external',
+    'fail',
+    claim.annotationId,
+    '--run-dir',
+    claim.runDir,
+    '--error',
+    reason,
+  ]);
+
   await actions.runCommand(
-    'pinflow',
-    [
-      'external',
-      'fail',
-      claim.annotationId,
-      '--run-dir',
-      claim.runDir,
-      '--error',
-      reason,
-    ],
+    invocation.command,
+    invocation.args,
     { cwd: workspaceRoot },
   );
   actions.showInformationMessage(

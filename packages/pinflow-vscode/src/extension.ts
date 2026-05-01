@@ -3,6 +3,7 @@ import { promisify } from 'node:util';
 import * as vscode from 'vscode';
 
 import { startStandardWorkflow } from './core/commands.js';
+import { formatPinFlowCliCommand } from './core/cli-command.js';
 import { openLatestRunEvidence } from './core/evidence-commands.js';
 import {
   claimExternalHandoff,
@@ -73,7 +74,11 @@ export function activate(context: vscode.ExtensionContext): void {
         name: 'PinFlow Follow',
         cwd: workspaceRoot,
       });
-      terminal.sendText('pinflow follow');
+      terminal.sendText(
+        workspaceRoot
+          ? formatPinFlowCliCommand(workspaceRoot, ['follow'])
+          : 'pinflow follow',
+      );
       terminal.show();
     }),
     vscode.commands.registerCommand('pinflow.openLatestRun', async () => {

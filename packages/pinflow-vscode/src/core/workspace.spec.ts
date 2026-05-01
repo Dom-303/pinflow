@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 import {
+  getBestPinFlowWorkspaceStatus,
   getPinFlowWorkspaceStatus,
   type ProcessProbe,
 } from './workspace.js';
@@ -42,6 +43,23 @@ describe('getPinFlowWorkspaceStatus', () => {
       dependencies: {
         '@pinflow/react': '0.6.0',
       },
+    });
+
+    const status = getPinFlowWorkspaceStatus(workspaceRoot);
+
+    expect(status).toMatchObject({
+      status: 'relay-missing',
+      workspaceFolder: workspaceRoot,
+      appRoot: workspaceRoot,
+      workspaceRoot,
+      message: 'PinFlow relay is not running',
+    });
+  });
+
+  it('detects the PinFlow monorepo package itself without a running relay', async () => {
+    await writeJson(path.join(workspaceRoot, 'package.json'), {
+      name: 'pinflow',
+      private: true,
     });
 
     const status = getPinFlowWorkspaceStatus(workspaceRoot);
@@ -98,6 +116,36 @@ describe('getPinFlowWorkspaceStatus', () => {
         pid: 12345,
       },
       message: 'PinFlow ready',
+    });
+  });
+});
+
+describe('getBestPinFlowWorkspaceStatus', () => {
+  let workspaceRoot: string;
+
+  beforeEach(async () => {
+    workspaceRoot = await createTempWorkspace();
+  });
+
+  afterEach(async () => {
+    await rm(workspaceRoot, { recursive: true, force: true });
+  });
+
+  it('prefers a configured PinFlow folder over an earlier plain folder', async () => {
+    const plainRoot = path.join(workspaceRoot, 'plain');
+    const pinflowRoot = path.join(workspaceRoot, 'pinflow');
+    await mkdir(plainRoot, { recursive: true });
+    await writeJson(path.join(pinflowRoot, 'package.json'), {
+      name: 'pinflow',
+      private: true,
+    });
+
+    const status = getBestPinFlowWorkspaceStatus([plainRoot, pinflowRoot]);
+
+    expect(status).toMatchObject({
+      status: 'relay-missing',
+      workspaceFolder: pinflowRoot,
+      workspaceRoot: pinflowRoot,
     });
   });
 });

@@ -15,7 +15,7 @@ import {
   buildPinFlowPanelItems,
   type PinFlowPanelItem,
 } from './core/panel-model.js';
-import { getPinFlowWorkspaceStatus } from './core/workspace.js';
+import { getBestPinFlowWorkspaceStatus } from './core/workspace.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -34,9 +34,9 @@ export function activate(context: vscode.ExtensionContext): void {
   );
 
   const refreshStatus = () => {
-    const workspaceFolder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+    const workspaceFolders = getWorkspaceFolders();
 
-    if (!workspaceFolder) {
+    if (!workspaceFolders.length) {
       statusItem.text = 'PinFlow: no workspace';
       statusItem.tooltip = 'Open a workspace folder to use PinFlow.';
       statusItem.show();
@@ -48,7 +48,9 @@ export function activate(context: vscode.ExtensionContext): void {
       return;
     }
 
-    const status = getPinFlowWorkspaceStatus(workspaceFolder);
+    const status = getBestPinFlowWorkspaceStatus(workspaceFolders);
+    if (!status) return;
+
     statusItem.text = formatStatusText(status.status);
     statusItem.tooltip = status.message;
     statusItem.show();
@@ -190,13 +192,13 @@ function formatStatusText(status: string): string {
 }
 
 function getCurrentWorkspaceRoot(): string | undefined {
-  const workspaceFolder = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+  const status = getBestPinFlowWorkspaceStatus(getWorkspaceFolders());
 
-  if (!workspaceFolder) {
-    return;
-  }
+  return status?.workspaceRoot;
+}
 
-  return getPinFlowWorkspaceStatus(workspaceFolder).workspaceRoot;
+function getWorkspaceFolders(): string[] {
+  return vscode.workspace.workspaceFolders?.map((folder) => folder.uri.fsPath) ?? [];
 }
 
 async function openEvidenceFile(filePath: string): Promise<void> {

@@ -87,6 +87,21 @@ export function getPinFlowWorkspaceStatus(
   };
 }
 
+export function getBestPinFlowWorkspaceStatus(
+  workspaceFolders: readonly string[],
+  options: PinFlowWorkspaceOptions = {},
+): PinFlowWorkspaceResult | undefined {
+  const statuses = workspaceFolders.map((workspaceFolder) =>
+    getPinFlowWorkspaceStatus(workspaceFolder, options),
+  );
+
+  return (
+    statuses.find((status) => status.status === 'ready') ??
+    statuses.find((status) => status.status === 'relay-missing') ??
+    statuses[0]
+  );
+}
+
 function findConfiguredWorkspace(
   startPath: string,
 ):
@@ -179,9 +194,15 @@ function hasPinFlowPackage(dir: string): boolean {
 
   try {
     const parsed = JSON.parse(readFileSync(packageJsonPath, 'utf-8')) as {
+      name?: string;
       dependencies?: Record<string, string>;
       devDependencies?: Record<string, string>;
     };
+
+    if (parsed.name && PINFLOW_PACKAGE_NAMES.has(parsed.name)) {
+      return true;
+    }
+
     const dependencies = {
       ...parsed.dependencies,
       ...parsed.devDependencies,

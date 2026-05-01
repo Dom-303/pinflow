@@ -2,7 +2,7 @@
 
 Editor-native visibility for the local PinFlow workflow.
 
-![PinFlow overview](media/overview.webp)
+![PinFlow icon](media/icon.png)
 
 ## What It Does
 

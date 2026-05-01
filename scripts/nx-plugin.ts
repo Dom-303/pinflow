@@ -7,7 +7,11 @@ interface ProjectJson {
 }
 
 /** Projects that are not publishable and should not get dist-related targets. */
-const EXCLUDED_PROJECTS = new Set(['pinflow-test-fixtures']);
+const EXCLUDED_PROJECTS = new Set(['pinflow-test-fixtures', 'pinflow-vscode']);
+
+export function isDistTargetExcluded(projectName?: string): boolean {
+  return EXCLUDED_PROJECTS.has(projectName ?? '');
+}
 
 /**
  * Adds `sync-dist` and `clean` targets to all publishable library projects.
@@ -23,7 +27,7 @@ export const createNodesV2: CreateNodesV2 = [
       const project: ProjectJson = JSON.parse(readFileSync(fullPath, 'utf-8'));
 
       if (project.projectType !== 'library') continue;
-      if (EXCLUDED_PROJECTS.has(project.name ?? '')) continue;
+      if (isDistTargetExcluded(project.name)) continue;
 
       const projectRoot = configFile.replace('/project.json', '');
 

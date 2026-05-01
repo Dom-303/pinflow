@@ -83,7 +83,7 @@
     "libsDir": "packages"
   },
   "release": {
-    "projects": ["*", "!pinflow-test-fixtures"],
+    "projects": ["*", "!pinflow-test-fixtures", "!pinflow-vscode"],
     "version": {
       "git": {
         "commit": false,

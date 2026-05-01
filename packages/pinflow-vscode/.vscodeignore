@@ -1,0 +1,11 @@
+src/**
+test-output/**
+*.ts
+tsconfig*.json
+vite.config.ts
+project.json
+dist/**/*.map
+dist/**/*.d.ts
+dist/**/*.tsbuildinfo
+dist/README.md
+dist/*.vsix

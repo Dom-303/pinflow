@@ -20,7 +20,8 @@
         "tsConfig": "packages/pinflow-vscode/tsconfig.lib.json",
         "generatePackageJson": false,
         "assets": [
-          "packages/pinflow-vscode/README.md"
+          "packages/pinflow-vscode/README.md",
+          "packages/pinflow-vscode/media"
         ]
       }
     },

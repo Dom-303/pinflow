@@ -2,11 +2,21 @@
   "name": "pinflow-vscode",
   "displayName": "PinFlow",
   "version": "0.0.1",
-  "description": "VS Code extension for viewing PinFlow local workflow status.",
+  "description": "VS Code extension for viewing the local PinFlow workflow.",
   "type": "module",
-  "private": true,
   "publisher": "dom-303",
   "main": "./dist/extension.js",
+  "icon": "media/icon.png",
+  "license": "MIT",
+  "preview": true,
+  "homepage": "https://github.com/Dom-303/pinflow#readme",
+  "bugs": {
+    "url": "https://github.com/Dom-303/pinflow/issues"
+  },
+  "galleryBanner": {
+    "color": "#111111",
+    "theme": "dark"
+  },
   "engines": {
     "vscode": "^1.90.0",
     "node": ">=20"
@@ -25,6 +35,13 @@
   ],
   "categories": [
     "Other"
+  ],
+  "keywords": [
+    "pinflow",
+    "ui-to-code",
+    "coding-agent",
+    "vscode-extension",
+    "developer-tools"
   ],
   "contributes": {
     "commands": [
@@ -80,7 +97,8 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.lib.json",
-    "test": "vitest run --config vite.config.ts"
+    "test": "vitest run --config vite.config.ts",
+    "package:vsix": "corepack pnpm dlx @vscode/vsce package --no-dependencies --out ../../tmp/pinflow-vscode.vsix"
   },
   "repository": {
     "type": "git",

@@ -29,6 +29,6 @@ describe('VS Code package smoke docs', () => {
     expect(existsSync(path.join(packageRoot, 'media/overview.webp'))).toBe(true);
     expect(existsSync(path.join(packageRoot, 'LICENSE'))).toBe(true);
     expect(existsSync(path.join(packageRoot, '.vscodeignore'))).toBe(true);
-    expect(readme).toContain('media/overview.webp');
+    expect(readme).toContain('media/icon.png');
   });
 });

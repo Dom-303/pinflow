@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
 
 const PINFLOW_DIR = '.pinflow';
@@ -91,7 +91,10 @@ export function getBestPinFlowWorkspaceStatus(
   workspaceFolders: readonly string[],
   options: PinFlowWorkspaceOptions = {},
 ): PinFlowWorkspaceResult | undefined {
-  const statuses = workspaceFolders.map((workspaceFolder) =>
+  const candidateFolders = workspaceFolders.flatMap((workspaceFolder) =>
+    getWorkspaceCandidateFolders(workspaceFolder),
+  );
+  const statuses = candidateFolders.map((workspaceFolder) =>
     getPinFlowWorkspaceStatus(workspaceFolder, options),
   );
 
@@ -100,6 +103,22 @@ export function getBestPinFlowWorkspaceStatus(
     statuses.find((status) => status.status === 'relay-missing') ??
     statuses[0]
   );
+}
+
+function getWorkspaceCandidateFolders(workspaceFolder: string): string[] {
+  const resolvedFolder = path.resolve(workspaceFolder);
+  const candidates = [resolvedFolder];
+
+  try {
+    for (const entry of readdirSync(resolvedFolder, { withFileTypes: true })) {
+      if (!entry.isDirectory() || entry.name.startsWith('.')) continue;
+      candidates.push(path.join(resolvedFolder, entry.name));
+    }
+  } catch {
+    // If the folder cannot be read, keep the direct workspace check.
+  }
+
+  return candidates;
 }
 
 function findConfiguredWorkspace(

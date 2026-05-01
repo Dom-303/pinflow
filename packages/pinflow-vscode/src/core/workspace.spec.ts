@@ -148,4 +148,20 @@ describe('getBestPinFlowWorkspaceStatus', () => {
       workspaceRoot: pinflowRoot,
     });
   });
+
+  it('finds a configured PinFlow repo inside a parent workspace folder', async () => {
+    const pinflowRoot = path.join(workspaceRoot, 'pinflow');
+    await writeJson(path.join(pinflowRoot, 'package.json'), {
+      name: 'pinflow',
+      private: true,
+    });
+
+    const status = getBestPinFlowWorkspaceStatus([workspaceRoot]);
+
+    expect(status).toMatchObject({
+      status: 'relay-missing',
+      workspaceFolder: pinflowRoot,
+      workspaceRoot: pinflowRoot,
+    });
+  });
 });

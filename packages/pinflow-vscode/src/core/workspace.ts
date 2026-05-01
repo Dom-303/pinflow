@@ -16,6 +16,14 @@ const PINFLOW_PACKAGE_NAMES = new Set([
   '@pinflow/nuxt',
   '@pinflow/transform',
 ]);
+const MAX_WORKSPACE_CANDIDATE_DEPTH = 2;
+const IGNORED_WORKSPACE_CANDIDATE_DIRS = new Set([
+  '.git',
+  'coverage',
+  'dist',
+  'node_modules',
+  'test-output',
+]);
 
 export type PinFlowWorkspaceStatus =
   | 'ready'
@@ -107,18 +115,41 @@ export function getBestPinFlowWorkspaceStatus(
 
 function getWorkspaceCandidateFolders(workspaceFolder: string): string[] {
   const resolvedFolder = path.resolve(workspaceFolder);
-  const candidates = [resolvedFolder];
+  const candidates: string[] = [];
+
+  collectWorkspaceCandidateFolders(
+    resolvedFolder,
+    candidates,
+    MAX_WORKSPACE_CANDIDATE_DEPTH,
+  );
+
+  return candidates;
+}
+
+function collectWorkspaceCandidateFolders(
+  folder: string,
+  candidates: string[],
+  remainingDepth: number,
+): void {
+  candidates.push(folder);
+
+  if (remainingDepth <= 0) return;
 
   try {
-    for (const entry of readdirSync(resolvedFolder, { withFileTypes: true })) {
-      if (!entry.isDirectory() || entry.name.startsWith('.')) continue;
-      candidates.push(path.join(resolvedFolder, entry.name));
+    for (const entry of readdirSync(folder, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue;
+      if (entry.name.startsWith('.')) continue;
+      if (IGNORED_WORKSPACE_CANDIDATE_DIRS.has(entry.name)) continue;
+
+      collectWorkspaceCandidateFolders(
+        path.join(folder, entry.name),
+        candidates,
+        remainingDepth - 1,
+      );
     }
   } catch {
     // If the folder cannot be read, keep the direct workspace check.
   }
-
-  return candidates;
 }
 
 function findConfiguredWorkspace(

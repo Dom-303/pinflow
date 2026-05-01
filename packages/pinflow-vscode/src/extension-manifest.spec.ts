@@ -44,6 +44,21 @@ describe('VS Code extension manifest', () => {
         title: 'PinFlow: Refresh Panel',
         category: 'PinFlow',
       },
+      {
+        command: 'pinflow.externalClaim',
+        title: 'PinFlow: Claim External Task',
+        category: 'PinFlow',
+      },
+      {
+        command: 'pinflow.externalComplete',
+        title: 'PinFlow: Complete External Task',
+        category: 'PinFlow',
+      },
+      {
+        command: 'pinflow.externalFail',
+        title: 'PinFlow: Fail External Task',
+        category: 'PinFlow',
+      },
     ]);
   });
 

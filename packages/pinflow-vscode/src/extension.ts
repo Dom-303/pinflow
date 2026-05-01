@@ -1,12 +1,23 @@
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import * as vscode from 'vscode';
 
 import { startStandardWorkflow } from './core/commands.js';
 import { openLatestRunEvidence } from './core/evidence-commands.js';
 import {
+  claimExternalHandoff,
+  completeExternalHandoff,
+  failExternalHandoff,
+  type ExternalHandoffActions,
+  type ExternalHandoffClaim,
+} from './core/external-handoff.js';
+import {
   buildPinFlowPanelItems,
   type PinFlowPanelItem,
 } from './core/panel-model.js';
 import { getPinFlowWorkspaceStatus } from './core/workspace.js';
+
+const execFileAsync = promisify(execFile);
 
 export function activate(context: vscode.ExtensionContext): void {
   const statusItem = vscode.window.createStatusBarItem(
@@ -17,6 +28,7 @@ export function activate(context: vscode.ExtensionContext): void {
   statusItem.command = 'pinflow.openPanel';
   context.subscriptions.push(statusItem);
   const treeProvider = new PinFlowTreeDataProvider();
+  let externalClaim: ExternalHandoffClaim | null = null;
   context.subscriptions.push(
     vscode.window.registerTreeDataProvider('pinflow.status', treeProvider),
   );
@@ -96,6 +108,66 @@ export function activate(context: vscode.ExtensionContext): void {
         vscode.window.createTerminal({ name, cwd }),
       );
     }),
+    vscode.commands.registerCommand('pinflow.externalClaim', async () => {
+      const workspaceRoot = getCurrentWorkspaceRoot();
+
+      if (!workspaceRoot) {
+        await vscode.window.showInformationMessage(
+          'Open a configured PinFlow workspace first.',
+        );
+        return;
+      }
+
+      externalClaim = await claimExternalHandoff(
+        workspaceRoot,
+        createExternalActions(),
+      );
+      refreshStatus();
+    }),
+    vscode.commands.registerCommand('pinflow.externalComplete', async () => {
+      const workspaceRoot = getCurrentWorkspaceRoot();
+
+      if (!workspaceRoot || !externalClaim) {
+        await vscode.window.showInformationMessage(
+          'Claim an external PinFlow task first.',
+        );
+        return;
+      }
+
+      const completed = await completeExternalHandoff(
+        workspaceRoot,
+        externalClaim,
+        createExternalActions(),
+      );
+      if (completed) externalClaim = null;
+      refreshStatus();
+    }),
+    vscode.commands.registerCommand('pinflow.externalFail', async () => {
+      const workspaceRoot = getCurrentWorkspaceRoot();
+
+      if (!workspaceRoot || !externalClaim) {
+        await vscode.window.showInformationMessage(
+          'Claim an external PinFlow task first.',
+        );
+        return;
+      }
+
+      const reason = await vscode.window.showInputBox({
+        prompt: 'Why should this external PinFlow task fail?',
+        placeHolder: 'User cancelled the external session.',
+        value: 'User cancelled the external session.',
+      });
+      if (!reason?.trim()) return;
+
+      await failExternalHandoff(
+        workspaceRoot,
+        externalClaim,
+        reason.trim(),
+        createExternalActions(),
+      );
+      externalClaim = null;
+      refreshStatus();
+    }),
     vscode.workspace.onDidChangeWorkspaceFolders(refreshStatus),
   );
 
@@ -129,6 +201,45 @@ function getCurrentWorkspaceRoot(): string | undefined {
 
 async function openEvidenceFile(filePath: string): Promise<void> {
   await vscode.window.showTextDocument(vscode.Uri.file(filePath));
+}
+
+function createExternalActions(): ExternalHandoffActions {
+  return {
+    runCommand: async (command, args, options) => {
+      const result = await execFileAsync(command, args, {
+        cwd: options.cwd,
+        env: { ...process.env, FORCE_COLOR: '0' },
+      });
+      return {
+        stdout: result.stdout,
+        stderr: result.stderr,
+      };
+    },
+    openFile: openEvidenceFile,
+    showInformationMessage: (message) =>
+      vscode.window.showInformationMessage(message),
+    hasRepoDiff,
+  };
+}
+
+async function hasRepoDiff(workspaceRoot: string): Promise<boolean> {
+  const unstaged = await execFileAsync(
+    'git',
+    ['diff', '--quiet', '--no-ext-diff', '--', '.'],
+    { cwd: workspaceRoot, env: { ...process.env, FORCE_COLOR: '0' } },
+  )
+    .then(() => false)
+    .catch((error: { code?: number }) => error.code === 1);
+
+  if (unstaged) return true;
+
+  return execFileAsync(
+    'git',
+    ['diff', '--cached', '--quiet', '--no-ext-diff', '--', '.'],
+    { cwd: workspaceRoot, env: { ...process.env, FORCE_COLOR: '0' } },
+  )
+    .then(() => false)
+    .catch((error: { code?: number }) => error.code === 1);
 }
 
 class PinFlowTreeDataProvider

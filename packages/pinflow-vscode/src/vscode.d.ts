@@ -58,6 +58,11 @@ declare module 'vscode' {
   export const window: {
     createStatusBarItem(alignment: number, priority?: number): StatusBarItem;
     showInformationMessage(message: string): Thenable<string | undefined>;
+    showInputBox(options?: {
+      prompt?: string;
+      placeHolder?: string;
+      value?: string;
+    }): Thenable<string | undefined>;
     showTextDocument(uri: Uri): Thenable<unknown>;
     createTerminal(options: { name: string; cwd?: string }): {
       sendText(text: string): void;

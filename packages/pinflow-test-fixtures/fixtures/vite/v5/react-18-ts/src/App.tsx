@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { Navigation } from './Navigation';
-import architectureVisual from '../../../../../../../assets/architecture.png';
-import codeToUiVisual from '../../../../../../../assets/code-to-ui.png';
-import localSetupFlowVisual from '../../../../../../../assets/local-setup-flow.png';
-import pinflowOverviewVisual from '../../../../../../../assets/pinflow-overview.png';
+import architectureVisual from '../../../../../../../assets/architecture.webp';
+import codeToUiVisual from '../../../../../../../assets/code-to-ui.webp';
+import localSetupFlowVisual from '../../../../../../../assets/local-setup-flow.webp';
+import pinflowOverviewVisual from '../../../../../../../assets/pinflow-overview.webp';
 import pinflowStackedLight from '../../../../../../../assets/pinflow-stacked-light.png';
 import pinflowWordmarkSloganLight from '../../../../../../../assets/pinflow-wordmark-slogan-light.png';
-import uiToCodeVisual from '../../../../../../../assets/ui-to-code.png';
-import workflowLoopVisual from '../../../../../../../assets/workflow-loop.png';
+import uiToCodeVisual from '../../../../../../../assets/ui-to-code.webp';
+import workflowLoopVisual from '../../../../../../../assets/workflow-loop.webp';
 import {
   AdvancedHooks,
   BasicElements,

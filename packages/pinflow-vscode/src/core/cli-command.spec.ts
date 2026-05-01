@@ -68,4 +68,38 @@ describe('PinFlow CLI invocation', () => {
       'corepack pnpm exec tsx packages/pinflow-relay/src/cli/bin/main.ts follow',
     );
   });
+
+  it('passes the demo app root to monorepo dev and follow commands', async () => {
+    const appRoot = path.join(
+      workspaceRoot,
+      'packages',
+      'pinflow-test-fixtures',
+      'fixtures',
+      'vite',
+      'v5',
+      'react-18-ts',
+    );
+    await writeJson(path.join(workspaceRoot, 'package.json'), {
+      name: 'pinflow',
+      private: true,
+    });
+    const cliEntryPath = path.join(
+      workspaceRoot,
+      'packages',
+      'pinflow-relay',
+      'src',
+      'cli',
+      'bin',
+      'main.ts',
+    );
+    await mkdir(path.dirname(cliEntryPath), { recursive: true });
+    await writeFile(cliEntryPath, '', 'utf8');
+
+    expect(formatPinFlowCliCommand(workspaceRoot, ['follow'], appRoot)).toBe(
+      'corepack pnpm exec tsx packages/pinflow-relay/src/cli/bin/main.ts follow packages/pinflow-test-fixtures/fixtures/vite/v5/react-18-ts',
+    );
+    expect(formatPinFlowCliCommand(workspaceRoot, ['dev'], appRoot)).toBe(
+      'corepack pnpm exec tsx packages/pinflow-relay/src/cli/bin/main.ts dev --app-root packages/pinflow-test-fixtures/fixtures/vite/v5/react-18-ts',
+    );
+  });
 });

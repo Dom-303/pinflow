@@ -18,11 +18,18 @@ const MONOREPO_CLI_ENTRY = path.join(
 export function getPinFlowCliInvocation(
   workspaceRoot: string,
   args: readonly string[],
+  appRoot = workspaceRoot,
 ): PinFlowCliInvocation {
   if (isPinFlowMonorepo(workspaceRoot)) {
     return {
       command: 'corepack',
-      args: ['pnpm', 'exec', 'tsx', MONOREPO_CLI_ENTRY, ...args],
+      args: [
+        'pnpm',
+        'exec',
+        'tsx',
+        MONOREPO_CLI_ENTRY,
+        ...addAppRootArgs(workspaceRoot, args, appRoot),
+      ],
     };
   }
 
@@ -35,10 +42,34 @@ export function getPinFlowCliInvocation(
 export function formatPinFlowCliCommand(
   workspaceRoot: string,
   args: readonly string[],
+  appRoot = workspaceRoot,
 ): string {
-  const invocation = getPinFlowCliInvocation(workspaceRoot, args);
+  const invocation = getPinFlowCliInvocation(workspaceRoot, args, appRoot);
 
   return [invocation.command, ...invocation.args].map(shellQuote).join(' ');
+}
+
+function addAppRootArgs(
+  workspaceRoot: string,
+  args: readonly string[],
+  appRoot: string,
+): string[] {
+  if (path.resolve(workspaceRoot) === path.resolve(appRoot)) {
+    return [...args];
+  }
+
+  const relativeAppRoot = path.relative(workspaceRoot, appRoot);
+  const [command, ...rest] = args;
+
+  if (command === 'follow') {
+    return [command, ...rest, relativeAppRoot];
+  }
+
+  if (command === 'dev') {
+    return [command, '--app-root', relativeAppRoot, ...rest];
+  }
+
+  return [...args];
 }
 
 function isPinFlowMonorepo(workspaceRoot: string): boolean {

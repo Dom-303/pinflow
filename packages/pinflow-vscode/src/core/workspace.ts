@@ -16,6 +16,14 @@ const PINFLOW_PACKAGE_NAMES = new Set([
   '@pinflow/nuxt',
   '@pinflow/transform',
 ]);
+const PINFLOW_MONOREPO_DEMO_APP_ROOT = path.join(
+  'packages',
+  'pinflow-test-fixtures',
+  'fixtures',
+  'vite',
+  'v5',
+  'react-18-ts',
+);
 const MAX_WORKSPACE_CANDIDATE_DEPTH = 2;
 const IGNORED_WORKSPACE_CANDIDATE_DIRS = new Set([
   '.git',
@@ -180,12 +188,34 @@ function findConfiguredWorkspace(
       };
     }
 
+    const monorepoDemoAppRoot = getPinFlowMonorepoDemoAppRoot(dir);
+    if (monorepoDemoAppRoot) {
+      return {
+        workspaceRoot: monorepoDemoAppRoot,
+        appRoot: monorepoDemoAppRoot,
+      };
+    }
+
     if (hasPinFlowPackage(dir)) {
       return {
         workspaceRoot: dir,
         appRoot: dir,
       };
     }
+  }
+
+  return;
+}
+
+function getPinFlowMonorepoDemoAppRoot(dir: string): string | undefined {
+  if (!hasPackageName(dir, 'pinflow')) {
+    return;
+  }
+
+  const demoAppRoot = path.join(dir, PINFLOW_MONOREPO_DEMO_APP_ROOT);
+
+  if (hasPinFlowArtifacts(demoAppRoot)) {
+    return demoAppRoot;
   }
 
   return;
@@ -261,6 +291,24 @@ function hasPinFlowPackage(dir: string): boolean {
     return Object.keys(dependencies).some((name) =>
       PINFLOW_PACKAGE_NAMES.has(name),
     );
+  } catch {
+    return false;
+  }
+}
+
+function hasPackageName(dir: string, expectedName: string): boolean {
+  const packageJsonPath = path.join(dir, 'package.json');
+
+  if (!existsSync(packageJsonPath)) {
+    return false;
+  }
+
+  try {
+    const parsed = JSON.parse(readFileSync(packageJsonPath, 'utf-8')) as {
+      name?: string;
+    };
+
+    return parsed.name === expectedName;
   } catch {
     return false;
   }

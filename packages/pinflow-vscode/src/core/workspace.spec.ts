@@ -17,6 +17,24 @@ async function writeJson(filePath: string, value: unknown) {
   await writeFile(filePath, JSON.stringify(value, null, 2));
 }
 
+async function writePinFlowMonorepo(root: string) {
+  const demoAppRoot = path.join(
+    root,
+    'packages',
+    'pinflow-test-fixtures',
+    'fixtures',
+    'vite',
+    'v5',
+    'react-18-ts',
+  );
+  await writeJson(path.join(root, 'package.json'), {
+    name: 'pinflow',
+    private: true,
+  });
+  await mkdir(path.join(demoAppRoot, '.pinflow'), { recursive: true });
+  return demoAppRoot;
+}
+
 describe('getPinFlowWorkspaceStatus', () => {
   let workspaceRoot: string;
 
@@ -57,18 +75,15 @@ describe('getPinFlowWorkspaceStatus', () => {
   });
 
   it('detects the PinFlow monorepo package itself without a running relay', async () => {
-    await writeJson(path.join(workspaceRoot, 'package.json'), {
-      name: 'pinflow',
-      private: true,
-    });
+    const demoAppRoot = await writePinFlowMonorepo(workspaceRoot);
 
     const status = getPinFlowWorkspaceStatus(workspaceRoot);
 
     expect(status).toMatchObject({
       status: 'relay-missing',
       workspaceFolder: workspaceRoot,
-      appRoot: workspaceRoot,
-      workspaceRoot,
+      appRoot: demoAppRoot,
+      workspaceRoot: demoAppRoot,
       message: 'PinFlow relay is not running',
     });
   });
@@ -135,49 +150,40 @@ describe('getBestPinFlowWorkspaceStatus', () => {
     const plainRoot = path.join(workspaceRoot, 'plain');
     const pinflowRoot = path.join(workspaceRoot, 'pinflow');
     await mkdir(plainRoot, { recursive: true });
-    await writeJson(path.join(pinflowRoot, 'package.json'), {
-      name: 'pinflow',
-      private: true,
-    });
+    const demoAppRoot = await writePinFlowMonorepo(pinflowRoot);
 
     const status = getBestPinFlowWorkspaceStatus([plainRoot, pinflowRoot]);
 
     expect(status).toMatchObject({
       status: 'relay-missing',
       workspaceFolder: pinflowRoot,
-      workspaceRoot: pinflowRoot,
+      workspaceRoot: demoAppRoot,
     });
   });
 
   it('finds a configured PinFlow repo inside a parent workspace folder', async () => {
     const pinflowRoot = path.join(workspaceRoot, 'pinflow');
-    await writeJson(path.join(pinflowRoot, 'package.json'), {
-      name: 'pinflow',
-      private: true,
-    });
+    const demoAppRoot = await writePinFlowMonorepo(pinflowRoot);
 
     const status = getBestPinFlowWorkspaceStatus([workspaceRoot]);
 
     expect(status).toMatchObject({
       status: 'relay-missing',
       workspaceFolder: pinflowRoot,
-      workspaceRoot: pinflowRoot,
+      workspaceRoot: demoAppRoot,
     });
   });
 
   it('finds a configured PinFlow repo two levels below a workspace folder', async () => {
     const pinflowRoot = path.join(workspaceRoot, 'dev', 'pinflow');
-    await writeJson(path.join(pinflowRoot, 'package.json'), {
-      name: 'pinflow',
-      private: true,
-    });
+    const demoAppRoot = await writePinFlowMonorepo(pinflowRoot);
 
     const status = getBestPinFlowWorkspaceStatus([workspaceRoot]);
 
     expect(status).toMatchObject({
       status: 'relay-missing',
       workspaceFolder: pinflowRoot,
-      workspaceRoot: pinflowRoot,
+      workspaceRoot: demoAppRoot,
     });
   });
 });

@@ -64,17 +64,27 @@ describe('startStandardWorkflow', () => {
       await mkdir(path.dirname(cliEntryPath), { recursive: true });
       await writeFile(cliEntryPath, '', 'utf8');
 
-      startStandardWorkflow(workspaceRoot, createTerminal);
+      const appRoot = path.join(
+        workspaceRoot,
+        'packages',
+        'pinflow-test-fixtures',
+        'fixtures',
+        'vite',
+        'v5',
+        'react-18-ts',
+      );
+
+      startStandardWorkflow(workspaceRoot, createTerminal, appRoot);
 
       expect(calls).toEqual([
         {
           terminal: `PinFlow Dev:${workspaceRoot}`,
-          text: 'corepack pnpm exec tsx packages/pinflow-relay/src/cli/bin/main.ts dev',
+          text: 'corepack pnpm exec tsx packages/pinflow-relay/src/cli/bin/main.ts dev --app-root packages/pinflow-test-fixtures/fixtures/vite/v5/react-18-ts',
         },
         { terminal: `PinFlow Dev:${workspaceRoot}`, shown: true },
         {
           terminal: `PinFlow Follow:${workspaceRoot}`,
-          text: 'corepack pnpm exec tsx packages/pinflow-relay/src/cli/bin/main.ts follow',
+          text: 'corepack pnpm exec tsx packages/pinflow-relay/src/cli/bin/main.ts follow packages/pinflow-test-fixtures/fixtures/vite/v5/react-18-ts',
         },
         { terminal: `PinFlow Follow:${workspaceRoot}`, shown: true },
       ]);

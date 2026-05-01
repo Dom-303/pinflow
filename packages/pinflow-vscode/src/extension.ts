@@ -69,14 +69,18 @@ export function activate(context: vscode.ExtensionContext): void {
       refreshStatus();
     }),
     vscode.commands.registerCommand('pinflow.followRuns', () => {
-      const workspaceRoot = getCurrentWorkspaceRoot();
+      const workspace = getCurrentWorkspace();
       const terminal = vscode.window.createTerminal({
         name: 'PinFlow Follow',
-        cwd: workspaceRoot,
+        cwd: workspace?.commandRoot,
       });
       terminal.sendText(
-        workspaceRoot
-          ? formatPinFlowCliCommand(workspaceRoot, ['follow'])
+        workspace
+          ? formatPinFlowCliCommand(
+              workspace.commandRoot,
+              ['follow'],
+              workspace.appRoot,
+            )
           : 'pinflow follow',
       );
       terminal.show();
@@ -102,17 +106,19 @@ export function activate(context: vscode.ExtensionContext): void {
       await openEvidenceFile(filePath);
     }),
     vscode.commands.registerCommand('pinflow.startWorkflow', () => {
-      const workspaceRoot = getCurrentWorkspaceRoot();
+      const workspace = getCurrentWorkspace();
 
-      if (!workspaceRoot) {
+      if (!workspace) {
         void vscode.window.showInformationMessage(
           'Open a configured PinFlow workspace first.',
         );
         return;
       }
 
-      startStandardWorkflow(workspaceRoot, (name, cwd) =>
-        vscode.window.createTerminal({ name, cwd }),
+      startStandardWorkflow(
+        workspace.commandRoot,
+        (name, cwd) => vscode.window.createTerminal({ name, cwd }),
+        workspace.appRoot,
       );
     }),
     vscode.commands.registerCommand('pinflow.externalClaim', async () => {
@@ -197,9 +203,25 @@ function formatStatusText(status: string): string {
 }
 
 function getCurrentWorkspaceRoot(): string | undefined {
+  return getCurrentWorkspace()?.appRoot;
+}
+
+function getCurrentWorkspace():
+  | {
+      commandRoot: string;
+      appRoot: string;
+    }
+  | undefined {
   const status = getBestPinFlowWorkspaceStatus(getWorkspaceFolders());
 
-  return status?.workspaceRoot;
+  if (!status?.workspaceRoot) {
+    return;
+  }
+
+  return {
+    commandRoot: status.workspaceFolder,
+    appRoot: status.workspaceRoot,
+  };
 }
 
 function getWorkspaceFolders(): string[] {

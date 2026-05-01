@@ -13,12 +13,15 @@ export type TerminalFactory = (
 export function startStandardWorkflow(
   workspaceRoot: string,
   createTerminal: TerminalFactory,
+  appRoot = workspaceRoot,
 ): void {
   const devTerminal = createTerminal('PinFlow Dev', workspaceRoot);
-  devTerminal.sendText(formatPinFlowCliCommand(workspaceRoot, ['dev']));
+  devTerminal.sendText(formatPinFlowCliCommand(workspaceRoot, ['dev'], appRoot));
   devTerminal.show();
 
   const followTerminal = createTerminal('PinFlow Follow', workspaceRoot);
-  followTerminal.sendText(formatPinFlowCliCommand(workspaceRoot, ['follow']));
+  followTerminal.sendText(
+    formatPinFlowCliCommand(workspaceRoot, ['follow'], appRoot),
+  );
   followTerminal.show();
 }

@@ -1,0 +1,51 @@
+{
+  "name": "pinflow-vscode",
+  "displayName": "PinFlow",
+  "version": "0.0.1",
+  "description": "VS Code extension for viewing PinFlow local workflow status.",
+  "type": "module",
+  "private": true,
+  "publisher": "dom-303",
+  "main": "./dist/extension.js",
+  "engines": {
+    "vscode": "^1.90.0",
+    "node": ">=20"
+  },
+  "activationEvents": [
+    "onStartupFinished",
+    "onCommand:pinflow.openPanel",
+    "onCommand:pinflow.followRuns",
+    "onCommand:pinflow.openLatestRun"
+  ],
+  "categories": [
+    "Other"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "pinflow.openPanel",
+        "title": "PinFlow: Open Panel",
+        "category": "PinFlow"
+      },
+      {
+        "command": "pinflow.followRuns",
+        "title": "PinFlow: Follow Runs",
+        "category": "PinFlow"
+      },
+      {
+        "command": "pinflow.openLatestRun",
+        "title": "PinFlow: Open Latest Run",
+        "category": "PinFlow"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.lib.json",
+    "test": "vitest run --config vite.config.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Dom-303/pinflow.git",
+    "directory": "packages/pinflow-vscode"
+  }
+}

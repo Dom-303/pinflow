@@ -1,0 +1,52 @@
+{
+  "name": "pinflow-vscode",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "packages/pinflow-vscode/src",
+  "tags": [
+    "scope:infra",
+    "type:app"
+  ],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": [
+        "{projectRoot}/dist"
+      ],
+      "options": {
+        "rootDir": "packages/pinflow-vscode/src",
+        "outputPath": "packages/pinflow-vscode/dist",
+        "main": "packages/pinflow-vscode/src/extension.ts",
+        "tsConfig": "packages/pinflow-vscode/tsconfig.lib.json",
+        "generatePackageJson": false,
+        "assets": [
+          "packages/pinflow-vscode/README.md"
+        ]
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "eslintConfig": "eslint.config.mjs",
+        "lintFilePatterns": [
+          "packages/pinflow-vscode/**/*.ts"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": [
+        "{projectRoot}/test-output"
+      ],
+      "options": {
+        "config": "packages/pinflow-vscode/vite.config.ts"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:noop"
+    }
+  }
+}

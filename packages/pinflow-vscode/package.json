@@ -17,7 +17,8 @@
     "onCommand:pinflow.openPanel",
     "onCommand:pinflow.followRuns",
     "onCommand:pinflow.openLatestRun",
-    "onCommand:pinflow.startWorkflow"
+    "onCommand:pinflow.startWorkflow",
+    "onCommand:pinflow.refreshPanel"
   ],
   "categories": [
     "Other"
@@ -42,6 +43,11 @@
       {
         "command": "pinflow.startWorkflow",
         "title": "PinFlow: Start Workflow",
+        "category": "PinFlow"
+      },
+      {
+        "command": "pinflow.refreshPanel",
+        "title": "PinFlow: Refresh Panel",
         "category": "PinFlow"
       }
     ],

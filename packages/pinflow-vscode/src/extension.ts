@@ -50,6 +50,9 @@ export function activate(context: vscode.ExtensionContext): void {
       refreshStatus();
       void vscode.commands.executeCommand('pinflow.status.focus');
     }),
+    vscode.commands.registerCommand('pinflow.refreshPanel', () => {
+      refreshStatus();
+    }),
     vscode.commands.registerCommand('pinflow.followRuns', () => {
       const workspaceRoot = getCurrentWorkspaceRoot();
       const terminal = vscode.window.createTerminal({
@@ -95,6 +98,11 @@ export function activate(context: vscode.ExtensionContext): void {
     }),
     vscode.workspace.onDidChangeWorkspaceFolders(refreshStatus),
   );
+
+  const refreshTimer = setInterval(refreshStatus, 3000);
+  context.subscriptions.push({
+    dispose: () => clearInterval(refreshTimer),
+  });
 
   refreshStatus();
 }

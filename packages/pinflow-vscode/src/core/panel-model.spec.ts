@@ -78,7 +78,17 @@ describe('buildPinFlowPanelItems', () => {
         '.pinflow/runs/2026-05/2026-05-01/120000-ann_abc12345_1/diff.patch',
     });
     await writeFile(path.join(runDir, 'prompt.md'), '# Prompt\n', 'utf8');
-    await writeFile(path.join(runDir, 'transcript.log'), 'done\n', 'utf8');
+    await writeFile(
+      path.join(runDir, 'transcript.log'),
+      [
+        '[pinflow-runner] Run created: 120000-ann_abc12345_1',
+        'Made the evidence panel clearer',
+        'Verification: vitest passed',
+        '[pinflow-runner] Command exited with code 0',
+        '',
+      ].join('\n'),
+      'utf8',
+    );
     await writeFile(
       path.join(runDir, 'diff.patch'),
       [
@@ -117,8 +127,13 @@ describe('buildPinFlowPanelItems', () => {
       'Open transcript.log',
       'Open diff.patch',
       'Changed: src/app.ts',
+      'Timeline',
+      'Task started',
+      'Agent: Made the evidence panel clearer',
+      'Verification: vitest passed',
+      'Done',
     ]);
-    expect(items.slice(4).map((item) => item.command?.command)).toEqual([
+    expect(items.slice(4, 8).map((item) => item.command?.command)).toEqual([
       'pinflow.openEvidenceFile',
       'pinflow.openEvidenceFile',
       'pinflow.openEvidenceFile',

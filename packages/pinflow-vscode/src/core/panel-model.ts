@@ -1,5 +1,6 @@
 import path from 'node:path';
 
+import { buildFollowTimelineItems } from './follow-timeline.js';
 import {
   findLatestRunEvidence,
   type PinFlowRunEvidence,
@@ -41,6 +42,7 @@ export async function buildPinFlowPanelItems(
           : 'No run evidence yet',
       },
       ...buildEvidenceItems(latestRun, status.workspaceRoot),
+      ...(await buildFollowTimelineItems(latestRun)),
       { label: 'Start with PinFlow: Start Workflow' },
     ];
   }
@@ -61,6 +63,7 @@ export async function buildPinFlowPanelItems(
         : 'No diff yet',
     },
     ...buildEvidenceItems(latestRun, status.workspaceRoot),
+    ...(await buildFollowTimelineItems(latestRun)),
   ];
 }
 

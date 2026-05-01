@@ -39,6 +39,11 @@ describe('VS Code extension manifest', () => {
         title: 'PinFlow: Start Workflow',
         category: 'PinFlow',
       },
+      {
+        command: 'pinflow.refreshPanel',
+        title: 'PinFlow: Refresh Panel',
+        category: 'PinFlow',
+      },
     ]);
   });
 

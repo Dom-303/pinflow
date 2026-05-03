@@ -109,4 +109,48 @@ describe('buildStatusViewItems', () => {
 
     expect(workspace?.description).toBe('Demo Fixture');
   });
+
+  it('marks runner as failed with error icon', () => {
+    const run = runningRun();
+    const failedRun: PinFlowRunEvidence = {
+      ...run,
+      summary: { ...run.summary, status: 'failed' },
+    };
+
+    const items = buildStatusViewItems(readyStatus(), null, failedRun);
+    const runner = items.find((item) => item.id === 'runner');
+
+    expect(runner?.description).toBe('via codex');
+    expect(runner?.themeIcon).toBe('error');
+    expect(runner?.themeIconColor).toBe('charts.red');
+  });
+
+  it('marks runner as processed with check icon', () => {
+    const run = runningRun();
+    const processedRun: PinFlowRunEvidence = {
+      ...run,
+      summary: { ...run.summary, status: 'processed' },
+    };
+
+    const items = buildStatusViewItems(readyStatus(), null, processedRun);
+    const runner = items.find((item) => item.id === 'runner');
+
+    expect(runner?.description).toBe('via codex');
+    expect(runner?.themeIcon).toBe('check');
+    expect(runner?.themeIconColor).toBe('charts.green');
+  });
+
+  it('marks relay as not configured when status is not-configured', () => {
+    const status: PinFlowWorkspaceResult = {
+      status: 'not-configured',
+      workspaceFolder: '/repo',
+      message: 'PinFlow app not configured',
+    };
+
+    const items = buildStatusViewItems(status, null);
+    const relay = items.find((item) => item.id === 'relay');
+
+    expect(relay?.description).toBe('not configured');
+    expect(relay?.themeIcon).toBe('circle-outline');
+  });
 });

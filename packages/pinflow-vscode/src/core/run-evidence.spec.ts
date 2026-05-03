@@ -165,6 +165,7 @@ describe('findRunEvidence', () => {
 
     expect(runs).toHaveLength(3);
     expect(runs[0].annotationId).toBe('ann_4');
+    expect(runs[2].annotationId).toBe('ann_2');
   });
 
   it('returns an empty array when no .pinflow/runs directory exists', async () => {

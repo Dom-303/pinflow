@@ -60,9 +60,11 @@ export async function findRunEvidence(
 
   summaries.sort((left, right) => summaryTime(right.summary) - summaryTime(left.summary));
 
-  const capped = options.limit ? summaries.slice(0, options.limit) : summaries;
+  const capped = options.limit !== undefined ? summaries.slice(0, options.limit) : summaries;
   const evidence: PinFlowRunEvidence[] = [];
-  for (const entry of capped) evidence.push(await buildEvidence(workspaceRoot, entry));
+  for (const entry of capped) {
+    evidence.push(await buildEvidence(workspaceRoot, entry));
+  }
   return evidence;
 }
 

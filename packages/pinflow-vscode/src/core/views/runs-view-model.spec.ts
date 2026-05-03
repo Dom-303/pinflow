@@ -159,6 +159,36 @@ describe('buildRunsViewTree', () => {
     expect(groups[0].children[0].themeIcon).toBe('circle-outline');
     expect(groups[0].children[0].themeIconColor).toBeUndefined();
   });
+
+  it('respects todayExpandedByDefault: false in options', () => {
+    const groups = buildRunsViewTree([], now, { todayExpandedByDefault: false });
+
+    expect(groups[0].defaultExpanded).toBe(false);
+    expect(groups[1].defaultExpanded).toBe(false);
+    expect(groups[2].defaultExpanded).toBe(false);
+  });
+
+  it('formats run label with 12h time format when option is set', () => {
+    const finished = new Date(2026, 4, 3, 14, 32, 0, 0);
+    const run = makeRun(finished.toISOString(), { annotationId: 'ann_pm' });
+
+    const groups = buildRunsViewTree([run], now, { timeFormat: '12h' });
+
+    expect(groups[0].children[0].label).toBe('2:32 PM · ann_pm');
+  });
+
+  it('formats midnight and noon correctly in 12h mode', () => {
+    const midnight = new Date(2026, 4, 3, 0, 0, 0, 0);
+    const noon = new Date(2026, 4, 3, 12, 0, 0, 0);
+    const runMidnight = makeRun(midnight.toISOString(), { annotationId: 'ann_midnight', runId: 'r_midnight' });
+    const runNoon = makeRun(noon.toISOString(), { annotationId: 'ann_noon', runId: 'r_noon' });
+
+    const groups = buildRunsViewTree([runMidnight, runNoon], now, { timeFormat: '12h' });
+
+    const labels = groups[0].children.map((child) => child.label);
+    expect(labels).toContain('12:00 AM · ann_midnight');
+    expect(labels).toContain('12:00 PM · ann_noon');
+  });
 });
 
 describe('expandTimelineMarker', () => {

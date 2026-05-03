@@ -39,6 +39,14 @@ const execFileAsync = promisify(execFile);
 
 const RUN_EVIDENCE_LIMIT = 80;
 
+const notifiedFailedRunKeys = new Set<string>();
+let isFirstRefresh = true;
+
+function clampInterval(raw: number): number {
+  if (!Number.isFinite(raw)) return 3000;
+  return Math.min(60000, Math.max(500, Math.floor(raw)));
+}
+
 type RunsViewElement =
   | RunsViewGroupNode
   | RunsViewRunNode
@@ -72,6 +80,15 @@ export function activate(context: vscode.ExtensionContext): void {
     void refreshAll();
   };
 
+  let refreshTimer: ReturnType<typeof setInterval> | undefined;
+
+  function applyRefreshInterval(): void {
+    const config = vscode.workspace.getConfiguration('pinflow');
+    const intervalMs = clampInterval(config.get<number>('refreshIntervalMs', 3000));
+    if (refreshTimer) clearInterval(refreshTimer);
+    refreshTimer = setInterval(refreshStatus, intervalMs);
+  }
+
   async function refreshAll(): Promise<void> {
     const workspaceFolders = getWorkspaceFolders();
 
@@ -99,7 +116,32 @@ export function activate(context: vscode.ExtensionContext): void {
     statusProvider.setItems(
       buildStatusViewItems(workspaceStatus, externalClaim, runEvidence[0] ?? null),
     );
-    runsProvider.setRoots(buildRunsViewTree(runEvidence, new Date()));
+    const config = vscode.workspace.getConfiguration('pinflow');
+    const todayExpandedByDefault = config.get<boolean>('runs.todayExpandedByDefault', true);
+    const timeFormat = config.get<'24h' | '12h'>('timeFormat', '24h');
+    const notifyFailed = config.get<boolean>('notifications.runFailed', true);
+
+    const failedRuns = runEvidence.filter((run) => run.summary.status === 'failed');
+
+    if (isFirstRefresh) {
+      for (const run of failedRuns) {
+        notifiedFailedRunKeys.add(run.runId ?? run.summaryPath);
+      }
+      isFirstRefresh = false;
+    } else {
+      for (const run of failedRuns) {
+        const key = run.runId ?? run.summaryPath;
+        if (notifiedFailedRunKeys.has(key)) continue;
+        notifiedFailedRunKeys.add(key);
+        if (notifyFailed) {
+          void vscode.window.showErrorMessage(
+            `PinFlow run failed: ${run.annotationId ?? run.runId ?? key}`,
+          );
+        }
+      }
+    }
+
+    runsProvider.setRoots(buildRunsViewTree(runEvidence, new Date(), { todayExpandedByDefault, timeFormat }));
     actionsProvider.setItems(buildActionsViewItems(externalClaim));
   }
 
@@ -154,13 +196,22 @@ export function activate(context: vscode.ExtensionContext): void {
         workspace.appRoot,
       );
     }),
+    vscode.commands.registerCommand('pinflow.openSettings', () => {
+      void vscode.commands.executeCommand(
+        'workbench.action.openSettings',
+        '@ext:dom-303.pinflow-vscode',
+      );
+    }),
     vscode.commands.registerCommand('pinflow.externalClaim', async () => {
       const workspaceRoot = getCurrentWorkspaceRoot();
       if (!workspaceRoot) {
         await vscode.window.showInformationMessage('Open a configured PinFlow workspace first.');
         return;
       }
-      externalClaim = await claimExternalHandoff(workspaceRoot, createExternalActions());
+      const provider = vscode.workspace
+        .getConfiguration('pinflow')
+        .get<string>('externalHandoff.defaultProvider', 'codex');
+      externalClaim = await claimExternalHandoff(workspaceRoot, createExternalActions(), provider);
       refreshStatus();
     }),
     vscode.commands.registerCommand('pinflow.externalComplete', async () => {
@@ -214,11 +265,20 @@ export function activate(context: vscode.ExtensionContext): void {
       },
     ),
     vscode.workspace.onDidChangeWorkspaceFolders(refreshStatus),
+    vscode.workspace.onDidChangeConfiguration((event) => {
+      if (event.affectsConfiguration('pinflow.refreshIntervalMs')) {
+        applyRefreshInterval();
+      }
+    }),
   );
 
-  const refreshTimer = setInterval(refreshStatus, 3000);
-  context.subscriptions.push({ dispose: () => clearInterval(refreshTimer) });
+  context.subscriptions.push({
+    dispose: () => {
+      if (refreshTimer) clearInterval(refreshTimer);
+    },
+  });
 
+  applyRefreshInterval();
   refreshStatus();
 }
 

@@ -72,6 +72,7 @@ declare module 'vscode' {
   export const window: {
     createStatusBarItem(alignment: number, priority?: number): StatusBarItem;
     showInformationMessage(message: string): Thenable<string | undefined>;
+    showErrorMessage(message: string): Thenable<string | undefined>;
     showInputBox(options?: {
       prompt?: string;
       placeHolder?: string;
@@ -96,8 +97,21 @@ declare module 'vscode' {
     executeCommand(command: string, ...args: unknown[]): Thenable<unknown>;
   };
 
+  export interface WorkspaceConfiguration {
+    get<T>(section: string, defaultValue: T): T;
+    get<T>(section: string): T | undefined;
+  }
+
+  export interface ConfigurationChangeEvent {
+    affectsConfiguration(section: string): boolean;
+  }
+
   export const workspace: {
     workspaceFolders?: Array<{ uri: { fsPath: string } }>;
     onDidChangeWorkspaceFolders(listener: () => void): Disposable;
+    onDidChangeConfiguration(
+      listener: (event: ConfigurationChangeEvent) => void,
+    ): Disposable;
+    getConfiguration(section?: string): WorkspaceConfiguration;
   };
 }

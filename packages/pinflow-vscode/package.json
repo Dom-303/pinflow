@@ -36,7 +36,8 @@
     "onCommand:pinflow.externalComplete",
     "onCommand:pinflow.externalFail",
     "onCommand:pinflow.openRunDirectory",
-    "onCommand:pinflow.openRunDiff"
+    "onCommand:pinflow.openRunDiff",
+    "onCommand:pinflow.openSettings"
   ],
   "categories": [
     "Other"
@@ -72,10 +73,46 @@
       { "command": "pinflow.externalComplete", "title": "PinFlow: Complete External Task", "category": "PinFlow" },
       { "command": "pinflow.externalFail", "title": "PinFlow: Fail External Task", "category": "PinFlow" },
       { "command": "pinflow.openRunDirectory", "title": "PinFlow: Open Run Directory", "category": "PinFlow", "icon": "$(go-to-file)" },
-      { "command": "pinflow.openRunDiff", "title": "PinFlow: Open Run Diff", "category": "PinFlow", "icon": "$(diff)" }
+      { "command": "pinflow.openRunDiff", "title": "PinFlow: Open Run Diff", "category": "PinFlow", "icon": "$(diff)" },
+      { "command": "pinflow.openSettings", "title": "PinFlow: Open Settings", "category": "PinFlow", "icon": "$(gear)" }
     ],
+    "configuration": {
+      "title": "PinFlow",
+      "properties": {
+        "pinflow.refreshIntervalMs": {
+          "type": "number",
+          "default": 3000,
+          "minimum": 500,
+          "maximum": 60000,
+          "description": "How often the PinFlow sidebar polls the workspace for new run evidence (in milliseconds). Lower values are more responsive but cost more disk I/O. Range: 500-60000."
+        },
+        "pinflow.runs.todayExpandedByDefault": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether the 'Today' group in the Runs view starts expanded."
+        },
+        "pinflow.timeFormat": {
+          "type": "string",
+          "enum": ["24h", "12h"],
+          "default": "24h",
+          "description": "Time format for run labels in the Runs view. '24h' shows '14:32', '12h' shows '2:32 PM'."
+        },
+        "pinflow.notifications.runFailed": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show a VS Code notification toast when a PinFlow run fails."
+        },
+        "pinflow.externalHandoff.defaultProvider": {
+          "type": "string",
+          "enum": ["codex", "claude", "cursor"],
+          "default": "codex",
+          "description": "Default provider used when claiming an external PinFlow task via 'Claim External Task'."
+        }
+      }
+    },
     "menus": {
       "view/title": [
+        { "command": "pinflow.openSettings", "when": "view == pinflow.status", "group": "navigation" },
         { "command": "pinflow.refreshPanel", "when": "view == pinflow.runs", "group": "navigation" },
         { "command": "pinflow.refreshPanel", "when": "view == pinflow.actions", "group": "navigation" }
       ],

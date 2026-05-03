@@ -31,12 +31,13 @@ interface ExternalClaimJson {
 export async function claimExternalHandoff(
   workspaceRoot: string,
   actions: ExternalHandoffActions,
+  provider = 'codex',
 ): Promise<ExternalHandoffClaim | null> {
   const invocation = getPinFlowCliInvocation(workspaceRoot, [
     'external',
     'claim',
     '--provider',
-    'codex',
+    provider,
     '--label',
     'VS Code',
     '--json',

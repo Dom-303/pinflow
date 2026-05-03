@@ -25,6 +25,17 @@ describe('VS Code extension manifest', () => {
       viewsContainers?: { activitybar?: Array<{ id: string; title: string; icon: string }> };
       views?: Record<string, Array<{ id: string; name: string }>>;
       menus?: Record<string, Array<{ command: string; when: string; group: string }>>;
+      configuration?: {
+        title?: string;
+        properties?: Record<string, {
+          type?: string | string[];
+          default?: unknown;
+          minimum?: number;
+          maximum?: number;
+          enum?: string[];
+          description?: string;
+        }>;
+      };
     };
   };
   const packageRoot = path.resolve(__dirname, '..');
@@ -72,6 +83,7 @@ describe('VS Code extension manifest', () => {
       'pinflow.externalFail',
       'pinflow.openRunDirectory',
       'pinflow.openRunDiff',
+      'pinflow.openSettings',
     ]);
   });
 
@@ -100,6 +112,7 @@ describe('VS Code extension manifest', () => {
 
   it('wires refresh and inline run actions into the menus contribution', () => {
     expect(manifest.contributes?.menus?.['view/title']).toEqual([
+      { command: 'pinflow.openSettings',  when: 'view == pinflow.status',  group: 'navigation' },
       { command: 'pinflow.refreshPanel', when: 'view == pinflow.runs',    group: 'navigation' },
       { command: 'pinflow.refreshPanel', when: 'view == pinflow.actions', group: 'navigation' },
     ]);
@@ -107,5 +120,34 @@ describe('VS Code extension manifest', () => {
       { command: 'pinflow.openRunDiff',      when: 'viewItem == pinflow.run', group: 'inline' },
       { command: 'pinflow.openRunDirectory', when: 'viewItem == pinflow.run', group: 'inline' },
     ]);
+  });
+
+  it('contributes the package-2.5 user settings', () => {
+    expect(manifest.contributes?.configuration?.title).toBe('PinFlow');
+    const props = manifest.contributes?.configuration?.properties ?? {};
+    expect(Object.keys(props)).toEqual([
+      'pinflow.refreshIntervalMs',
+      'pinflow.runs.todayExpandedByDefault',
+      'pinflow.timeFormat',
+      'pinflow.notifications.runFailed',
+      'pinflow.externalHandoff.defaultProvider',
+    ]);
+    expect(props['pinflow.refreshIntervalMs'].default).toBe(3000);
+    expect(props['pinflow.refreshIntervalMs'].minimum).toBe(500);
+    expect(props['pinflow.refreshIntervalMs'].maximum).toBe(60000);
+    expect(props['pinflow.timeFormat'].enum).toEqual(['24h', '12h']);
+    expect(props['pinflow.externalHandoff.defaultProvider'].enum).toEqual(['codex', 'claude', 'cursor']);
+  });
+
+  it('contributes the openSettings command and Status-view toolbar button', () => {
+    const commandIds = manifest.contributes?.commands?.map((c) => c.command) ?? [];
+    expect(commandIds).toContain('pinflow.openSettings');
+
+    const viewTitle = manifest.contributes?.menus?.['view/title'] ?? [];
+    expect(viewTitle).toContainEqual({
+      command: 'pinflow.openSettings',
+      when: 'view == pinflow.status',
+      group: 'navigation',
+    });
   });
 });

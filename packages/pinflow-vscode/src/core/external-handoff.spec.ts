@@ -136,6 +136,27 @@ describe('external handoff commands', () => {
       },
     ]);
   });
+
+  it('passes the provider parameter through to the CLI invocation', async () => {
+    const runCommand = vi.fn().mockResolvedValue({
+      stdout: JSON.stringify({ found: false }),
+      stderr: '',
+    });
+    const actions = {
+      runCommand,
+      openFile: vi.fn(),
+      showInformationMessage: vi.fn(),
+      hasRepoDiff: vi.fn().mockResolvedValue(false),
+    };
+
+    await claimExternalHandoff('/repo', actions, 'claude');
+
+    expect(runCommand).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.arrayContaining(['external', 'claim', '--provider', 'claude']),
+      expect.any(Object),
+    );
+  });
 });
 
 function createClaim(): ExternalHandoffClaim {

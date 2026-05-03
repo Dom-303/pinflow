@@ -66,31 +66,41 @@ export interface RunsViewTimelineLineNode {
   readonly label: string;
 }
 
+export type TimeFormat = '24h' | '12h';
+
+export interface BuildRunsViewTreeOptions {
+  readonly todayExpandedByDefault?: boolean;
+  readonly timeFormat?: TimeFormat;
+}
+
 export function buildRunsViewTree(
   runs: readonly PinFlowRunEvidence[],
   now: Date,
+  options: BuildRunsViewTreeOptions = {},
 ): readonly RunsViewGroupNode[] {
+  const todayExpandedByDefault = options.todayExpandedByDefault ?? true;
+  const timeFormat = options.timeFormat ?? '24h';
   const grouped = groupRunsByDate(runs, now);
   return [
     {
       kind: 'group',
       id: 'today',
       label: 'Today',
-      children: grouped.today.map(buildRunNode),
-      defaultExpanded: true,
+      children: grouped.today.map((run) => buildRunNode(run, timeFormat)),
+      defaultExpanded: todayExpandedByDefault,
     },
     {
       kind: 'group',
       id: 'lastSevenDays',
       label: 'Last 7 days',
-      children: grouped.lastSevenDays.map(buildRunNode),
+      children: grouped.lastSevenDays.map((run) => buildRunNode(run, timeFormat)),
       defaultExpanded: false,
     },
     {
       kind: 'group',
       id: 'older',
       label: 'Older',
-      children: grouped.older.map(buildRunNode),
+      children: grouped.older.map((run) => buildRunNode(run, timeFormat)),
       defaultExpanded: false,
     },
   ];
@@ -105,10 +115,10 @@ export async function expandTimelineMarker(
   return items.slice(1).map((item) => ({ kind: 'timelineLine', label: item.label }));
 }
 
-function buildRunNode(run: PinFlowRunEvidence): RunsViewRunNode {
+function buildRunNode(run: PinFlowRunEvidence, timeFormat: TimeFormat): RunsViewRunNode {
   const time = new Date(run.summary.finishedAt ?? run.summary.startedAt ?? 0);
-  const hh = String(time.getHours()).padStart(2, '0');
   const mm = String(time.getMinutes()).padStart(2, '0');
+  const timeLabel = timeFormat === '12h' ? formatTime12h(time.getHours(), mm) : formatTime24h(time.getHours(), mm);
   const annotation = run.annotationId ?? 'unknown';
   const provider = run.summary.provider ?? 'unknown';
 
@@ -121,12 +131,22 @@ function buildRunNode(run: PinFlowRunEvidence): RunsViewRunNode {
   return {
     kind: 'run',
     run,
-    label: `${hh}:${mm} · ${annotation}`,
+    label: `${timeLabel} · ${annotation}`,
     description,
     themeIcon: icon.icon,
     themeIconColor: icon.color,
     children: buildRunChildren(run),
   };
+}
+
+function formatTime24h(hours: number, mm: string): string {
+  return `${String(hours).padStart(2, '0')}:${mm}`;
+}
+
+function formatTime12h(hours: number, mm: string): string {
+  const period = hours < 12 ? 'AM' : 'PM';
+  const h = hours % 12 === 0 ? 12 : hours % 12;
+  return `${h}:${mm} ${period}`;
 }
 
 function buildRunChildren(

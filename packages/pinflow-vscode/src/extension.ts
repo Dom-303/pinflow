@@ -21,13 +21,9 @@ import {
 import {
   buildRunsViewTree,
   expandTimelineMarker,
-  type RunsViewChangedFileNode,
-  type RunsViewChangedFilesNode,
-  type RunsViewEvidenceFileNode,
   type RunsViewGroupNode,
+  type RunsViewNode,
   type RunsViewRunNode,
-  type RunsViewTimelineLineNode,
-  type RunsViewTimelineMarkerNode,
 } from './core/views/runs-view-model.js';
 import {
   buildStatusViewItems,
@@ -46,15 +42,6 @@ function clampInterval(raw: number): number {
   if (!Number.isFinite(raw)) return 3000;
   return Math.min(60000, Math.max(500, Math.floor(raw)));
 }
-
-type RunsViewElement =
-  | RunsViewGroupNode
-  | RunsViewRunNode
-  | RunsViewEvidenceFileNode
-  | RunsViewChangedFilesNode
-  | RunsViewChangedFileNode
-  | RunsViewTimelineMarkerNode
-  | RunsViewTimelineLineNode;
 
 export function activate(context: vscode.ExtensionContext): void {
   const statusItem = vscode.window.createStatusBarItem(
@@ -417,9 +404,9 @@ class ActionsTreeDataProvider
 }
 
 class RunsTreeDataProvider
-  implements vscode.TreeDataProvider<RunsViewElement>
+  implements vscode.TreeDataProvider<RunsViewNode>
 {
-  private readonly emitter = new vscode.EventEmitter<RunsViewElement | undefined>();
+  private readonly emitter = new vscode.EventEmitter<RunsViewNode | undefined>();
   readonly onDidChangeTreeData = this.emitter.event;
   private roots: readonly RunsViewGroupNode[] = [];
 
@@ -428,7 +415,7 @@ class RunsTreeDataProvider
     this.emitter.fire(undefined);
   }
 
-  getTreeItem(element: RunsViewElement): vscode.TreeItem {
+  getTreeItem(element: RunsViewNode): vscode.TreeItem {
     if (element.kind === 'group') {
       const item = new vscode.TreeItem(
         `${element.label} (${element.children.length})`,
@@ -496,7 +483,7 @@ class RunsTreeDataProvider
     return item;
   }
 
-  async getChildren(element?: RunsViewElement): Promise<readonly RunsViewElement[]> {
+  async getChildren(element?: RunsViewNode): Promise<readonly RunsViewNode[]> {
     if (!element) return this.roots;
     if (element.kind === 'group') return element.children;
     if (element.kind === 'run') return element.children;

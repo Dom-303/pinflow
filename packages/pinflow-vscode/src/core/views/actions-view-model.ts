@@ -1,7 +1,15 @@
 import type { ExternalHandoffClaim } from '../external-handoff.js';
 
+export type ActionsViewItemId =
+  | 'startWorkflow'
+  | 'followRuns'
+  | 'openLatestRun'
+  | 'externalClaim'
+  | 'externalComplete'
+  | 'externalFail';
+
 export interface ActionsViewItem {
-  readonly id: string;
+  readonly id: ActionsViewItemId;
   readonly label: string;
   readonly themeIcon: string;
   readonly command: string;

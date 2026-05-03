@@ -34,23 +34,23 @@ export interface PinFlowRunEvidence {
   readonly deletions: number;
 }
 
-export async function findLatestRunEvidence(
+export interface FindRunEvidenceOptions {
+  readonly limit?: number;
+}
+
+export async function findRunEvidence(
   workspaceRoot: string,
-): Promise<PinFlowRunEvidence | null> {
+  options: FindRunEvidenceOptions = {},
+): Promise<PinFlowRunEvidence[]> {
   const summaryPaths = await findSummaryFiles(
     path.join(workspaceRoot, '.pinflow', 'runs'),
   );
-  const summaries: Array<{
-    summary: PinFlowRunSummary;
-    summaryPath: string;
-  }> = [];
+  const summaries: Array<{ summary: PinFlowRunSummary; summaryPath: string }> = [];
 
   for (const summaryPath of summaryPaths) {
     try {
       summaries.push({
-        summary: JSON.parse(
-          await readFile(summaryPath, 'utf8'),
-        ) as PinFlowRunSummary,
+        summary: JSON.parse(await readFile(summaryPath, 'utf8')) as PinFlowRunSummary,
         summaryPath,
       });
     } catch {
@@ -58,40 +58,37 @@ export async function findLatestRunEvidence(
     }
   }
 
-  summaries.sort(
-    (left, right) => summaryTime(right.summary) - summaryTime(left.summary),
-  );
+  summaries.sort((left, right) => summaryTime(right.summary) - summaryTime(left.summary));
 
-  const latest = summaries[0];
-  if (!latest) return null;
+  const capped = options.limit ? summaries.slice(0, options.limit) : summaries;
+  const evidence: PinFlowRunEvidence[] = [];
+  for (const entry of capped) evidence.push(await buildEvidence(workspaceRoot, entry));
+  return evidence;
+}
 
-  const runDir = path.dirname(latest.summaryPath);
-  const promptPath = await resolveExistingRunPath(
-    workspaceRoot,
-    runDir,
-    latest.summary.promptPath,
-    'prompt.md',
-  );
-  const transcriptPath = await resolveExistingRunPath(
-    workspaceRoot,
-    runDir,
-    latest.summary.transcriptPath,
-    'transcript.log',
-  );
-  const diffPath = await resolveExistingRunPath(
-    workspaceRoot,
-    runDir,
-    latest.summary.diffPath,
-    'diff.patch',
-  );
+export async function findLatestRunEvidence(
+  workspaceRoot: string,
+): Promise<PinFlowRunEvidence | null> {
+  const [latest = null] = await findRunEvidence(workspaceRoot, { limit: 1 });
+  return latest;
+}
+
+async function buildEvidence(
+  workspaceRoot: string,
+  entry: { summary: PinFlowRunSummary; summaryPath: string },
+): Promise<PinFlowRunEvidence> {
+  const runDir = path.dirname(entry.summaryPath);
+  const promptPath = await resolveExistingRunPath(workspaceRoot, runDir, entry.summary.promptPath, 'prompt.md');
+  const transcriptPath = await resolveExistingRunPath(workspaceRoot, runDir, entry.summary.transcriptPath, 'transcript.log');
+  const diffPath = await resolveExistingRunPath(workspaceRoot, runDir, entry.summary.diffPath, 'diff.patch');
   const diff = diffPath ? await readFile(diffPath, 'utf8').catch(() => '') : '';
   const parsedDiff = parseDiff(diff);
 
   return {
-    annotationId: latest.summary.annotationId,
-    runId: latest.summary.runId,
-    summary: latest.summary,
-    summaryPath: latest.summaryPath,
+    annotationId: entry.summary.annotationId,
+    runId: entry.summary.runId,
+    summary: entry.summary,
+    summaryPath: entry.summaryPath,
     promptPath,
     transcriptPath,
     diffPath,

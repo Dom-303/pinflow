@@ -2,7 +2,7 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
-import { findLatestRunEvidence } from './run-evidence.js';
+import { findLatestRunEvidence, findRunEvidence } from './run-evidence.js';
 
 async function createTempWorkspace() {
   return mkdtemp(path.join(tmpdir(), 'pinflow-vscode-evidence-'));
@@ -102,5 +102,74 @@ describe('findLatestRunEvidence', () => {
     ]);
     expect(evidence?.additions).toBe(3);
     expect(evidence?.deletions).toBe(1);
+  });
+});
+
+describe('findRunEvidence', () => {
+  let workspaceRoot: string;
+
+  beforeEach(async () => {
+    workspaceRoot = await createTempWorkspace();
+  });
+
+  afterEach(async () => {
+    await rm(workspaceRoot, { recursive: true, force: true });
+  });
+
+  it('returns runs sorted newest first', async () => {
+    const olderRunDir = path.join(
+      workspaceRoot,
+      '.pinflow', 'runs', '2026-04', '2026-04-30', '090000-ann_old_1',
+    );
+    await writeJson(path.join(olderRunDir, 'summary.json'), {
+      annotationId: 'ann_old_1',
+      runId: '090000-ann_old_1',
+      status: 'processed',
+      provider: 'codex',
+      finishedAt: '2026-04-30T09:01:00.000Z',
+    });
+
+    const newerRunDir = path.join(
+      workspaceRoot,
+      '.pinflow', 'runs', '2026-05', '2026-05-01', '120000-ann_new_1',
+    );
+    await writeJson(path.join(newerRunDir, 'summary.json'), {
+      annotationId: 'ann_new_1',
+      runId: '120000-ann_new_1',
+      status: 'processed',
+      provider: 'codex',
+      finishedAt: '2026-05-01T12:01:00.000Z',
+    });
+
+    const runs = await findRunEvidence(workspaceRoot);
+
+    expect(runs.map((run) => run.annotationId)).toEqual(['ann_new_1', 'ann_old_1']);
+  });
+
+  it('caps results at the supplied limit', async () => {
+    for (let index = 0; index < 5; index += 1) {
+      const runDir = path.join(
+        workspaceRoot,
+        '.pinflow', 'runs', '2026-05', '2026-05-01', `1200${index}0-ann_${index}`,
+      );
+      await writeJson(path.join(runDir, 'summary.json'), {
+        annotationId: `ann_${index}`,
+        runId: `1200${index}0-ann_${index}`,
+        status: 'processed',
+        provider: 'codex',
+        finishedAt: `2026-05-01T12:0${index}:00.000Z`,
+      });
+    }
+
+    const runs = await findRunEvidence(workspaceRoot, { limit: 3 });
+
+    expect(runs).toHaveLength(3);
+    expect(runs[0].annotationId).toBe('ann_4');
+  });
+
+  it('returns an empty array when no .pinflow/runs directory exists', async () => {
+    const runs = await findRunEvidence(workspaceRoot);
+
+    expect(runs).toEqual([]);
   });
 });

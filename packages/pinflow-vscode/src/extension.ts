@@ -12,13 +12,40 @@ import {
   type ExternalHandoffActions,
   type ExternalHandoffClaim,
 } from './core/external-handoff.js';
+import { findRunEvidence } from './core/run-evidence.js';
 import {
-  buildPinFlowPanelItems,
-  type PinFlowPanelItem,
-} from './core/panel-model.js';
+  buildActionsViewItems,
+  type ActionsViewItem,
+} from './core/views/actions-view-model.js';
+import {
+  buildRunsViewTree,
+  expandTimelineMarker,
+  type RunsViewChangedFileNode,
+  type RunsViewChangedFilesNode,
+  type RunsViewEvidenceFileNode,
+  type RunsViewGroupNode,
+  type RunsViewRunNode,
+  type RunsViewTimelineLineNode,
+  type RunsViewTimelineMarkerNode,
+} from './core/views/runs-view-model.js';
+import {
+  buildStatusViewItems,
+  type StatusViewItem,
+} from './core/views/status-view-model.js';
 import { getBestPinFlowWorkspaceStatus } from './core/workspace.js';
 
 const execFileAsync = promisify(execFile);
+
+const RUN_EVIDENCE_LIMIT = 80;
+
+type RunsViewElement =
+  | RunsViewGroupNode
+  | RunsViewRunNode
+  | RunsViewEvidenceFileNode
+  | RunsViewChangedFilesNode
+  | RunsViewChangedFileNode
+  | RunsViewTimelineMarkerNode
+  | RunsViewTimelineLineNode;
 
 export function activate(context: vscode.ExtensionContext): void {
   const statusItem = vscode.window.createStatusBarItem(
@@ -28,42 +55,60 @@ export function activate(context: vscode.ExtensionContext): void {
 
   statusItem.command = 'pinflow.openPanel';
   context.subscriptions.push(statusItem);
-  const treeProvider = new PinFlowTreeDataProvider();
+
+  const statusProvider = new StatusTreeDataProvider();
+  const runsProvider = new RunsTreeDataProvider();
+  const actionsProvider = new ActionsTreeDataProvider();
   let externalClaim: ExternalHandoffClaim | null = null;
+
   context.subscriptions.push(
-    vscode.window.registerTreeDataProvider('pinflow.status', treeProvider),
+    vscode.window.registerTreeDataProvider('pinflow.status', statusProvider),
+    vscode.window.registerTreeDataProvider('pinflow.runs', runsProvider),
+    vscode.window.registerTreeDataProvider('pinflow.actions', actionsProvider),
   );
 
   const refreshStatus = () => {
+    void refreshAll();
+  };
+
+  async function refreshAll(): Promise<void> {
     const workspaceFolders = getWorkspaceFolders();
 
     if (!workspaceFolders.length) {
       statusItem.text = 'PinFlow: no workspace';
       statusItem.tooltip = 'Open a workspace folder to use PinFlow.';
       statusItem.show();
-      treeProvider.setItems([
-        {
-          label: 'Open a workspace folder to use PinFlow',
-        },
-      ]);
+      statusProvider.setItems([]);
+      runsProvider.setRoots([]);
+      actionsProvider.setItems(buildActionsViewItems(externalClaim));
       return;
     }
 
-    const status = getBestPinFlowWorkspaceStatus(workspaceFolders);
-    if (!status) return;
+    const workspaceStatus = getBestPinFlowWorkspaceStatus(workspaceFolders);
+    if (!workspaceStatus) return;
 
-    statusItem.text = formatStatusText(status.status);
-    statusItem.tooltip = status.message;
+    statusItem.text = formatStatusText(workspaceStatus.status);
+    statusItem.tooltip = workspaceStatus.message;
     statusItem.show();
-    void buildPinFlowPanelItems(status).then((items) =>
-      treeProvider.setItems(items),
+
+    const runEvidence = workspaceStatus.workspaceRoot
+      ? await findRunEvidence(workspaceStatus.workspaceRoot, { limit: RUN_EVIDENCE_LIMIT })
+      : [];
+
+    statusProvider.setItems(
+      buildStatusViewItems(workspaceStatus, externalClaim, runEvidence[0] ?? null),
     );
-  };
+    runsProvider.setRoots(buildRunsViewTree(runEvidence, new Date()));
+    actionsProvider.setItems(buildActionsViewItems(externalClaim));
+  }
 
   context.subscriptions.push(
-    vscode.commands.registerCommand('pinflow.openPanel', () => {
+    vscode.commands.registerCommand('pinflow.openContainer', () => {
       refreshStatus();
-      void vscode.commands.executeCommand('pinflow.status.focus');
+      void vscode.commands.executeCommand('workbench.view.extension.pinflow');
+    }),
+    vscode.commands.registerCommand('pinflow.openPanel', () => {
+      void vscode.commands.executeCommand('pinflow.openContainer');
     }),
     vscode.commands.registerCommand('pinflow.refreshPanel', () => {
       refreshStatus();
@@ -76,29 +121,20 @@ export function activate(context: vscode.ExtensionContext): void {
       });
       terminal.sendText(
         workspace
-          ? formatPinFlowCliCommand(
-              workspace.commandRoot,
-              ['follow'],
-              workspace.appRoot,
-            )
+          ? formatPinFlowCliCommand(workspace.commandRoot, ['follow'], workspace.appRoot)
           : 'pinflow follow',
       );
       terminal.show();
     }),
     vscode.commands.registerCommand('pinflow.openLatestRun', async () => {
       const workspaceRoot = getCurrentWorkspaceRoot();
-
       if (!workspaceRoot) {
-        await vscode.window.showInformationMessage(
-          'Open a configured PinFlow workspace first.',
-        );
+        await vscode.window.showInformationMessage('Open a configured PinFlow workspace first.');
         return;
       }
-
       await openLatestRunEvidence(workspaceRoot, {
         openFile: openEvidenceFile,
-        showInformationMessage: (message) =>
-          vscode.window.showInformationMessage(message),
+        showInformationMessage: (message) => vscode.window.showInformationMessage(message),
       });
     }),
     vscode.commands.registerCommand('pinflow.openEvidenceFile', async (filePath) => {
@@ -107,14 +143,10 @@ export function activate(context: vscode.ExtensionContext): void {
     }),
     vscode.commands.registerCommand('pinflow.startWorkflow', () => {
       const workspace = getCurrentWorkspace();
-
       if (!workspace) {
-        void vscode.window.showInformationMessage(
-          'Open a configured PinFlow workspace first.',
-        );
+        void vscode.window.showInformationMessage('Open a configured PinFlow workspace first.');
         return;
       }
-
       startStandardWorkflow(
         workspace.commandRoot,
         (name, cwd) => vscode.window.createTerminal({ name, cwd }),
@@ -123,30 +155,19 @@ export function activate(context: vscode.ExtensionContext): void {
     }),
     vscode.commands.registerCommand('pinflow.externalClaim', async () => {
       const workspaceRoot = getCurrentWorkspaceRoot();
-
       if (!workspaceRoot) {
-        await vscode.window.showInformationMessage(
-          'Open a configured PinFlow workspace first.',
-        );
+        await vscode.window.showInformationMessage('Open a configured PinFlow workspace first.');
         return;
       }
-
-      externalClaim = await claimExternalHandoff(
-        workspaceRoot,
-        createExternalActions(),
-      );
+      externalClaim = await claimExternalHandoff(workspaceRoot, createExternalActions());
       refreshStatus();
     }),
     vscode.commands.registerCommand('pinflow.externalComplete', async () => {
       const workspaceRoot = getCurrentWorkspaceRoot();
-
       if (!workspaceRoot || !externalClaim) {
-        await vscode.window.showInformationMessage(
-          'Claim an external PinFlow task first.',
-        );
+        await vscode.window.showInformationMessage('Claim an external PinFlow task first.');
         return;
       }
-
       const completed = await completeExternalHandoff(
         workspaceRoot,
         externalClaim,
@@ -157,37 +178,47 @@ export function activate(context: vscode.ExtensionContext): void {
     }),
     vscode.commands.registerCommand('pinflow.externalFail', async () => {
       const workspaceRoot = getCurrentWorkspaceRoot();
-
       if (!workspaceRoot || !externalClaim) {
-        await vscode.window.showInformationMessage(
-          'Claim an external PinFlow task first.',
-        );
+        await vscode.window.showInformationMessage('Claim an external PinFlow task first.');
         return;
       }
-
       const reason = await vscode.window.showInputBox({
         prompt: 'Why should this external PinFlow task fail?',
         placeHolder: 'User cancelled the external session.',
         value: 'User cancelled the external session.',
       });
       if (!reason?.trim()) return;
-
-      await failExternalHandoff(
-        workspaceRoot,
-        externalClaim,
-        reason.trim(),
-        createExternalActions(),
-      );
+      await failExternalHandoff(workspaceRoot, externalClaim, reason.trim(), createExternalActions());
       externalClaim = null;
       refreshStatus();
     }),
+    vscode.commands.registerCommand(
+      'pinflow.openRunDiff',
+      async (...args: unknown[]) => {
+        const node = args[0] as RunsViewRunNode | undefined;
+        const diffPath = node?.run?.diffPath;
+        if (!diffPath) {
+          await vscode.window.showInformationMessage('This run has no diff.patch.');
+          return;
+        }
+        await openEvidenceFile(diffPath);
+      },
+    ),
+    vscode.commands.registerCommand(
+      'pinflow.openRunDirectory',
+      async (...args: unknown[]) => {
+        const node = args[0] as RunsViewRunNode | undefined;
+        const summaryPath = node?.run?.summaryPath;
+        if (!summaryPath) return;
+        const dir = vscode.Uri.file(summaryPath.replace(/\/summary\.json$/, ''));
+        await vscode.commands.executeCommand('revealFileInOS', dir);
+      },
+    ),
     vscode.workspace.onDidChangeWorkspaceFolders(refreshStatus),
   );
 
   const refreshTimer = setInterval(refreshStatus, 3000);
-  context.subscriptions.push({
-    dispose: () => clearInterval(refreshTimer),
-  });
+  context.subscriptions.push({ dispose: () => clearInterval(refreshTimer) });
 
   refreshStatus();
 }
@@ -271,31 +302,144 @@ async function hasRepoDiff(workspaceRoot: string): Promise<boolean> {
     .catch((error: { code?: number }) => error.code === 1);
 }
 
-class PinFlowTreeDataProvider
-  implements vscode.TreeDataProvider<PinFlowPanelItem>
+class StatusTreeDataProvider
+  implements vscode.TreeDataProvider<StatusViewItem>
 {
-  private readonly onDidChangeTreeDataEmitter = new vscode.EventEmitter<
-    PinFlowPanelItem | undefined
-  >();
-  readonly onDidChangeTreeData = this.onDidChangeTreeDataEmitter.event;
-  private items: PinFlowPanelItem[] = [];
+  private readonly emitter = new vscode.EventEmitter<StatusViewItem | undefined>();
+  readonly onDidChangeTreeData = this.emitter.event;
+  private items: readonly StatusViewItem[] = [];
 
-  setItems(items: PinFlowPanelItem[]): void {
+  setItems(items: readonly StatusViewItem[]): void {
     this.items = items;
-    this.onDidChangeTreeDataEmitter.fire(undefined);
+    this.emitter.fire(undefined);
   }
 
-  getTreeItem(element: PinFlowPanelItem): vscode.TreeItem {
-    const item = new vscode.TreeItem(
-      element.label,
-      vscode.TreeItemCollapsibleState.None,
-    );
+  getTreeItem(element: StatusViewItem): vscode.TreeItem {
+    const item = new vscode.TreeItem(element.label, vscode.TreeItemCollapsibleState.None);
+    item.id = element.id;
     item.description = element.description;
-    item.command = element.command;
+    item.tooltip = element.tooltip;
+    item.iconPath = element.themeIconColor
+      ? new vscode.ThemeIcon(element.themeIcon, new vscode.ThemeColor(element.themeIconColor))
+      : new vscode.ThemeIcon(element.themeIcon);
     return item;
   }
 
-  getChildren(): PinFlowPanelItem[] {
-    return this.items;
+  getChildren(element?: StatusViewItem): readonly StatusViewItem[] {
+    return element ? [] : this.items;
+  }
+}
+
+class ActionsTreeDataProvider
+  implements vscode.TreeDataProvider<ActionsViewItem>
+{
+  private readonly emitter = new vscode.EventEmitter<ActionsViewItem | undefined>();
+  readonly onDidChangeTreeData = this.emitter.event;
+  private items: readonly ActionsViewItem[] = [];
+
+  setItems(items: readonly ActionsViewItem[]): void {
+    this.items = items;
+    this.emitter.fire(undefined);
+  }
+
+  getTreeItem(element: ActionsViewItem): vscode.TreeItem {
+    const item = new vscode.TreeItem(element.label, vscode.TreeItemCollapsibleState.None);
+    item.id = element.id;
+    item.iconPath = new vscode.ThemeIcon(element.themeIcon);
+    item.command = { command: element.command, title: element.label };
+    return item;
+  }
+
+  getChildren(element?: ActionsViewItem): readonly ActionsViewItem[] {
+    return element ? [] : this.items;
+  }
+}
+
+class RunsTreeDataProvider
+  implements vscode.TreeDataProvider<RunsViewElement>
+{
+  private readonly emitter = new vscode.EventEmitter<RunsViewElement | undefined>();
+  readonly onDidChangeTreeData = this.emitter.event;
+  private roots: readonly RunsViewGroupNode[] = [];
+
+  setRoots(roots: readonly RunsViewGroupNode[]): void {
+    this.roots = roots;
+    this.emitter.fire(undefined);
+  }
+
+  getTreeItem(element: RunsViewElement): vscode.TreeItem {
+    if (element.kind === 'group') {
+      const item = new vscode.TreeItem(
+        `${element.label} (${element.children.length})`,
+        element.defaultExpanded
+          ? vscode.TreeItemCollapsibleState.Expanded
+          : vscode.TreeItemCollapsibleState.Collapsed,
+      );
+      item.id = `group:${element.id}`;
+      return item;
+    }
+
+    if (element.kind === 'run') {
+      const item = new vscode.TreeItem(
+        element.label,
+        vscode.TreeItemCollapsibleState.Collapsed,
+      );
+      item.id = `run:${element.run.runId ?? element.run.summaryPath}`;
+      item.description = element.description;
+      item.contextValue = 'pinflow.run';
+      item.iconPath = element.themeIconColor
+        ? new vscode.ThemeIcon(element.themeIcon, new vscode.ThemeColor(element.themeIconColor))
+        : new vscode.ThemeIcon(element.themeIcon);
+      return item;
+    }
+
+    if (element.kind === 'evidenceFile') {
+      const item = new vscode.TreeItem(element.label, vscode.TreeItemCollapsibleState.None);
+      item.id = `evidence:${element.absolutePath}`;
+      item.iconPath = new vscode.ThemeIcon('file');
+      item.command = {
+        command: 'pinflow.openEvidenceFile',
+        title: `Open ${element.label}`,
+        arguments: [element.absolutePath],
+      };
+      return item;
+    }
+
+    if (element.kind === 'changedFiles') {
+      const item = new vscode.TreeItem(
+        `Changed files (${element.count})`,
+        vscode.TreeItemCollapsibleState.Collapsed,
+      );
+      item.id = `changedFiles:${element.count}`;
+      item.iconPath = new vscode.ThemeIcon('files');
+      return item;
+    }
+
+    if (element.kind === 'changedFile') {
+      const item = new vscode.TreeItem(element.relativePath, vscode.TreeItemCollapsibleState.None);
+      item.id = `changedFile:${element.relativePath}`;
+      item.iconPath = new vscode.ThemeIcon('file');
+      return item;
+    }
+
+    if (element.kind === 'timelineMarker') {
+      const item = new vscode.TreeItem('Timeline', vscode.TreeItemCollapsibleState.Collapsed);
+      item.id = `timeline:${element.evidence.summaryPath}`;
+      item.iconPath = new vscode.ThemeIcon('timeline-view-icon');
+      return item;
+    }
+
+    const item = new vscode.TreeItem(element.label, vscode.TreeItemCollapsibleState.None);
+    item.iconPath = new vscode.ThemeIcon('debug-stackframe-dot');
+    return item;
+  }
+
+  async getChildren(element?: RunsViewElement): Promise<readonly RunsViewElement[]> {
+    if (!element) return this.roots;
+    if (element.kind === 'group') return element.children;
+    if (element.kind === 'run') return element.children;
+    if (element.kind === 'changedFiles') return element.children;
+    if (element.kind === 'timelineMarker') return expandTimelineMarker(element);
+    return [];
   }
 }

@@ -31,11 +31,25 @@ declare module 'vscode' {
 
   export const TreeItemCollapsibleState: {
     readonly None: number;
+    readonly Collapsed: number;
+    readonly Expanded: number;
   };
+
+  export class ThemeColor {
+    constructor(id: string);
+  }
+
+  export class ThemeIcon {
+    constructor(id: string, color?: ThemeColor);
+  }
 
   export class TreeItem {
     label?: string;
+    id?: string;
     description?: string;
+    tooltip?: string;
+    contextValue?: string;
+    iconPath?: ThemeIcon | Uri | { light: Uri; dark: Uri };
     command?: {
       command: string;
       title: string;
@@ -47,7 +61,7 @@ declare module 'vscode' {
   export interface TreeDataProvider<T> {
     readonly onDidChangeTreeData?: Event<T | undefined | null | void>;
     getTreeItem(element: T): TreeItem;
-    getChildren(element?: T): T[] | Thenable<T[]>;
+    getChildren(element?: T): readonly T[] | T[] | Thenable<readonly T[]> | Thenable<T[]>;
   }
 
   export const StatusBarAlignment: {
@@ -79,7 +93,7 @@ declare module 'vscode' {
       command: string,
       callback: (...args: unknown[]) => unknown,
     ): Disposable;
-    executeCommand(command: string): Thenable<unknown>;
+    executeCommand(command: string, ...args: unknown[]): Thenable<unknown>;
   };
 
   export const workspace: {

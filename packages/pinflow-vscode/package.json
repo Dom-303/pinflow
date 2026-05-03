@@ -24,14 +24,19 @@
   "activationEvents": [
     "onStartupFinished",
     "onView:pinflow.status",
+    "onView:pinflow.runs",
+    "onView:pinflow.actions",
     "onCommand:pinflow.openPanel",
+    "onCommand:pinflow.openContainer",
     "onCommand:pinflow.followRuns",
     "onCommand:pinflow.openLatestRun",
     "onCommand:pinflow.startWorkflow",
     "onCommand:pinflow.refreshPanel",
     "onCommand:pinflow.externalClaim",
     "onCommand:pinflow.externalComplete",
-    "onCommand:pinflow.externalFail"
+    "onCommand:pinflow.externalFail",
+    "onCommand:pinflow.openRunDirectory",
+    "onCommand:pinflow.openRunDiff"
   ],
   "categories": [
     "Other"
@@ -44,54 +49,39 @@
     "developer-tools"
   ],
   "contributes": {
-    "commands": [
-      {
-        "command": "pinflow.openPanel",
-        "title": "PinFlow: Open Panel",
-        "category": "PinFlow"
-      },
-      {
-        "command": "pinflow.followRuns",
-        "title": "PinFlow: Follow Runs",
-        "category": "PinFlow"
-      },
-      {
-        "command": "pinflow.openLatestRun",
-        "title": "PinFlow: Open Latest Run",
-        "category": "PinFlow"
-      },
-      {
-        "command": "pinflow.startWorkflow",
-        "title": "PinFlow: Start Workflow",
-        "category": "PinFlow"
-      },
-      {
-        "command": "pinflow.refreshPanel",
-        "title": "PinFlow: Refresh Panel",
-        "category": "PinFlow"
-      },
-      {
-        "command": "pinflow.externalClaim",
-        "title": "PinFlow: Claim External Task",
-        "category": "PinFlow"
-      },
-      {
-        "command": "pinflow.externalComplete",
-        "title": "PinFlow: Complete External Task",
-        "category": "PinFlow"
-      },
-      {
-        "command": "pinflow.externalFail",
-        "title": "PinFlow: Fail External Task",
-        "category": "PinFlow"
-      }
-    ],
+    "viewsContainers": {
+      "activitybar": [
+        { "id": "pinflow", "title": "PinFlow", "icon": "media/sidebar-icon.svg" }
+      ]
+    },
     "views": {
-      "explorer": [
-        {
-          "id": "pinflow.status",
-          "name": "PinFlow"
-        }
+      "pinflow": [
+        { "id": "pinflow.status", "name": "Status" },
+        { "id": "pinflow.runs", "name": "Runs" },
+        { "id": "pinflow.actions", "name": "Actions" }
+      ]
+    },
+    "commands": [
+      { "command": "pinflow.openPanel", "title": "PinFlow: Open Panel", "category": "PinFlow" },
+      { "command": "pinflow.openContainer", "title": "PinFlow: Show Sidebar", "category": "PinFlow" },
+      { "command": "pinflow.followRuns", "title": "PinFlow: Follow Runs", "category": "PinFlow" },
+      { "command": "pinflow.openLatestRun", "title": "PinFlow: Open Latest Run", "category": "PinFlow" },
+      { "command": "pinflow.startWorkflow", "title": "PinFlow: Start Workflow", "category": "PinFlow" },
+      { "command": "pinflow.refreshPanel", "title": "PinFlow: Refresh Panel", "category": "PinFlow", "icon": "$(refresh)" },
+      { "command": "pinflow.externalClaim", "title": "PinFlow: Claim External Task", "category": "PinFlow" },
+      { "command": "pinflow.externalComplete", "title": "PinFlow: Complete External Task", "category": "PinFlow" },
+      { "command": "pinflow.externalFail", "title": "PinFlow: Fail External Task", "category": "PinFlow" },
+      { "command": "pinflow.openRunDirectory", "title": "PinFlow: Open Run Directory", "category": "PinFlow", "icon": "$(go-to-file)" },
+      { "command": "pinflow.openRunDiff", "title": "PinFlow: Open Run Diff", "category": "PinFlow", "icon": "$(diff)" }
+    ],
+    "menus": {
+      "view/title": [
+        { "command": "pinflow.refreshPanel", "when": "view == pinflow.runs", "group": "navigation" },
+        { "command": "pinflow.refreshPanel", "when": "view == pinflow.actions", "group": "navigation" }
+      ],
+      "view/item/context": [
+        { "command": "pinflow.openRunDiff", "when": "viewItem == pinflow.run", "group": "inline" },
+        { "command": "pinflow.openRunDirectory", "when": "viewItem == pinflow.run", "group": "inline" }
       ]
     }
   },

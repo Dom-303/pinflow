@@ -98,6 +98,8 @@ export async function expandTimelineMarker(
   marker: RunsViewTimelineMarkerNode,
 ): Promise<readonly RunsViewTimelineLineNode[]> {
   const items = await buildFollowTimelineItems(marker.evidence);
+  // buildFollowTimelineItems prepends a sentinel "Timeline" header at index 0;
+  // slice(1) strips it so the marker itself acts as the Timeline node.
   return items.slice(1).map((item) => ({ kind: 'timelineLine', label: item.label }));
 }
 

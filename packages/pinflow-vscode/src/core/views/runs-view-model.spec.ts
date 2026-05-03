@@ -121,6 +121,42 @@ describe('buildRunsViewTree', () => {
 
     expect(lastChild?.kind).toBe('timelineMarker');
   });
+
+  it('assigns loading-spin icon for a processing run', () => {
+    const finished = new Date(2026, 4, 3, 14, 32, 0, 0);
+    const run = makeRun(finished.toISOString(), {
+      summary: { status: 'processing' },
+    });
+
+    const groups = buildRunsViewTree([run], now);
+
+    expect(groups[0].children[0].themeIcon).toBe('loading~spin');
+    expect(groups[0].children[0].themeIconColor).toBeUndefined();
+  });
+
+  it('assigns error icon and red color for a failed run', () => {
+    const finished = new Date(2026, 4, 3, 14, 32, 0, 0);
+    const run = makeRun(finished.toISOString(), {
+      summary: { status: 'failed' },
+    });
+
+    const groups = buildRunsViewTree([run], now);
+
+    expect(groups[0].children[0].themeIcon).toBe('error');
+    expect(groups[0].children[0].themeIconColor).toBe('charts.red');
+  });
+
+  it('assigns circle-outline icon for an unknown status', () => {
+    const finished = new Date(2026, 4, 3, 14, 32, 0, 0);
+    const run = makeRun(finished.toISOString(), {
+      summary: { status: 'queued' },
+    });
+
+    const groups = buildRunsViewTree([run], now);
+
+    expect(groups[0].children[0].themeIcon).toBe('circle-outline');
+    expect(groups[0].children[0].themeIconColor).toBeUndefined();
+  });
 });
 
 describe('expandTimelineMarker', () => {

@@ -23,8 +23,12 @@ function makeRun(finishedAtIso: string, idSuffix = '1'): PinFlowRunEvidence {
   };
 }
 
+function makeRunOnLocalDay(year: number, month: number, day: number, hour: number, idSuffix = '1'): PinFlowRunEvidence {
+  return makeRun(new Date(year, month, day, hour, 0, 0, 0).toISOString(), idSuffix);
+}
+
 describe('groupRunsByDate', () => {
-  const now = new Date('2026-05-03T15:00:00.000Z');
+  const now = new Date(2026, 4, 3, 15, 0, 0, 0); // May 3, 15:00 local
 
   it('returns three empty groups for an empty input', () => {
     const grouped = groupRunsByDate([], now);
@@ -36,8 +40,8 @@ describe('groupRunsByDate', () => {
 
   it('puts runs from the same local day into "today"', () => {
     const runs = [
-      makeRun('2026-05-03T01:00:00.000Z', 'a'),
-      makeRun('2026-05-03T23:00:00.000Z', 'b'),
+      makeRunOnLocalDay(2026, 4, 3, 1, 'a'),
+      makeRunOnLocalDay(2026, 4, 3, 23, 'b'),
     ];
 
     const grouped = groupRunsByDate(runs, now);
@@ -49,8 +53,8 @@ describe('groupRunsByDate', () => {
 
   it('puts runs from the previous seven days (excluding today) into lastSevenDays', () => {
     const runs = [
-      makeRun('2026-05-02T12:00:00.000Z', 'yesterday'),
-      makeRun('2026-04-27T12:00:00.000Z', 'sixDaysAgo'),
+      makeRunOnLocalDay(2026, 4, 2, 12, 'yesterday'),
+      makeRunOnLocalDay(2026, 3, 27, 12, 'sixDaysAgo'),
     ];
 
     const grouped = groupRunsByDate(runs, now);
@@ -65,7 +69,7 @@ describe('groupRunsByDate', () => {
 
   it('puts runs older than seven days into older capped at 20', () => {
     const runs = Array.from({ length: 25 }, (_, index) =>
-      makeRun('2026-04-01T12:00:00.000Z', `old_${index}`),
+      makeRunOnLocalDay(2026, 3, 1, 12, `old_${index}`),
     );
 
     const grouped = groupRunsByDate(runs, now);
@@ -75,13 +79,13 @@ describe('groupRunsByDate', () => {
 
   it('uses startedAt when finishedAt is missing', () => {
     const run: PinFlowRunEvidence = {
-      ...makeRun('2026-05-03T08:00:00.000Z', 'started-only'),
+      ...makeRun(new Date(2026, 4, 3, 8, 0, 0, 0).toISOString(), 'started-only'),
       summary: {
         annotationId: 'ann_started-only',
         runId: 'r_started-only',
         status: 'processing',
         provider: 'codex',
-        startedAt: '2026-05-03T08:00:00.000Z',
+        startedAt: new Date(2026, 4, 3, 8, 0, 0, 0).toISOString(),
       },
     };
 

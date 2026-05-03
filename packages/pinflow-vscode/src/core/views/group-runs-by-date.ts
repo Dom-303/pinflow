@@ -21,7 +21,7 @@ export function groupRunsByDate(
   const older: PinFlowRunEvidence[] = [];
 
   for (const run of runs) {
-    const time = runTime(run);
+    const time = getRunTime(run);
     if (time >= startOfToday) today.push(run);
     else if (time >= startOfWindow) lastSevenDays.push(run);
     else older.push(run);
@@ -30,7 +30,7 @@ export function groupRunsByDate(
   return { today, lastSevenDays, older: older.slice(0, OLDER_BUCKET_CAP) };
 }
 
-function runTime(run: PinFlowRunEvidence): number {
+function getRunTime(run: PinFlowRunEvidence): number {
   const iso = run.summary.finishedAt ?? run.summary.startedAt;
   return iso ? new Date(iso).getTime() : 0;
 }

@@ -46,12 +46,14 @@ export interface RunsViewEvidenceFileNode {
 export interface RunsViewChangedFilesNode {
   readonly kind: 'changedFiles';
   readonly count: number;
+  readonly runSummaryPath: string;
   readonly children: readonly RunsViewChangedFileNode[];
 }
 
 export interface RunsViewChangedFileNode {
   readonly kind: 'changedFile';
   readonly relativePath: string;
+  readonly runSummaryPath: string;
 }
 
 export interface RunsViewTimelineMarkerNode {
@@ -150,7 +152,12 @@ function buildRunChildren(
     children.push({
       kind: 'changedFiles',
       count: run.changedFiles.length,
-      children: run.changedFiles.map((file) => ({ kind: 'changedFile', relativePath: file.path })),
+      runSummaryPath: run.summaryPath,
+      children: run.changedFiles.map((file) => ({
+        kind: 'changedFile',
+        relativePath: file.path,
+        runSummaryPath: run.summaryPath,
+      })),
     });
   }
   if (run.transcriptPath) children.push({ kind: 'timelineMarker', evidence: run });

@@ -108,6 +108,8 @@ describe('buildRunsViewTree', () => {
       'src/a.ts',
       'src/b.ts',
     ]);
+    expect(changedFiles.runSummaryPath).toBe('/tmp/r/summary.json');
+    expect(changedFiles.children[0].runSummaryPath).toBe('/tmp/r/summary.json');
   });
 
   it('emits a timelineMarker as the last evidence sub-item when transcript exists', () => {

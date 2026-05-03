@@ -1,4 +1,5 @@
 import { execFile } from 'node:child_process';
+import path from 'node:path';
 import { promisify } from 'node:util';
 import * as vscode from 'vscode';
 
@@ -194,8 +195,7 @@ export function activate(context: vscode.ExtensionContext): void {
     }),
     vscode.commands.registerCommand(
       'pinflow.openRunDiff',
-      async (...args: unknown[]) => {
-        const node = args[0] as RunsViewRunNode | undefined;
+      async (node: RunsViewRunNode | undefined) => {
         const diffPath = node?.run?.diffPath;
         if (!diffPath) {
           await vscode.window.showInformationMessage('This run has no diff.patch.');
@@ -206,11 +206,10 @@ export function activate(context: vscode.ExtensionContext): void {
     ),
     vscode.commands.registerCommand(
       'pinflow.openRunDirectory',
-      async (...args: unknown[]) => {
-        const node = args[0] as RunsViewRunNode | undefined;
+      async (node: RunsViewRunNode | undefined) => {
         const summaryPath = node?.run?.summaryPath;
         if (!summaryPath) return;
-        const dir = vscode.Uri.file(summaryPath.replace(/\/summary\.json$/, ''));
+        const dir = vscode.Uri.file(path.dirname(summaryPath));
         await vscode.commands.executeCommand('revealFileInOS', dir);
       },
     ),
@@ -410,14 +409,14 @@ class RunsTreeDataProvider
         `Changed files (${element.count})`,
         vscode.TreeItemCollapsibleState.Collapsed,
       );
-      item.id = `changedFiles:${element.count}`;
+      item.id = `changedFiles:${element.runSummaryPath}`;
       item.iconPath = new vscode.ThemeIcon('files');
       return item;
     }
 
     if (element.kind === 'changedFile') {
       const item = new vscode.TreeItem(element.relativePath, vscode.TreeItemCollapsibleState.None);
-      item.id = `changedFile:${element.relativePath}`;
+      item.id = `changedFile:${element.runSummaryPath}:${element.relativePath}`;
       item.iconPath = new vscode.ThemeIcon('file');
       return item;
     }
@@ -430,6 +429,7 @@ class RunsTreeDataProvider
     }
 
     const item = new vscode.TreeItem(element.label, vscode.TreeItemCollapsibleState.None);
+    item.id = `timelineLine:${element.label}`;
     item.iconPath = new vscode.ThemeIcon('debug-stackframe-dot');
     return item;
   }

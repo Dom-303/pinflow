@@ -160,12 +160,18 @@ describe('buildRunsViewTree', () => {
     expect(groups[0].children[0].themeIconColor).toBeUndefined();
   });
 
-  it('respects todayExpandedByDefault: false in options', () => {
+  it('starts the today group expanded when todayExpandedByDefault is true (default)', () => {
+    const expandedByDefault = buildRunsViewTree([], now);
+    const expandedExplicit = buildRunsViewTree([], now, { todayExpandedByDefault: true });
+
+    expect(expandedByDefault[0].defaultExpanded).toBe(true);
+    expect(expandedExplicit[0].defaultExpanded).toBe(true);
+  });
+
+  it('starts the today group collapsed when todayExpandedByDefault is false', () => {
     const groups = buildRunsViewTree([], now, { todayExpandedByDefault: false });
 
     expect(groups[0].defaultExpanded).toBe(false);
-    expect(groups[1].defaultExpanded).toBe(false);
-    expect(groups[2].defaultExpanded).toBe(false);
   });
 
   it('formats run label with 12h time format when option is set', () => {

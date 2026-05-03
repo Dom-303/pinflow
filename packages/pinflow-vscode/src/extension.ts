@@ -132,6 +132,8 @@ export function activate(context: vscode.ExtensionContext): void {
       for (const run of failedRuns) {
         const key = run.runId ?? run.summaryPath;
         if (notifiedFailedRunKeys.has(key)) continue;
+        // Always track the key even when notifications are disabled.
+        // This prevents a toast burst if the user re-enables the setting later.
         notifiedFailedRunKeys.add(key);
         if (notifyFailed) {
           void vscode.window.showErrorMessage(

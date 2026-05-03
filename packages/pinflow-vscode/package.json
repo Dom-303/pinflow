@@ -104,7 +104,7 @@
         },
         "pinflow.externalHandoff.defaultProvider": {
           "type": "string",
-          "enum": ["codex", "claude", "cursor"],
+          "enum": ["codex", "claude"],
           "default": "codex",
           "description": "Default provider used when claiming an external PinFlow task via 'Claim External Task'."
         }

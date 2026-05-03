@@ -136,7 +136,7 @@ describe('VS Code extension manifest', () => {
     expect(props['pinflow.refreshIntervalMs'].minimum).toBe(500);
     expect(props['pinflow.refreshIntervalMs'].maximum).toBe(60000);
     expect(props['pinflow.timeFormat'].enum).toEqual(['24h', '12h']);
-    expect(props['pinflow.externalHandoff.defaultProvider'].enum).toEqual(['codex', 'claude', 'cursor']);
+    expect(props['pinflow.externalHandoff.defaultProvider'].enum).toEqual(['codex', 'claude']);
   });
 
   it('contributes the openSettings command and Status-view toolbar button', () => {

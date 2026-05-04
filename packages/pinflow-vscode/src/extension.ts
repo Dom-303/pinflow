@@ -191,6 +191,34 @@ export function activate(context: vscode.ExtensionContext): void {
         '@ext:dom-303.pinflow-vscode',
       );
     }),
+    vscode.commands.registerCommand('pinflow.runInit', () => {
+      const folders = vscode.workspace.workspaceFolders;
+      if (!folders?.length) {
+        void vscode.window.showInformationMessage(
+          'Open a workspace folder to run PinFlow init.',
+        );
+        return;
+      }
+      const cwd = folders[0].uri.fsPath;
+      const terminal = vscode.window.createTerminal({
+        name: 'PinFlow Init',
+        cwd,
+      });
+      terminal.sendText(formatPinFlowCliCommand(cwd, ['init']));
+      terminal.show();
+    }),
+    vscode.commands.registerCommand('pinflow.openDocumentation', () => {
+      void vscode.env.openExternal(
+        vscode.Uri.parse('https://github.com/Dom-303/pinflow#readme'),
+      );
+    }),
+    vscode.commands.registerCommand(
+      'pinflow.openPreview',
+      async (url: unknown) => {
+        if (typeof url !== 'string' || !url) return;
+        await vscode.env.openExternal(vscode.Uri.parse(url));
+      },
+    ),
     vscode.commands.registerCommand('pinflow.externalClaim', async () => {
       const workspaceRoot = getCurrentWorkspaceRoot();
       if (!workspaceRoot) {

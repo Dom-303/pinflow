@@ -5,11 +5,17 @@ declare module 'vscode' {
 
   export interface ExtensionContext {
     subscriptions: Disposable[];
+    readonly globalState: {
+      get<T>(key: string): T | undefined;
+      get<T>(key: string, defaultValue: T): T;
+      update(key: string, value: unknown): Thenable<void>;
+    };
   }
 
   export class Uri {
     readonly fsPath: string;
     static file(path: string): Uri;
+    static parse(value: string): Uri;
   }
 
   export interface StatusBarItem extends Disposable {
@@ -71,7 +77,7 @@ declare module 'vscode' {
 
   export const window: {
     createStatusBarItem(alignment: number, priority?: number): StatusBarItem;
-    showInformationMessage(message: string): Thenable<string | undefined>;
+    showInformationMessage(message: string, ...items: string[]): Thenable<string | undefined>;
     showErrorMessage(message: string): Thenable<string | undefined>;
     showInputBox(options?: {
       prompt?: string;
@@ -113,5 +119,9 @@ declare module 'vscode' {
       listener: (event: ConfigurationChangeEvent) => void,
     ): Disposable;
     getConfiguration(section?: string): WorkspaceConfiguration;
+  };
+
+  export const env: {
+    openExternal(target: Uri): Thenable<boolean>;
   };
 }

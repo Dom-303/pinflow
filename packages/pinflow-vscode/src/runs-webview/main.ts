@@ -1,5 +1,5 @@
 import './components/pinflow-lifecycle-pill.js';
-// TODO(Task 8): import './components/pinflow-run-card.js';
+import './components/pinflow-run-card.js';
 // TODO(Task 9): import './components/pinflow-runs-app.js';
 // TODO(Task 9): import './components/pinflow-runs-header.js';
 // TODO(Task 9): import './components/pinflow-empty-state.js';

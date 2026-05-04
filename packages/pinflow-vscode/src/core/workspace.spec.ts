@@ -188,6 +188,51 @@ describe('getBestPinFlowWorkspaceStatus', () => {
   });
 });
 
+describe('getBestPinFlowWorkspaceStatus with preferredFolder', () => {
+  let workspaceA: string;
+  let workspaceB: string;
+
+  beforeEach(async () => {
+    workspaceA = await mkdtemp(path.join(tmpdir(), 'pinflow-prefer-a-'));
+    workspaceB = await mkdtemp(path.join(tmpdir(), 'pinflow-prefer-b-'));
+    // Both folders configured; B happens to come second.
+    await mkdir(path.join(workspaceA, '.pinflow'), { recursive: true });
+    await mkdir(path.join(workspaceB, '.pinflow'), { recursive: true });
+  });
+
+  afterEach(async () => {
+    await rm(workspaceA, { recursive: true, force: true });
+    await rm(workspaceB, { recursive: true, force: true });
+  });
+
+  it('honors an absolute preferredFolder path that matches one of the candidates', () => {
+    const status = getBestPinFlowWorkspaceStatus([workspaceA, workspaceB], {
+      processProbe: () => false,
+      preferredFolder: workspaceB,
+    });
+
+    expect(status?.workspaceRoot).toBe(workspaceB);
+  });
+
+  it('falls back to auto-priority when preferredFolder does not match any candidate', () => {
+    const status = getBestPinFlowWorkspaceStatus([workspaceA, workspaceB], {
+      processProbe: () => false,
+      preferredFolder: '/no/such/path',
+    });
+
+    expect(status?.workspaceRoot).toBe(workspaceA);
+  });
+
+  it('falls back to auto-priority when preferredFolder is empty', () => {
+    const status = getBestPinFlowWorkspaceStatus([workspaceA, workspaceB], {
+      processProbe: () => false,
+      preferredFolder: '',
+    });
+
+    expect(status?.workspaceRoot).toBe(workspaceA);
+  });
+});
+
 describe('dev-lock detection', () => {
   let workspaceRoot: string;
 

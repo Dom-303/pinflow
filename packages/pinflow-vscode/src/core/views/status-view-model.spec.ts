@@ -153,4 +153,24 @@ describe('buildStatusViewItems', () => {
     expect(relay?.description).toBe('not configured');
     expect(relay?.themeIcon).toBe('circle-outline');
   });
+
+  it('keeps the workspace tooltip simple when only one folder is open', () => {
+    const items = buildStatusViewItems(readyStatus(), null, null, {
+      workspaceFolderCount: 1,
+      workspaceFolderIndex: 0,
+    });
+    const workspace = items.find((item) => item.id === 'workspace');
+
+    expect(workspace?.tooltip).toBe('/repo/app');
+  });
+
+  it('appends a multi-folder hint to the workspace tooltip when several are open', () => {
+    const items = buildStatusViewItems(readyStatus(), null, null, {
+      workspaceFolderCount: 3,
+      workspaceFolderIndex: 0,
+    });
+    const workspace = items.find((item) => item.id === 'workspace');
+
+    expect(workspace?.tooltip).toBe('/repo/app\n1 of 3 workspace folders');
+  });
 });

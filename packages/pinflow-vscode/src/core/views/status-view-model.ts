@@ -6,6 +6,11 @@ import type { PinFlowWorkspaceResult } from '../workspace.js';
 
 export type StatusItemId = 'relay' | 'runner' | 'workspace' | 'externalClaim';
 
+export interface BuildStatusViewItemsOptions {
+  readonly workspaceFolderCount?: number;
+  readonly workspaceFolderIndex?: number;
+}
+
 export interface StatusViewItem {
   readonly id: StatusItemId;
   readonly label: string;
@@ -28,11 +33,12 @@ export function buildStatusViewItems(
   status: PinFlowWorkspaceResult,
   externalClaim: ExternalHandoffClaim | null,
   latestRun?: PinFlowRunEvidence | null,
+  options: BuildStatusViewItemsOptions = {},
 ): readonly StatusViewItem[] {
   const items: StatusViewItem[] = [
     buildRelayItem(status),
     buildRunnerItem(latestRun ?? null),
-    buildWorkspaceItem(status),
+    buildWorkspaceItem(status, options),
   ];
   if (externalClaim) items.push(buildExternalClaimItem(externalClaim));
   return items;
@@ -103,16 +109,33 @@ function buildRunnerItem(latestRun: PinFlowRunEvidence | null): StatusViewItem {
   };
 }
 
-function buildWorkspaceItem(status: PinFlowWorkspaceResult): StatusViewItem {
+function buildWorkspaceItem(
+  status: PinFlowWorkspaceResult,
+  options: BuildStatusViewItemsOptions,
+): StatusViewItem {
   const appRoot = status.appRoot ?? status.workspaceFolder;
   const isDemoFixture = appRoot.endsWith(DEMO_FIXTURE_SUFFIX);
+  const description = isDemoFixture ? 'Demo Fixture' : path.basename(appRoot);
+
+  const tooltip = buildWorkspaceTooltip(appRoot, options);
+
   return {
     id: 'workspace',
     label: 'Workspace',
-    description: isDemoFixture ? 'Demo Fixture' : path.basename(appRoot),
-    tooltip: appRoot,
+    description,
+    tooltip,
     themeIcon: 'folder',
   };
+}
+
+function buildWorkspaceTooltip(
+  appRoot: string,
+  options: BuildStatusViewItemsOptions,
+): string {
+  const count = options.workspaceFolderCount ?? 1;
+  if (count <= 1) return appRoot;
+  const oneBasedIndex = (options.workspaceFolderIndex ?? 0) + 1;
+  return `${appRoot}\n${oneBasedIndex} of ${count} workspace folders`;
 }
 
 function buildExternalClaimItem(claim: ExternalHandoffClaim): StatusViewItem {

@@ -63,6 +63,7 @@ export interface PinFlowWorkspaceResult {
 
 export interface PinFlowWorkspaceOptions {
   readonly processProbe?: ProcessProbe;
+  readonly preferredFolder?: string;
 }
 
 interface RelayLockFile {
@@ -123,11 +124,41 @@ export function getBestPinFlowWorkspaceStatus(
     getPinFlowWorkspaceStatus(workspaceFolder, options),
   );
 
+  const preferred = resolvePreferredStatus(
+    statuses,
+    workspaceFolders,
+    options.preferredFolder,
+  );
+  if (preferred) return preferred;
+
   return (
     statuses.find((status) => status.status === 'ready') ??
     statuses.find((status) => status.status === 'relay-missing') ??
     statuses[0]
   );
+}
+
+function resolvePreferredStatus(
+  statuses: readonly PinFlowWorkspaceResult[],
+  workspaceFolders: readonly string[],
+  preferredFolder: string | undefined,
+): PinFlowWorkspaceResult | undefined {
+  if (!preferredFolder) return;
+
+  const candidates = path.isAbsolute(preferredFolder)
+    ? [path.resolve(preferredFolder)]
+    : workspaceFolders.map((folder) =>
+        path.resolve(folder, preferredFolder),
+      );
+
+  for (const candidate of candidates) {
+    const match = statuses.find(
+      (status) => status.workspaceRoot === candidate,
+    );
+    if (match && match.status !== 'not-configured') return match;
+  }
+
+  return;
 }
 
 function getWorkspaceCandidateFolders(workspaceFolder: string): string[] {

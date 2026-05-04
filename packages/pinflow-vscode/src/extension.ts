@@ -13,7 +13,10 @@ import {
   type ExternalHandoffActions,
   type ExternalHandoffClaim,
 } from './core/external-handoff.js';
-import { findRunEvidence } from './core/run-evidence.js';
+import {
+  findRunEvidence,
+  type PinFlowRunEvidence,
+} from './core/run-evidence.js';
 import {
   buildActionsViewItems,
   type ActionsViewItem,
@@ -147,6 +150,18 @@ export function activate(context: vscode.ExtensionContext): void {
             `PinFlow run failed: ${run.annotationId ?? run.runId ?? key}`,
           );
         }
+      }
+    }
+
+    const processedRun = runEvidence.find(
+      (run) => run.summary.status === 'processed',
+    );
+    if (processedRun && workspaceStatus.workspaceRoot) {
+      const firstRunKey = `pinflow.firstRunSeen.${workspaceStatus.workspaceRoot}`;
+      const seen = context.globalState.get<boolean>(firstRunKey, false);
+      if (!seen) {
+        void context.globalState.update(firstRunKey, true);
+        void showFirstRunToast(processedRun);
       }
     }
 
@@ -327,6 +342,17 @@ export function activate(context: vscode.ExtensionContext): void {
 
 export function deactivate(): void {
   // VS Code disposes registered subscriptions from the extension context.
+}
+
+async function showFirstRunToast(run: PinFlowRunEvidence): Promise<void> {
+  const choice = await vscode.window.showInformationMessage(
+    `Erster PinFlow-Run abgeschlossen: ${run.annotationId ?? run.runId ?? 'unknown'}`,
+    'Run öffnen',
+    'OK',
+  );
+  if (choice === 'Run öffnen' && run.promptPath) {
+    await vscode.window.showTextDocument(vscode.Uri.file(run.promptPath));
+  }
 }
 
 function formatStatusText(status: string): string {

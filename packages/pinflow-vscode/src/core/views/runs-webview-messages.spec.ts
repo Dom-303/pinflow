@@ -77,6 +77,19 @@ describe('runs-webview message guards', () => {
     it('rejects run:open-prompt with missing runId', () => {
       expect(isWebviewToExtMessage({ type: 'run:open-prompt' })).toBe(false);
     });
+
+    it('rejects run:open-evidence-file with missing filePath', () => {
+      expect(
+        isWebviewToExtMessage({ type: 'run:open-evidence-file' }),
+      ).toBe(false);
+    });
+
+    it('rejects non-objects', () => {
+      expect(isWebviewToExtMessage(null)).toBe(false);
+      expect(isWebviewToExtMessage(undefined)).toBe(false);
+      expect(isWebviewToExtMessage('not an object')).toBe(false);
+      expect(isWebviewToExtMessage(42)).toBe(false);
+    });
   });
 
   describe('JSON round-trip', () => {

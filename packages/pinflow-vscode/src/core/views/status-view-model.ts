@@ -4,7 +4,12 @@ import type { ExternalHandoffClaim } from '../external-handoff.js';
 import type { PinFlowRunEvidence } from '../run-evidence.js';
 import type { PinFlowWorkspaceResult } from '../workspace.js';
 
-export type StatusItemId = 'relay' | 'runner' | 'workspace' | 'externalClaim';
+export type StatusItemId =
+  | 'relay'
+  | 'runner'
+  | 'workspace'
+  | 'preview'
+  | 'externalClaim';
 
 export interface BuildStatusViewItemsOptions {
   readonly workspaceFolderCount?: number;
@@ -18,6 +23,10 @@ export interface StatusViewItem {
   readonly tooltip?: string;
   readonly themeIcon: string;
   readonly themeIconColor?: string;
+  readonly command?: {
+    readonly command: string;
+    readonly arguments?: readonly unknown[];
+  };
 }
 
 const DEMO_FIXTURE_SUFFIX = path.join(
@@ -39,6 +48,7 @@ export function buildStatusViewItems(
     buildRelayItem(status),
     buildRunnerItem(latestRun ?? null),
     buildWorkspaceItem(status, options),
+    buildPreviewItem(status.devServer),
   ];
   if (externalClaim) items.push(buildExternalClaimItem(externalClaim));
   return items;
@@ -136,6 +146,32 @@ function buildWorkspaceTooltip(
   if (count <= 1) return appRoot;
   const oneBasedIndex = (options.workspaceFolderIndex ?? 0) + 1;
   return `${appRoot}\n${oneBasedIndex} of ${count} workspace folders`;
+}
+
+function buildPreviewItem(
+  devServer: PinFlowWorkspaceResult['devServer'],
+): StatusViewItem {
+  if (!devServer) {
+    return {
+      id: 'preview',
+      label: 'Preview',
+      description: 'not running',
+      tooltip: 'No dev server detected. Start with PinFlow: Start Workflow.',
+      themeIcon: 'circle-outline',
+    };
+  }
+  return {
+    id: 'preview',
+    label: 'Preview',
+    description: `${devServer.host}:${devServer.port}`,
+    tooltip: devServer.url,
+    themeIcon: 'circle-filled',
+    themeIconColor: 'charts.green',
+    command: {
+      command: 'pinflow.openPreview',
+      arguments: [devServer.url],
+    },
+  };
 }
 
 function buildExternalClaimItem(claim: ExternalHandoffClaim): StatusViewItem {

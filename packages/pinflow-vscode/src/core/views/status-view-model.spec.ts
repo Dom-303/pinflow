@@ -36,10 +36,10 @@ function runningRun(): PinFlowRunEvidence {
 }
 
 describe('buildStatusViewItems', () => {
-  it('shows three rows when no external claim is held', () => {
+  it('shows four rows when no external claim is held', () => {
     const items = buildStatusViewItems(readyStatus(), null);
 
-    expect(items.map((item) => item.id)).toEqual(['relay', 'runner', 'workspace']);
+    expect(items.map((item) => item.id)).toEqual(['relay', 'runner', 'workspace', 'preview']);
   });
 
   it('formats relay row with host:port when ready', () => {
@@ -88,6 +88,7 @@ describe('buildStatusViewItems', () => {
       'relay',
       'runner',
       'workspace',
+      'preview',
       'externalClaim',
     ]);
   });
@@ -172,5 +173,63 @@ describe('buildStatusViewItems', () => {
     const workspace = items.find((item) => item.id === 'workspace');
 
     expect(workspace?.tooltip).toBe('/repo/app\n1 of 3 workspace folders');
+  });
+
+  it('inserts a preview row in position 4 between Workspace and the optional ExternalClaim', () => {
+    const status: PinFlowWorkspaceResult = {
+      ...readyStatus(),
+      devServer: {
+        host: 'localhost',
+        port: 5173,
+        url: 'http://localhost:5173/',
+        pid: 9999,
+      },
+    };
+
+    const items = buildStatusViewItems(status, null);
+
+    expect(items.map((item) => item.id)).toEqual([
+      'relay',
+      'runner',
+      'workspace',
+      'preview',
+    ]);
+  });
+
+  it('describes the preview row with host:port and a clickable command when running', () => {
+    const status: PinFlowWorkspaceResult = {
+      ...readyStatus(),
+      devServer: {
+        host: 'localhost',
+        port: 5173,
+        url: 'http://localhost:5173/',
+        pid: 9999,
+      },
+    };
+
+    const items = buildStatusViewItems(status, null);
+    const preview = items.find((item) => item.id === 'preview');
+
+    expect(preview?.description).toBe('localhost:5173');
+    expect(preview?.themeIcon).toBe('circle-filled');
+    expect(preview?.themeIconColor).toBe('charts.green');
+    expect(preview?.tooltip).toBe('http://localhost:5173/');
+    expect(preview?.command).toEqual({
+      command: 'pinflow.openPreview',
+      arguments: ['http://localhost:5173/'],
+    });
+  });
+
+  it('renders an inert preview row when no dev server is detected', () => {
+    const items = buildStatusViewItems(readyStatus(), null);
+    const preview = items.find((item) => item.id === 'preview');
+
+    expect(preview?.description).toBe('not running');
+    expect(preview?.themeIcon).toBe('circle-outline');
+    expect(preview?.themeIconColor).toBeUndefined();
+    expect(preview?.command).toBeUndefined();
+    expect(preview?.tooltip).toBe(
+      'No dev server detected. Start with PinFlow: Start Workflow.',
+    );
   });
 });

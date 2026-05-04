@@ -138,11 +138,15 @@ export async function runPinflowDev(
   attachAppOutput(appChild, options.open, openUrl, (detectedUrl) => {
     const parsed = parseLocalhostUrl(detectedUrl);
     if (!parsed) return;
-    void writeDevLock(options.workspaceRoot, {
-      host: parsed.host,
-      port: parsed.port,
-      url: detectedUrl,
-      pid: process.pid,
+    void Promise.resolve(
+      writeDevLock(options.workspaceRoot, {
+        host: parsed.host,
+        port: parsed.port,
+        url: detectedUrl,
+        pid: process.pid,
+      }),
+    ).catch(() => {
+      // Lock write is best-effort.
     });
   });
 

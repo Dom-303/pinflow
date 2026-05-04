@@ -101,6 +101,8 @@ describe('runPinflowDev', () => {
     const runnerChild = createChild(111);
     const appChild = createChildWithOutput(222);
     const openUrl = vi.fn();
+    const writeDevLock = vi.fn();
+    const removeDevLock = vi.fn();
     const relayControl = {
       validateAndClear: vi.fn().mockResolvedValue(undefined),
       ensureRunning: vi
@@ -137,6 +139,8 @@ describe('runPinflowDev', () => {
         runnerControl,
         spawnApp,
         openUrl,
+        writeDevLock,
+        removeDevLock,
         stderr: { write: vi.fn() },
       },
     );

@@ -65,9 +65,11 @@ describe('VS Code extension manifest', () => {
   });
 
   it('defines local packaging scripts but no publish script', () => {
-    expect(manifest.scripts?.['package:vsix']).toBe(
-      'corepack pnpm dlx @vscode/vsce package --no-dependencies --out ../../tmp/pinflow-vscode.vsix',
+    const packageVsix = manifest.scripts?.['package:vsix'] ?? '';
+    expect(packageVsix).toContain(
+      '@vscode/vsce package --no-dependencies --out ../../tmp/pinflow-vscode.vsix',
     );
+    expect(packageVsix).toContain('nx build pinflow-vscode');
     expect(manifest.scripts?.publish).toBeUndefined();
   });
 

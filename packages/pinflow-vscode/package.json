@@ -35,8 +35,6 @@
     "onCommand:pinflow.externalClaim",
     "onCommand:pinflow.externalComplete",
     "onCommand:pinflow.externalFail",
-    "onCommand:pinflow.openRunDirectory",
-    "onCommand:pinflow.openRunDiff",
     "onCommand:pinflow.openSettings",
     "onCommand:pinflow.runInit",
     "onCommand:pinflow.openDocumentation",
@@ -61,7 +59,7 @@
     "views": {
       "pinflow": [
         { "id": "pinflow.status", "name": "Status" },
-        { "id": "pinflow.runs", "name": "Runs" },
+        { "id": "pinflow.runs", "name": "Runs", "type": "webview" },
         { "id": "pinflow.actions", "name": "Actions" }
       ]
     },
@@ -75,8 +73,6 @@
       { "command": "pinflow.externalClaim", "title": "PinFlow: Claim External Task", "category": "PinFlow" },
       { "command": "pinflow.externalComplete", "title": "PinFlow: Complete External Task", "category": "PinFlow" },
       { "command": "pinflow.externalFail", "title": "PinFlow: Fail External Task", "category": "PinFlow" },
-      { "command": "pinflow.openRunDirectory", "title": "PinFlow: Open Run Directory", "category": "PinFlow", "icon": "$(go-to-file)" },
-      { "command": "pinflow.openRunDiff", "title": "PinFlow: Open Run Diff", "category": "PinFlow", "icon": "$(diff)" },
       { "command": "pinflow.openSettings", "title": "PinFlow: Open Settings", "category": "PinFlow", "icon": "$(gear)" },
       { "command": "pinflow.runInit", "title": "PinFlow: Run Init", "category": "PinFlow", "icon": "$(rocket)" },
       { "command": "pinflow.openDocumentation", "title": "PinFlow: Open Documentation", "category": "PinFlow", "icon": "$(book)" },
@@ -126,10 +122,6 @@
         { "command": "pinflow.openSettings", "when": "view == pinflow.status", "group": "navigation" },
         { "command": "pinflow.refreshPanel", "when": "view == pinflow.runs", "group": "navigation" },
         { "command": "pinflow.refreshPanel", "when": "view == pinflow.actions", "group": "navigation" }
-      ],
-      "view/item/context": [
-        { "command": "pinflow.openRunDiff", "when": "viewItem == pinflow.run", "group": "inline" },
-        { "command": "pinflow.openRunDirectory", "when": "viewItem == pinflow.run", "group": "inline" }
       ]
     },
     "viewsWelcome": [

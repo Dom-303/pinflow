@@ -23,7 +23,7 @@ describe('VS Code extension manifest', () => {
     contributes?: {
       commands?: Array<{ command: string; title: string; category?: string; icon?: string }>;
       viewsContainers?: { activitybar?: Array<{ id: string; title: string; icon: string }> };
-      views?: Record<string, Array<{ id: string; name: string }>>;
+      views?: Record<string, Array<{ id: string; name: string; type?: string }>>;
       menus?: Record<string, Array<{ command: string; when: string; group: string }>>;
       configuration?: {
         title?: string;
@@ -84,8 +84,6 @@ describe('VS Code extension manifest', () => {
       'pinflow.externalClaim',
       'pinflow.externalComplete',
       'pinflow.externalFail',
-      'pinflow.openRunDirectory',
-      'pinflow.openRunDiff',
       'pinflow.openSettings',
       'pinflow.runInit',
       'pinflow.openDocumentation',
@@ -100,7 +98,7 @@ describe('VS Code extension manifest', () => {
     expect(existsSync(path.join(packageRoot, 'media', 'sidebar-icon.svg'))).toBe(true);
     expect(manifest.contributes?.views?.['pinflow']).toEqual([
       { id: 'pinflow.status', name: 'Status' },
-      { id: 'pinflow.runs', name: 'Runs' },
+      { id: 'pinflow.runs', name: 'Runs', type: 'webview' },
       { id: 'pinflow.actions', name: 'Actions' },
     ]);
     expect(manifest.contributes?.views?.['explorer']).toBeUndefined();
@@ -110,10 +108,10 @@ describe('VS Code extension manifest', () => {
         'onView:pinflow.runs',
         'onView:pinflow.actions',
         'onCommand:pinflow.openContainer',
-        'onCommand:pinflow.openRunDiff',
-        'onCommand:pinflow.openRunDirectory',
       ]),
     );
+    expect(manifest.activationEvents).not.toContain('onCommand:pinflow.openRunDiff');
+    expect(manifest.activationEvents).not.toContain('onCommand:pinflow.openRunDirectory');
   });
 
   it('wires refresh and inline run actions into the menus contribution', () => {
@@ -122,10 +120,7 @@ describe('VS Code extension manifest', () => {
       { command: 'pinflow.refreshPanel', when: 'view == pinflow.runs',    group: 'navigation' },
       { command: 'pinflow.refreshPanel', when: 'view == pinflow.actions', group: 'navigation' },
     ]);
-    expect(manifest.contributes?.menus?.['view/item/context']).toEqual([
-      { command: 'pinflow.openRunDiff',      when: 'viewItem == pinflow.run', group: 'inline' },
-      { command: 'pinflow.openRunDirectory', when: 'viewItem == pinflow.run', group: 'inline' },
-    ]);
+    expect(manifest.contributes?.menus?.['view/item/context']).toBeUndefined();
   });
 
   it('contributes the package-2.5 user settings', () => {

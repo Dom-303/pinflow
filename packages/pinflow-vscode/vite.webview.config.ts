@@ -1,23 +1,28 @@
 import { defineConfig } from 'vite';
 import path from 'node:path';
 
+const here = import.meta.dirname;
+
 export default defineConfig({
-  root: path.resolve(__dirname, 'src/runs-webview'),
+  root: path.resolve(here, 'src/runs-webview'),
   base: './',
   build: {
-    outDir: path.resolve(__dirname, 'dist/runs-webview'),
+    outDir: path.resolve(here, 'dist/runs-webview'),
     emptyOutDir: true,
     minify: 'terser',
     sourcemap: false,
     rollupOptions: {
-      input: path.resolve(__dirname, 'src/runs-webview/index.html'),
+      input: path.resolve(here, 'src/runs-webview/index.html'),
       output: {
         entryFileNames: 'main.js',
         chunkFileNames: '[name].js',
         assetFileNames: '[name].[ext]',
         manualChunks: { lit: ['lit'] },
       },
-      treeshake: { moduleSideEffects: false },
+      // Default treeshake is correct: Lit's @customElement decorator
+      // registers components as a module-level side effect, so we must
+      // NOT mark moduleSideEffects: false (which would strip the
+      // registrations and break component rendering at runtime).
     },
   },
 });

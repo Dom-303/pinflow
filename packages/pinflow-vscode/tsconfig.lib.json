@@ -20,6 +20,8 @@
   ],
   "exclude": [
     "vite.config.ts",
+    "vite.webview.config.ts",
+    "src/runs-webview/**",
     "src/**/*.spec.ts",
     "src/**/*.test.ts",
     "**/test-output",

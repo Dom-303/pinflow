@@ -33,6 +33,7 @@
         "main": "packages/pinflow-vscode/src/extension.ts",
         "tsConfig": "packages/pinflow-vscode/tsconfig.lib.json",
         "generatePackageJson": false,
+        "clean": false,
         "assets": [
           "packages/pinflow-vscode/README.md",
           "packages/pinflow-vscode/media"

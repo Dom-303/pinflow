@@ -155,7 +155,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.lib.json",
     "test": "vitest run --config vite.config.ts",
-    "package:vsix": "corepack pnpm dlx @vscode/vsce package --no-dependencies --out ../../tmp/pinflow-vscode.vsix"
+    "package:vsix": "corepack pnpm nx build pinflow-vscode && corepack pnpm dlx @vscode/vsce package --no-dependencies --out ../../tmp/pinflow-vscode.vsix"
   },
   "repository": {
     "type": "git",

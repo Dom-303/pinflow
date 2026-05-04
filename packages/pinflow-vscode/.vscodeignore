@@ -9,7 +9,7 @@ dist/**/*.d.ts
 dist/**/*.tsbuildinfo
 dist/README.md
 dist/*.vsix
-# Webview source — only the bundled output ships
-src/runs-webview/**
+# Webview build artifacts that aren't needed in VSIX
+# (src/** already excludes the webview source via line 1)
 vite.webview.config.ts
 scripts/check-webview-bundle-size.mjs

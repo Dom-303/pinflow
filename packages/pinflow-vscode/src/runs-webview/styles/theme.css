@@ -1,1 +1,69 @@
-/* Populated in Task 5. */
+/* Hybrid theming: VS Code base + PinFlow accents */
+:root {
+  --pf-bg: var(--vscode-editor-background);
+  --pf-bg-elevated: var(--vscode-sideBar-background, var(--vscode-editor-background));
+  --pf-text: var(--vscode-foreground);
+  --pf-text-muted: var(--vscode-descriptionForeground);
+  --pf-border: var(--vscode-panel-border, var(--vscode-widget-border));
+  --pf-focus: var(--vscode-focusBorder);
+
+  --pf-accent: #a66f3d;
+  --pf-accent-soft: rgba(166, 111, 61, 0.12);
+  --pf-status-running: #f59e0b;
+  --pf-status-done: #10b981;
+  --pf-status-failed: #ef4444;
+
+  --pf-card-surface: color-mix(
+    in srgb,
+    var(--vscode-editor-background) 92%,
+    var(--pf-accent) 8%
+  );
+  --pf-card-shadow: 0 4px 14px
+    color-mix(in srgb, var(--vscode-foreground) 6%, transparent);
+  --pf-card-shadow-hover: 0 8px 24px
+    color-mix(in srgb, var(--vscode-foreground) 10%, transparent);
+
+  --pf-radius: 12px;
+  --pf-space: 12px;
+  --pf-space-sm: 8px;
+  --pf-space-xs: 4px;
+
+  /* Paper grain overlay (4% opacity SVG noise as data URI) */
+  --pf-paper-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.04 0'/></filter><rect width='240' height='240' filter='url(%23n)'/></svg>");
+}
+
+/* color-mix() fallback for older Chromium */
+@supports not (color: color-mix(in srgb, white, black)) {
+  :root {
+    --pf-card-surface: rgba(166, 111, 61, 0.06);
+    --pf-card-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    --pf-card-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+}
+
+/* High-contrast theme override */
+@media (prefers-contrast: more) {
+  :root {
+    --pf-card-surface: var(--vscode-editor-background);
+    --pf-border: var(--vscode-contrastBorder);
+    --pf-accent: var(--vscode-contrastActiveBorder);
+    --pf-status-running: var(--vscode-charts-yellow, #ffcc00);
+    --pf-status-done: var(--vscode-charts-green, #00cc00);
+    --pf-status-failed: var(--vscode-errorForeground, #ff0000);
+    --pf-paper-grain: none;
+  }
+}
+
+/* Body resets */
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--pf-bg);
+  color: var(--pf-text);
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size, 13px);
+}
+
+* {
+  box-sizing: border-box;
+}

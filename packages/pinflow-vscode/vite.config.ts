@@ -3,6 +3,10 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   esbuild: {
+    // Esbuild doesn't auto-discover tsconfig.spec.json during vitest runs,
+    // so the decorator flags need to be inlined here. Keep the values in
+    // sync with tsconfig.spec.json — Lit 3's @customElement and @property
+    // require legacy (Stage-1) decorator semantics in TS 5.x.
     tsconfigRaw: {
       compilerOptions: {
         experimentalDecorators: true,

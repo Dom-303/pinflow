@@ -35,7 +35,7 @@ describe('mapStatusToPillState', () => {
 });
 
 describe('<pinflow-lifecycle-pill>', () => {
-  it('renders the four states with distinct shadow-DOM classes', async () => {
+  it('reflects each state to a state="..." attribute on the host', async () => {
     const states = ['processing', 'processed', 'failed', 'unknown'] as const;
     for (const state of states) {
       const el = document.createElement(
@@ -44,26 +44,43 @@ describe('<pinflow-lifecycle-pill>', () => {
       el.state = state;
       document.body.appendChild(el);
       await el.updateComplete;
-      const root = el.shadowRoot;
-      expect(root).toBeDefined();
-      expect(root!.querySelector(`[data-state='${state}']`)).not.toBeNull();
+      expect(el.getAttribute('state')).toBe(state);
       el.remove();
     }
   });
 
-  it('updates the rendered state when the property changes', async () => {
+  it('renders the correct codicon icon class for each state', async () => {
+    const cases: Array<{ state: 'processing' | 'processed' | 'failed' | 'unknown'; icon: string }> = [
+      { state: 'processing', icon: 'codicon-loading' },
+      { state: 'processed', icon: 'codicon-check' },
+      { state: 'failed', icon: 'codicon-error' },
+      { state: 'unknown', icon: 'codicon-circle-outline' },
+    ];
+    for (const { state, icon } of cases) {
+      const el = document.createElement(
+        'pinflow-lifecycle-pill',
+      ) as PinflowLifecyclePill;
+      el.state = state;
+      document.body.appendChild(el);
+      await el.updateComplete;
+      const iconElement = el.shadowRoot!.querySelector('i');
+      expect(iconElement?.className).toContain(icon);
+      el.remove();
+    }
+  });
+
+  it('updates the host attribute when the state property changes', async () => {
     const el = document.createElement(
       'pinflow-lifecycle-pill',
     ) as PinflowLifecyclePill;
     el.state = 'processing';
     document.body.appendChild(el);
     await el.updateComplete;
-    expect(el.shadowRoot!.querySelector("[data-state='processing']")).not.toBeNull();
+    expect(el.getAttribute('state')).toBe('processing');
 
     el.state = 'processed';
     await el.updateComplete;
-    expect(el.shadowRoot!.querySelector("[data-state='processed']")).not.toBeNull();
-    expect(el.shadowRoot!.querySelector("[data-state='processing']")).toBeNull();
+    expect(el.getAttribute('state')).toBe('processed');
     el.remove();
   });
 });

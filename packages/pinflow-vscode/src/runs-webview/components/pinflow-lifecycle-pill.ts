@@ -28,7 +28,12 @@ const STATE_ICON: Record<PillState, string> = {
 
 @customElement('pinflow-lifecycle-pill')
 export class PinflowLifecyclePill extends LitElement {
-  @property({ type: String }) state: PillState = 'unknown';
+  /**
+   * `reflect: true` mirrors the property to a `state="..."` attribute on the
+   * host element so styles can target `:host([state='processing'])` etc.
+   * without an extra wrapper element in the shadow root.
+   */
+  @property({ type: String, reflect: true }) state: PillState = 'unknown';
 
   static styles = css`
     :host {
@@ -44,33 +49,28 @@ export class PinflowLifecyclePill extends LitElement {
       line-height: 1;
       transition: opacity 200ms ease;
     }
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-    [data-state='processing'] {
+    :host([state='processing']) {
       background: color-mix(in srgb, var(--pf-status-running) 14%, transparent);
       border: 1px solid color-mix(in srgb, var(--pf-status-running) 50%, transparent);
       color: var(--pf-status-running);
     }
-    [data-state='processed'] {
+    :host([state='processed']) {
       background: color-mix(in srgb, var(--pf-status-done) 14%, transparent);
       border: 1px solid color-mix(in srgb, var(--pf-status-done) 50%, transparent);
       color: var(--pf-status-done);
     }
-    [data-state='failed'] {
+    :host([state='failed']) {
       background: color-mix(in srgb, var(--pf-status-failed) 14%, transparent);
       border: 1px solid color-mix(in srgb, var(--pf-status-failed) 50%, transparent);
       color: var(--pf-status-failed);
     }
-    [data-state='unknown'] {
+    :host([state='unknown']) {
       background: var(--pf-bg-elevated);
       border: 1px solid var(--pf-border);
       color: var(--pf-text-muted);
     }
     @media (prefers-reduced-motion: no-preference) {
-      [data-state='processing'] {
+      :host([state='processing']) {
         animation: pulse 1.5s ease-in-out infinite;
       }
     }
@@ -84,10 +84,8 @@ export class PinflowLifecyclePill extends LitElement {
     const label = STATE_LABEL[this.state];
     const iconClass = STATE_ICON[this.state];
     return html`
-      <span class="pill" data-state=${this.state}>
-        <i class=${`codicon ${iconClass}`} aria-hidden="true"></i>
-        <span>${label}</span>
-      </span>
+      <i class=${`codicon ${iconClass}`} aria-hidden="true"></i>
+      <span>${label}</span>
     `;
   }
 }

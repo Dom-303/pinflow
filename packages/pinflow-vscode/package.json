@@ -22,23 +22,7 @@
     "node": ">=20"
   },
   "activationEvents": [
-    "onStartupFinished",
-    "onView:pinflow.status",
-    "onView:pinflow.runs",
-    "onView:pinflow.actions",
-    "onCommand:pinflow.openPanel",
-    "onCommand:pinflow.openContainer",
-    "onCommand:pinflow.followRuns",
-    "onCommand:pinflow.openLatestRun",
-    "onCommand:pinflow.startWorkflow",
-    "onCommand:pinflow.refreshPanel",
-    "onCommand:pinflow.externalClaim",
-    "onCommand:pinflow.externalComplete",
-    "onCommand:pinflow.externalFail",
-    "onCommand:pinflow.openSettings",
-    "onCommand:pinflow.runInit",
-    "onCommand:pinflow.openDocumentation",
-    "onCommand:pinflow.openPreview"
+    "onStartupFinished"
   ],
   "categories": [
     "Other"

@@ -102,16 +102,10 @@ describe('VS Code extension manifest', () => {
       { id: 'pinflow.actions', name: 'Actions' },
     ]);
     expect(manifest.contributes?.views?.['explorer']).toBeUndefined();
-    expect(manifest.activationEvents).toEqual(
-      expect.arrayContaining([
-        'onView:pinflow.status',
-        'onView:pinflow.runs',
-        'onView:pinflow.actions',
-        'onCommand:pinflow.openContainer',
-      ]),
-    );
-    expect(manifest.activationEvents).not.toContain('onCommand:pinflow.openRunDiff');
-    expect(manifest.activationEvents).not.toContain('onCommand:pinflow.openRunDirectory');
+    // VS Code 1.74+ auto-generates onView:* and onCommand:* activation events
+    // from contributes.views and contributes.commands respectively. The
+    // manifest only needs onStartupFinished as an explicit early-load trigger.
+    expect(manifest.activationEvents).toEqual(['onStartupFinished']);
   });
 
   it('wires refresh and inline run actions into the menus contribution', () => {
@@ -179,7 +173,7 @@ describe('VS Code extension manifest', () => {
     expect(emptyWorkspace?.contents).toContain('command:vscode.openFolder');
   });
 
-  it('contributes the package-3a commands and activation events', () => {
+  it('contributes the package-3a commands', () => {
     const commands = manifest.contributes?.commands?.map((c) => c.command) ?? [];
     expect(commands).toEqual(
       expect.arrayContaining([
@@ -188,13 +182,8 @@ describe('VS Code extension manifest', () => {
         'pinflow.openPreview',
       ]),
     );
-    expect(manifest.activationEvents).toEqual(
-      expect.arrayContaining([
-        'onCommand:pinflow.runInit',
-        'onCommand:pinflow.openDocumentation',
-        'onCommand:pinflow.openPreview',
-      ]),
-    );
+    // No explicit onCommand:* activation events needed — VS Code 1.74+
+    // generates them automatically from contributes.commands.
   });
 
   it('contributes the package-3a preferredFolder user setting', () => {

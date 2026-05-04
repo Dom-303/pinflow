@@ -145,6 +145,10 @@ function resolvePreferredStatus(
 ): PinFlowWorkspaceResult | undefined {
   if (!preferredFolder) return;
 
+  // Relative paths resolve against each top-level workspace folder.
+  // Nested candidate sub-folders (from getWorkspaceCandidateFolders) are
+  // intentionally NOT used as base paths — relative input is meant for
+  // top-level VS Code workspace roots, not deep sub-paths.
   const candidates = path.isAbsolute(preferredFolder)
     ? [path.resolve(preferredFolder)]
     : workspaceFolders.map((folder) =>
@@ -370,7 +374,12 @@ function readRunningRelay(
     const host = typeof lock.host === 'string' ? lock.host : undefined;
     const port = typeof lock.port === 'number' ? lock.port : undefined;
 
-    if (!pid || !host || !port || !processProbe(pid)) {
+    if (
+      pid === undefined ||
+      host === undefined ||
+      port === undefined ||
+      !processProbe(pid)
+    ) {
       return;
     }
 
@@ -402,7 +411,13 @@ function readRunningDevServer(
     const url = typeof lock.url === 'string' ? lock.url : undefined;
     const pid = typeof lock.pid === 'number' ? lock.pid : undefined;
 
-    if (!host || !port || !url || !pid || !processProbe(pid)) {
+    if (
+      host === undefined ||
+      port === undefined ||
+      url === undefined ||
+      pid === undefined ||
+      !processProbe(pid)
+    ) {
       return;
     }
 

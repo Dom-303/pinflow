@@ -231,6 +231,23 @@ describe('getBestPinFlowWorkspaceStatus with preferredFolder', () => {
 
     expect(status?.workspaceRoot).toBe(workspaceA);
   });
+
+  it('falls back to auto-priority when preferredFolder points at a not-configured folder', async () => {
+    const workspaceC = await mkdtemp(path.join(tmpdir(), 'pinflow-prefer-c-'));
+    try {
+      const status = getBestPinFlowWorkspaceStatus(
+        [workspaceA, workspaceC],
+        {
+          processProbe: () => false,
+          preferredFolder: workspaceC,
+        },
+      );
+
+      expect(status?.workspaceRoot).toBe(workspaceA);
+    } finally {
+      await rm(workspaceC, { recursive: true, force: true });
+    }
+  });
 });
 
 describe('dev-lock detection', () => {

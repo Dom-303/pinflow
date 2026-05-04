@@ -47,22 +47,24 @@ packages/pinflow-vscode/
     ├── core/views/runs-view-model.spec.ts                  # DELETE
     ├── core/views/group-runs-by-date.ts                    # DELETE — only used by runs-view-model
     ├── core/views/group-runs-by-date.spec.ts               # DELETE
-    └── runs-webview/                                       # NEW
+    ├── core/views/runs-webview-provider.ts                 # NEW — host-side provider (Node runtime)
+    ├── core/views/runs-webview-provider.spec.ts            # NEW
+    ├── core/views/runs-webview-messages.ts                 # NEW — shared message types (Node + Webview both import)
+    ├── core/views/runs-webview-messages.spec.ts            # NEW
+    └── runs-webview/                                       # NEW — webview-side bundle ONLY (browser runtime)
         ├── index.html                                      # Webview entrypoint (Vite-built)
-        ├── main.ts                                         # Bootstraps the Lit app
-        ├── messages.ts                                     # Shared message-type union (ext + webview)
-        ├── runs-webview-provider.ts                        # MOD — provider class lives in core, but imports messages.ts
+        ├── main.ts                                         # Bootstraps the Lit app via acquireVsCodeApi()
         ├── styles/theme.css                                # CSS custom properties, hybrid theming
         ├── components/
         │   ├── pinflow-runs-app.ts                         # Root component
         │   ├── pinflow-runs-app.spec.ts
         │   ├── pinflow-run-card.ts                         # Single card
         │   ├── pinflow-run-card.spec.ts
-        │   ├── pinflow-lifecycle-pill.ts                   # 5-state status pill
+        │   ├── pinflow-lifecycle-pill.ts                   # 4-state status pill (incl. 'unknown' fallback)
         │   ├── pinflow-lifecycle-pill.spec.ts
         │   ├── pinflow-runs-header.ts                      # "X runs" + future filter slot
         │   └── pinflow-empty-state.ts                      # Shown when runs.length === 0
-        └── messages.spec.ts                                # Round-trip + type-guard tests
+        └── (no provider file here — webview directory contains browser-runtime code only)
 ```
 
 ### Data flow
@@ -90,12 +92,14 @@ User clicks a card
 2. VS Code instantiates `RunsWebviewProvider`.
 3. `resolveWebviewView`:
    - Sets `webview.options.localResourceRoots` to `[extensionUri/dist/runs-webview]`.
+   - Sets `webview.options.retainContextWhenHidden = true` so hide/show does not re-trigger the handshake or lose Lit state.
    - Sets `webview.html` with computed nonce + CSP + asset URIs through `webview.asWebviewUri(...)`.
-   - Subscribes to `webview.onDidReceiveMessage`.
-   - Calls `postRuns(currentRuns)` immediately so the panel is never blank on first open.
-4. Webview JavaScript bootstraps the Lit app and posts `{ type: 'webview:ready' }`.
-5. Extension responds with `{ type: 'webview:init-ack', runs }` containing the latest cached runs.
-6. Subsequent refresh ticks call `postRuns(...)` which sends `{ type: 'runs:update', runs }`.
+   - Subscribes to `webview.onDidReceiveMessage` via the provided `Disposable[]` so listeners are cleaned up when the view is torn down.
+   - Stores reference to the webview internally; **does NOT post anything yet** — webview JS is still loading and the message would be dropped.
+4. Webview JavaScript loads, calls `const vscode = acquireVsCodeApi()`, registers `window.addEventListener('message', ...)`, then posts `{ type: 'webview:ready' }`.
+5. Extension responds with `{ type: 'webview:init-ack', runs, settings: { timeFormat } }` containing the latest cached runs and active settings — this is the FIRST message the webview ever receives.
+6. Subsequent `refreshAll` ticks call `provider.postRuns(...)` which sends `{ type: 'runs:update', runs }` only if a webview is currently resolved. Settings changes (via `vscode.workspace.onDidChangeConfiguration`) trigger `{ type: 'settings:update', settings }`.
+7. On `webview.onDidDispose`, the provider clears its webview reference so subsequent `postRuns` calls become no-ops until next `resolveWebviewView`.
 
 ## Build Pipeline
 
@@ -141,7 +145,7 @@ export default defineConfig({
 
 ### `scripts/check-webview-bundle-size.mjs`
 
-Reads `dist/runs-webview/main.js`, gzips in-memory via `node:zlib`, fails (`process.exit(1)`) if size > 150 KB. Logs the actual size on success for trend visibility.
+Walks all files under `dist/runs-webview/` (JS, CSS, woff2 fonts), gzips each in-memory via `node:zlib`, sums the total gzipped size, fails (`process.exit(1)`) if total > 150 KB. Logs the per-file breakdown + total on success for trend visibility.
 
 ### `.vscodeignore`
 
@@ -173,18 +177,18 @@ Reads `dist/runs-webview/main.js`, gzips in-memory via `node:zlib`, fails (`proc
 
 ### `<pinflow-lifecycle-pill>`
 
-- `@property() state: 'pending' | 'processing' | 'processed' | 'failed' | 'cancelled'`.
-- Renders surface + border + icon + optional pulse animation per state (table in section 4 of brainstorming, restated here for traceability):
+- `@property() state: 'processing' | 'processed' | 'failed' | 'unknown'`.
+- Mapping function: `mapStatusToPillState(summary.status: string | undefined): PillState` returns one of the 4 states with `'unknown'` as fallback for any unrecognized or missing value. The mapping reuses the same 3 known values currently handled in the deleted `runs-view-model.ts` (`'processing'`, `'processed'`, `'failed'`).
+- Renders surface + border + icon + optional pulse animation per state:
 
 | State | Surface | Border | Icon | Animation |
 |---|---|---|---|---|
-| `pending` | `--pf-status-pending` 12% | `--pf-status-pending` 40% | `circle-outline` | — |
-| `processing` | `--pf-status-running` 14% | `--pf-status-running` 50% | `loading` | subtle pulse 1.5s |
+| `processing` | `--pf-status-running` 14% | `--pf-status-running` 50% | `loading~spin` | subtle pulse 1.5s |
 | `processed` | `--pf-status-done` 14% | `--pf-status-done` 50% | `check` | — |
 | `failed` | `--pf-status-failed` 14% | `--pf-status-failed` 50% | `error` | — |
-| `cancelled` | `--pf-bg-elevated` | `--pf-border` | `x` | — |
+| `unknown` | `--pf-bg-elevated` | `--pf-border` | `circle-outline` | — |
 
-- Mapping `PinFlowRunEvidence.summary.status` → `state` is 1:1 with existing values.
+- The `'unknown'` fallback is a safety net: if the runner ever introduces new status values (`'pending'`, `'cancelled'`, etc.), the pill renders an inert grey state instead of crashing or hiding. Future packages can extend the union explicitly.
 - Icons via local `@vscode/codicons` font (no external assets).
 
 ### `<pinflow-runs-header>`
@@ -197,14 +201,21 @@ Reads `dist/runs-webview/main.js`, gzips in-memory via `node:zlib`, fails (`proc
 
 ## Message-Passing Protocol
 
-### Source of truth: `src/runs-webview/messages.ts`
+### Source of truth: `src/core/views/runs-webview-messages.ts`
+
+Lives in `core/views/` (not in `runs-webview/`) so the host-side provider can import it without crossing into the webview-bundle directory.
 
 ```ts
-import type { PinFlowRunEvidence } from '../core/run-evidence.js';
+import type { PinFlowRunEvidence } from '../run-evidence.js';
+
+export interface RunsWebviewSettings {
+  readonly timeFormat: '24h' | '12h';
+}
 
 export type ExtToWebviewMessage =
+  | { readonly type: 'webview:init-ack'; readonly runs: readonly PinFlowRunEvidence[]; readonly settings: RunsWebviewSettings }
   | { readonly type: 'runs:update'; readonly runs: readonly PinFlowRunEvidence[] }
-  | { readonly type: 'webview:init-ack'; readonly runs: readonly PinFlowRunEvidence[] };
+  | { readonly type: 'settings:update'; readonly settings: RunsWebviewSettings };
 
 export type WebviewToExtMessage =
   | { readonly type: 'webview:ready' }
@@ -215,13 +226,13 @@ export function isExtToWebviewMessage(value: unknown): value is ExtToWebviewMess
 export function isWebviewToExtMessage(value: unknown): value is WebviewToExtMessage { /* ... */ }
 ```
 
-Imported by both `extension.ts` (Provider) and `runs-webview/main.ts`. Single source of truth.
+Imported by both `runs-webview-provider.ts` (host-side) and `runs-webview/main.ts` (webview-side). Single source of truth.
 
 ### Handshake
 
-1. Webview connects, posts `webview:ready`.
-2. Extension responds with `webview:init-ack` + current cached runs (no wait for next refresh tick).
-3. Subsequent ticks send `runs:update`.
+1. Webview JS calls `acquireVsCodeApi()`, registers `window.addEventListener('message', ...)`, posts `webview:ready`.
+2. Extension responds with `webview:init-ack` carrying current cached runs AND current settings (`timeFormat`).
+3. Subsequent ticks send `runs:update`. Settings changes send `settings:update` separately (so we don't re-send the runs array on every settings tick).
 
 ### CSP header (built into `webview.html`)
 
@@ -296,7 +307,7 @@ VS Code emits `vscode.window.onDidChangeActiveColorTheme` automatically — the 
 |---|---|
 | `pinflow-run-card.spec.ts` | Renders correct annotation-id, relative time, summary text. Click event dispatches `pinflow-card:click` with correct `runId`. |
 | `pinflow-lifecycle-pill.spec.ts` | All 5 states render correct icon + correct CSS classes. State change triggers re-render. |
-| `pinflow-runs-app.spec.ts` | Empty state when `runs = []`. Card list when `runs` non-empty. `repeat()` keys cards by `runId`. Renders within performance budget (80 runs in <16ms, asserted via `performance.now()` wrapper). |
+| `pinflow-runs-app.spec.ts` | Empty state when `runs = []`. Card list when `runs` non-empty. `repeat()` keys cards by `runId`. Stress test: 80 runs renders without throw (no strict timing assertion — happy-dom timing is unreliable; real-browser perf checked manually in smoke). |
 | `pinflow-runs-header.spec.ts` | Static "X runs" text reflects `runs.length`. |
 | `pinflow-empty-state.spec.ts` | Renders the German copy. |
 
@@ -332,7 +343,7 @@ These are covered by manual smoke testing.
 |---|---|
 | **Vite-Build-Pipeline conflict with Nx** | Separate `vite.webview.config.ts`; Nx target `build:webview` with explicit `inputs` / `outputs`; `build` and `package:vsix` declare `dependsOn: ["build:webview"]`. Cache invalidation is precise. |
 | **CSP blocks legitimate assets** | All assets local. Codicons font bundled via `@vscode/codicons` npm package. CSP explicit per resource type. All asset URLs through `webview.asWebviewUri()`. No external network requests. |
-| **Bundle > 100 KB** | Vite `manualChunks: { lit: ['lit'] }`; tree-shake; terser minification; build-time guard `scripts/check-webview-bundle-size.mjs` fails if `dist/runs-webview/main.js` > 150 KB gzipped. |
+| **Bundle > 100 KB** | Vite `manualChunks: { lit: ['lit'] }`; tree-shake; terser minification; build-time guard `scripts/check-webview-bundle-size.mjs` sums total gzipped size of `dist/runs-webview/**` (JS + CSS + fonts) and fails if > 150 KB. |
 | **Re-render performance** | Lit `repeat()` directive (keyed reconciliation). Performance budget asserted in `pinflow-runs-app.spec.ts`: 80 runs render in <16ms. Test fails if budget breached. |
 | **`color-mix()` browser support** | VS Code engine `^1.90.0` ⇒ Chromium ≥ 124 (color-mix supported since 111). Defensive `@supports not (color: color-mix(...))` fallback in `theme.css`. |
 | **High-Contrast theme unreadable** | `@media (prefers-contrast: more)` block in `theme.css` overrides surfaces, border, accent, status colors with VS Code's HC variables (`--vscode-contrastBorder`, `--vscode-contrastActiveBorder`, `--vscode-charts-*`, `--vscode-errorForeground`). Smoke test runs in 4 modes (Default Light, Default Dark, HC Light, HC Dark). |
@@ -343,14 +354,14 @@ These are covered by manual smoke testing.
 2. Install the VSIX in a VS Code window. Reload.
 3. Open the PinFlow Activity-Bar.
 4. **Empty state:** workspace with no runs. Confirm "Noch keine Runs. Workflow aus der Actions-Ansicht starten." renders.
-5. **Run cards:** trigger `PinFlow: Start Workflow`. Within 3 s the card appears with status `pending` or `processing`. Confirm header (annotation-id + time + provider icon), body (summary one-liner), pill at bottom.
-6. **Lifecycle transition:** wait for the run to complete. Confirm pill transitions through `processing` (with pulse) → `processed` (or `failed`).
+5. **Run cards:** trigger `PinFlow: Start Workflow`. Card appears within the next 3-second refresh tick after the agent has produced the first summary. (Agent runtime varies — could be seconds to minutes; the 3-second bound is the tick frequency, not end-to-end latency.) Confirm header (annotation-id + time + provider icon), body (summary one-liner), pill at bottom.
+6. **Lifecycle transition:** wait for the run to complete. Confirm pill transitions to `processed` (success) or `failed` (error). The `processing` state with pulse is visible only when the runner explicitly emits that status mid-run; if the agent goes straight from "no summary" to "summary processed", the pill skips processing.
 7. **Click target:** click a card. Confirm `prompt.md` opens in the editor.
 8. **Theme respect — Default Dark:** confirm webview adapts.
 9. **Theme respect — Default Light:** confirm webview adapts.
 10. **Theme respect — High Contrast Dark:** confirm pills use VS Code HC chart colors and border is sharp.
 11. **Theme respect — High Contrast Light:** same.
-12. **Bundle size sanity:** check console for the size message logged by `check-webview-bundle-size.mjs` during build (should be well under 150 KB gzipped).
+12. **Bundle size sanity:** check console for the size message logged by `check-webview-bundle-size.mjs` during build. The script measures the total gzipped size of `dist/runs-webview/**` (JS + CSS + fonts), not just `main.js`. Should be well under 150 KB.
 13. **No regression:** Status view still shows Relay/Runner/Workspace/Preview. Actions view still shows commands. First-Run toast still fires correctly.
 
 ## Verification Gates

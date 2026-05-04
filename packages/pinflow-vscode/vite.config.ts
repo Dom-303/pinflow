@@ -1,11 +1,19 @@
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
+  esbuild: {
+    tsconfigRaw: {
+      compilerOptions: {
+        experimentalDecorators: true,
+        useDefineForClassFields: false,
+      },
+    },
+  },
   test: {
     name: 'pinflow-vscode',
     watch: false,
     globals: true,
-    environment: 'node',
+    environment: 'happy-dom',
     include: ['src/**/*.{test,spec}.ts'],
     reporters: ['default'],
     outputFile: './test-output/vitest/report.json',

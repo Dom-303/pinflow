@@ -5,7 +5,17 @@
     "types": [
       "node",
       "vitest/globals"
-    ]
+    ],
+    "lib": [
+      "es2024",
+      "ESNext.Array",
+      "ESNext.Collection",
+      "ESNext.Iterator",
+      "ESNext.Promise",
+      "DOM"
+    ],
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false
   },
   "include": [
     "src/**/*.ts",

@@ -215,8 +215,14 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand(
       'pinflow.openPreview',
       async (url: unknown) => {
-        if (typeof url !== 'string' || !url) return;
-        await vscode.env.openExternal(vscode.Uri.parse(url));
+        if (typeof url !== 'string' || !url.trim()) return;
+        try {
+          await vscode.env.openExternal(vscode.Uri.parse(url));
+        } catch {
+          void vscode.window.showInformationMessage(
+            'Could not open preview URL.',
+          );
+        }
       },
     ),
     vscode.commands.registerCommand('pinflow.externalClaim', async () => {

@@ -28,8 +28,8 @@
   --pf-space-sm: 8px;
   --pf-space-xs: 4px;
 
-  /* Paper grain overlay (4% opacity SVG noise as data URI) */
-  --pf-paper-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.04 0'/></filter><rect width='240' height='240' filter='url(%23n)'/></svg>");
+  /* Paper grain overlay (4% opacity SVG noise as data URI; <>/& percent-encoded for max compat) */
+  --pf-paper-grain: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.04 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 /* color-mix() fallback for older Chromium */
@@ -47,6 +47,7 @@
     --pf-card-surface: var(--vscode-editor-background);
     --pf-border: var(--vscode-contrastBorder);
     --pf-accent: var(--vscode-contrastActiveBorder);
+    --pf-accent-soft: transparent;
     --pf-status-running: var(--vscode-charts-yellow, #ffcc00);
     --pf-status-done: var(--vscode-charts-green, #00cc00);
     --pf-status-failed: var(--vscode-errorForeground, #ff0000);

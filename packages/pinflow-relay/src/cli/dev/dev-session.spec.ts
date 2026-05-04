@@ -222,4 +222,95 @@ describe('runPinflowDev', () => {
     expect(appChild.kill).toHaveBeenCalledWith('SIGTERM');
     expect(relayControl.stop).toHaveBeenCalledTimes(1);
   });
+
+  it('writes a dev.lock when the localhost URL is detected and removes it on exit', async () => {
+    const runnerChild = createChild(111);
+    const appChild = createChildWithOutput(222);
+    const writeDevLock = vi.fn();
+    const removeDevLock = vi.fn();
+    const relayControl = {
+      validateAndClear: vi.fn().mockResolvedValue(undefined),
+      ensureRunning: vi.fn().mockResolvedValue({ host: '127.0.0.1', port: 4400 }),
+      stop: vi.fn().mockResolvedValue(undefined),
+    };
+    const runnerControl = { spawn: vi.fn().mockReturnValue(runnerChild) };
+    const spawnApp = vi.fn().mockImplementation(() => {
+      queueMicrotask(() => {
+        appChild.stdout?.emit(
+          'data',
+          Buffer.from('Local: http://localhost:5173/\n'),
+        );
+        appChild.emit('exit', 0, null);
+      });
+      return appChild;
+    });
+
+    await runPinflowDev(
+      {
+        workspaceRoot: '/repo',
+        appCommand: ['npm', 'run', 'dev'],
+        runner: { provider: 'codex' },
+        relay: {},
+      },
+      {
+        relayControl,
+        runnerControl,
+        spawnApp,
+        writeDevLock,
+        removeDevLock,
+        stderr: { write: vi.fn() },
+      },
+    );
+
+    expect(writeDevLock).toHaveBeenCalledTimes(1);
+    expect(writeDevLock).toHaveBeenCalledWith('/repo', {
+      host: 'localhost',
+      port: 5173,
+      url: 'http://localhost:5173/',
+      pid: process.pid,
+    });
+    expect(removeDevLock).toHaveBeenCalledTimes(1);
+    expect(removeDevLock).toHaveBeenCalledWith('/repo');
+  });
+
+  it('does not write a dev.lock when no localhost URL is detected', async () => {
+    const runnerChild = createChild(111);
+    const appChild = createChildWithOutput(222);
+    const writeDevLock = vi.fn();
+    const removeDevLock = vi.fn();
+    const relayControl = {
+      validateAndClear: vi.fn().mockResolvedValue(undefined),
+      ensureRunning: vi.fn().mockResolvedValue({ host: '127.0.0.1', port: 4400 }),
+      stop: vi.fn().mockResolvedValue(undefined),
+    };
+    const runnerControl = { spawn: vi.fn().mockReturnValue(runnerChild) };
+    const spawnApp = vi.fn().mockImplementation(() => {
+      queueMicrotask(() => {
+        appChild.stdout?.emit('data', Buffer.from('starting up...\n'));
+        appChild.emit('exit', 0, null);
+      });
+      return appChild;
+    });
+
+    await runPinflowDev(
+      {
+        workspaceRoot: '/repo',
+        appCommand: ['npm', 'run', 'dev'],
+        runner: { provider: 'codex' },
+        relay: {},
+      },
+      {
+        relayControl,
+        runnerControl,
+        spawnApp,
+        writeDevLock,
+        removeDevLock,
+        stderr: { write: vi.fn() },
+      },
+    );
+
+    expect(writeDevLock).not.toHaveBeenCalled();
+    expect(removeDevLock).toHaveBeenCalledTimes(1);
+    expect(removeDevLock).toHaveBeenCalledWith('/repo');
+  });
 });

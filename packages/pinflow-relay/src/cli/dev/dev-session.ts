@@ -1,4 +1,6 @@
 import { spawn, type ChildProcess, type SpawnOptions } from 'node:child_process';
+import { mkdir, rm, writeFile } from 'node:fs/promises';
+import path from 'node:path';
 import type { Readable, Writable } from 'node:stream';
 
 import { RelayControl } from '../../lifecycle/relay-control.js';
@@ -53,11 +55,20 @@ type AppSpawner = (
   options: SpawnOptions,
 ) => ChildProcess;
 
+export interface PinflowDevLock {
+  readonly host: string;
+  readonly port: number;
+  readonly url: string;
+  readonly pid: number;
+}
+
 export interface PinflowDevDependencies {
   relayControl?: RelayControlLike;
   runnerControl?: RunnerControlLike;
   spawnApp?: AppSpawner;
   openUrl?: (url: string) => void;
+  writeDevLock?: (workspaceRoot: string, lock: PinflowDevLock) => void | Promise<void>;
+  removeDevLock?: (workspaceRoot: string) => void | Promise<void>;
   stderr?: Pick<Writable, 'write'>;
 }
 
@@ -85,6 +96,8 @@ export async function runPinflowDev(
     new RunnerControl(options.workspaceRoot, { debug: options.debug });
   const spawnApp = deps.spawnApp ?? spawn;
   const openUrl = deps.openUrl ?? ((url) => openExternalUrl(url, stderr));
+  const writeDevLock = deps.writeDevLock ?? defaultWriteDevLock;
+  const removeDevLock = deps.removeDevLock ?? defaultRemoveDevLock;
 
   const existingRelay = await relayControl.validateAndClear();
   const relay = existingRelay
@@ -122,7 +135,16 @@ export async function runPinflowDev(
     },
   });
   stderr.write(`[pinflow-cli] App command started: ${options.appCommand.join(' ')}\n`);
-  attachAppOutput(appChild, options.open, openUrl);
+  attachAppOutput(appChild, options.open, openUrl, (detectedUrl) => {
+    const parsed = parseLocalhostUrl(detectedUrl);
+    if (!parsed) return;
+    void writeDevLock(options.workspaceRoot, {
+      host: parsed.host,
+      port: parsed.port,
+      url: detectedUrl,
+      pid: process.pid,
+    });
+  });
 
   const appExit = waitForChild(appChild);
   const runnerExit = waitForChild(runnerChild);
@@ -142,6 +164,10 @@ export async function runPinflowDev(
     return exitToCode(first.exit);
   } finally {
     terminateChild(runnerChild);
+
+    await Promise.resolve(removeDevLock(options.workspaceRoot)).catch(() => {
+      // Cleanup is best-effort.
+    });
 
     if (ownsRelay) {
       await relayControl.stop();
@@ -173,19 +199,24 @@ function attachAppOutput(
   child: ChildProcess,
   open: boolean | string | undefined,
   openUrl: (url: string) => void,
+  onLocalhostUrl: (url: string) => void,
 ): void {
   if (typeof open === 'string') {
     openUrl(open);
+    onLocalhostUrl(open);
   }
 
+  let localhostUrlSeen = false;
   let openedDetectedUrl = false;
   pipeOutput(child.stdout, process.stdout, (text) => {
-    if (open === true && !openedDetectedUrl) {
-      const url = findLocalhostUrl(text);
-      if (url) {
-        openedDetectedUrl = true;
-        openUrl(url);
-      }
+    const url = findLocalhostUrl(text);
+    if (url && !localhostUrlSeen) {
+      localhostUrlSeen = true;
+      onLocalhostUrl(url);
+    }
+    if (url && open === true && !openedDetectedUrl) {
+      openedDetectedUrl = true;
+      openUrl(url);
     }
   });
   pipeOutput(child.stderr, process.stderr);
@@ -206,6 +237,36 @@ function pipeOutput(
 function findLocalhostUrl(text: string): string | null {
   const match = text.match(/https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\/?/);
   return match?.[0] ?? null;
+}
+
+async function defaultWriteDevLock(
+  workspaceRoot: string,
+  lock: PinflowDevLock,
+): Promise<void> {
+  const dir = path.join(workspaceRoot, '.pinflow');
+  const file = path.join(dir, 'dev.lock');
+  const tmp = `${file}.${process.pid}.tmp`;
+  await mkdir(dir, { recursive: true });
+  await writeFile(tmp, `${JSON.stringify(lock, null, 2)}\n`, 'utf8');
+  // Atomic rename so partial writes never appear to readers.
+  const { rename } = await import('node:fs/promises');
+  await rename(tmp, file);
+}
+
+async function defaultRemoveDevLock(workspaceRoot: string): Promise<void> {
+  const file = path.join(workspaceRoot, '.pinflow', 'dev.lock');
+  await rm(file, { force: true });
+}
+
+function parseLocalhostUrl(url: string): { host: string; port: number } | null {
+  try {
+    const parsed = new URL(url);
+    const port = parsed.port ? Number.parseInt(parsed.port, 10) : null;
+    if (port === null || Number.isNaN(port)) return null;
+    return { host: parsed.hostname, port };
+  } catch {
+    return null;
+  }
 }
 
 function openExternalUrl(url: string, stderr: Pick<Writable, 'write'>): void {

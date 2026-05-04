@@ -143,9 +143,11 @@ function buildWorkspaceTooltip(
   options: BuildStatusViewItemsOptions,
 ): string {
   const count = options.workspaceFolderCount ?? 1;
-  if (count <= 1) return appRoot;
-  const oneBasedIndex = (options.workspaceFolderIndex ?? 0) + 1;
-  return `${appRoot}\n${oneBasedIndex} of ${count} workspace folders`;
+  const index = options.workspaceFolderIndex;
+  if (count <= 1 || index === undefined || index < 0 || index >= count) {
+    return appRoot;
+  }
+  return `${appRoot}\n${index + 1} of ${count} workspace folders`;
 }
 
 function buildPreviewItem(

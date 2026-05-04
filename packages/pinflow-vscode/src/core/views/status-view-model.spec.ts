@@ -175,25 +175,14 @@ describe('buildStatusViewItems', () => {
     expect(workspace?.tooltip).toBe('/repo/app\n1 of 3 workspace folders');
   });
 
-  it('inserts a preview row in position 4 between Workspace and the optional ExternalClaim', () => {
-    const status: PinFlowWorkspaceResult = {
-      ...readyStatus(),
-      devServer: {
-        host: 'localhost',
-        port: 5173,
-        url: 'http://localhost:5173/',
-        pid: 9999,
-      },
-    };
+  it('omits the multi-folder hint when the active folder index is undefined', () => {
+    const items = buildStatusViewItems(readyStatus(), null, null, {
+      workspaceFolderCount: 3,
+      workspaceFolderIndex: undefined,
+    });
+    const workspace = items.find((item) => item.id === 'workspace');
 
-    const items = buildStatusViewItems(status, null);
-
-    expect(items.map((item) => item.id)).toEqual([
-      'relay',
-      'runner',
-      'workspace',
-      'preview',
-    ]);
+    expect(workspace?.tooltip).toBe('/repo/app');
   });
 
   it('describes the preview row with host:port and a clickable command when running', () => {

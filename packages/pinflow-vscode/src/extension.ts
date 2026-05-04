@@ -102,7 +102,14 @@ export function activate(context: vscode.ExtensionContext): void {
     const workspaceStatus = getBestPinFlowWorkspaceStatus(workspaceFolders, {
       preferredFolder: preferredFolder.trim() || undefined,
     });
-    if (!workspaceStatus) return;
+    if (!workspaceStatus) {
+      void vscode.commands.executeCommand(
+        'setContext',
+        'pinflow.notConfigured',
+        false,
+      );
+      return;
+    }
 
     void vscode.commands.executeCommand(
       'setContext',
@@ -124,7 +131,8 @@ export function activate(context: vscode.ExtensionContext): void {
     statusProvider.setItems(
       buildStatusViewItems(workspaceStatus, externalClaim, runEvidence[0] ?? null, {
         workspaceFolderCount: workspaceFolders.length,
-        workspaceFolderIndex: workspaceFolderIndex >= 0 ? workspaceFolderIndex : 0,
+        workspaceFolderIndex:
+          workspaceFolderIndex >= 0 ? workspaceFolderIndex : undefined,
       }),
     );
     const todayExpandedByDefault = config.get<boolean>('runs.todayExpandedByDefault', true);

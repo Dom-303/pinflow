@@ -17,7 +17,7 @@
         "{projectRoot}/scripts/check-webview-bundle-size.mjs"
       ],
       "options": {
-        "command": "vite build --config vite.webview.config.ts && node scripts/check-webview-bundle-size.mjs",
+        "command": "vite build --config vite.webview.config.ts && cp node_modules/@vscode/codicons/dist/codicon.css node_modules/@vscode/codicons/dist/codicon.ttf ./dist/runs-webview/ && node scripts/check-webview-bundle-size.mjs",
         "cwd": "{projectRoot}"
       }
     },

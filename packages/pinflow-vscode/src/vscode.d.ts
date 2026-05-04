@@ -5,6 +5,7 @@ declare module 'vscode' {
 
   export interface ExtensionContext {
     subscriptions: Disposable[];
+    readonly extensionUri: Uri;
     readonly globalState: {
       get<T>(key: string): T | undefined;
       get<T>(key: string, defaultValue: T): T;
@@ -16,6 +17,43 @@ declare module 'vscode' {
     readonly fsPath: string;
     static file(path: string): Uri;
     static parse(value: string): Uri;
+    static joinPath(base: Uri, ...segments: string[]): Uri;
+  }
+
+  export interface Webview {
+    html: string;
+    options: {
+      enableScripts?: boolean;
+      localResourceRoots?: readonly Uri[];
+    };
+    readonly cspSource: string;
+    asWebviewUri(localResource: Uri): Uri;
+    postMessage(message: unknown): Thenable<boolean>;
+    onDidReceiveMessage(
+      listener: (message: unknown) => unknown,
+      thisArgs?: unknown,
+      disposables?: Disposable[],
+    ): Disposable;
+  }
+
+  export interface WebviewView {
+    readonly webview: Webview;
+    readonly visible: boolean;
+    readonly viewType: string;
+    show(preserveFocus?: boolean): void;
+    onDidDispose(
+      listener: () => void,
+      thisArgs?: unknown,
+      disposables?: Disposable[],
+    ): Disposable;
+  }
+
+  export interface WebviewViewProvider {
+    resolveWebviewView(
+      webviewView: WebviewView,
+      context: { readonly state: unknown },
+      token: { readonly isCancellationRequested: boolean },
+    ): void | Thenable<void>;
   }
 
   export interface StatusBarItem extends Disposable {
@@ -92,6 +130,11 @@ declare module 'vscode' {
     registerTreeDataProvider<T>(
       viewId: string,
       treeDataProvider: TreeDataProvider<T>,
+    ): Disposable;
+    registerWebviewViewProvider(
+      viewType: string,
+      provider: WebviewViewProvider,
+      options?: { webviewOptions?: { retainContextWhenHidden?: boolean } },
     ): Disposable;
   };
 

@@ -86,11 +86,26 @@ export function activate(context: vscode.ExtensionContext): void {
       statusProvider.setItems([]);
       runsProvider.setRoots([]);
       actionsProvider.setItems(buildActionsViewItems(externalClaim));
+      void vscode.commands.executeCommand(
+        'setContext',
+        'pinflow.notConfigured',
+        false,
+      );
       return;
     }
 
-    const workspaceStatus = getBestPinFlowWorkspaceStatus(workspaceFolders);
+    const config = vscode.workspace.getConfiguration('pinflow');
+    const preferredFolder = config.get<string>('workspace.preferredFolder', '');
+    const workspaceStatus = getBestPinFlowWorkspaceStatus(workspaceFolders, {
+      preferredFolder: preferredFolder.trim() || undefined,
+    });
     if (!workspaceStatus) return;
+
+    void vscode.commands.executeCommand(
+      'setContext',
+      'pinflow.notConfigured',
+      workspaceStatus.status === 'not-configured',
+    );
 
     statusItem.text = formatStatusText(workspaceStatus.status);
     statusItem.tooltip = workspaceStatus.message;
@@ -100,10 +115,15 @@ export function activate(context: vscode.ExtensionContext): void {
       ? await findRunEvidence(workspaceStatus.workspaceRoot, { limit: RUN_EVIDENCE_LIMIT })
       : [];
 
-    statusProvider.setItems(
-      buildStatusViewItems(workspaceStatus, externalClaim, runEvidence[0] ?? null),
+    const workspaceFolderIndex = workspaceFolders.findIndex(
+      (folder) => folder === workspaceStatus.workspaceFolder,
     );
-    const config = vscode.workspace.getConfiguration('pinflow');
+    statusProvider.setItems(
+      buildStatusViewItems(workspaceStatus, externalClaim, runEvidence[0] ?? null, {
+        workspaceFolderCount: workspaceFolders.length,
+        workspaceFolderIndex: workspaceFolderIndex >= 0 ? workspaceFolderIndex : 0,
+      }),
+    );
     const todayExpandedByDefault = config.get<boolean>('runs.todayExpandedByDefault', true);
     const timeFormat = config.get<'24h' | '12h'>('timeFormat', '24h');
     const notifyFailed = config.get<boolean>('notifications.runFailed', true);

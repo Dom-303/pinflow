@@ -1,8 +1,8 @@
 import './components/pinflow-lifecycle-pill.js';
 import './components/pinflow-run-card.js';
-// TODO(Task 9): import './components/pinflow-runs-app.js';
-// TODO(Task 9): import './components/pinflow-runs-header.js';
-// TODO(Task 9): import './components/pinflow-empty-state.js';
+import './components/pinflow-runs-app.js';
+import './components/pinflow-runs-header.js';
+import './components/pinflow-empty-state.js';
 import {
   isExtToWebviewMessage,
   type WebviewToExtMessage,

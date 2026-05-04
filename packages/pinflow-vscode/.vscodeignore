@@ -9,3 +9,7 @@ dist/**/*.d.ts
 dist/**/*.tsbuildinfo
 dist/README.md
 dist/*.vsix
+# Webview source — only the bundled output ships
+src/runs-webview/**
+vite.webview.config.ts
+scripts/check-webview-bundle-size.mjs

@@ -8,8 +8,22 @@
     "type:app"
   ],
   "targets": {
+    "build:webview": {
+      "executor": "nx:run-commands",
+      "outputs": ["{projectRoot}/dist/runs-webview"],
+      "inputs": [
+        "{projectRoot}/src/runs-webview/**",
+        "{projectRoot}/vite.webview.config.ts",
+        "{projectRoot}/scripts/check-webview-bundle-size.mjs"
+      ],
+      "options": {
+        "command": "vite build --config vite.webview.config.ts && node scripts/check-webview-bundle-size.mjs",
+        "cwd": "{projectRoot}"
+      }
+    },
     "build": {
       "executor": "@nx/js:tsc",
+      "dependsOn": ["^build", "build:webview"],
       "outputs": [
         "{projectRoot}/dist"
       ],

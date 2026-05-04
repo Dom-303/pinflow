@@ -1,5 +1,5 @@
 import { spawn, type ChildProcess, type SpawnOptions } from 'node:child_process';
-import { mkdir, rm, writeFile } from 'node:fs/promises';
+import { mkdir, rename, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { Readable, Writable } from 'node:stream';
 
@@ -249,7 +249,6 @@ async function defaultWriteDevLock(
   await mkdir(dir, { recursive: true });
   await writeFile(tmp, `${JSON.stringify(lock, null, 2)}\n`, 'utf8');
   // Atomic rename so partial writes never appear to readers.
-  const { rename } = await import('node:fs/promises');
   await rename(tmp, file);
 }
 

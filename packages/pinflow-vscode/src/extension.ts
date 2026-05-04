@@ -370,6 +370,13 @@ class StatusTreeDataProvider
     item.iconPath = element.themeIconColor
       ? new vscode.ThemeIcon(element.themeIcon, new vscode.ThemeColor(element.themeIconColor))
       : new vscode.ThemeIcon(element.themeIcon);
+    if (element.command) {
+      item.command = {
+        command: element.command.command,
+        title: element.label,
+        arguments: element.command.arguments?.slice(),
+      };
+    }
     return item;
   }
 

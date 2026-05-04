@@ -121,6 +121,12 @@ export class PinflowRunCard extends LitElement {
   `;
 
   protected updated(changed: Map<string, unknown>): void {
+    if (changed.has('index')) {
+      // CSS custom properties only inherit DOWN; setting --card-index on
+      // an inner descendant won't reach :host. Set it on the host element
+      // directly so :host's stagger animation can read it.
+      this.style.setProperty('--card-index', String(this.index));
+    }
     if (!changed.has('run')) return;
     const prev = changed.get('run') as PinFlowRunEvidence | undefined;
     const previousStatus = prev?.summary?.status;
@@ -173,7 +179,6 @@ export class PinflowRunCard extends LitElement {
     return html`
       <div
         class="card"
-        style=${`--card-index: ${this.index}`}
         @click=${this.handleClick}
       >
         <div class="header">

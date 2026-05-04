@@ -37,7 +37,10 @@
     "onCommand:pinflow.externalFail",
     "onCommand:pinflow.openRunDirectory",
     "onCommand:pinflow.openRunDiff",
-    "onCommand:pinflow.openSettings"
+    "onCommand:pinflow.openSettings",
+    "onCommand:pinflow.runInit",
+    "onCommand:pinflow.openDocumentation",
+    "onCommand:pinflow.openPreview"
   ],
   "categories": [
     "Other"
@@ -74,7 +77,10 @@
       { "command": "pinflow.externalFail", "title": "PinFlow: Fail External Task", "category": "PinFlow" },
       { "command": "pinflow.openRunDirectory", "title": "PinFlow: Open Run Directory", "category": "PinFlow", "icon": "$(go-to-file)" },
       { "command": "pinflow.openRunDiff", "title": "PinFlow: Open Run Diff", "category": "PinFlow", "icon": "$(diff)" },
-      { "command": "pinflow.openSettings", "title": "PinFlow: Open Settings", "category": "PinFlow", "icon": "$(gear)" }
+      { "command": "pinflow.openSettings", "title": "PinFlow: Open Settings", "category": "PinFlow", "icon": "$(gear)" },
+      { "command": "pinflow.runInit", "title": "PinFlow: Run Init", "category": "PinFlow", "icon": "$(rocket)" },
+      { "command": "pinflow.openDocumentation", "title": "PinFlow: Open Documentation", "category": "PinFlow", "icon": "$(book)" },
+      { "command": "pinflow.openPreview", "title": "PinFlow: Open Preview", "category": "PinFlow", "icon": "$(link-external)" }
     ],
     "configuration": {
       "title": "PinFlow",
@@ -107,6 +113,11 @@
           "enum": ["codex", "claude"],
           "default": "codex",
           "description": "Default provider used when claiming an external PinFlow task via 'Claim External Task'."
+        },
+        "pinflow.workspace.preferredFolder": {
+          "type": "string",
+          "default": "",
+          "description": "Absolute or relative path to the workspace folder PinFlow should track. Leave empty to use auto-detection (the first folder with a running relay, then the first configured folder, then the first folder)."
         }
       }
     },
@@ -120,7 +131,19 @@
         { "command": "pinflow.openRunDiff", "when": "viewItem == pinflow.run", "group": "inline" },
         { "command": "pinflow.openRunDirectory", "when": "viewItem == pinflow.run", "group": "inline" }
       ]
-    }
+    },
+    "viewsWelcome": [
+      {
+        "view": "pinflow.status",
+        "when": "workbenchState != empty && pinflow.notConfigured",
+        "contents": "PinFlow ist in diesem Workspace nicht eingerichtet.\n\n[$(rocket) PinFlow einrichten](command:pinflow.runInit)\n\n[$(book) Dokumentation öffnen](command:pinflow.openDocumentation)\n\nVoraussetzung: PinFlow CLI verfügbar (lokal in deinem Projekt oder global installiert)."
+      },
+      {
+        "view": "pinflow.status",
+        "when": "workbenchState == empty",
+        "contents": "PinFlow braucht einen geöffneten Ordner.\n\n[$(folder-opened) Ordner öffnen](command:vscode.openFolder)"
+      }
+    ]
   },
   "scripts": {
     "build": "tsc -p tsconfig.lib.json",

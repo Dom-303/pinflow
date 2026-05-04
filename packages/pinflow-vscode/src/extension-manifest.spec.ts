@@ -36,6 +36,7 @@ describe('VS Code extension manifest', () => {
           description?: string;
         }>;
       };
+      viewsWelcome?: Array<{ view: string; contents: string; when: string }>;
     };
   };
   const packageRoot = path.resolve(__dirname, '..');
@@ -84,6 +85,9 @@ describe('VS Code extension manifest', () => {
       'pinflow.openRunDirectory',
       'pinflow.openRunDiff',
       'pinflow.openSettings',
+      'pinflow.runInit',
+      'pinflow.openDocumentation',
+      'pinflow.openPreview',
     ]);
   });
 
@@ -131,6 +135,7 @@ describe('VS Code extension manifest', () => {
       'pinflow.timeFormat',
       'pinflow.notifications.runFailed',
       'pinflow.externalHandoff.defaultProvider',
+      'pinflow.workspace.preferredFolder',
     ]);
     expect(props['pinflow.refreshIntervalMs'].default).toBe(3000);
     expect(props['pinflow.refreshIntervalMs'].minimum).toBe(500);
@@ -149,5 +154,56 @@ describe('VS Code extension manifest', () => {
       when: 'view == pinflow.status',
       group: 'navigation',
     });
+  });
+
+  it('contributes the package-3a welcome blocks for not-configured and empty-workspace states', () => {
+    const welcome = manifest.contributes?.viewsWelcome;
+    expect(welcome).toBeDefined();
+    expect(welcome).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          view: 'pinflow.status',
+          when: expect.stringContaining('pinflow.notConfigured'),
+        }),
+        expect.objectContaining({
+          view: 'pinflow.status',
+          when: 'workbenchState == empty',
+        }),
+      ]),
+    );
+    const notConfigured = welcome?.find((entry) =>
+      entry.when.includes('pinflow.notConfigured'),
+    );
+    expect(notConfigured?.contents).toContain('command:pinflow.runInit');
+    expect(notConfigured?.contents).toContain('command:pinflow.openDocumentation');
+    const emptyWorkspace = welcome?.find(
+      (entry) => entry.when === 'workbenchState == empty',
+    );
+    expect(emptyWorkspace?.contents).toContain('command:vscode.openFolder');
+  });
+
+  it('contributes the package-3a commands and activation events', () => {
+    const commands = manifest.contributes?.commands?.map((c) => c.command) ?? [];
+    expect(commands).toEqual(
+      expect.arrayContaining([
+        'pinflow.runInit',
+        'pinflow.openDocumentation',
+        'pinflow.openPreview',
+      ]),
+    );
+    expect(manifest.activationEvents).toEqual(
+      expect.arrayContaining([
+        'onCommand:pinflow.runInit',
+        'onCommand:pinflow.openDocumentation',
+        'onCommand:pinflow.openPreview',
+      ]),
+    );
+  });
+
+  it('contributes the package-3a preferredFolder user setting', () => {
+    const props = manifest.contributes?.configuration?.properties ?? {};
+    expect(props['pinflow.workspace.preferredFolder']).toBeDefined();
+    expect(props['pinflow.workspace.preferredFolder'].type).toBe('string');
+    expect(props['pinflow.workspace.preferredFolder'].default).toBe('');
   });
 });

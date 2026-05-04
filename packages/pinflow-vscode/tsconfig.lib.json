@@ -15,9 +15,7 @@
     "outDir": "./dist",
     "rootDir": "src"
   },
-  "include": [
-    "src/**/*.ts"
-  ],
+  "include": ["src/**/*.ts"],
   "exclude": [
     "vite.config.ts",
     "vite.webview.config.ts",

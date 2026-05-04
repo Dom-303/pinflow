@@ -37,30 +37,101 @@
   "contributes": {
     "viewsContainers": {
       "activitybar": [
-        { "id": "pinflow", "title": "PinFlow", "icon": "media/sidebar-icon.svg" }
+        {
+          "id": "pinflow",
+          "title": "PinFlow",
+          "icon": "media/sidebar-icon.svg"
+        }
       ]
     },
     "views": {
       "pinflow": [
-        { "id": "pinflow.status", "name": "Status" },
-        { "id": "pinflow.runs", "name": "Runs", "type": "webview" },
-        { "id": "pinflow.actions", "name": "Actions" }
+        {
+          "id": "pinflow.status",
+          "name": "Status"
+        },
+        {
+          "id": "pinflow.runs",
+          "name": "Runs",
+          "type": "webview"
+        },
+        {
+          "id": "pinflow.actions",
+          "name": "Actions"
+        }
       ]
     },
     "commands": [
-      { "command": "pinflow.openPanel", "title": "PinFlow: Open Panel", "category": "PinFlow" },
-      { "command": "pinflow.openContainer", "title": "PinFlow: Show Sidebar", "category": "PinFlow" },
-      { "command": "pinflow.followRuns", "title": "PinFlow: Follow Runs", "category": "PinFlow" },
-      { "command": "pinflow.openLatestRun", "title": "PinFlow: Open Latest Run", "category": "PinFlow" },
-      { "command": "pinflow.startWorkflow", "title": "PinFlow: Start Workflow", "category": "PinFlow" },
-      { "command": "pinflow.refreshPanel", "title": "PinFlow: Refresh Panel", "category": "PinFlow", "icon": "$(refresh)" },
-      { "command": "pinflow.externalClaim", "title": "PinFlow: Claim External Task", "category": "PinFlow" },
-      { "command": "pinflow.externalComplete", "title": "PinFlow: Complete External Task", "category": "PinFlow" },
-      { "command": "pinflow.externalFail", "title": "PinFlow: Fail External Task", "category": "PinFlow" },
-      { "command": "pinflow.openSettings", "title": "PinFlow: Open Settings", "category": "PinFlow", "icon": "$(gear)" },
-      { "command": "pinflow.runInit", "title": "PinFlow: Run Init", "category": "PinFlow", "icon": "$(rocket)" },
-      { "command": "pinflow.openDocumentation", "title": "PinFlow: Open Documentation", "category": "PinFlow", "icon": "$(book)" },
-      { "command": "pinflow.openPreview", "title": "PinFlow: Open Preview", "category": "PinFlow", "icon": "$(link-external)" }
+      {
+        "command": "pinflow.openPanel",
+        "title": "PinFlow: Open Panel",
+        "category": "PinFlow"
+      },
+      {
+        "command": "pinflow.openContainer",
+        "title": "PinFlow: Show Sidebar",
+        "category": "PinFlow"
+      },
+      {
+        "command": "pinflow.followRuns",
+        "title": "PinFlow: Follow Runs",
+        "category": "PinFlow"
+      },
+      {
+        "command": "pinflow.openLatestRun",
+        "title": "PinFlow: Open Latest Run",
+        "category": "PinFlow"
+      },
+      {
+        "command": "pinflow.startWorkflow",
+        "title": "PinFlow: Start Workflow",
+        "category": "PinFlow"
+      },
+      {
+        "command": "pinflow.refreshPanel",
+        "title": "PinFlow: Refresh Panel",
+        "category": "PinFlow",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "pinflow.externalClaim",
+        "title": "PinFlow: Claim External Task",
+        "category": "PinFlow"
+      },
+      {
+        "command": "pinflow.externalComplete",
+        "title": "PinFlow: Complete External Task",
+        "category": "PinFlow"
+      },
+      {
+        "command": "pinflow.externalFail",
+        "title": "PinFlow: Fail External Task",
+        "category": "PinFlow"
+      },
+      {
+        "command": "pinflow.openSettings",
+        "title": "PinFlow: Open Settings",
+        "category": "PinFlow",
+        "icon": "$(gear)"
+      },
+      {
+        "command": "pinflow.runInit",
+        "title": "PinFlow: Run Init",
+        "category": "PinFlow",
+        "icon": "$(rocket)"
+      },
+      {
+        "command": "pinflow.openDocumentation",
+        "title": "PinFlow: Open Documentation",
+        "category": "PinFlow",
+        "icon": "$(book)"
+      },
+      {
+        "command": "pinflow.openPreview",
+        "title": "PinFlow: Open Preview",
+        "category": "PinFlow",
+        "icon": "$(link-external)"
+      }
     ],
     "configuration": {
       "title": "PinFlow",
@@ -79,7 +150,10 @@
         },
         "pinflow.timeFormat": {
           "type": "string",
-          "enum": ["24h", "12h"],
+          "enum": [
+            "24h",
+            "12h"
+          ],
           "default": "24h",
           "description": "Time format for run labels in the Runs view. '24h' shows '14:32', '12h' shows '2:32 PM'."
         },
@@ -90,7 +164,10 @@
         },
         "pinflow.externalHandoff.defaultProvider": {
           "type": "string",
-          "enum": ["codex", "claude"],
+          "enum": [
+            "codex",
+            "claude"
+          ],
           "default": "codex",
           "description": "Default provider used when claiming an external PinFlow task via 'Claim External Task'."
         },
@@ -103,9 +180,21 @@
     },
     "menus": {
       "view/title": [
-        { "command": "pinflow.openSettings", "when": "view == pinflow.status", "group": "navigation" },
-        { "command": "pinflow.refreshPanel", "when": "view == pinflow.runs", "group": "navigation" },
-        { "command": "pinflow.refreshPanel", "when": "view == pinflow.actions", "group": "navigation" }
+        {
+          "command": "pinflow.openSettings",
+          "when": "view == pinflow.status",
+          "group": "navigation"
+        },
+        {
+          "command": "pinflow.refreshPanel",
+          "when": "view == pinflow.runs",
+          "group": "navigation"
+        },
+        {
+          "command": "pinflow.refreshPanel",
+          "when": "view == pinflow.actions",
+          "group": "navigation"
+        }
       ]
     },
     "viewsWelcome": [

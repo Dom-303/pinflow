@@ -15,9 +15,7 @@
     "moduleResolution": "bundler",
     "outDir": "../../dist/packages/pinflow-nuxt"
   },
-  "include": [
-    "src/**/*.ts"
-  ],
+  "include": ["src/**/*.ts"],
   "exclude": [
     "vite.config.ts",
     "vite.config.mts",

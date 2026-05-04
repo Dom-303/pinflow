@@ -3,17 +3,11 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
   "sourceRoot": "packages/pinflow-manifest/src",
-  "tags": [
-    "scope:core",
-    "type:lib",
-    "type:test"
-  ],
+  "tags": ["scope:core", "type:lib", "type:test"],
   "targets": {
     "build": {
       "executor": "@nx/js:tsc",
-      "outputs": [
-        "{workspaceRoot}/dist/packages/pinflow-manifest"
-      ],
+      "outputs": ["{workspaceRoot}/dist/packages/pinflow-manifest"],
       "options": {
         "rootDir": "packages/pinflow-manifest/src",
         "outputPath": "dist/packages/pinflow-manifest",
@@ -21,16 +15,12 @@
         "tsConfig": "packages/pinflow-manifest/tsconfig.lib.json",
         "generatePackageJson": true,
         "generateExportsField": true,
-        "assets": [
-          "packages/pinflow-manifest/*.md"
-        ]
+        "assets": ["packages/pinflow-manifest/*.md"]
       }
     },
     "lint": {
       "executor": "@nx/eslint:lint",
-      "outputs": [
-        "{options.outputFile}"
-      ],
+      "outputs": ["{options.outputFile}"],
       "options": {
         "eslintConfig": "eslint.config.mjs",
         "lintFilePatterns": [
@@ -41,9 +31,7 @@
     },
     "test": {
       "executor": "@nx/vitest:test",
-      "outputs": [
-        "{projectRoot}/test-output"
-      ],
+      "outputs": ["{projectRoot}/test-output"],
       "options": {
         "config": "packages/pinflow-manifest/vite.config.ts"
       }

@@ -3,10 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
   "sourceRoot": "packages/pinflow-vscode/src",
-  "tags": [
-    "scope:infra",
-    "type:app"
-  ],
+  "tags": ["scope:infra", "type:app"],
   "targets": {
     "build:webview": {
       "executor": "nx:run-commands",
@@ -24,9 +21,7 @@
     "build": {
       "executor": "@nx/js:tsc",
       "dependsOn": ["^build", "build:webview"],
-      "outputs": [
-        "{projectRoot}/dist"
-      ],
+      "outputs": ["{projectRoot}/dist"],
       "options": {
         "rootDir": "packages/pinflow-vscode/src",
         "outputPath": "packages/pinflow-vscode/dist",
@@ -42,21 +37,15 @@
     },
     "lint": {
       "executor": "@nx/eslint:lint",
-      "outputs": [
-        "{options.outputFile}"
-      ],
+      "outputs": ["{options.outputFile}"],
       "options": {
         "eslintConfig": "eslint.config.mjs",
-        "lintFilePatterns": [
-          "packages/pinflow-vscode/**/*.ts"
-        ]
+        "lintFilePatterns": ["packages/pinflow-vscode/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nx/vitest:test",
-      "outputs": [
-        "{projectRoot}/test-output"
-      ],
+      "outputs": ["{projectRoot}/test-output"],
       "options": {
         "config": "packages/pinflow-vscode/vite.config.ts"
       }

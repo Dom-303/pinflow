@@ -18,9 +18,7 @@
     "outDir": "../../dist/packages/pinflow-overlay",
     "rootDir": "src"
   },
-  "include": [
-    "src/**/*.ts"
-  ],
+  "include": ["src/**/*.ts"],
   "exclude": [
     "vite.config.ts",
     "vite.config.mts",

@@ -3,17 +3,11 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
   "sourceRoot": "packages/pinflow-nuxt/src",
-  "tags": [
-    "scope:adapter",
-    "type:adapter-lib",
-    "type:test"
-  ],
+  "tags": ["scope:adapter", "type:adapter-lib", "type:test"],
   "targets": {
     "build": {
       "executor": "@nx/js:tsc",
-      "outputs": [
-        "{workspaceRoot}/dist/packages/pinflow-nuxt"
-      ],
+      "outputs": ["{workspaceRoot}/dist/packages/pinflow-nuxt"],
       "options": {
         "rootDir": "packages/pinflow-nuxt/src",
         "outputPath": "dist/packages/pinflow-nuxt",
@@ -33,9 +27,7 @@
     },
     "lint": {
       "executor": "@nx/eslint:lint",
-      "outputs": [
-        "{options.outputFile}"
-      ],
+      "outputs": ["{options.outputFile}"],
       "options": {
         "eslintConfig": "eslint.config.mjs",
         "lintFilePatterns": [
@@ -46,9 +38,7 @@
     },
     "test": {
       "executor": "@nx/vitest:test",
-      "outputs": [
-        "{projectRoot}/test-output"
-      ],
+      "outputs": ["{projectRoot}/test-output"],
       "options": {
         "config": "packages/pinflow-nuxt/vite.config.ts"
       }

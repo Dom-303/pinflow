@@ -3,16 +3,11 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
   "sourceRoot": "packages/pinflow-cli/src",
-  "tags": [
-    "scope:infra",
-    "type:lib"
-  ],
+  "tags": ["scope:infra", "type:lib"],
   "targets": {
     "build": {
       "executor": "@nx/js:tsc",
-      "outputs": [
-        "{workspaceRoot}/dist/packages/pinflow-cli"
-      ],
+      "outputs": ["{workspaceRoot}/dist/packages/pinflow-cli"],
       "options": {
         "rootDir": "packages/pinflow-cli/src",
         "outputPath": "dist/packages/pinflow-cli",
@@ -20,21 +15,15 @@
         "tsConfig": "packages/pinflow-cli/tsconfig.lib.json",
         "generatePackageJson": true,
         "generateExportsField": true,
-        "assets": [
-          "packages/pinflow-cli/*.md"
-        ]
+        "assets": ["packages/pinflow-cli/*.md"]
       }
     },
     "lint": {
       "executor": "@nx/eslint:lint",
-      "outputs": [
-        "{options.outputFile}"
-      ],
+      "outputs": ["{options.outputFile}"],
       "options": {
         "eslintConfig": "eslint.config.mjs",
-        "lintFilePatterns": [
-          "packages/pinflow-cli/**/*.ts"
-        ]
+        "lintFilePatterns": ["packages/pinflow-cli/**/*.ts"]
       }
     },
     "typecheck": {

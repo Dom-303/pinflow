@@ -16,9 +16,7 @@
     "outDir": "../../dist/packages/pinflow-runtime",
     "rootDir": "src"
   },
-  "include": [
-    "src/**/*.ts"
-  ],
+  "include": ["src/**/*.ts"],
   "exclude": [
     "vite.config.ts",
     "vite.config.mts",

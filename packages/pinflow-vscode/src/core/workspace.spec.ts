@@ -187,3 +187,105 @@ describe('getBestPinFlowWorkspaceStatus', () => {
     });
   });
 });
+
+describe('dev-lock detection', () => {
+  let workspaceRoot: string;
+
+  beforeEach(async () => {
+    workspaceRoot = await mkdtemp(path.join(tmpdir(), 'pinflow-vscode-devlock-'));
+  });
+
+  afterEach(async () => {
+    await rm(workspaceRoot, { recursive: true, force: true });
+  });
+
+  it('returns no devServer when .pinflow/dev.lock is absent', async () => {
+    await mkdir(path.join(workspaceRoot, '.pinflow'), { recursive: true });
+    await writeFile(
+      path.join(workspaceRoot, '.pinflow', 'relay.lock'),
+      JSON.stringify({ host: '127.0.0.1', port: 4317, pid: 1 }),
+      'utf8',
+    );
+
+    const status = getPinFlowWorkspaceStatus(workspaceRoot, {
+      processProbe: () => true,
+    });
+
+    expect(status.devServer).toBeUndefined();
+  });
+
+  it('returns the parsed devServer when .pinflow/dev.lock is valid and pid is live', async () => {
+    await mkdir(path.join(workspaceRoot, '.pinflow'), { recursive: true });
+    await writeFile(
+      path.join(workspaceRoot, '.pinflow', 'relay.lock'),
+      JSON.stringify({ host: '127.0.0.1', port: 4317, pid: 1 }),
+      'utf8',
+    );
+    await writeFile(
+      path.join(workspaceRoot, '.pinflow', 'dev.lock'),
+      JSON.stringify({
+        host: 'localhost',
+        port: 5173,
+        url: 'http://localhost:5173/',
+        pid: 9999,
+      }),
+      'utf8',
+    );
+
+    const status = getPinFlowWorkspaceStatus(workspaceRoot, {
+      processProbe: (pid) => pid === 1 || pid === 9999,
+    });
+
+    expect(status.devServer).toEqual({
+      host: 'localhost',
+      port: 5173,
+      url: 'http://localhost:5173/',
+      pid: 9999,
+    });
+  });
+
+  it('returns no devServer when dev.lock pid is dead', async () => {
+    await mkdir(path.join(workspaceRoot, '.pinflow'), { recursive: true });
+    await writeFile(
+      path.join(workspaceRoot, '.pinflow', 'relay.lock'),
+      JSON.stringify({ host: '127.0.0.1', port: 4317, pid: 1 }),
+      'utf8',
+    );
+    await writeFile(
+      path.join(workspaceRoot, '.pinflow', 'dev.lock'),
+      JSON.stringify({
+        host: 'localhost',
+        port: 5173,
+        url: 'http://localhost:5173/',
+        pid: 9999,
+      }),
+      'utf8',
+    );
+
+    const status = getPinFlowWorkspaceStatus(workspaceRoot, {
+      processProbe: (pid) => pid === 1, // only the relay pid is alive
+    });
+
+    expect(status.devServer).toBeUndefined();
+  });
+
+  it('returns no devServer when dev.lock JSON is malformed', async () => {
+    await mkdir(path.join(workspaceRoot, '.pinflow'), { recursive: true });
+    await writeFile(
+      path.join(workspaceRoot, '.pinflow', 'relay.lock'),
+      JSON.stringify({ host: '127.0.0.1', port: 4317, pid: 1 }),
+      'utf8',
+    );
+    await writeFile(
+      path.join(workspaceRoot, '.pinflow', 'dev.lock'),
+      'this is not json',
+      'utf8',
+    );
+
+    const status = getPinFlowWorkspaceStatus(workspaceRoot, {
+      processProbe: () => true,
+    });
+
+    expect(status.devServer).toBeUndefined();
+  });
+});

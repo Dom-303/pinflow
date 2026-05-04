@@ -3,6 +3,7 @@ import path from 'node:path';
 
 const PINFLOW_DIR = '.pinflow';
 const RELAY_LOCK_FILE = 'relay.lock';
+const DEV_LOCK_FILE = 'dev.lock';
 const CONFIG_FILENAMES = [
   'pinflow.config.json',
   'pinflow.config.js',
@@ -51,6 +52,12 @@ export interface PinFlowWorkspaceResult {
     readonly port: number;
     readonly pid: number;
   };
+  readonly devServer?: {
+    readonly host: string;
+    readonly port: number;
+    readonly url: string;
+    readonly pid: number;
+  };
   readonly message: string;
 }
 
@@ -88,6 +95,7 @@ export function getPinFlowWorkspaceStatus(
       workspaceRoot: configured.workspaceRoot,
       appRoot: configured.appRoot,
       configPath: configured.configPath,
+      devServer: readRunningDevServer(configured.workspaceRoot, options.processProbe),
       message: 'PinFlow relay is not running',
     };
   }
@@ -99,6 +107,7 @@ export function getPinFlowWorkspaceStatus(
     appRoot: configured.appRoot,
     configPath: configured.configPath,
     relay,
+    devServer: readRunningDevServer(configured.workspaceRoot, options.processProbe),
     message: 'PinFlow ready',
   };
 }
@@ -335,6 +344,38 @@ function readRunningRelay(
     }
 
     return { host, port, pid };
+  } catch {
+    return;
+  }
+}
+
+function readRunningDevServer(
+  workspaceRoot: string,
+  processProbe: ProcessProbe = defaultProcessProbe,
+): PinFlowWorkspaceResult['devServer'] | undefined {
+  const lockPath = path.join(workspaceRoot, PINFLOW_DIR, DEV_LOCK_FILE);
+
+  if (!existsSync(lockPath)) {
+    return;
+  }
+
+  try {
+    const lock = JSON.parse(readFileSync(lockPath, 'utf-8')) as {
+      host?: unknown;
+      port?: unknown;
+      url?: unknown;
+      pid?: unknown;
+    };
+    const host = typeof lock.host === 'string' ? lock.host : undefined;
+    const port = typeof lock.port === 'number' ? lock.port : undefined;
+    const url = typeof lock.url === 'string' ? lock.url : undefined;
+    const pid = typeof lock.pid === 'number' ? lock.pid : undefined;
+
+    if (!host || !port || !url || !pid || !processProbe(pid)) {
+      return;
+    }
+
+    return { host, port, url, pid };
   } catch {
     return;
   }

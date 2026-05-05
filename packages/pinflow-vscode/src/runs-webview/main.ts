@@ -3,10 +3,18 @@ import './components/pinflow-run-card.js';
 import './components/pinflow-runs-app.js';
 import './components/pinflow-runs-header.js';
 import './components/pinflow-empty-state.js';
+import type { PinFlowRunEvidence } from '../core/run-evidence.js';
 import {
   isExtToWebviewMessage,
+  type RunsWebviewSettings,
   type WebviewToExtMessage,
 } from '../core/views/runs-webview-messages.js';
+
+interface PinflowRunsAppProps {
+  runsByFolder: Readonly<Record<string, readonly PinFlowRunEvidence[]>>;
+  activeFolder: string | undefined;
+  settings: RunsWebviewSettings;
+}
 
 declare function acquireVsCodeApi(): {
   postMessage(message: unknown): void;
@@ -18,24 +26,24 @@ function postToHost(message: WebviewToExtMessage): void {
   vscode.postMessage(message);
 }
 
-const app = document.querySelector('pinflow-runs-app');
+const app = document.querySelector('pinflow-runs-app') as
+  | (Element & PinflowRunsAppProps)
+  | null;
 if (!app) {
-  console.warn(
-    'pinflow-runs-app element not registered yet — components land in Tasks 7-9',
-  );
+  console.warn('pinflow-runs-app element not found in webview DOM');
 } else {
   window.addEventListener('message', (event) => {
     if (!isExtToWebviewMessage(event.data)) return;
     const data = event.data;
     if (data.type === 'webview:init-ack') {
-      (app as any).runsByFolder = data.runsByFolder;
-      (app as any).activeFolder = data.activeFolder;
-      (app as any).settings = data.settings;
+      app.runsByFolder = data.runsByFolder;
+      app.activeFolder = data.activeFolder;
+      app.settings = data.settings;
     } else if (data.type === 'runs:update') {
-      (app as any).runsByFolder = data.runsByFolder;
-      (app as any).activeFolder = data.activeFolder;
+      app.runsByFolder = data.runsByFolder;
+      app.activeFolder = data.activeFolder;
     } else if (data.type === 'settings:update') {
-      (app as any).settings = data.settings;
+      app.settings = data.settings;
     }
   });
 

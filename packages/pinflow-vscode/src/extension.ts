@@ -238,8 +238,9 @@ export function activate(context: vscode.ExtensionContext): void {
       refreshStatus();
     }),
     vscode.commands.registerCommand('pinflow.followRuns', (folderPath?: string) => {
-      const targetFolder = folderPath ?? getCurrentWorkspace()?.commandRoot;
-      const appRoot = folderPath ?? getCurrentWorkspace()?.appRoot;
+      const fallback = folderPath ? null : getCurrentWorkspace();
+      const targetFolder = folderPath ?? fallback?.commandRoot;
+      const appRoot = folderPath ?? fallback?.appRoot;
       const terminal = vscode.window.createTerminal({
         name: 'PinFlow Follow',
         cwd: targetFolder,
@@ -267,8 +268,9 @@ export function activate(context: vscode.ExtensionContext): void {
       await openEvidenceFile(filePath);
     }),
     vscode.commands.registerCommand('pinflow.startWorkflow', (folderPath?: string) => {
-      const commandRoot = folderPath ?? getCurrentWorkspace()?.commandRoot;
-      const appRoot = folderPath ?? getCurrentWorkspace()?.appRoot;
+      const fallback = folderPath ? null : getCurrentWorkspace();
+      const commandRoot = folderPath ?? fallback?.commandRoot;
+      const appRoot = folderPath ?? fallback?.appRoot;
       if (!commandRoot) {
         void vscode.window.showInformationMessage('Open a configured PinFlow workspace first.');
         return;

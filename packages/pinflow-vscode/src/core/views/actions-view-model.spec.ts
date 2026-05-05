@@ -79,6 +79,7 @@ describe('buildActionFolderGroups', () => {
     );
 
     const startWorkflow = groups[0].children.find((c) => c.id === 'startWorkflow');
+
     expect(startWorkflow?.commandArguments).toEqual(['/a']);
   });
 

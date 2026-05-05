@@ -9,6 +9,8 @@ import {
   type PinFlowWorkspaceResult,
 } from './workspace.js';
 
+// Matches the cap used by the single-folder dashboard (`runs-webview-provider`)
+// so multi-folder mode shows the same "recent runs" window per repo.
 const RUN_EVIDENCE_LIMIT = 80;
 
 export interface PerFolderState {
@@ -54,5 +56,5 @@ export function pickActiveFolder(
   const ready = states.find((s) => s.status.status === 'ready');
   if (ready) return ready.folder;
 
-  return states[0]?.folder;
+  return states[0].folder;
 }

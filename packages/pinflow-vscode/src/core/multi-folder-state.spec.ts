@@ -24,8 +24,9 @@ describe('expandToCandidateFolders', () => {
 
   it('returns only configured folders, filtering out not-configured', async () => {
     await mkdir(path.join(workspaceA, '.pinflow'), { recursive: true });
-    // workspaceB has no .pinflow/
+
     const result = expandToCandidateFolders([workspaceA, workspaceB]);
+
     expect(result).toContain(workspaceA);
     expect(result).not.toContain(workspaceB);
   });
@@ -33,12 +34,15 @@ describe('expandToCandidateFolders', () => {
   it('expands nested .pinflow/ via getWorkspaceCandidateFolders', async () => {
     const nested = path.join(workspaceA, 'sub-app');
     await mkdir(path.join(nested, '.pinflow'), { recursive: true });
+
     const result = expandToCandidateFolders([workspaceA]);
+
     expect(result).toContain(nested);
   });
 
   it('returns empty array when no folders are configured', () => {
     const result = expandToCandidateFolders([workspaceA, workspaceB]);
+
     expect(result).toEqual([]);
   });
 });
@@ -57,6 +61,7 @@ describe('buildPerFolderState', () => {
 
   it('returns folder + status + empty runs when no runs exist', async () => {
     const state = await buildPerFolderState(folder, { processProbe: () => false });
+
     expect(state.folder).toBe(folder);
     expect(state.status.status).toBe('relay-missing');
     expect(state.runs).toEqual([]);
@@ -73,7 +78,9 @@ describe('pickActiveFolder', () => {
       { folder: '/a', status: { status: 'ready' as const, workspaceFolder: '/a', message: '' }, runs: [] },
       { folder: '/b', status: { status: 'ready' as const, workspaceFolder: '/b', message: '' }, runs: [] },
     ];
+
     const active = pickActiveFolder(folders, '/b');
+
     expect(active).toBe('/b');
   });
 
@@ -82,7 +89,9 @@ describe('pickActiveFolder', () => {
       { folder: '/a', status: { status: 'relay-missing' as const, workspaceFolder: '/a', message: '' }, runs: [] },
       { folder: '/b', status: { status: 'ready' as const, workspaceFolder: '/b', message: '' }, runs: [] },
     ];
+
     const active = pickActiveFolder(folders, '');
+
     expect(active).toBe('/b');
   });
 
@@ -91,7 +100,9 @@ describe('pickActiveFolder', () => {
       { folder: '/a', status: { status: 'relay-missing' as const, workspaceFolder: '/a', message: '' }, runs: [] },
       { folder: '/b', status: { status: 'relay-missing' as const, workspaceFolder: '/b', message: '' }, runs: [] },
     ];
+
     const active = pickActiveFolder(folders, '');
+
     expect(active).toBe('/a');
   });
 });

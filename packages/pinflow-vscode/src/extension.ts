@@ -248,6 +248,8 @@ export function activate(context: vscode.ExtensionContext): void {
       statusItem.text = formatStatusText(activeState.status.status);
       statusItem.tooltip = activeState.status.message;
       statusItem.show();
+    } else {
+      statusItem.hide();
     }
 
     // Per-folder side effects:
@@ -434,7 +436,7 @@ export function activate(context: vscode.ExtensionContext): void {
       refreshStatus();
     }),
     vscode.workspace.onDidChangeWorkspaceFolders((event) => {
-      for (const removed of event.removed ?? []) {
+      for (const removed of event.removed) {
         const folderPath = removed.uri.fsPath;
         openedDevUrls.delete(folderPath);
         lastSeenDevUrls.delete(folderPath);

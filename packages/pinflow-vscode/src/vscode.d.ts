@@ -61,6 +61,7 @@ declare module 'vscode' {
     tooltip?: string;
     command?: string;
     show(): void;
+    hide(): void;
   }
 
   export interface Event<T> {

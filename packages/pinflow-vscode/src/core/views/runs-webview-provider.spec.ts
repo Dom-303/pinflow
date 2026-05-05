@@ -224,7 +224,6 @@ describe('RunsWebviewProvider', () => {
     const wb = createMockWebview();
     const view = createMockView(wb.webview);
     const onOpenPrompt = vi.fn();
-    // r_2 lives in the second folder — proves lookup walks past the first folder
     const runsByFolder = { '/repo': [sampleRun], '/repo2': [sampleRun2] };
     const provider = new RunsWebviewProvider({
       extensionUri: fakeUri as never,

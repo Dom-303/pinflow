@@ -8,13 +8,15 @@ import {
   type RunsWebviewSettings,
 } from './runs-webview-messages.js';
 
+export interface RunsSnapshot {
+  readonly runsByFolder: Readonly<Record<string, readonly PinFlowRunEvidence[]>>;
+  readonly activeFolder?: string;
+}
+
 export interface RunsWebviewProviderDeps {
   readonly extensionUri: vscode.Uri;
   readonly onOpenPrompt: (run: PinFlowRunEvidence) => void;
-  readonly getCurrentSnapshot: () => {
-    readonly runsByFolder: Readonly<Record<string, readonly PinFlowRunEvidence[]>>;
-    readonly activeFolder?: string;
-  };
+  readonly getCurrentSnapshot: () => RunsSnapshot;
   readonly getCurrentSettings: () => RunsWebviewSettings;
 }
 
@@ -70,10 +72,7 @@ export class RunsWebviewProvider implements vscode.WebviewViewProvider {
     });
   }
 
-  postRuns(snapshot: {
-    readonly runsByFolder: Readonly<Record<string, readonly PinFlowRunEvidence[]>>;
-    readonly activeFolder?: string;
-  }): void {
+  postRuns(snapshot: RunsSnapshot): void {
     if (!this.webviewView) return;
     const update: ExtToWebviewMessage = {
       type: 'runs:update',

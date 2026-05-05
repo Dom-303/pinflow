@@ -70,9 +70,13 @@ function buildRelayItem(status: PinFlowWorkspaceResult): StatusViewItem {
       id: 'relay',
       label: 'Relay',
       description: 'missing',
-      tooltip: status.message,
+      tooltip: `${status.message}\nClick to start the workflow (relay + dev + agent)`,
       themeIcon: 'circle-filled',
       themeIconColor: 'charts.yellow',
+      command: {
+        command: 'pinflow.startWorkflow',
+        arguments: [],
+      },
     };
   }
   return {
@@ -84,22 +88,44 @@ function buildRelayItem(status: PinFlowWorkspaceResult): StatusViewItem {
   };
 }
 
+const RUNNER_COMMAND = {
+  command: 'workbench.action.openSettings',
+  arguments: ['pinflow.externalHandoff.defaultProvider'],
+} as const;
+
 function buildRunnerItem(latestRun: PinFlowRunEvidence | null): StatusViewItem {
   const summary = latestRun?.summary;
+  const tooltip = 'Click to change the default provider in settings';
   if (!summary) {
-    return { id: 'runner', label: 'Runner', description: 'idle', themeIcon: 'circle-outline' };
+    return {
+      id: 'runner',
+      label: 'Runner',
+      description: 'idle',
+      tooltip,
+      themeIcon: 'circle-outline',
+      command: RUNNER_COMMAND,
+    };
   }
   const provider = summary.provider ?? 'unknown';
   if (summary.status === 'processing') {
-    return { id: 'runner', label: 'Runner', description: `via ${provider}`, themeIcon: 'loading~spin' };
+    return {
+      id: 'runner',
+      label: 'Runner',
+      description: `via ${provider}`,
+      tooltip,
+      themeIcon: 'loading~spin',
+      command: RUNNER_COMMAND,
+    };
   }
   if (summary.status === 'failed') {
     return {
       id: 'runner',
       label: 'Runner',
       description: `via ${provider}`,
+      tooltip,
       themeIcon: 'error',
       themeIconColor: 'charts.red',
+      command: RUNNER_COMMAND,
     };
   }
   if (summary.status === 'processed') {
@@ -107,15 +133,19 @@ function buildRunnerItem(latestRun: PinFlowRunEvidence | null): StatusViewItem {
       id: 'runner',
       label: 'Runner',
       description: `via ${provider}`,
+      tooltip,
       themeIcon: 'check',
       themeIconColor: 'charts.green',
+      command: RUNNER_COMMAND,
     };
   }
   return {
     id: 'runner',
     label: 'Runner',
     description: `via ${provider}`,
+    tooltip,
     themeIcon: 'circle-outline',
+    command: RUNNER_COMMAND,
   };
 }
 
@@ -135,6 +165,10 @@ function buildWorkspaceItem(
     description,
     tooltip,
     themeIcon: 'folder',
+    command: {
+      command: 'pinflow.switchFolder',
+      arguments: [],
+    },
   };
 }
 
@@ -145,9 +179,9 @@ function buildWorkspaceTooltip(
   const count = options.workspaceFolderCount ?? 1;
   const index = options.workspaceFolderIndex;
   if (count <= 1 || index === undefined || index < 0 || index >= count) {
-    return appRoot;
+    return `${appRoot}\nClick to switch folder`;
   }
-  return `${appRoot}\n${index + 1} of ${count} workspace folders`;
+  return `${appRoot}\n${index + 1} of ${count} workspace folders\nClick to switch folder`;
 }
 
 function buildPreviewItem(

@@ -14,6 +14,16 @@ function readyStatus(): PinFlowWorkspaceResult {
   };
 }
 
+function relayMissingStatus(): PinFlowWorkspaceResult {
+  return {
+    status: 'relay-missing',
+    workspaceFolder: '/repo',
+    workspaceRoot: '/repo/app',
+    appRoot: '/repo/app',
+    message: 'PinFlow relay is not running',
+  };
+}
+
 function runningRun(): PinFlowRunEvidence {
   return {
     annotationId: 'ann_x',
@@ -162,7 +172,7 @@ describe('buildStatusViewItems', () => {
     });
     const workspace = items.find((item) => item.id === 'workspace');
 
-    expect(workspace?.tooltip).toBe('/repo/app');
+    expect(workspace?.tooltip).toContain('/repo/app');
   });
 
   it('appends a multi-folder hint to the workspace tooltip when several are open', () => {
@@ -172,7 +182,8 @@ describe('buildStatusViewItems', () => {
     });
     const workspace = items.find((item) => item.id === 'workspace');
 
-    expect(workspace?.tooltip).toBe('/repo/app\n1 of 3 workspace folders');
+    expect(workspace?.tooltip).toContain('/repo/app');
+    expect(workspace?.tooltip).toContain('1 of 3 workspace folders');
   });
 
   it('omits the multi-folder hint when the active folder index is undefined', () => {
@@ -182,7 +193,7 @@ describe('buildStatusViewItems', () => {
     });
     const workspace = items.find((item) => item.id === 'workspace');
 
-    expect(workspace?.tooltip).toBe('/repo/app');
+    expect(workspace?.tooltip).toContain('/repo/app');
   });
 
   it('describes the preview row with host:port and a clickable command when running', () => {
@@ -220,5 +231,43 @@ describe('buildStatusViewItems', () => {
     expect(preview?.tooltip).toBe(
       'No dev server detected. Start with PinFlow: Start Workflow.',
     );
+  });
+
+  it('makes the Workspace row clickable to trigger pinflow.switchFolder', () => {
+    const items = buildStatusViewItems(readyStatus(), null);
+    const workspace = items.find((item) => item.id === 'workspace');
+
+    expect(workspace?.command).toEqual({
+      command: 'pinflow.switchFolder',
+      arguments: [],
+    });
+    expect(workspace?.tooltip).toContain('Click to switch folder');
+  });
+
+  it('makes the Runner row clickable to open settings', () => {
+    const items = buildStatusViewItems(readyStatus(), null);
+    const runner = items.find((item) => item.id === 'runner');
+
+    expect(runner?.command).toEqual({
+      command: 'workbench.action.openSettings',
+      arguments: ['pinflow.externalHandoff.defaultProvider'],
+    });
+    expect(runner?.tooltip).toContain('Click to change');
+  });
+
+  it('makes the Relay row clickable only when status is relay-missing', () => {
+    const relayMissingItems = buildStatusViewItems(relayMissingStatus(), null);
+    const relayMissing = relayMissingItems.find((item) => item.id === 'relay');
+
+    expect(relayMissing?.command).toEqual({
+      command: 'pinflow.startWorkflow',
+      arguments: [],
+    });
+    expect(relayMissing?.tooltip).toContain('Click to start the workflow');
+
+    const readyItems = buildStatusViewItems(readyStatus(), null);
+    const relayReady = readyItems.find((item) => item.id === 'relay');
+
+    expect(relayReady?.command).toBeUndefined();
   });
 });

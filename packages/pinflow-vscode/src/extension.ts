@@ -14,9 +14,14 @@ import {
   type ExternalHandoffClaim,
 } from './core/external-handoff.js';
 import {
-  findRunEvidence,
   type PinFlowRunEvidence,
 } from './core/run-evidence.js';
+import {
+  buildPerFolderState,
+  expandToCandidateFolders,
+  pickActiveFolder,
+  type PerFolderState,
+} from './core/multi-folder-state.js';
 import {
   buildActionFolderGroups,
   type ActionFolderGroup,
@@ -26,7 +31,6 @@ import { RunsWebviewProvider } from './core/views/runs-webview-provider.js';
 import type { RunsWebviewSettings } from './core/views/runs-webview-messages.js';
 import {
   buildStatusFolderGroups,
-  buildStatusViewItems,
   type StatusFolderGroup,
   type StatusViewItem,
 } from './core/views/status-view-model.js';
@@ -34,12 +38,10 @@ import { getBestPinFlowWorkspaceStatus } from './core/workspace.js';
 
 const execFileAsync = promisify(execFile);
 
-const RUN_EVIDENCE_LIMIT = 80;
-
 const notifiedFailedRunKeys = new Set<string>();
-const openedDevUrls = new Set<string>();
-let lastSeenDevUrl: string | undefined = undefined;
-let isFirstRefresh = true;
+const openedDevUrls = new Map<string, Set<string>>();
+const lastSeenDevUrls = new Map<string, string>();
+const firstRefreshFolders = new Set<string>();
 
 function clampInterval(raw: number): number {
   if (!Number.isFinite(raw)) return 3000;
@@ -58,7 +60,8 @@ export function activate(context: vscode.ExtensionContext): void {
   const statusProvider = new StatusTreeDataProvider();
   const actionsProvider = new ActionsTreeDataProvider();
   let externalClaim: ExternalHandoffClaim | null = null;
-  let latestRunEvidence: readonly PinFlowRunEvidence[] = [];
+  let trackedFolders: readonly PerFolderState[] = [];
+  let activeFolder: string | undefined = undefined;
 
   function readRunsWebviewSettings(): RunsWebviewSettings {
     return {
@@ -70,7 +73,12 @@ export function activate(context: vscode.ExtensionContext): void {
 
   const runsWebviewProvider = new RunsWebviewProvider({
     extensionUri: context.extensionUri,
-    getCurrentRuns: () => latestRunEvidence,
+    getCurrentSnapshot: () => ({
+      runsByFolder: Object.fromEntries(
+        trackedFolders.map((s) => [s.folder, s.runs] as const),
+      ),
+      activeFolder,
+    }),
     getCurrentSettings: readRunsWebviewSettings,
     onOpenPrompt: (run) => {
       if (run.promptPath) {
@@ -105,125 +113,149 @@ export function activate(context: vscode.ExtensionContext): void {
     refreshTimer = setInterval(refreshStatus, intervalMs);
   }
 
+  function notifyFailedRunsForFolder(
+    state: PerFolderState,
+    config: vscode.WorkspaceConfiguration,
+  ): void {
+    const notifyFailed = config.get<boolean>('notifications.runFailed', true);
+    const failedRuns = state.runs.filter((run) => run.summary.status === 'failed');
+    const isInitial = !firstRefreshFolders.has(state.folder);
+    firstRefreshFolders.add(state.folder);
+
+    if (isInitial) {
+      for (const run of failedRuns) {
+        notifiedFailedRunKeys.add(run.runId ?? run.summaryPath);
+      }
+      return;
+    }
+
+    for (const run of failedRuns) {
+      const key = run.runId ?? run.summaryPath;
+      if (notifiedFailedRunKeys.has(key)) continue;
+      notifiedFailedRunKeys.add(key);
+      if (notifyFailed) {
+        void vscode.window.showErrorMessage(
+          `PinFlow run failed: ${run.annotationId ?? run.runId ?? key}`,
+        );
+      }
+    }
+  }
+
+  function maybeFireFirstRunToast(state: PerFolderState): void {
+    const root = state.status.workspaceRoot;
+    if (!root) return;
+    const processedRun = state.runs.find((run) => run.summary.status === 'processed');
+    if (!processedRun) return;
+    const key = `pinflow.firstRunSeen.${root}`;
+    const seen = context.globalState.get<boolean>(key, false);
+    if (seen) return;
+    void context.globalState.update(key, true);
+    void showFirstRunToast(processedRun);
+  }
+
+  function handleAutoBrowserForFolder(
+    state: PerFolderState,
+    config: vscode.WorkspaceConfiguration,
+  ): void {
+    const currentUrl = state.status.devServer?.url;
+    const lastSeen = lastSeenDevUrls.get(state.folder);
+
+    // pinflow dev exited or URL changed — clear the debounce so a fresh start re-triggers.
+    if (lastSeen && lastSeen !== currentUrl) {
+      openedDevUrls.get(state.folder)?.delete(lastSeen);
+    }
+    if (currentUrl) {
+      lastSeenDevUrls.set(state.folder, currentUrl);
+    } else {
+      lastSeenDevUrls.delete(state.folder);
+      return;
+    }
+
+    const autoOpen = config.get<boolean>('preview.autoOpen', true);
+    if (!autoOpen) return;
+
+    let folderUrls = openedDevUrls.get(state.folder);
+    if (!folderUrls) {
+      folderUrls = new Set<string>();
+      openedDevUrls.set(state.folder, folderUrls);
+    }
+    if (folderUrls.has(currentUrl)) return;
+    folderUrls.add(currentUrl);
+
+    try {
+      void vscode.env.openExternal(vscode.Uri.parse(currentUrl));
+    } catch {
+      // Malformed URL — silent. Preview row stays clickable.
+    }
+  }
+
   async function refreshAll(): Promise<void> {
     const workspaceFolders = getWorkspaceFolders();
 
-    if (!workspaceFolders.length) {
+    if (workspaceFolders.length === 0) {
       statusItem.text = 'PinFlow: no workspace';
       statusItem.tooltip = 'Open a workspace folder to use PinFlow.';
       statusItem.show();
-      statusProvider.setItems([]);
-      latestRunEvidence = [];
-      runsWebviewProvider.postRuns([]);
-      // TODO(Task 7): wire per-folder groups in refreshAll
+      statusProvider.setFolderGroups([]);
       actionsProvider.setFolderGroups([]);
-      void vscode.commands.executeCommand(
-        'setContext',
-        'pinflow.notConfigured',
-        false,
-      );
+      runsWebviewProvider.postRuns({ runsByFolder: {}, activeFolder: undefined });
+      trackedFolders = [];
+      activeFolder = undefined;
+      void vscode.commands.executeCommand('setContext', 'pinflow.notConfigured', false);
       return;
     }
 
     const config = vscode.workspace.getConfiguration('pinflow');
     const preferredFolder = config.get<string>('workspace.preferredFolder', '');
-    const workspaceStatus = getBestPinFlowWorkspaceStatus(workspaceFolders, {
-      preferredFolder: preferredFolder.trim() || undefined,
-    });
-    if (!workspaceStatus) {
-      void vscode.commands.executeCommand(
-        'setContext',
-        'pinflow.notConfigured',
-        false,
-      );
+
+    const candidates = expandToCandidateFolders(workspaceFolders);
+    if (candidates.length === 0) {
+      void vscode.commands.executeCommand('setContext', 'pinflow.notConfigured', true);
+      statusProvider.setFolderGroups([]);
+      actionsProvider.setFolderGroups([]);
+      runsWebviewProvider.postRuns({ runsByFolder: {}, activeFolder: undefined });
+      trackedFolders = [];
+      activeFolder = undefined;
+      statusItem.text = 'PinFlow: not configured';
+      statusItem.tooltip = 'No PinFlow-configured folder in this workspace.';
+      statusItem.show();
       return;
     }
+    void vscode.commands.executeCommand('setContext', 'pinflow.notConfigured', false);
 
-    void vscode.commands.executeCommand(
-      'setContext',
-      'pinflow.notConfigured',
-      workspaceStatus.status === 'not-configured',
+    const folderStates = await Promise.all(
+      candidates.map((folder) => buildPerFolderState(folder)),
     );
+    trackedFolders = folderStates;
+    activeFolder = pickActiveFolder(folderStates, preferredFolder);
 
-    statusItem.text = formatStatusText(workspaceStatus.status);
-    statusItem.tooltip = workspaceStatus.message;
-    statusItem.show();
-
-    const runEvidence = workspaceStatus.workspaceRoot
-      ? await findRunEvidence(workspaceStatus.workspaceRoot, { limit: RUN_EVIDENCE_LIMIT })
-      : [];
-    latestRunEvidence = runEvidence;
-
-    const currentDevUrl = workspaceStatus.devServer?.url;
-
-    // Reset our debouncer when pinflow dev exits — so a fresh restart re-triggers.
-    if (lastSeenDevUrl && lastSeenDevUrl !== currentDevUrl) {
-      openedDevUrls.delete(lastSeenDevUrl);
-    }
-    lastSeenDevUrl = currentDevUrl;
-
-    if (currentDevUrl) {
-      const autoOpen = config.get<boolean>('preview.autoOpen', true);
-      if (autoOpen && !openedDevUrls.has(currentDevUrl)) {
-        openedDevUrls.add(currentDevUrl);
-        try {
-          void vscode.env.openExternal(vscode.Uri.parse(currentDevUrl));
-        } catch {
-          // Malformed dev URLs shouldn't crash the refresh tick; the user
-          // can still click the Preview row to open the URL manually.
-        }
-      }
+    const runsByFolder: Record<string, readonly PinFlowRunEvidence[]> = {};
+    for (const state of folderStates) {
+      runsByFolder[state.folder] = state.runs;
     }
 
-    const workspaceFolderIndex = workspaceFolders.findIndex(
-      (folder) => folder === workspaceStatus.workspaceFolder,
+    statusProvider.setFolderGroups(
+      buildStatusFolderGroups(folderStates, { activeFolder, externalClaim }),
     );
-    statusProvider.setItems(
-      buildStatusViewItems(workspaceStatus, externalClaim, runEvidence[0] ?? null, {
-        workspaceFolderCount: workspaceFolders.length,
-        workspaceFolderIndex:
-          workspaceFolderIndex >= 0 ? workspaceFolderIndex : undefined,
-      }),
+    runsWebviewProvider.postRuns({ runsByFolder, activeFolder });
+    actionsProvider.setFolderGroups(
+      buildActionFolderGroups(folderStates, externalClaim, activeFolder),
     );
-    const notifyFailed = config.get<boolean>('notifications.runFailed', true);
 
-    const failedRuns = runEvidence.filter((run) => run.summary.status === 'failed');
-
-    if (isFirstRefresh) {
-      for (const run of failedRuns) {
-        notifiedFailedRunKeys.add(run.runId ?? run.summaryPath);
-      }
-      isFirstRefresh = false;
-    } else {
-      for (const run of failedRuns) {
-        const key = run.runId ?? run.summaryPath;
-        if (notifiedFailedRunKeys.has(key)) continue;
-        // Always track the key even when notifications are disabled.
-        // This prevents a toast burst if the user re-enables the setting later.
-        notifiedFailedRunKeys.add(key);
-        if (notifyFailed) {
-          void vscode.window.showErrorMessage(
-            `PinFlow run failed: ${run.annotationId ?? run.runId ?? key}`,
-          );
-        }
-      }
+    // Status bar shows the active folder's status.
+    const activeState = folderStates.find((s) => s.folder === activeFolder);
+    if (activeState) {
+      statusItem.text = formatStatusText(activeState.status.status);
+      statusItem.tooltip = activeState.status.message;
+      statusItem.show();
     }
 
-    const processedRun = runEvidence.find(
-      (run) => run.summary.status === 'processed',
-    );
-    if (processedRun && workspaceStatus.workspaceRoot) {
-      const firstRunKey = `pinflow.firstRunSeen.${workspaceStatus.workspaceRoot}`;
-      const seen = context.globalState.get<boolean>(firstRunKey, false);
-      if (!seen) {
-        void context.globalState.update(firstRunKey, true);
-        void showFirstRunToast(processedRun);
-      }
+    // Per-folder side effects:
+    for (const state of folderStates) {
+      notifyFailedRunsForFolder(state, config);
+      maybeFireFirstRunToast(state);
+      handleAutoBrowserForFolder(state, config);
     }
-
-    runsWebviewProvider.postRuns(runEvidence);
-    // TODO(Task 7): wire per-folder groups in refreshAll
-    actionsProvider.setFolderGroups([]);
   }
 
   context.subscriptions.push(
@@ -401,7 +433,15 @@ export function activate(context: vscode.ExtensionContext): void {
       externalClaim = null;
       refreshStatus();
     }),
-    vscode.workspace.onDidChangeWorkspaceFolders(refreshStatus),
+    vscode.workspace.onDidChangeWorkspaceFolders((event) => {
+      for (const removed of event.removed ?? []) {
+        const folderPath = removed.uri.fsPath;
+        openedDevUrls.delete(folderPath);
+        lastSeenDevUrls.delete(folderPath);
+        firstRefreshFolders.delete(folderPath);
+      }
+      refreshStatus();
+    }),
     vscode.workspace.onDidChangeConfiguration((event) => {
       if (event.affectsConfiguration('pinflow.refreshIntervalMs')) {
         applyRefreshInterval();
@@ -644,4 +684,3 @@ function computeActionsSignature(groups: readonly ActionFolderGroup[]): string {
     ]),
   );
 }
-

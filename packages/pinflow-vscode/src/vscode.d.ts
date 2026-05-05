@@ -170,9 +170,14 @@ declare module 'vscode' {
     affectsConfiguration(section: string): boolean;
   }
 
+  export interface WorkspaceFoldersChangeEvent {
+    readonly added: ReadonlyArray<{ uri: { fsPath: string } }>;
+    readonly removed: ReadonlyArray<{ uri: { fsPath: string } }>;
+  }
+
   export const workspace: {
     workspaceFolders?: Array<{ uri: { fsPath: string } }>;
-    onDidChangeWorkspaceFolders(listener: () => void): Disposable;
+    onDidChangeWorkspaceFolders(listener: (event: WorkspaceFoldersChangeEvent) => void): Disposable;
     onDidChangeConfiguration(
       listener: (event: ConfigurationChangeEvent) => void,
     ): Disposable;

@@ -24,7 +24,9 @@ import {
 import { RunsWebviewProvider } from './core/views/runs-webview-provider.js';
 import type { RunsWebviewSettings } from './core/views/runs-webview-messages.js';
 import {
+  buildStatusFolderGroups,
   buildStatusViewItems,
+  type StatusFolderGroup,
   type StatusViewItem,
 } from './core/views/status-view-model.js';
 import { getBestPinFlowWorkspaceStatus } from './core/workspace.js';
@@ -515,39 +517,68 @@ async function hasRepoDiff(workspaceRoot: string): Promise<boolean> {
     .catch((error: { code?: number }) => error.code === 1);
 }
 
-class StatusTreeDataProvider
-  implements vscode.TreeDataProvider<StatusViewItem>
-{
-  private readonly emitter = new vscode.EventEmitter<StatusViewItem | undefined>();
-  readonly onDidChangeTreeData = this.emitter.event;
-  private items: readonly StatusViewItem[] = [];
+type StatusTreeNode = StatusFolderGroup | StatusViewItem;
 
-  setItems(items: readonly StatusViewItem[]): void {
-    this.items = items;
+class StatusTreeDataProvider implements vscode.TreeDataProvider<StatusTreeNode> {
+  private readonly emitter = new vscode.EventEmitter<StatusTreeNode | undefined>();
+  readonly onDidChangeTreeData = this.emitter.event;
+  private groups: readonly StatusFolderGroup[] = [];
+  private lastSignature = '';
+
+  setFolderGroups(groups: readonly StatusFolderGroup[]): void {
+    const signature = computeStatusSignature(groups);
+    if (signature === this.lastSignature) return;
+    this.lastSignature = signature;
+    this.groups = groups;
     this.emitter.fire(undefined);
   }
 
-  getTreeItem(element: StatusViewItem): vscode.TreeItem {
-    const item = new vscode.TreeItem(element.label, vscode.TreeItemCollapsibleState.None);
-    item.id = element.id;
-    item.description = element.description;
-    item.tooltip = element.tooltip;
-    item.iconPath = element.themeIconColor
+  getTreeItem(element: StatusTreeNode): vscode.TreeItem {
+    if ('children' in element) {
+      const item = new vscode.TreeItem(
+        element.displayName,
+        element.isActive
+          ? vscode.TreeItemCollapsibleState.Expanded
+          : vscode.TreeItemCollapsibleState.Collapsed,
+      );
+      item.id = `folder:${element.id}`;
+      item.description = `${element.runCount} run${element.runCount === 1 ? '' : 's'}`;
+      item.iconPath = new vscode.ThemeIcon('folder');
+      return item;
+    }
+    const leaf = new vscode.TreeItem(element.label, vscode.TreeItemCollapsibleState.None);
+    leaf.id = element.id;
+    leaf.description = element.description;
+    leaf.tooltip = element.tooltip;
+    leaf.iconPath = element.themeIconColor
       ? new vscode.ThemeIcon(element.themeIcon, new vscode.ThemeColor(element.themeIconColor))
       : new vscode.ThemeIcon(element.themeIcon);
     if (element.command) {
-      item.command = {
+      leaf.command = {
         command: element.command.command,
         title: element.label,
         arguments: element.command.arguments?.slice(),
       };
     }
-    return item;
+    return leaf;
   }
 
-  getChildren(element?: StatusViewItem): readonly StatusViewItem[] {
-    return element ? [] : this.items;
+  getChildren(element?: StatusTreeNode): readonly StatusTreeNode[] {
+    if (!element) return this.groups;
+    if ('children' in element) return element.children;
+    return [];
   }
+}
+
+function computeStatusSignature(groups: readonly StatusFolderGroup[]): string {
+  return groups
+    .map(
+      (g) =>
+        `${g.id}:${g.runCount}:${g.isActive ? '1' : '0'}:${g.children
+          .map((c) => `${c.id}:${c.description ?? ''}`)
+          .join(',')}`,
+    )
+    .join('|');
 }
 
 class ActionsTreeDataProvider

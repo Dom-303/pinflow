@@ -1,6 +1,7 @@
 import path from 'node:path';
 
 import type { ExternalHandoffClaim } from '../external-handoff.js';
+import type { PerFolderState } from '../multi-folder-state.js';
 import type { PinFlowRunEvidence } from '../run-evidence.js';
 import type { PinFlowWorkspaceResult } from '../workspace.js';
 
@@ -218,4 +219,34 @@ function buildExternalClaimItem(claim: ExternalHandoffClaim): StatusViewItem {
     tooltip: claim.label ?? claim.annotationId,
     themeIcon: 'bookmark',
   };
+}
+
+export interface StatusFolderGroup {
+  readonly id: string;
+  readonly displayName: string;
+  readonly runCount: number;
+  readonly isActive: boolean;
+  readonly children: readonly StatusViewItem[];
+}
+
+export interface BuildStatusFolderGroupsOptions {
+  readonly activeFolder?: string;
+  readonly externalClaim?: ExternalHandoffClaim | null;
+}
+
+export function buildStatusFolderGroups(
+  folders: readonly PerFolderState[],
+  options: BuildStatusFolderGroupsOptions = {},
+): readonly StatusFolderGroup[] {
+  return folders.map((state) => ({
+    id: state.folder,
+    displayName: path.basename(state.folder),
+    runCount: state.runs.length,
+    isActive: state.folder === options.activeFolder,
+    children: buildStatusViewItems(
+      state.status,
+      options.externalClaim ?? null,
+      state.runs[0] ?? null,
+    ),
+  }));
 }

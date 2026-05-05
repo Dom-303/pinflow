@@ -1,7 +1,7 @@
 import type { ExternalHandoffClaim } from '../external-handoff.js';
 import type { PinFlowRunEvidence } from '../run-evidence.js';
 import type { PinFlowWorkspaceResult } from '../workspace.js';
-import { buildStatusViewItems } from './status-view-model.js';
+import { buildStatusFolderGroups, buildStatusViewItems } from './status-view-model.js';
 
 function readyStatus(): PinFlowWorkspaceResult {
   return {
@@ -269,5 +269,45 @@ describe('buildStatusViewItems', () => {
     const relayReady = readyItems.find((item) => item.id === 'relay');
 
     expect(relayReady?.command).toBeUndefined();
+  });
+});
+
+describe('buildStatusFolderGroups', () => {
+  it('returns empty array for no folders', () => {
+    expect(buildStatusFolderGroups([], { activeFolder: undefined })).toEqual([]);
+  });
+
+  it('returns one group per folder with the existing 4 status rows', () => {
+    const groups = buildStatusFolderGroups(
+      [{ folder: '/a', status: readyStatus(), runs: [] }],
+      { activeFolder: '/a' },
+    );
+
+    expect(groups).toHaveLength(1);
+    expect(groups[0].children.map((c) => c.id)).toEqual([
+      'relay', 'runner', 'workspace', 'preview',
+    ]);
+  });
+
+  it('marks isActive=true only for the active folder', () => {
+    const groups = buildStatusFolderGroups(
+      [
+        { folder: '/a', status: readyStatus(), runs: [] },
+        { folder: '/b', status: readyStatus(), runs: [] },
+      ],
+      { activeFolder: '/b' },
+    );
+
+    expect(groups.find((g) => g.id === '/a')?.isActive).toBe(false);
+    expect(groups.find((g) => g.id === '/b')?.isActive).toBe(true);
+  });
+
+  it('reflects runCount in the group header', () => {
+    const groups = buildStatusFolderGroups(
+      [{ folder: '/a', status: readyStatus(), runs: [{} as never, {} as never, {} as never] }],
+      { activeFolder: '/a' },
+    );
+
+    expect(groups[0].runCount).toBe(3);
   });
 });

@@ -37,6 +37,18 @@ describe('VS Code extension manifest', () => {
         }>;
       };
       viewsWelcome?: Array<{ view: string; contents: string; when: string }>;
+      walkthroughs?: Array<{
+        id: string;
+        title: string;
+        description: string;
+        steps: Array<{
+          id: string;
+          title: string;
+          description: string;
+          media: { markdown: string } | { image: string; altText: string };
+          completionEvents?: string[];
+        }>;
+      }>;
     };
   };
   const packageRoot = path.resolve(__dirname, '..');
@@ -88,6 +100,7 @@ describe('VS Code extension manifest', () => {
       'pinflow.runInit',
       'pinflow.openDocumentation',
       'pinflow.openPreview',
+      'pinflow.switchFolder',
     ]);
   });
 
@@ -127,6 +140,7 @@ describe('VS Code extension manifest', () => {
       'pinflow.notifications.runFailed',
       'pinflow.externalHandoff.defaultProvider',
       'pinflow.workspace.preferredFolder',
+      'pinflow.preview.autoOpen',
     ]);
     expect(props['pinflow.refreshIntervalMs'].default).toBe(3000);
     expect(props['pinflow.refreshIntervalMs'].minimum).toBe(500);
@@ -191,5 +205,46 @@ describe('VS Code extension manifest', () => {
     expect(props['pinflow.workspace.preferredFolder']).toBeDefined();
     expect(props['pinflow.workspace.preferredFolder'].type).toBe('string');
     expect(props['pinflow.workspace.preferredFolder'].default).toBe('');
+  });
+
+  it('contributes the package-4a getting-started walkthrough with 4 completable steps', () => {
+    const walkthrough = manifest.contributes?.walkthroughs?.find(
+      (w) => w.id === 'pinflow.gettingStarted',
+    );
+    expect(walkthrough).toBeDefined();
+    expect(walkthrough?.steps.map((s) => s.id)).toEqual([
+      'pinflow.welcome',
+      'pinflow.pickFolder',
+      'pinflow.runInit',
+      'pinflow.startWorkflow',
+    ]);
+    expect(walkthrough?.steps[1]?.completionEvents).toContain(
+      'onCommand:pinflow.switchFolder',
+    );
+    expect(walkthrough?.steps[2]?.completionEvents).toContain(
+      'onCommand:pinflow.runInit',
+    );
+    expect(walkthrough?.steps[3]?.completionEvents).toContain(
+      'onCommand:pinflow.startWorkflow',
+    );
+    for (const step of walkthrough?.steps ?? []) {
+      expect(step.media).toEqual(
+        expect.objectContaining({
+          markdown: expect.stringMatching(/^walkthroughs\/\d{2}-.+\.md$/),
+        }),
+      );
+    }
+  });
+
+  it('contributes the package-4a switchFolder command', () => {
+    const commands = manifest.contributes?.commands?.map((c) => c.command) ?? [];
+    expect(commands).toContain('pinflow.switchFolder');
+  });
+
+  it('contributes the package-4a preview.autoOpen setting', () => {
+    const props = manifest.contributes?.configuration?.properties ?? {};
+    expect(props['pinflow.preview.autoOpen']).toBeDefined();
+    expect(props['pinflow.preview.autoOpen'].type).toBe('boolean');
+    expect(props['pinflow.preview.autoOpen'].default).toBe(true);
   });
 });

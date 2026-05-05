@@ -131,6 +131,12 @@
         "title": "PinFlow: Open Preview",
         "category": "PinFlow",
         "icon": "$(link-external)"
+      },
+      {
+        "command": "pinflow.switchFolder",
+        "title": "PinFlow: Switch Workspace Folder",
+        "category": "PinFlow",
+        "icon": "$(folder-library)"
       }
     ],
     "configuration": {
@@ -175,6 +181,11 @@
           "type": "string",
           "default": "",
           "description": "Absolute or relative path to the workspace folder PinFlow should track. Leave empty to use auto-detection (the first folder with a running relay, then the first configured folder, then the first folder)."
+        },
+        "pinflow.preview.autoOpen": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically open the dev server's localhost URL in your browser when 'pinflow dev' detects it. Set to false to require a manual click on the Preview row."
         }
       }
     },
@@ -207,6 +218,42 @@
         "view": "pinflow.status",
         "when": "workbenchState == empty",
         "contents": "PinFlow braucht einen geöffneten Ordner.\n\n[$(folder-opened) Ordner öffnen](command:vscode.openFolder)"
+      }
+    ],
+    "walkthroughs": [
+      {
+        "id": "pinflow.gettingStarted",
+        "title": "Get Started with PinFlow",
+        "description": "Set up your first AI-coding workflow with PinFlow in 4 short steps.",
+        "steps": [
+          {
+            "id": "pinflow.welcome",
+            "title": "Welcome to PinFlow",
+            "description": "PinFlow connects your editor with AI coding agents.",
+            "media": { "markdown": "walkthroughs/01-welcome.md" }
+          },
+          {
+            "id": "pinflow.pickFolder",
+            "title": "Pick a workspace folder",
+            "description": "Tell PinFlow which folder to track.",
+            "media": { "markdown": "walkthroughs/02-pick-folder.md" },
+            "completionEvents": ["onCommand:pinflow.switchFolder"]
+          },
+          {
+            "id": "pinflow.runInit",
+            "title": "Initialize PinFlow",
+            "description": "Run pinflow init to scaffold the .pinflow/ folder.",
+            "media": { "markdown": "walkthroughs/03-init.md" },
+            "completionEvents": ["onCommand:pinflow.runInit"]
+          },
+          {
+            "id": "pinflow.startWorkflow",
+            "title": "Start your first workflow",
+            "description": "Trigger the relay + dev-server + coding agent in one click. Multi-repo workflows coming in Phase C.",
+            "media": { "markdown": "walkthroughs/04-first-workflow.md" },
+            "completionEvents": ["onCommand:pinflow.startWorkflow"]
+          }
+        ]
       }
     ]
   },

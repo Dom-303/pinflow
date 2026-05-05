@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 
 import { startStandardWorkflow } from './core/commands.js';
 import { formatPinFlowCliCommand } from './core/cli-command.js';
+import { buildFolderCandidates } from './core/folder-picker.js';
 import { openLatestRunEvidence } from './core/evidence-commands.js';
 import {
   claimExternalHandoff,
@@ -254,6 +255,44 @@ export function activate(context: vscode.ExtensionContext): void {
         '@ext:dom-303.pinflow-vscode',
       );
     }),
+    vscode.commands.registerCommand('pinflow.switchFolder', async () => {
+      const folders = getWorkspaceFolders();
+      if (folders.length === 0) {
+        void vscode.window.showInformationMessage(
+          'Open a workspace folder first.',
+        );
+        return;
+      }
+      const config = vscode.workspace.getConfiguration('pinflow');
+      const preferredFolder = config.get<string>('workspace.preferredFolder', '');
+      const candidates = buildFolderCandidates(folders, {
+        preferredFolder: preferredFolder.trim() || undefined,
+      });
+      if (candidates.length === 0) {
+        void vscode.window.showInformationMessage(
+          'No workspace folder candidates available.',
+        );
+        return;
+      }
+      const items = candidates.map((c) => ({
+        label: c.displayName,
+        description: c.fsPath,
+        detail: `${statusIcon(c.status)} ${statusLabel(c.status)}${c.isActive ? ' · current' : ''}`,
+        candidate: c,
+      }));
+      const picked = await vscode.window.showQuickPick(items, {
+        title: 'Switch PinFlow Workspace Folder',
+        placeHolder: 'Choose a folder to track',
+      });
+      if (!picked) return;
+      if (picked.candidate.isActive) return;
+      await config.update(
+        'workspace.preferredFolder',
+        picked.candidate.fsPath,
+        vscode.ConfigurationTarget.Workspace,
+      );
+      refreshStatus();
+    }),
     vscode.commands.registerCommand('pinflow.runInit', () => {
       const folders = vscode.workspace.workspaceFolders;
       if (!folders?.length) {
@@ -370,6 +409,18 @@ function formatStatusText(status: string): string {
   if (status === 'ready') return 'PinFlow: ready';
   if (status === 'relay-missing') return 'PinFlow: relay missing';
   return 'PinFlow: not configured';
+}
+
+function statusIcon(status: 'ready' | 'relay-missing' | 'not-configured'): string {
+  if (status === 'ready') return '$(check)';
+  if (status === 'relay-missing') return '$(circle-outline)';
+  return '$(circle-slash)';
+}
+
+function statusLabel(status: 'ready' | 'relay-missing' | 'not-configured'): string {
+  if (status === 'ready') return 'configured + relay running';
+  if (status === 'relay-missing') return 'configured';
+  return 'not configured';
 }
 
 function getCurrentWorkspaceRoot(): string | undefined {

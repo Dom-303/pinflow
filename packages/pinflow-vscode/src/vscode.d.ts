@@ -122,6 +122,14 @@ declare module 'vscode' {
       placeHolder?: string;
       value?: string;
     }): Thenable<string | undefined>;
+    showQuickPick<T extends { label: string }>(
+      items: readonly T[] | Thenable<readonly T[]>,
+      options?: {
+        title?: string;
+        placeHolder?: string;
+        canPickMany?: boolean;
+      },
+    ): Thenable<T | undefined>;
     showTextDocument(uri: Uri): Thenable<unknown>;
     createTerminal(options: { name: string; cwd?: string }): {
       sendText(text: string): void;
@@ -149,7 +157,14 @@ declare module 'vscode' {
   export interface WorkspaceConfiguration {
     get<T>(section: string, defaultValue: T): T;
     get<T>(section: string): T | undefined;
+    update(section: string, value: unknown, target?: number | boolean): Thenable<void>;
   }
+
+  export const ConfigurationTarget: {
+    readonly Global: number;
+    readonly Workspace: number;
+    readonly WorkspaceFolder: number;
+  };
 
   export interface ConfigurationChangeEvent {
     affectsConfiguration(section: string): boolean;

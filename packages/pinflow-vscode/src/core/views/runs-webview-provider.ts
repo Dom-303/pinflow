@@ -11,7 +11,10 @@ import {
 export interface RunsWebviewProviderDeps {
   readonly extensionUri: vscode.Uri;
   readonly onOpenPrompt: (run: PinFlowRunEvidence) => void;
-  readonly getCurrentRuns: () => readonly PinFlowRunEvidence[];
+  readonly getCurrentSnapshot: () => {
+    readonly runsByFolder: Readonly<Record<string, readonly PinFlowRunEvidence[]>>;
+    readonly activeFolder?: string;
+  };
   readonly getCurrentSettings: () => RunsWebviewSettings;
 }
 
@@ -40,19 +43,25 @@ export class RunsWebviewProvider implements vscode.WebviewViewProvider {
     webviewView.webview.onDidReceiveMessage((message) => {
       if (!isWebviewToExtMessage(message)) return;
       if (message.type === 'webview:ready') {
+        const snapshot = this.deps.getCurrentSnapshot();
         const ack: ExtToWebviewMessage = {
           type: 'webview:init-ack',
-          runs: this.deps.getCurrentRuns(),
+          runsByFolder: snapshot.runsByFolder,
+          activeFolder: snapshot.activeFolder,
           settings: this.deps.getCurrentSettings(),
         };
         void webviewView.webview.postMessage(ack);
         return;
       }
       if (message.type === 'run:open-prompt') {
-        const match = this.deps
-          .getCurrentRuns()
-          .find((run) => run.runId === message.runId);
-        if (match) this.deps.onOpenPrompt(match);
+        const snapshot = this.deps.getCurrentSnapshot();
+        for (const runs of Object.values(snapshot.runsByFolder)) {
+          const match = runs.find((r) => r.runId === message.runId);
+          if (match) {
+            this.deps.onOpenPrompt(match);
+            return;
+          }
+        }
       }
     });
 
@@ -61,9 +70,16 @@ export class RunsWebviewProvider implements vscode.WebviewViewProvider {
     });
   }
 
-  postRuns(runs: readonly PinFlowRunEvidence[]): void {
+  postRuns(snapshot: {
+    readonly runsByFolder: Readonly<Record<string, readonly PinFlowRunEvidence[]>>;
+    readonly activeFolder?: string;
+  }): void {
     if (!this.webviewView) return;
-    const update: ExtToWebviewMessage = { type: 'runs:update', runs };
+    const update: ExtToWebviewMessage = {
+      type: 'runs:update',
+      runsByFolder: snapshot.runsByFolder,
+      activeFolder: snapshot.activeFolder,
+    };
     void this.webviewView.webview.postMessage(update);
   }
 

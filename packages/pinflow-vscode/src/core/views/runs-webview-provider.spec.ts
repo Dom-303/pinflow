@@ -56,6 +56,20 @@ const sampleRun: PinFlowRunEvidence = {
   deletions: 0,
 };
 
+const sampleRun2: PinFlowRunEvidence = {
+  annotationId: 'ann_2',
+  runId: 'r_2',
+  summary: { status: 'processed' },
+  summaryPath: '/repo2/.pinflow/runs/r_2/summary.json',
+  promptPath: '/repo2/.pinflow/runs/r_2/prompt.md',
+  transcriptPath: null,
+  diffPath: null,
+  hasDiff: false,
+  changedFiles: [],
+  additions: 0,
+  deletions: 0,
+};
+
 const fakeUri = {
   fsPath: '/ext',
   toString: () => '/ext',
@@ -68,7 +82,7 @@ describe('RunsWebviewProvider', () => {
     const provider = new RunsWebviewProvider({
       extensionUri: fakeUri as never,
       onOpenPrompt: vi.fn(),
-      getCurrentRuns: () => [],
+      getCurrentSnapshot: () => ({ runsByFolder: {} }),
       getCurrentSettings: () => ({ timeFormat: '24h' }),
     });
 
@@ -91,7 +105,7 @@ describe('RunsWebviewProvider', () => {
     const provider = new RunsWebviewProvider({
       extensionUri: fakeUri as never,
       onOpenPrompt: vi.fn(),
-      getCurrentRuns: () => [sampleRun],
+      getCurrentSnapshot: () => ({ runsByFolder: { '/repo': [sampleRun] } }),
       getCurrentSettings: () => ({ timeFormat: '24h' }),
     });
 
@@ -104,13 +118,14 @@ describe('RunsWebviewProvider', () => {
     expect(wb.webview.postMessage).not.toHaveBeenCalled();
   });
 
-  it('responds to webview:ready with init-ack carrying runs and settings', () => {
+  it('responds to webview:ready with init-ack carrying runsByFolder and settings', () => {
     const wb = createMockWebview();
     const view = createMockView(wb.webview);
+    const runsByFolder = { '/repo': [sampleRun] };
     const provider = new RunsWebviewProvider({
       extensionUri: fakeUri as never,
       onOpenPrompt: vi.fn(),
-      getCurrentRuns: () => [sampleRun],
+      getCurrentSnapshot: () => ({ runsByFolder, activeFolder: '/repo' }),
       getCurrentSettings: () => ({ timeFormat: '12h' }),
     });
 
@@ -123,7 +138,8 @@ describe('RunsWebviewProvider', () => {
 
     expect(wb.webview.postMessage).toHaveBeenCalledWith({
       type: 'webview:init-ack',
-      runs: [sampleRun],
+      runsByFolder,
+      activeFolder: '/repo',
       settings: { timeFormat: '12h' },
     });
   });
@@ -131,14 +147,15 @@ describe('RunsWebviewProvider', () => {
   it('postRuns is a no-op when view has not been resolved yet', () => {
     const wb = createMockWebview();
     const view = createMockView(wb.webview);
+    const runsByFolder = { '/repo': [sampleRun] };
     const provider = new RunsWebviewProvider({
       extensionUri: fakeUri as never,
       onOpenPrompt: vi.fn(),
-      getCurrentRuns: () => [sampleRun],
+      getCurrentSnapshot: () => ({ runsByFolder }),
       getCurrentSettings: () => ({ timeFormat: '24h' }),
     });
 
-    provider.postRuns([sampleRun]);
+    provider.postRuns({ runsByFolder });
     expect(wb.webview.postMessage).not.toHaveBeenCalled();
 
     provider.resolveWebviewView(
@@ -146,11 +163,37 @@ describe('RunsWebviewProvider', () => {
       { state: undefined } as never,
       { isCancellationRequested: false } as never,
     );
-    provider.postRuns([sampleRun]);
+    provider.postRuns({ runsByFolder });
 
     expect(wb.webview.postMessage).toHaveBeenCalledWith({
       type: 'runs:update',
-      runs: [sampleRun],
+      runsByFolder,
+      activeFolder: undefined,
+    });
+  });
+
+  it('postRuns sends activeFolder hint when provided', () => {
+    const wb = createMockWebview();
+    const view = createMockView(wb.webview);
+    const runsByFolder = { '/repo': [sampleRun] };
+    const provider = new RunsWebviewProvider({
+      extensionUri: fakeUri as never,
+      onOpenPrompt: vi.fn(),
+      getCurrentSnapshot: () => ({ runsByFolder }),
+      getCurrentSettings: () => ({ timeFormat: '24h' }),
+    });
+
+    provider.resolveWebviewView(
+      view as never,
+      { state: undefined } as never,
+      { isCancellationRequested: false } as never,
+    );
+    provider.postRuns({ runsByFolder, activeFolder: '/repo' });
+
+    expect(wb.webview.postMessage).toHaveBeenCalledWith({
+      type: 'runs:update',
+      runsByFolder,
+      activeFolder: '/repo',
     });
   });
 
@@ -160,7 +203,7 @@ describe('RunsWebviewProvider', () => {
     const provider = new RunsWebviewProvider({
       extensionUri: fakeUri as never,
       onOpenPrompt: vi.fn(),
-      getCurrentRuns: () => [],
+      getCurrentSnapshot: () => ({ runsByFolder: {} }),
       getCurrentSettings: () => ({ timeFormat: '24h' }),
     });
 
@@ -177,14 +220,16 @@ describe('RunsWebviewProvider', () => {
     });
   });
 
-  it('routes run:open-prompt messages to the onOpenPrompt callback', () => {
+  it('routes run:open-prompt to onOpenPrompt via cross-folder lookup', () => {
     const wb = createMockWebview();
     const view = createMockView(wb.webview);
     const onOpenPrompt = vi.fn();
+    // r_2 lives in the second folder — proves lookup walks past the first folder
+    const runsByFolder = { '/repo': [sampleRun], '/repo2': [sampleRun2] };
     const provider = new RunsWebviewProvider({
       extensionUri: fakeUri as never,
       onOpenPrompt,
-      getCurrentRuns: () => [sampleRun],
+      getCurrentSnapshot: () => ({ runsByFolder }),
       getCurrentSettings: () => ({ timeFormat: '24h' }),
     });
 
@@ -193,9 +238,9 @@ describe('RunsWebviewProvider', () => {
       { state: undefined } as never,
       { isCancellationRequested: false } as never,
     );
-    wb.sendFromWebview({ type: 'run:open-prompt', runId: 'r_1' });
+    wb.sendFromWebview({ type: 'run:open-prompt', runId: 'r_2' });
 
-    expect(onOpenPrompt).toHaveBeenCalledWith(sampleRun);
+    expect(onOpenPrompt).toHaveBeenCalledWith(sampleRun2);
   });
 
   it('ignores malformed messages from the webview', () => {
@@ -205,7 +250,7 @@ describe('RunsWebviewProvider', () => {
     const provider = new RunsWebviewProvider({
       extensionUri: fakeUri as never,
       onOpenPrompt,
-      getCurrentRuns: () => [sampleRun],
+      getCurrentSnapshot: () => ({ runsByFolder: { '/repo': [sampleRun] } }),
       getCurrentSettings: () => ({ timeFormat: '24h' }),
     });
 

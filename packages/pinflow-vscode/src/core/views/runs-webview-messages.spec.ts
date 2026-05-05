@@ -9,7 +9,7 @@ describe('runs-webview message guards', () => {
   describe('isExtToWebviewMessage', () => {
     it('accepts a valid runs:update', () => {
       expect(
-        isExtToWebviewMessage({ type: 'runs:update', runs: [] }),
+        isExtToWebviewMessage({ type: 'runs:update', runsByFolder: {} }),
       ).toBe(true);
     });
 
@@ -17,10 +17,27 @@ describe('runs-webview message guards', () => {
       expect(
         isExtToWebviewMessage({
           type: 'webview:init-ack',
-          runs: [],
+          runsByFolder: {},
           settings: { timeFormat: '24h' },
         }),
       ).toBe(true);
+    });
+
+    it('accepts a valid webview:init-ack with activeFolder', () => {
+      expect(
+        isExtToWebviewMessage({
+          type: 'webview:init-ack',
+          runsByFolder: {},
+          activeFolder: '/folder/path',
+          settings: { timeFormat: '24h' },
+        }),
+      ).toBe(true);
+    });
+
+    it('rejects runs:update with old runs array shape', () => {
+      expect(
+        isExtToWebviewMessage({ type: 'runs:update', runs: [] }),
+      ).toBe(false);
     });
 
     it('accepts a valid settings:update', () => {
@@ -34,7 +51,7 @@ describe('runs-webview message guards', () => {
 
     it('rejects an unknown type', () => {
       expect(
-        isExtToWebviewMessage({ type: 'unknown:type', runs: [] }),
+        isExtToWebviewMessage({ type: 'unknown:type', runsByFolder: {} }),
       ).toBe(false);
     });
 
@@ -48,7 +65,7 @@ describe('runs-webview message guards', () => {
       expect(
         isExtToWebviewMessage({
           type: 'webview:init-ack',
-          runs: [],
+          runsByFolder: {},
         }),
       ).toBe(false);
     });
@@ -96,7 +113,8 @@ describe('runs-webview message guards', () => {
     it('preserves all fields of init-ack', () => {
       const message: ExtToWebviewMessage = {
         type: 'webview:init-ack',
-        runs: [],
+        runsByFolder: { '/workspace/project': [] },
+        activeFolder: '/workspace/project',
         settings: { timeFormat: '24h' },
       };
       const round = JSON.parse(JSON.stringify(message)) as unknown;

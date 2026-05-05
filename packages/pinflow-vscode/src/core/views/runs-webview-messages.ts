@@ -15,8 +15,8 @@
  *   3. Consistent with `run-evidence.ts` which already hand-types its
  *      shapes for the same reasons.
  *
- * The `runs` array is shallow-validated (Array.isArray) only — individual
- * elements are NOT deep-checked against `PinFlowRunEvidence`. This is
+ * `runsByFolder` values are shallow-validated (Array.isArray per entry) only
+ * — individual `PinFlowRunEvidence` elements are NOT deep-checked. This is
  * acceptable because the producer of these messages is `extension.ts`,
  * which already constructs them from typed `PinFlowRunEvidence` instances.
  */
@@ -29,12 +29,14 @@ export interface RunsWebviewSettings {
 export type ExtToWebviewMessage =
   | {
       readonly type: 'webview:init-ack';
-      readonly runs: readonly PinFlowRunEvidence[];
+      readonly runsByFolder: Readonly<Record<string, readonly PinFlowRunEvidence[]>>;
+      readonly activeFolder?: string;
       readonly settings: RunsWebviewSettings;
     }
   | {
       readonly type: 'runs:update';
-      readonly runs: readonly PinFlowRunEvidence[];
+      readonly runsByFolder: Readonly<Record<string, readonly PinFlowRunEvidence[]>>;
+      readonly activeFolder?: string;
     }
   | {
       readonly type: 'settings:update';
@@ -57,16 +59,23 @@ function isSettings(value: unknown): value is RunsWebviewSettings {
   );
 }
 
+function isRunsByFolder(value: unknown): value is Record<string, unknown[]> {
+  if (!isObject(value)) return false;
+  return Object.values(value).every((v) => Array.isArray(v));
+}
+
 export function isExtToWebviewMessage(
   value: unknown,
 ): value is ExtToWebviewMessage {
   if (!isObject(value)) return false;
   const type = value['type'];
   if (type === 'runs:update') {
-    return Array.isArray(value['runs']);
+    return isRunsByFolder(value['runsByFolder']);
   }
   if (type === 'webview:init-ack') {
-    return Array.isArray(value['runs']) && isSettings(value['settings']);
+    return (
+      isRunsByFolder(value['runsByFolder']) && isSettings(value['settings'])
+    );
   }
   if (type === 'settings:update') {
     return isSettings(value['settings']);

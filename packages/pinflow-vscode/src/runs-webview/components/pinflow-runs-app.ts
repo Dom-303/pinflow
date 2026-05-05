@@ -3,13 +3,20 @@ import { customElement, property } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
 import './pinflow-runs-header.js';
 import './pinflow-empty-state.js';
-import './pinflow-run-card.js';
+import './pinflow-folder-section.js';
 import type { PinFlowRunEvidence } from '../../core/run-evidence.js';
 import type { RunsWebviewSettings } from '../../core/views/runs-webview-messages.js';
 
+// In-browser path-basename helper since node:path isn't available at runtime:
+function basename(p: string): string {
+  const idx = p.lastIndexOf('/');
+  return idx >= 0 ? p.slice(idx + 1) : p;
+}
+
 @customElement('pinflow-runs-app')
 export class PinflowRunsApp extends LitElement {
-  @property({ attribute: false }) runs: readonly PinFlowRunEvidence[] = [];
+  @property({ attribute: false }) runsByFolder: Readonly<Record<string, readonly PinFlowRunEvidence[]>> = {};
+  @property({ attribute: false }) activeFolder?: string;
   @property({ attribute: false }) settings: RunsWebviewSettings = { timeFormat: '24h' };
 
   static styles = css`
@@ -17,30 +24,32 @@ export class PinflowRunsApp extends LitElement {
       display: block;
       padding: 0 0 16px;
     }
-    .list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      padding: 0 8px;
-    }
   `;
 
   render() {
-    if (this.runs.length === 0) {
+    const folderPaths = Object.keys(this.runsByFolder);
+    if (folderPaths.length === 0) {
       return html`<pinflow-empty-state></pinflow-empty-state>`;
     }
+    const totalRuns = Object.values(this.runsByFolder).reduce(
+      (sum, runs) => sum + runs.length,
+      0,
+    );
     return html`
-      <pinflow-runs-header .count=${this.runs.length}></pinflow-runs-header>
-      <div class="list">
+      <pinflow-runs-header .count=${totalRuns}></pinflow-runs-header>
+      <div class="sections">
         ${repeat(
-          this.runs,
-          (run) => run.runId ?? run.summaryPath,
-          (run, index) => html`
-            <pinflow-run-card
-              .run=${run}
+          folderPaths,
+          (folder) => folder,
+          (folder) => html`
+            <pinflow-folder-section
+              .folderPath=${folder}
+              .displayName=${basename(folder)}
+              .runs=${this.runsByFolder[folder] ?? []}
               .timeFormat=${this.settings.timeFormat}
-              .index=${index}
-            ></pinflow-run-card>
+              .defaultExpanded=${folder === this.activeFolder}
+              .isActive=${folder === this.activeFolder}
+            ></pinflow-folder-section>
           `,
         )}
       </div>

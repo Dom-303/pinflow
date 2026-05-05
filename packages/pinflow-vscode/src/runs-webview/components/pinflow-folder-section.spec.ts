@@ -1,0 +1,130 @@
+import './pinflow-folder-section.js';
+import { PinflowFolderSection } from './pinflow-folder-section.js';
+
+describe('<pinflow-folder-section>', () => {
+  it('renders header with displayName and run count', async () => {
+    // Arrange
+    const el = document.createElement('pinflow-folder-section') as PinflowFolderSection;
+    el.displayName = 'my-project';
+    el.runs = [
+      { runId: 'r_1', summaryPath: '/p1' } as never,
+      { runId: 'r_2', summaryPath: '/p2' } as never,
+    ];
+
+    // Act
+    document.body.appendChild(el);
+    await el.updateComplete;
+
+    // Assert
+    expect(el.shadowRoot!.querySelector('.name')!.textContent).toContain('my-project');
+    expect(el.shadowRoot!.querySelector('.count')!.textContent).toContain('2');
+    el.remove();
+  });
+
+  it('uses singular "run" for exactly one run', async () => {
+    // Arrange
+    const el = document.createElement('pinflow-folder-section') as PinflowFolderSection;
+    el.runs = [{ runId: 'r_1', summaryPath: '/p1' } as never];
+
+    // Act
+    document.body.appendChild(el);
+    await el.updateComplete;
+
+    // Assert
+    expect(el.shadowRoot!.querySelector('.count')!.textContent).toBe('1 run');
+    el.remove();
+  });
+
+  it('uses plural "runs" for zero or multiple runs', async () => {
+    // Arrange
+    const el = document.createElement('pinflow-folder-section') as PinflowFolderSection;
+    el.runs = [];
+
+    // Act
+    document.body.appendChild(el);
+    await el.updateComplete;
+
+    // Assert
+    expect(el.shadowRoot!.querySelector('.count')!.textContent).toBe('0 runs');
+    el.remove();
+  });
+
+  it('sets expanded attribute when defaultExpanded is true', async () => {
+    // Arrange
+    const el = document.createElement('pinflow-folder-section') as PinflowFolderSection;
+    el.defaultExpanded = true;
+
+    // Act
+    document.body.appendChild(el);
+    await el.updateComplete;
+
+    // Assert
+    expect(el.hasAttribute('expanded')).toBe(true);
+    el.remove();
+  });
+
+  it('toggles expanded state on header click', async () => {
+    // Arrange
+    const el = document.createElement('pinflow-folder-section') as PinflowFolderSection;
+    document.body.appendChild(el);
+    await el.updateComplete;
+    expect(el.hasAttribute('expanded')).toBe(false);
+
+    // Act
+    el.shadowRoot!.querySelector<HTMLElement>('.header')!.click();
+    await el.updateComplete;
+
+    // Assert
+    expect(el.hasAttribute('expanded')).toBe(true);
+    el.remove();
+  });
+
+  it('renders one run-card per run when expanded', async () => {
+    // Arrange
+    const el = document.createElement('pinflow-folder-section') as PinflowFolderSection;
+    el.defaultExpanded = true;
+    el.runs = [
+      { runId: 'r_1', summaryPath: '/p1' } as never,
+      { runId: 'r_2', summaryPath: '/p2' } as never,
+      { runId: 'r_3', summaryPath: '/p3' } as never,
+    ];
+
+    // Act
+    document.body.appendChild(el);
+    await el.updateComplete;
+
+    // Assert
+    expect(el.shadowRoot!.querySelectorAll('pinflow-run-card').length).toBe(3);
+    el.remove();
+  });
+
+  it('renders inline empty-state when expanded with no runs', async () => {
+    // Arrange
+    const el = document.createElement('pinflow-folder-section') as PinflowFolderSection;
+    el.defaultExpanded = true;
+    el.runs = [];
+
+    // Act
+    document.body.appendChild(el);
+    await el.updateComplete;
+
+    // Assert
+    expect(el.shadowRoot!.querySelector('.empty')).not.toBeNull();
+    expect(el.shadowRoot!.querySelector('pinflow-run-card')).toBeNull();
+    el.remove();
+  });
+
+  it('renders active-dot when isActive is true', async () => {
+    // Arrange
+    const el = document.createElement('pinflow-folder-section') as PinflowFolderSection;
+    el.isActive = true;
+
+    // Act
+    document.body.appendChild(el);
+    await el.updateComplete;
+
+    // Assert
+    expect(el.shadowRoot!.querySelector('.active-dot')).not.toBeNull();
+    el.remove();
+  });
+});

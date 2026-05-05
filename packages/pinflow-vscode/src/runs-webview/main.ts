@@ -28,13 +28,14 @@ if (!app) {
     if (!isExtToWebviewMessage(event.data)) return;
     const data = event.data;
     if (data.type === 'webview:init-ack') {
-      (app as unknown as { runs: readonly unknown[]; settings: unknown }).runs =
-        data.runs;
-      (app as unknown as { settings: unknown }).settings = data.settings;
+      (app as any).runsByFolder = data.runsByFolder;
+      (app as any).activeFolder = data.activeFolder;
+      (app as any).settings = data.settings;
     } else if (data.type === 'runs:update') {
-      (app as unknown as { runs: readonly unknown[] }).runs = data.runs;
+      (app as any).runsByFolder = data.runsByFolder;
+      (app as any).activeFolder = data.activeFolder;
     } else if (data.type === 'settings:update') {
-      (app as unknown as { settings: unknown }).settings = data.settings;
+      (app as any).settings = data.settings;
     }
   });
 

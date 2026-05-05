@@ -162,7 +162,12 @@ export function activate(context: vscode.ExtensionContext): void {
       const autoOpen = config.get<boolean>('preview.autoOpen', true);
       if (autoOpen && !openedDevUrls.has(currentDevUrl)) {
         openedDevUrls.add(currentDevUrl);
-        void vscode.env.openExternal(vscode.Uri.parse(currentDevUrl));
+        try {
+          void vscode.env.openExternal(vscode.Uri.parse(currentDevUrl));
+        } catch {
+          // Malformed dev URLs shouldn't crash the refresh tick; the user
+          // can still click the Preview row to open the URL manually.
+        }
       }
     }
 

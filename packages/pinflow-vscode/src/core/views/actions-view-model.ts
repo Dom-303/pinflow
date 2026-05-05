@@ -1,4 +1,7 @@
+import path from 'node:path';
+
 import type { ExternalHandoffClaim } from '../external-handoff.js';
+import type { PerFolderState } from '../multi-folder-state.js';
 
 export type ActionsViewItemId =
   | 'startWorkflow'
@@ -13,6 +16,14 @@ export interface ActionsViewItem {
   readonly label: string;
   readonly themeIcon: string;
   readonly command: string;
+  readonly commandArguments?: readonly unknown[];
+}
+
+export interface ActionFolderGroup {
+  readonly id: string;
+  readonly displayName: string;
+  readonly isActive: boolean;
+  readonly children: readonly ActionsViewItem[];
 }
 
 const DEFAULT_ACTIONS: readonly ActionsViewItem[] = [
@@ -32,4 +43,32 @@ export function buildActionsViewItems(
 ): readonly ActionsViewItem[] {
   if (!externalClaim) return DEFAULT_ACTIONS;
   return [...EXTERNAL_CLAIM_ACTIONS, ...DEFAULT_ACTIONS];
+}
+
+const FOLDER_COMMAND_IDS = new Set<ActionsViewItemId>(['startWorkflow', 'followRuns', 'openLatestRun']);
+
+export function buildActionFolderGroups(
+  folders: readonly PerFolderState[],
+  externalClaim: ExternalHandoffClaim | null,
+  activeFolder: string | undefined,
+): readonly ActionFolderGroup[] {
+  return folders.map((state) => {
+    const isActive = state.folder === activeFolder;
+    const claimForFolder = isActive ? externalClaim : null;
+    const items = buildActionsViewItems(claimForFolder).filter(
+      // Hide the "Claim External Task" button on inactive folders when a claim is already held
+      (item) => isActive || item.id !== 'externalClaim' || !externalClaim,
+    );
+    const children = items.map<ActionsViewItem>((item) =>
+      FOLDER_COMMAND_IDS.has(item.id)
+        ? { ...item, commandArguments: [state.folder] }
+        : item,
+    );
+    return {
+      id: state.folder,
+      displayName: path.basename(state.folder),
+      isActive,
+      children,
+    };
+  });
 }

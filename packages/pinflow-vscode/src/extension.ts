@@ -18,7 +18,8 @@ import {
   type PinFlowRunEvidence,
 } from './core/run-evidence.js';
 import {
-  buildActionsViewItems,
+  buildActionFolderGroups,
+  type ActionFolderGroup,
   type ActionsViewItem,
 } from './core/views/actions-view-model.js';
 import { RunsWebviewProvider } from './core/views/runs-webview-provider.js';
@@ -114,7 +115,8 @@ export function activate(context: vscode.ExtensionContext): void {
       statusProvider.setItems([]);
       latestRunEvidence = [];
       runsWebviewProvider.postRuns([]);
-      actionsProvider.setItems(buildActionsViewItems(externalClaim));
+      // TODO(Task 7): wire per-folder groups in refreshAll
+      actionsProvider.setFolderGroups([]);
       void vscode.commands.executeCommand(
         'setContext',
         'pinflow.notConfigured',
@@ -220,7 +222,8 @@ export function activate(context: vscode.ExtensionContext): void {
     }
 
     runsWebviewProvider.postRuns(runEvidence);
-    actionsProvider.setItems(buildActionsViewItems(externalClaim));
+    // TODO(Task 7): wire per-folder groups in refreshAll
+    actionsProvider.setFolderGroups([]);
   }
 
   context.subscriptions.push(
@@ -234,21 +237,22 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('pinflow.refreshPanel', () => {
       refreshStatus();
     }),
-    vscode.commands.registerCommand('pinflow.followRuns', () => {
-      const workspace = getCurrentWorkspace();
+    vscode.commands.registerCommand('pinflow.followRuns', (folderPath?: string) => {
+      const targetFolder = folderPath ?? getCurrentWorkspace()?.commandRoot;
+      const appRoot = folderPath ?? getCurrentWorkspace()?.appRoot;
       const terminal = vscode.window.createTerminal({
         name: 'PinFlow Follow',
-        cwd: workspace?.commandRoot,
+        cwd: targetFolder,
       });
       terminal.sendText(
-        workspace
-          ? formatPinFlowCliCommand(workspace.commandRoot, ['follow'], workspace.appRoot)
+        targetFolder
+          ? formatPinFlowCliCommand(targetFolder, ['follow'], appRoot)
           : 'pinflow follow',
       );
       terminal.show();
     }),
-    vscode.commands.registerCommand('pinflow.openLatestRun', async () => {
-      const workspaceRoot = getCurrentWorkspaceRoot();
+    vscode.commands.registerCommand('pinflow.openLatestRun', async (folderPath?: string) => {
+      const workspaceRoot = folderPath ?? getCurrentWorkspaceRoot();
       if (!workspaceRoot) {
         await vscode.window.showInformationMessage('Open a configured PinFlow workspace first.');
         return;
@@ -262,16 +266,17 @@ export function activate(context: vscode.ExtensionContext): void {
       if (typeof filePath !== 'string') return;
       await openEvidenceFile(filePath);
     }),
-    vscode.commands.registerCommand('pinflow.startWorkflow', () => {
-      const workspace = getCurrentWorkspace();
-      if (!workspace) {
+    vscode.commands.registerCommand('pinflow.startWorkflow', (folderPath?: string) => {
+      const commandRoot = folderPath ?? getCurrentWorkspace()?.commandRoot;
+      const appRoot = folderPath ?? getCurrentWorkspace()?.appRoot;
+      if (!commandRoot) {
         void vscode.window.showInformationMessage('Open a configured PinFlow workspace first.');
         return;
       }
       startStandardWorkflow(
-        workspace.commandRoot,
+        commandRoot,
         (name, cwd) => vscode.window.createTerminal({ name, cwd }),
-        workspace.appRoot,
+        appRoot,
       );
     }),
     vscode.commands.registerCommand('pinflow.openSettings', () => {
@@ -582,28 +587,59 @@ function computeStatusSignature(groups: readonly StatusFolderGroup[]): string {
   );
 }
 
-class ActionsTreeDataProvider
-  implements vscode.TreeDataProvider<ActionsViewItem>
-{
-  private readonly emitter = new vscode.EventEmitter<ActionsViewItem | undefined>();
-  readonly onDidChangeTreeData = this.emitter.event;
-  private items: readonly ActionsViewItem[] = [];
+type ActionsTreeNode = ActionFolderGroup | ActionsViewItem;
 
-  setItems(items: readonly ActionsViewItem[]): void {
-    this.items = items;
+class ActionsTreeDataProvider implements vscode.TreeDataProvider<ActionsTreeNode> {
+  private readonly emitter = new vscode.EventEmitter<ActionsTreeNode | undefined>();
+  readonly onDidChangeTreeData = this.emitter.event;
+  private groups: readonly ActionFolderGroup[] = [];
+  private lastSignature = '';
+
+  setFolderGroups(groups: readonly ActionFolderGroup[]): void {
+    const signature = computeActionsSignature(groups);
+    if (signature === this.lastSignature) return;
+    this.lastSignature = signature;
+    this.groups = groups;
     this.emitter.fire(undefined);
   }
 
-  getTreeItem(element: ActionsViewItem): vscode.TreeItem {
-    const item = new vscode.TreeItem(element.label, vscode.TreeItemCollapsibleState.None);
-    item.id = element.id;
-    item.iconPath = new vscode.ThemeIcon(element.themeIcon);
-    item.command = { command: element.command, title: element.label };
-    return item;
+  getTreeItem(element: ActionsTreeNode): vscode.TreeItem {
+    if ('children' in element) {
+      const item = new vscode.TreeItem(
+        element.displayName,
+        element.isActive
+          ? vscode.TreeItemCollapsibleState.Expanded
+          : vscode.TreeItemCollapsibleState.Collapsed,
+      );
+      item.id = `folder:${element.id}`;
+      item.iconPath = new vscode.ThemeIcon('folder');
+      return item;
+    }
+    const leaf = new vscode.TreeItem(element.label, vscode.TreeItemCollapsibleState.None);
+    leaf.id = element.id;
+    leaf.iconPath = new vscode.ThemeIcon(element.themeIcon);
+    leaf.command = {
+      command: element.command,
+      title: element.label,
+      arguments: element.commandArguments?.slice(),
+    };
+    return leaf;
   }
 
-  getChildren(element?: ActionsViewItem): readonly ActionsViewItem[] {
-    return element ? [] : this.items;
+  getChildren(element?: ActionsTreeNode): readonly ActionsTreeNode[] {
+    if (!element) return this.groups;
+    if ('children' in element) return element.children;
+    return [];
   }
+}
+
+function computeActionsSignature(groups: readonly ActionFolderGroup[]): string {
+  return JSON.stringify(
+    groups.map((g) => [
+      g.id,
+      g.isActive,
+      g.children.map((c) => [c.id, c.commandArguments ?? []]),
+    ]),
+  );
 }
 

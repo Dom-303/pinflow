@@ -165,7 +165,7 @@ function resolvePreferredStatus(
   return;
 }
 
-function getWorkspaceCandidateFolders(workspaceFolder: string): string[] {
+export function getWorkspaceCandidateFolders(workspaceFolder: string): string[] {
   const resolvedFolder = path.resolve(workspaceFolder);
   const candidates: string[] = [];
 

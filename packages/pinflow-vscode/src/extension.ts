@@ -34,6 +34,8 @@ const execFileAsync = promisify(execFile);
 const RUN_EVIDENCE_LIMIT = 80;
 
 const notifiedFailedRunKeys = new Set<string>();
+const openedDevUrls = new Set<string>();
+let lastSeenDevUrl: string | undefined = undefined;
 let isFirstRefresh = true;
 
 function clampInterval(raw: number): number {
@@ -147,6 +149,22 @@ export function activate(context: vscode.ExtensionContext): void {
       ? await findRunEvidence(workspaceStatus.workspaceRoot, { limit: RUN_EVIDENCE_LIMIT })
       : [];
     latestRunEvidence = runEvidence;
+
+    const currentDevUrl = workspaceStatus.devServer?.url;
+
+    // Reset our debouncer when pinflow dev exits — so a fresh restart re-triggers.
+    if (lastSeenDevUrl && lastSeenDevUrl !== currentDevUrl) {
+      openedDevUrls.delete(lastSeenDevUrl);
+    }
+    lastSeenDevUrl = currentDevUrl;
+
+    if (currentDevUrl) {
+      const autoOpen = config.get<boolean>('preview.autoOpen', true);
+      if (autoOpen && !openedDevUrls.has(currentDevUrl)) {
+        openedDevUrls.add(currentDevUrl);
+        void vscode.env.openExternal(vscode.Uri.parse(currentDevUrl));
+      }
+    }
 
     const workspaceFolderIndex = workspaceFolders.findIndex(
       (folder) => folder === workspaceStatus.workspaceFolder,

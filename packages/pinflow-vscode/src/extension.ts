@@ -571,14 +571,15 @@ class StatusTreeDataProvider implements vscode.TreeDataProvider<StatusTreeNode> 
 }
 
 function computeStatusSignature(groups: readonly StatusFolderGroup[]): string {
-  return groups
-    .map(
-      (g) =>
-        `${g.id}:${g.runCount}:${g.isActive ? '1' : '0'}:${g.children
-          .map((c) => `${c.id}:${c.description ?? ''}`)
-          .join(',')}`,
-    )
-    .join('|');
+  // JSON keeps the format unambiguous if a folder path contains `,` or `|`.
+  return JSON.stringify(
+    groups.map((g) => [
+      g.id,
+      g.runCount,
+      g.isActive,
+      g.children.map((c) => [c.id, c.description ?? '']),
+    ]),
+  );
 }
 
 class ActionsTreeDataProvider

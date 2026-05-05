@@ -48,14 +48,8 @@ describe('<pinflow-runs-app>', () => {
 
     // Assert
     const sections = el.shadowRoot!.querySelectorAll('pinflow-folder-section');
-    const alphaSection = sections[0] as HTMLElement & {
-      defaultExpanded: boolean;
-      isActive: boolean;
-    };
-    const betaSection = sections[1] as HTMLElement & {
-      defaultExpanded: boolean;
-      isActive: boolean;
-    };
+    const alphaSection = sections[0] as PinflowFolderSection;
+    const betaSection = sections[1] as PinflowFolderSection;
     expect(alphaSection.defaultExpanded).toBe(true);
     expect(alphaSection.isActive).toBe(true);
     expect(betaSection.defaultExpanded).toBe(false);

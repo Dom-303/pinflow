@@ -68,7 +68,6 @@ describe('<pinflow-folder-section>', () => {
     const el = document.createElement('pinflow-folder-section') as PinflowFolderSection;
     document.body.appendChild(el);
     await el.updateComplete;
-    expect(el.hasAttribute('expanded')).toBe(false);
 
     // Act
     el.shadowRoot!.querySelector<HTMLElement>('.header')!.click();

@@ -69,6 +69,8 @@ export class PinflowFolderSection extends LitElement {
       flex-direction: column;
       gap: 8px;
     }
+    /* Wrapper around the conditional expanded body so happy-dom renders
+       the children reliably; display:contents keeps it invisible to layout. */
     .content {
       display: contents;
     }

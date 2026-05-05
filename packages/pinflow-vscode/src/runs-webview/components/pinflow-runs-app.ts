@@ -7,7 +7,7 @@ import './pinflow-folder-section.js';
 import type { PinFlowRunEvidence } from '../../core/run-evidence.js';
 import type { RunsWebviewSettings } from '../../core/views/runs-webview-messages.js';
 
-// In-browser path-basename helper since node:path isn't available at runtime:
+// node:path is not available in the browser; the webview only needs basename.
 function basename(p: string): string {
   const idx = p.lastIndexOf('/');
   return idx >= 0 ? p.slice(idx + 1) : p;

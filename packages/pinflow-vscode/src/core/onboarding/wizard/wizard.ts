@@ -169,7 +169,7 @@ function planSteps(apps: readonly DetectedApp[]): StepPlan {
   let nextIdx = 1;
   const agentLabel = fmt(nextIdx++);
   const appRootLabel = appRootShown ? fmt(nextIdx++) : '';
-  const frameworkLabel = frameworkShown ? fmt(nextIdx++) : '';
+  const frameworkLabel = frameworkShown ? fmt(nextIdx) : '';
 
   return {
     total: count,

@@ -137,6 +137,11 @@
         "title": "PinFlow: Switch Workspace Folder",
         "category": "PinFlow",
         "icon": "$(folder-library)"
+      },
+      {
+        "command": "pinflow.runInitInTerminal",
+        "title": "PinFlow: Run Init in Terminal",
+        "category": "PinFlow"
       }
     ],
     "configuration": {
@@ -186,6 +191,16 @@
           "type": "boolean",
           "default": true,
           "description": "Automatically open the dev server's localhost URL in your browser when 'pinflow dev' detects it. Set to false to require a manual click on the Preview row."
+        },
+        "pinflow.onboarding.mode": {
+          "type": "string",
+          "enum": ["auto", "terminal"],
+          "enumDescriptions": [
+            "Run pinflow init programmatically with safe defaults (no terminal opens). Recommended for most users.",
+            "Open a terminal and run 'pinflow init' interactively. Choose this if you want to step through agent/framework/monorepo prompts manually."
+          ],
+          "default": "auto",
+          "description": "How PinFlow should run 'pinflow init' when you click 'Setup PinFlow' on an unconfigured folder."
         }
       }
     },

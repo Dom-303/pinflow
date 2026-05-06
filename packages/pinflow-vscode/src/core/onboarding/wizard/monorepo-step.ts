@@ -67,14 +67,14 @@ export async function pickAppRoot(
   if (apps.length > 1) {
     const items: AppQuickPickItem[] = apps.map((app) => ({
       label: path.relative(cwd, app.path) || path.basename(app.path),
-      description: app.framework ?? 'unbekanntes Framework',
+      description: app.framework,
       picked: true,
       value: app.path,
     }));
 
     const picked = await deps.showQuickPick(items, {
       title: `PinFlow Setup · ${titlePrefix}Apps auswählen`,
-      placeHolder: 'Mehrere Apps gefunden — wähle eine oder mehrere',
+      placeHolder: 'Mehrere Frontend-Apps gefunden — wähle eine oder mehrere',
       canPickMany: true,
     });
 
@@ -85,7 +85,8 @@ export async function pickAppRoot(
 
   const entered = await deps.showInputBox({
     title: `PinFlow Setup · ${titlePrefix}App-Root wählen`,
-    prompt: 'Keine package.json gefunden. Pfad zum App-Root eingeben:',
+    prompt:
+      'Keine Frontend-App (Vite/Webpack/Next.js/Nuxt) erkannt. Pfad zum App-Root eingeben:',
     value: cwd,
   });
 

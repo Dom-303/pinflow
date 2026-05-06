@@ -50,29 +50,9 @@ describe('pickAppRoot', () => {
     ]);
     expect(options.canPickMany).toBe(true);
     expect(options.title).toBe('PinFlow Setup · Schritt 2/2 — Apps auswählen');
-    expect(options.placeHolder).toBe('Mehrere Apps gefunden — wähle eine oder mehrere');
-  });
-
-  it('describes apps without detected framework as "unbekanntes Framework"', async () => {
-    // Arrange
-    const showQuickPick = vi.fn().mockResolvedValue(undefined);
-    const showInputBox = vi.fn();
-
-    // Act
-    await pickAppRoot(
-      '/repo',
-      [
-        { path: '/repo/apps/web' },
-        { path: '/repo/apps/api', framework: 'webpack' },
-      ],
-      'Schritt 2/3',
-      { showQuickPick, showInputBox },
+    expect(options.placeHolder).toBe(
+      'Mehrere Frontend-Apps gefunden — wähle eine oder mehrere',
     );
-
-    // Assert
-    const [items] = showQuickPick.mock.calls[0];
-    expect(items[0].description).toBe('unbekanntes Framework');
-    expect(items[1].description).toBe('webpack');
   });
 
   it('returns undefined when multi-select is cancelled', async () => {
@@ -84,8 +64,8 @@ describe('pickAppRoot', () => {
     const result = await pickAppRoot(
       '/repo',
       [
-        { path: '/repo/apps/web' },
-        { path: '/repo/apps/api' },
+        { path: '/repo/apps/web', framework: 'vite' },
+        { path: '/repo/apps/api', framework: 'webpack' },
       ],
       'Schritt 2/3',
       { showQuickPick, showInputBox },
@@ -104,8 +84,8 @@ describe('pickAppRoot', () => {
     const result = await pickAppRoot(
       '/repo',
       [
-        { path: '/repo/apps/web' },
-        { path: '/repo/apps/api' },
+        { path: '/repo/apps/web', framework: 'vite' },
+        { path: '/repo/apps/api', framework: 'webpack' },
       ],
       'Schritt 2/3',
       { showQuickPick, showInputBox },
@@ -115,7 +95,7 @@ describe('pickAppRoot', () => {
     expect(result).toBeUndefined();
   });
 
-  it('shows InputBox with German prompt when no apps detected', async () => {
+  it('shows InputBox with German prompt when no apps detected (frontend-aware copy)', async () => {
     // Arrange
     const showQuickPick = vi.fn();
     const showInputBox = vi.fn().mockResolvedValue('/manual/path');
@@ -133,7 +113,7 @@ describe('pickAppRoot', () => {
     const [options] = showInputBox.mock.calls[0];
     expect(options.title).toBe('PinFlow Setup · Schritt 2/2 — App-Root wählen');
     expect(options.prompt).toBe(
-      'Keine package.json gefunden. Pfad zum App-Root eingeben:',
+      'Keine Frontend-App (Vite/Webpack/Next.js/Nuxt) erkannt. Pfad zum App-Root eingeben:',
     );
     expect(options.value).toBe('/repo');
   });
@@ -164,8 +144,8 @@ describe('pickAppRoot', () => {
     await pickAppRoot(
       '/repo',
       [
-        { path: '/repo/apps/web' },
-        { path: '/repo/apps/api' },
+        { path: '/repo/apps/web', framework: 'vite' },
+        { path: '/repo/apps/api', framework: 'webpack' },
       ],
       '',
       { showQuickPick, showInputBox },

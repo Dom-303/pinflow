@@ -166,24 +166,27 @@ describe('detectApps', () => {
     expect(result.map((r) => r.path)).toEqual(['/project']);
   });
 
-  it('omits the root from results when it has workspaces and no frontend framework', () => {
-    // Arrange — eventbear-web style: root is a monorepo wrapper without FE deps
+  it('returns only frontend apps from a monorepo, dropping non-FE packages (eventbear-web case)', () => {
+    // Arrange — root is a monorepo wrapper without FE deps; apps/api +
+    // apps/pocketbase have no FE framework, only apps/web does.
     const rootPkg = JSON.stringify({
       workspaces: ['apps/*'],
       devDependencies: { typescript: '^5.0.0' },
     });
     const apiPkg = JSON.stringify({ dependencies: { fastify: '^4.0.0' } });
+    const pocketbasePkg = JSON.stringify({ dependencies: { pocketbase: '^0.20.0' } });
     const webPkg = JSON.stringify({ devDependencies: { vite: '^5.0.0' } });
     const deps = makeDeps({
       readFile: vi.fn((p: string) => {
         if (p === '/repo/package.json') return rootPkg;
         if (p === '/repo/apps/api/package.json') return apiPkg;
+        if (p === '/repo/apps/pocketbase/package.json') return pocketbasePkg;
         if (p === '/repo/apps/web/package.json') return webPkg;
         return undefined;
       }),
       readdir: vi.fn((p: string) => {
         if (p === '/repo') return ['apps'];
-        if (p === '/repo/apps') return ['api', 'web'];
+        if (p === '/repo/apps') return ['api', 'pocketbase', 'web'];
         return [];
       }),
     });
@@ -191,16 +194,13 @@ describe('detectApps', () => {
     // Act
     const result = detectApps('/repo', deps);
 
-    // Assert — only the workspace apps, not the wrapper root
-    expect(result.map((r) => r.path)).toEqual(['/repo/apps/api', '/repo/apps/web']);
+    // Assert — only the FE app remains
+    expect(result).toEqual([{ path: '/repo/apps/web', framework: 'vite' }]);
   });
 
-  it('keeps the root in results when it has workspaces AND its own frontend framework', () => {
-    // Arrange — root is both a monorepo and a frontend app
-    const rootPkg = JSON.stringify({
-      workspaces: ['packages/*'],
-      devDependencies: { vite: '^5.0.0' },
-    });
+  it('keeps the root when it has its own frontend framework', () => {
+    // Arrange
+    const rootPkg = JSON.stringify({ devDependencies: { vite: '^5.0.0' } });
     const subPkg = JSON.stringify({ devDependencies: { webpack: '^5.0.0' } });
     const deps = makeDeps({
       readFile: vi.fn((p: string) => {
@@ -222,30 +222,18 @@ describe('detectApps', () => {
     expect(result.map((r) => r.path)).toEqual(['/repo', '/repo/packages/x']);
   });
 
-  it('supports the legacy yarn-classic workspaces.packages shape', () => {
-    // Arrange
-    const rootPkg = JSON.stringify({
-      workspaces: { packages: ['apps/*'] },
-      devDependencies: { typescript: '^5.0.0' },
-    });
-    const webPkg = JSON.stringify({ devDependencies: { vite: '^5.0.0' } });
+  it('returns empty when the only package.json present has no frontend framework (patternpilot case)', () => {
+    // Arrange — Node CLI without FE framework
+    const cliPkg = JSON.stringify({ dependencies: { commander: '^11.0.0' } });
     const deps = makeDeps({
-      readFile: vi.fn((p: string) => {
-        if (p === '/repo/package.json') return rootPkg;
-        if (p === '/repo/apps/web/package.json') return webPkg;
-        return undefined;
-      }),
-      readdir: vi.fn((p: string) => {
-        if (p === '/repo') return ['apps'];
-        if (p === '/repo/apps') return ['web'];
-        return [];
-      }),
+      readFile: vi.fn((p: string) => (p === '/repo/package.json' ? cliPkg : undefined)),
+      readdir: vi.fn(() => []),
     });
 
     // Act
     const result = detectApps('/repo', deps);
 
-    // Assert
-    expect(result.map((r) => r.path)).toEqual(['/repo/apps/web']);
+    // Assert — falls through to manual-path branch in wizard
+    expect(result).toEqual([]);
   });
 });

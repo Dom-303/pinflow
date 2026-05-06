@@ -3,10 +3,11 @@
  * No vscode, no spawn — real defaults use synchronous Node fs APIs.
  *
  * @remarks
- * Skips `node_modules`, dotfile-prefixed dirs (`.git`, `.next`, ...) and
- * common build outputs (`dist`, `build`, `out`, `coverage`). When the root
- * `package.json` declares `workspaces` and itself has no frontend framework,
- * the root is omitted from the result — it's a monorepo wrapper, not an app.
+ * Returns only apps with a recognized frontend framework
+ * (Vite / Webpack / Next.js / Nuxt). Anything else — Node APIs, CLIs,
+ * monorepo wrappers, build outputs, `node_modules` — is filtered out.
+ * If a repo has no frontend app at all, this returns `[]` and the wizard
+ * falls through to the manual-path branch.
  *
  * @module
  */
@@ -15,7 +16,7 @@ import path from 'node:path';
 
 export interface DetectedApp {
   readonly path: string;
-  readonly framework?: 'vite' | 'webpack' | 'next' | 'nuxt';
+  readonly framework: 'vite' | 'webpack' | 'next' | 'nuxt';
 }
 
 /** Injected dependencies — defaults to real Node fs. Test-overridable. */
@@ -44,7 +45,6 @@ const DEFAULT_DEPS: AppDetectionDeps = {
 interface PackageJson {
   readonly dependencies?: Record<string, string>;
   readonly devDependencies?: Record<string, string>;
-  readonly workspaces?: readonly string[] | { readonly packages?: readonly string[] };
 }
 
 const SKIP_DIR_NAMES: ReadonlySet<string> = new Set([
@@ -93,25 +93,18 @@ function tryDetect(
 ): DetectedApp | undefined {
   const pkg = readPackageJson(dir, deps.readFile);
   if (!pkg) return undefined;
-  return { path: dir, framework: classifyFramework(pkg) };
-}
-
-function hasWorkspaces(pkg: PackageJson | undefined): boolean {
-  const ws = pkg?.workspaces;
-  if (!ws) return false;
-  if (Array.isArray(ws)) return ws.length > 0;
-  // ws is the legacy yarn-classic shape: { packages?: string[] }
-  const packages = (ws as { packages?: readonly string[] }).packages;
-  return Array.isArray(packages) && packages.length > 0;
+  const framework = classifyFramework(pkg);
+  if (!framework) return undefined;
+  return { path: dir, framework };
 }
 
 /**
- * Find package.json files at `cwd` and depth-1/2 sub-folders, classify each
- * by framework, and return a flat list of detected apps.
+ * Find frontend apps in `cwd` and depth-1/2 sub-folders. An entry is
+ * returned only when its `package.json` declares one of vite, webpack,
+ * next, or nuxt as a direct dependency.
  *
- * Excludes `node_modules`, dotfile-prefixed dirs (`.git`, `.next`, ...) and
- * common build outputs. When the root declares `workspaces` and is not itself
- * a frontend app, the root is omitted from the result.
+ * `node_modules`, dotfile-prefixed dirs (`.git`, `.next`, ...) and common
+ * build outputs are excluded.
  */
 export function detectApps(
   cwd: string,
@@ -120,11 +113,9 @@ export function detectApps(
   const results: DetectedApp[] = [];
 
   const rootPkg = readPackageJson(cwd, deps.readFile);
-  const rootIsMonorepoWrapper =
-    hasWorkspaces(rootPkg) && classifyFramework(rootPkg ?? {}) === undefined;
-
-  if (rootPkg && !rootIsMonorepoWrapper) {
-    results.push({ path: cwd, framework: classifyFramework(rootPkg) });
+  const rootFramework = rootPkg ? classifyFramework(rootPkg) : undefined;
+  if (rootFramework) {
+    results.push({ path: cwd, framework: rootFramework });
   }
 
   for (const entry of deps.readdir(cwd)) {

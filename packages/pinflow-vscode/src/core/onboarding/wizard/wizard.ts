@@ -51,7 +51,6 @@ export interface WizardInternalDeps {
     stepLabel: string,
   ) => Promise<readonly string[] | undefined>;
   readonly pickFramework: (
-    detectedApp: DetectedApp,
     stepLabel: string,
   ) => Promise<FrameworkChoice | undefined>;
   readonly writeWizardConfig: (input: WriteConfigBatchInput) => Promise<void>;
@@ -86,7 +85,7 @@ const DEFAULT_INTERNAL_DEPS: WizardInternalDeps = {
         vscode.window.showQuickPick([...items], options) as Promise<(typeof items)[number] | undefined>,
     }),
   pickAppRoot: (cwd, apps, stepLabel) => pickAppRoot(cwd, apps, stepLabel),
-  pickFramework: (detectedApp, stepLabel) => pickFramework(detectedApp, stepLabel),
+  pickFramework: (stepLabel) => pickFramework(stepLabel),
   writeWizardConfig: (input) => writeWizardConfig(input),
   runPostInstall: (agent, cwd, postInstallDeps) =>
     runPostInstall(agent, cwd, postInstallDeps),
@@ -140,25 +139,20 @@ interface StepPlan {
 }
 
 /**
- * Compute step plan upfront. The framework step is needed iff at least one
- * detected app is missing a framework classification — in which case we show
- * one shared framework picker for the ambiguous apps.
+ * Compute step plan upfront.
  *
- * The app-root step is always counted because we don't yet know whether it
- * will auto-pick or prompt at planning time. (It's silent for 1-app and
- * shown for 2+ / 0 — the user only sees it when it counts.)
+ * - Agent: always shown.
+ * - App-root: shown when 0 apps (manual path) or 2+ apps (multi-select);
+ *   silent auto-pick for exactly 1 detected app.
+ * - Framework: shown only when 0 apps were detected — the user is in the
+ *   manual-path branch and we have nothing to read framework from. With
+ *   1+ detected apps, every entry already carries its framework (the
+ *   detector filters out anything without one) and the wizard just
+ *   propagates that through.
  */
 function planSteps(apps: readonly DetectedApp[]): StepPlan {
-  // Agent always shown.
-  // App-root: if exactly 1 app, it auto-picks silently — drop from plan.
   const appRootShown = apps.length !== 1;
-
-  // Framework: shown if any app lacks a detected framework.
-  // For 0-apps case, the user will pick a path manually, so we always need
-  // to ask for a framework.
-  const ambiguousAppsExist =
-    apps.length === 0 || apps.some((a) => a.framework === undefined);
-  const frameworkShown = ambiguousAppsExist;
+  const frameworkShown = apps.length === 0;
 
   let count = 1; // agent
   if (appRootShown) count += 1;
@@ -212,19 +206,20 @@ async function runWizardSteps(
     if (!proceed) return;
   }
 
-  // Phase 5 — framework step (one shared pick for ambiguous apps).
-  const fallbackFramework: FrameworkChoice | undefined = plan.frameworkStepNeeded
-    ? await runFrameworkStep(apps, appRoots, plan.frameworkLabel, internal)
+  // Phase 5 — framework step. Only fires in the manual-path branch (no FE
+  // app detected). For detected apps the framework is already known.
+  const manualFramework: FrameworkChoice | undefined = plan.frameworkStepNeeded
+    ? await internal.pickFramework(plan.frameworkLabel)
     : undefined;
-  if (plan.frameworkStepNeeded && fallbackFramework === undefined) return;
+  if (plan.frameworkStepNeeded && manualFramework === undefined) return;
 
   // Phase 6 — assemble per-app config inputs.
   const perApp = appRoots.map((appPath) => {
     const detected = apps.find((a) => a.path === appPath)?.framework;
-    const framework = detected ?? fallbackFramework;
+    const framework = detected ?? manualFramework;
     if (framework === undefined) {
-      // Cannot happen: planSteps would have set frameworkStepNeeded=true
-      // and Phase 5 would have returned a value or aborted.
+      // Cannot happen: detected apps always carry a framework, and the
+      // manual-path branch sets manualFramework before reaching this point.
       throw new Error(`No framework resolved for app ${appPath}`);
     }
     return { appPath, framework };
@@ -255,24 +250,6 @@ async function runWizardSteps(
   };
 
   await internal.runPostInstall(agent, cwd, postInstallDeps);
-}
-
-async function runFrameworkStep(
-  apps: readonly DetectedApp[],
-  appRoots: readonly string[],
-  stepLabel: string,
-  internal: WizardInternalDeps,
-): Promise<FrameworkChoice | undefined> {
-  // Find the first picked app that has no detection — use it for prompt context.
-  const firstAmbiguousAppRoot = appRoots.find((root) => {
-    const detected = apps.find((a) => a.path === root)?.framework;
-    return detected === undefined;
-  });
-  const detectedAppForStep: DetectedApp =
-    apps.find((a) => a.path === firstAmbiguousAppRoot) ??
-    { path: firstAmbiguousAppRoot ?? appRoots[0] };
-
-  return internal.pickFramework(detectedAppForStep, stepLabel);
 }
 
 async function confirmReconfigure(

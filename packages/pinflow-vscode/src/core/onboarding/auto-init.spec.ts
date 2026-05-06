@@ -255,6 +255,25 @@ describe('runInitInAuto', () => {
     const cwd = '/workspace/correct-args';
     const child = makeChildProcess(0);
     const internal = makeInternalDeps(child);
+    const deps = makeDeps({ defaultProvider: 'codex' });
+
+    // Act
+    await runInitInAuto(cwd, deps, internal);
+
+    // Assert
+    expect(internal.spawnChild).toHaveBeenCalledWith(
+      'pinflow',
+      ['init', '--yes', '--agent', 'codex', '--app-root', cwd],
+      expect.objectContaining({ cwd }),
+    );
+  });
+
+  it('maps provider "claude" to wizard agent id "claude-code"', async () => {
+    // Arrange — the extension's externalHandoff.defaultProvider setting
+    // accepts 'claude' but the wizard's --agent flag expects 'claude-code'.
+    const cwd = '/workspace/claude-mapping';
+    const child = makeChildProcess(0);
+    const internal = makeInternalDeps(child);
     const deps = makeDeps({ defaultProvider: 'claude' });
 
     // Act
@@ -263,7 +282,7 @@ describe('runInitInAuto', () => {
     // Assert
     expect(internal.spawnChild).toHaveBeenCalledWith(
       'pinflow',
-      ['init', '--yes', '--agent', 'claude', '--app-root', cwd],
+      ['init', '--yes', '--agent', 'claude-code', '--app-root', cwd],
       expect.objectContaining({ cwd }),
     );
   });

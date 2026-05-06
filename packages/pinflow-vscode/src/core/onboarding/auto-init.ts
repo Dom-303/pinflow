@@ -168,6 +168,14 @@ interface SpawnResult {
   readonly stderr: string;
 }
 
+// Map the extension's provider setting (codex|claude) to the wizard's
+// agent IDs (codex|claude-code|copilot|...). The setting represents the
+// runner provider; the wizard's --agent flag wants the agent ID.
+function mapProviderToAgentId(provider: string): string {
+  if (provider === 'claude') return 'claude-code';
+  return provider;
+}
+
 function runSpawn(
   cwd: string,
   defaultProvider: string,
@@ -177,7 +185,7 @@ function runSpawn(
   return new Promise((resolve) => {
     const child = spawnFn(
       'pinflow',
-      ['init', '--yes', '--agent', defaultProvider, '--app-root', cwd],
+      ['init', '--yes', '--agent', mapProviderToAgentId(defaultProvider), '--app-root', cwd],
       { cwd },
     );
 

@@ -2,21 +2,52 @@
  * Pure project-shape detection for the in-extension wizard.
  * No vscode, no spawn — real defaults use synchronous Node fs APIs.
  *
- * @remarks
- * Returns only apps with a recognized frontend framework
- * (Vite / Webpack / Next.js / Nuxt). Anything else — Node APIs, CLIs,
- * monorepo wrappers, build outputs, `node_modules` — is filtered out.
- * If a repo has no frontend app at all, this returns `[]` and the wizard
- * falls through to the manual-path branch.
+ * Returns only apps with a recognized frontend framework. Anything else —
+ * Node APIs, CLIs, monorepo wrappers, build outputs, `node_modules` —
+ * is filtered out.
  *
  * @module
  */
 import { readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 
+export type FrameworkId =
+  | 'react-vite'
+  | 'vue-vite'
+  | 'react-webpack'
+  | 'vue-webpack'
+  | 'next'
+  | 'nuxt'
+  | 'other-vite'
+  | 'other-webpack';
+
+export interface FrameworkConfig {
+  readonly id: FrameworkId;
+  readonly label: string;
+  readonly package: string;
+  readonly configFile: string;
+}
+
+export const FRAMEWORKS: readonly FrameworkConfig[] = [
+  { id: 'next', label: 'Next.js', package: '@pinflow/next', configFile: 'next.config.ts' },
+  { id: 'nuxt', label: 'Nuxt', package: '@pinflow/nuxt', configFile: 'nuxt.config.ts' },
+  { id: 'react-vite', label: 'React + Vite', package: '@pinflow/react', configFile: 'vite.config.ts' },
+  { id: 'react-webpack', label: 'React + Webpack', package: '@pinflow/react', configFile: 'webpack.config.js' },
+  { id: 'vue-vite', label: 'Vue + Vite', package: '@pinflow/vue', configFile: 'vite.config.ts' },
+  { id: 'vue-webpack', label: 'Vue + Webpack', package: '@pinflow/vue', configFile: 'webpack.config.js' },
+  { id: 'other-vite', label: 'Other (Vite)', package: '@pinflow/transform', configFile: 'vite.config.ts' },
+  { id: 'other-webpack', label: 'Other (Webpack)', package: '@pinflow/transform', configFile: 'webpack.config.js' },
+] as const;
+
+export function getFrameworkConfig(id: FrameworkId): FrameworkConfig {
+  const cfg = FRAMEWORKS.find((f) => f.id === id);
+  if (!cfg) throw new Error(`Unknown framework: ${id}`);
+  return cfg;
+}
+
 export interface DetectedApp {
   readonly path: string;
-  readonly framework: 'vite' | 'webpack' | 'next' | 'nuxt';
+  readonly framework: FrameworkId;
 }
 
 /** Injected dependencies — defaults to real Node fs. Test-overridable. */
@@ -64,13 +95,15 @@ function hasDep(pkg: PackageJson, name: string): boolean {
   return Boolean(pkg.dependencies?.[name] ?? pkg.devDependencies?.[name]);
 }
 
-function classifyFramework(
-  pkg: PackageJson,
-): DetectedApp['framework'] | undefined {
+function classifyFramework(pkg: PackageJson): FrameworkId | undefined {
   if (hasDep(pkg, 'next')) return 'next';
   if (hasDep(pkg, 'nuxt')) return 'nuxt';
-  if (hasDep(pkg, 'vite')) return 'vite';
-  if (hasDep(pkg, 'webpack')) return 'webpack';
+  if (hasDep(pkg, 'vite') && hasDep(pkg, 'react')) return 'react-vite';
+  if (hasDep(pkg, 'vite') && hasDep(pkg, 'vue')) return 'vue-vite';
+  if (hasDep(pkg, 'vite')) return 'other-vite';
+  if (hasDep(pkg, 'webpack') && hasDep(pkg, 'react')) return 'react-webpack';
+  if (hasDep(pkg, 'webpack') && hasDep(pkg, 'vue')) return 'vue-webpack';
+  if (hasDep(pkg, 'webpack')) return 'other-webpack';
   return undefined;
 }
 

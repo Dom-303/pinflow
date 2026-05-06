@@ -1,14 +1,16 @@
 import { LitElement, css, html } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
 import type {
   DispatchProjectDefaults,
   DispatchSessionOverrides,
 } from '../core/dispatch-config.js';
 import { StoreController } from '../core/store-controller.js';
+import { OverlayStore } from '../core/overlay-store.js';
 import type {
   CommentEntryMode,
   OverlayTheme,
   PickerMode,
+  SettingsTab,
 } from '../core/types.js';
 import { themeStyles, utilityStyles } from '../styles/theme.js';
 import './ds-session-settings.js';
@@ -24,9 +26,6 @@ export class DsSettingsOverlay extends LitElement {
 
   @property({ type: Object })
   sessionOverrides!: DispatchSessionOverrides;
-
-  @state()
-  private activeTab: 'workspace' | 'flow' | 'history' = 'workspace';
 
   static override styles = [
     themeStyles,
@@ -509,8 +508,8 @@ export class DsSettingsOverlay extends LitElement {
     `,
   ];
 
-  private selectTab(tab: 'workspace' | 'flow' | 'history') {
-    this.activeTab = tab;
+  private selectTab(tab: SettingsTab) {
+    OverlayStore.getInstance().setActiveTab(tab);
   }
 
   private handleClose() {
@@ -552,7 +551,8 @@ export class DsSettingsOverlay extends LitElement {
   }
 
   override render() {
-    const { theme, pickerMode, commentEntryMode } = this.storeController.state;
+    const { theme, pickerMode, commentEntryMode, activeTab } =
+      this.storeController.state;
 
     return html`
       <div class="backdrop" @click=${this.handleClose}></div>

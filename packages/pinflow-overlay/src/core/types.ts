@@ -29,6 +29,8 @@ export type PickerMode = 'element' | 'region' | 'multi';
 
 export type CommentEntryMode = 'workspace' | 'inline';
 
+export type SettingsTab = 'workspace' | 'flow' | 'history';
+
 export interface RegionCapture {
   rect: BoundingRect;
   elements: HTMLElement[];
@@ -104,6 +106,7 @@ export interface OverlayState {
   sidebarWidth: number;
   /** Vertical position of the collapsed tab as a percentage (0–100). Default: 50 (center). */
   tabOffsetY: number;
+  activeTab: SettingsTab;
   dispatchProjectDefaults: DispatchProjectDefaults;
   dispatchSession: DispatchSessionState;
   dispatchBatches: DispatchBatch[];

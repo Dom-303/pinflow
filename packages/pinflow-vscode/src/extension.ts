@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 
 import { startStandardWorkflow } from './core/commands.js';
 import { formatPinFlowCliCommand } from './core/cli-command.js';
+import { runInitInAuto } from './core/onboarding/index.js';
 import { buildFolderCandidates } from './core/folder-picker.js';
 import { openLatestRunEvidence } from './core/evidence-commands.js';
 import {
@@ -46,6 +47,12 @@ const firstRefreshFolders = new Set<string>();
 function clampInterval(raw: number): number {
   if (!Number.isFinite(raw)) return 3000;
   return Math.min(60000, Math.max(500, Math.floor(raw)));
+}
+
+function runInitInTerminal(cwd: string): void {
+  const terminal = vscode.window.createTerminal({ name: 'PinFlow Init', cwd });
+  terminal.sendText(formatPinFlowCliCommand(cwd, ['init']));
+  terminal.show();
 }
 
 export function activate(context: vscode.ExtensionContext): void {
@@ -239,8 +246,12 @@ export function activate(context: vscode.ExtensionContext): void {
         state.status.status === 'not-configured' ? 'not-configured' : 'configured';
     }
 
+    const onboardingMode = vscode.workspace
+      .getConfiguration('pinflow')
+      .get<'auto' | 'terminal'>('onboarding.mode', 'auto');
+
     statusProvider.setFolderGroups(
-      buildStatusFolderGroups(folderStates, { activeFolder, externalClaim }),
+      buildStatusFolderGroups(folderStates, { activeFolder, externalClaim, onboardingMode }),
     );
     runsWebviewProvider.postRuns({ runsByFolder, folderStatuses, activeFolder });
     actionsProvider.setFolderGroups(
@@ -365,7 +376,7 @@ export function activate(context: vscode.ExtensionContext): void {
       );
       refreshStatus();
     }),
-    vscode.commands.registerCommand('pinflow.runInit', (folderPath?: unknown) => {
+    vscode.commands.registerCommand('pinflow.runInit', async (folderPath?: unknown) => {
       const folders = vscode.workspace.workspaceFolders;
       if (!folders?.length) {
         void vscode.window.showInformationMessage(
@@ -374,10 +385,33 @@ export function activate(context: vscode.ExtensionContext): void {
         return;
       }
       const cwd = resolveRunInitCwd(folderPath, folders, activeFolder);
-      const terminal = vscode.window.createTerminal({ name: 'PinFlow Init', cwd });
-      terminal.sendText(formatPinFlowCliCommand(cwd, ['init']));
-      terminal.show();
+      const config = vscode.workspace.getConfiguration('pinflow');
+      const mode = config.get<'auto' | 'terminal'>('onboarding.mode', 'auto');
+      if (mode === 'terminal') {
+        runInitInTerminal(cwd);
+        return;
+      }
+      const provider = config.get<string>('externalHandoff.defaultProvider', 'codex');
+      await runInitInAuto(cwd, {
+        defaultProvider: provider,
+        onSuccess: refreshAll,
+        runInitInTerminal,
+      });
     }),
+    vscode.commands.registerCommand(
+      'pinflow.runInitInTerminal',
+      (folderPath?: unknown) => {
+        const folders = vscode.workspace.workspaceFolders;
+        if (!folders?.length) {
+          void vscode.window.showInformationMessage(
+            'Open a workspace folder to run PinFlow init.',
+          );
+          return;
+        }
+        const cwd = resolveRunInitCwd(folderPath, folders, activeFolder);
+        runInitInTerminal(cwd);
+      },
+    ),
     vscode.commands.registerCommand('pinflow.openDocumentation', () => {
       void vscode.env.openExternal(
         vscode.Uri.parse('https://github.com/Dom-303/pinflow#readme'),
@@ -453,6 +487,9 @@ export function activate(context: vscode.ExtensionContext): void {
       }
       if (event.affectsConfiguration('pinflow.timeFormat')) {
         runsWebviewProvider.postSettings(readRunsWebviewSettings());
+      }
+      if (event.affectsConfiguration('pinflow.onboarding.mode')) {
+        void refreshAll();
       }
     }),
   );

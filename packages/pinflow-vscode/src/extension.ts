@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 
 import { startStandardWorkflow } from './core/commands.js';
 import { formatPinFlowCliCommand } from './core/cli-command.js';
-import { runInitInAuto } from './core/onboarding/index.js';
+import { runWizard } from './core/onboarding/index.js';
 import { buildFolderCandidates } from './core/folder-picker.js';
 import { openLatestRunEvidence } from './core/evidence-commands.js';
 import {
@@ -391,9 +391,7 @@ export function activate(context: vscode.ExtensionContext): void {
         runInitInTerminal(cwd);
         return;
       }
-      const provider = config.get<string>('externalHandoff.defaultProvider', 'codex');
-      await runInitInAuto(cwd, {
-        defaultProvider: provider,
+      await runWizard(cwd, {
         onSuccess: refreshAll,
         runInitInTerminal,
       });

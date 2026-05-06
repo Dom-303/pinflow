@@ -9,7 +9,8 @@ export type ActionsViewItemId =
   | 'openLatestRun'
   | 'externalClaim'
   | 'externalComplete'
-  | 'externalFail';
+  | 'externalFail'
+  | 'setup';
 
 export interface ActionsViewItem {
   readonly id: ActionsViewItemId;
@@ -47,12 +48,30 @@ export function buildActionsViewItems(
 
 const FOLDER_COMMAND_IDS = new Set<ActionsViewItemId>(['startWorkflow', 'followRuns', 'openLatestRun']);
 
+const SETUP_ACTION_BASE: Omit<ActionsViewItem, 'commandArguments'> = {
+  id: 'setup' as ActionsViewItemId,
+  label: 'Setup PinFlow',
+  themeIcon: 'rocket',
+  command: 'pinflow.runInit',
+};
+
 export function buildActionFolderGroups(
   folders: readonly PerFolderState[],
   externalClaim: ExternalHandoffClaim | null,
   activeFolder: string | undefined,
 ): readonly ActionFolderGroup[] {
   return folders.map((state) => {
+    const isConfigured = state.status.status !== 'not-configured';
+
+    if (!isConfigured) {
+      return {
+        id: state.folder,
+        displayName: path.basename(state.folder),
+        isActive: state.folder === activeFolder,
+        children: [{ ...SETUP_ACTION_BASE, commandArguments: [state.folder] }],
+      };
+    }
+
     const isActive = state.folder === activeFolder;
     const claimForFolder = isActive ? externalClaim : null;
     const items = buildActionsViewItems(claimForFolder).filter(

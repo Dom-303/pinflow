@@ -8,9 +8,10 @@
 import type { FastifyInstance } from 'fastify';
 import websocket from '@fastify/websocket';
 import type { WebSocket } from 'ws';
-import { API_PATHS, WS_EVENTS } from '@pinflow/core';
+import { API_PATHS, WS_EVENTS, OverlaySettingsSchema } from '@pinflow/core';
 import type { ManifestReader } from '@pinflow/manifest';
 import type { AnnotationService } from './services/index.js';
+import type { OverlaySettingsService } from './services/overlay-settings-service.js';
 import crypto from 'crypto';
 import {
   BrowserSessionUpdateSchema,
@@ -54,6 +55,8 @@ interface WSServerOptions {
   annotationService: AnnotationService;
   /** Manifest reader for event subscription */
   manifestReader: ManifestReader;
+  /** Overlay settings service for bidirectional sync */
+  overlaySettingsService: OverlaySettingsService;
   /** WebSocket path (default: /ws) */
   path?: string;
   /** Enable debug logging */
@@ -70,6 +73,7 @@ export async function createWSServer(
     app,
     annotationService,
     manifestReader,
+    overlaySettingsService,
     path = API_PATHS.WS,
     debug = false,
   } = options;
@@ -104,7 +108,7 @@ export async function createWSServer(
       clientCount: clients.size,
     });
 
-    socket.on('message', (raw: Buffer | string) => {
+    socket.on('message', async (raw: Buffer | string) => {
       try {
         const msg: WSMessage = JSON.parse(
           typeof raw === 'string' ? raw : raw.toString(),
@@ -127,6 +131,9 @@ export async function createWSServer(
             pendingRequests.delete(response.requestId);
             pending.resolve(response);
           }
+        } else if (msg.event === WS_EVENTS.OVERLAY_SETTINGS_REQUEST) {
+          const partial = OverlaySettingsSchema.partial().parse(msg.data);
+          await overlaySettingsService.applyUpdate(partial);
         }
       } catch {
         /* ignore malformed messages */
@@ -169,6 +176,12 @@ export async function createWSServer(
     }
   });
   unsubscribers.push(unsubManifest);
+
+  // Subscribe to overlay settings changes and broadcast to all connected clients
+  const unsubOverlay = overlaySettingsService.onChange((settings) => {
+    broadcast(WS_EVENTS.OVERLAY_SETTINGS_UPDATED, settings);
+  });
+  unsubscribers.push(unsubOverlay);
 
   /**
    * Send a message to a single client

@@ -33,8 +33,11 @@ import {
   registerAnnotationHandlers,
 } from './handlers/index.js';
 import { createWSServer, type WSServer } from './ws-server.js';
+import { createOverlaySettingsService } from './services/overlay-settings-service.js';
 import type { FastifyError } from 'fastify';
 import type { WSMessage } from '../schema.js';
+
+import type { OverlaySettingsService } from './services/overlay-settings-service.js';
 
 interface WSTestServer {
   app: FastifyInstance;
@@ -42,6 +45,7 @@ interface WSTestServer {
   baseUrl: string;
   manifestReader: ManifestReader;
   annotationService: AnnotationService;
+  overlaySettingsService: OverlaySettingsService;
   tempDir: string;
 }
 
@@ -77,10 +81,14 @@ async function createTestWSServer(): Promise<WSTestServer> {
   registerManifestHandlers(app, manifestReader);
   registerAnnotationHandlers(app, annotationService, manifestReader);
 
+  const overlaySettingsService = createOverlaySettingsService({ workspaceRoot: tempDir });
+  await overlaySettingsService.start();
+
   const ws = await createWSServer({
     app,
     annotationService,
     manifestReader,
+    overlaySettingsService,
   });
 
   app.setErrorHandler((error: FastifyError, _request, reply) => {
@@ -97,12 +105,13 @@ async function createTestWSServer(): Promise<WSTestServer> {
   const url = new URL(address);
   const baseUrl = `ws://127.0.0.1:${url.port}`;
 
-  return { app, ws, baseUrl, manifestReader, annotationService, tempDir };
+  return { app, ws, baseUrl, manifestReader, annotationService, overlaySettingsService, tempDir };
 }
 
 function cleanupWSServer(server: WSTestServer): void {
   server.ws.close();
   server.manifestReader.close();
+  void server.overlaySettingsService.close();
   server.app.close();
   rmSync(server.tempDir, { recursive: true, force: true });
 }
@@ -293,6 +302,7 @@ describe('WebSocket Server', () => {
 
     // Clean up the rest
     freshServer.manifestReader.close();
+    await freshServer.overlaySettingsService.close();
     await freshServer.app.close();
     rmSync(freshServer.tempDir, { recursive: true, force: true });
   });

@@ -12,6 +12,7 @@ const relayMock = vi.hoisted(() => ({
   deleteAnnotation: vi.fn(),
   refreshAnnotations: vi.fn(),
   resolve: vi.fn(),
+  requestSettingsUpdate: vi.fn(),
 }));
 
 vi.mock('@pinflow/runtime', () => ({

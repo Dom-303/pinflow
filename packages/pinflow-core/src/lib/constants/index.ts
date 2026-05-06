@@ -62,6 +62,10 @@ export const WS_EVENTS = {
   CONTEXT_REQUEST: 'context:request',
   CONTEXT_RESPONSE: 'context:response',
   BROWSER_SESSION_UPDATE: 'browser:session:update',
+
+  // Overlay settings sync (server → all clients, client → server)
+  OVERLAY_SETTINGS_UPDATED: 'overlay:settings:updated',
+  OVERLAY_SETTINGS_REQUEST: 'overlay:settings:request',
 } as const;
 
 /**

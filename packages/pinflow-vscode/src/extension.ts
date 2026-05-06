@@ -36,6 +36,11 @@ import {
   type StatusViewItem,
 } from './core/views/status-view-model.js';
 import { getBestPinFlowWorkspaceStatus } from './core/workspace.js';
+import {
+  createOverlaySettingsBridge,
+  type BridgeVscodeDeps,
+  type OverlaySettingsBridge,
+} from './core/overlay-settings-bridge.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -499,6 +504,79 @@ export function activate(context: vscode.ExtensionContext): void {
   });
 
   applyRefreshInterval();
+
+  // --- C.1.14: overlay-settings bridge ---
+  // One bridge per workspace folder. Bridges are created for all folders
+  // currently open, and for any folders added later via onDidChangeWorkspaceFolders.
+  function makeBridgeDeps(): BridgeVscodeDeps {
+    return {
+      getConfiguration: () => {
+        const c = vscode.workspace.getConfiguration();
+        return {
+          get: <T,>(key: string) => c.get<T>(key),
+          update: async (key: string, value: unknown, target?: unknown) =>
+            c.update(key, value, target as number | boolean | undefined),
+        };
+      },
+      onDidChangeConfiguration: (listener) =>
+        vscode.workspace.onDidChangeConfiguration((e) =>
+          listener({ affectsConfiguration: (k) => e.affectsConfiguration(k) }),
+        ),
+      createFileSystemWatcher: (glob: string) => {
+        const w = vscode.workspace.createFileSystemWatcher(glob);
+        return {
+          onDidChange: (l) => w.onDidChange(l),
+          onDidCreate: (l) => w.onDidCreate(l),
+          onDidDelete: (l) => w.onDidDelete(l),
+          dispose: () => w.dispose(),
+        };
+      },
+    };
+  }
+
+  const overlayBridges = new Map<string, OverlaySettingsBridge>();
+
+  async function addOverlayBridge(fsPath: string): Promise<void> {
+    if (overlayBridges.has(fsPath)) return;
+    const bridge = createOverlaySettingsBridge({
+      workspaceRoot: fsPath,
+      vscode: makeBridgeDeps(),
+    });
+    overlayBridges.set(fsPath, bridge);
+    await bridge.activate();
+  }
+
+  async function removeOverlayBridge(fsPath: string): Promise<void> {
+    const bridge = overlayBridges.get(fsPath);
+    if (!bridge) return;
+    overlayBridges.delete(fsPath);
+    await bridge.dispose();
+  }
+
+  for (const folder of vscode.workspace.workspaceFolders ?? []) {
+    void addOverlayBridge(folder.uri.fsPath);
+  }
+
+  context.subscriptions.push(
+    vscode.workspace.onDidChangeWorkspaceFolders(async (event) => {
+      for (const added of event.added) {
+        await addOverlayBridge(added.uri.fsPath);
+      }
+      for (const removed of event.removed) {
+        await removeOverlayBridge(removed.uri.fsPath);
+      }
+    }),
+    {
+      dispose: () => {
+        for (const bridge of overlayBridges.values()) {
+          void bridge.dispose();
+        }
+        overlayBridges.clear();
+      },
+    },
+  );
+  // --- end C.1.14 ---
+
   refreshStatus();
 }
 

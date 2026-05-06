@@ -20,6 +20,8 @@ export default defineConfig({
       // Vitest can't resolve it from npm, so we point it at a tiny stub for
       // test runs only.
       vscode: path.resolve(__dirname, 'src/__test-utils__/vscode-stub.ts'),
+      // Resolve workspace source directly so tests don't need a prior build.
+      '@pinflow/core': path.resolve(__dirname, '../pinflow-core/src/index.ts'),
     },
   },
   test: {

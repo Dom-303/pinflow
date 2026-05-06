@@ -20,6 +20,7 @@ const {
   mockSetRelayConnection,
   mockSetAnnotations,
   mockSetRunnerStatus,
+  mockApplySyncedSettings,
   mockGetState,
   mockBridgeIsReady,
   mockCaptureContextForEntry,
@@ -37,6 +38,7 @@ const {
   mockSetRelayConnection: vi.fn(),
   mockSetAnnotations: vi.fn(),
   mockSetRunnerStatus: vi.fn(),
+  mockApplySyncedSettings: vi.fn(),
   mockGetState: vi.fn(),
   mockBridgeIsReady: vi.fn(),
   mockCaptureContextForEntry: vi.fn(),
@@ -75,6 +77,7 @@ vi.mock('../core/overlay-store.js', () => ({
       setRelayConnection: mockSetRelayConnection,
       setAnnotations: mockSetAnnotations,
       setRunnerStatus: mockSetRunnerStatus,
+      applySyncedSettings: mockApplySyncedSettings,
     }),
   },
 }));
@@ -156,6 +159,103 @@ describe('RelayService', () => {
       connected: false,
       activeCount: 0,
       sessions: [],
+    });
+  });
+
+  describe('overlay settings sync', () => {
+    const defaultSettingsResponse = {
+      theme: 'light',
+      pickerMode: 'element',
+      commentEntryMode: 'workspace',
+    };
+
+    beforeEach(() => {
+      // Default fetch mock: returns valid overlay settings
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: true,
+          json: vi.fn().mockResolvedValue(defaultSettingsResponse),
+        }),
+      );
+    });
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    it('seeds the store from GET /api/overlay-settings on init', async () => {
+      // Arrange
+      const seedSettings = {
+        theme: 'dark',
+        pickerMode: 'multi',
+        commentEntryMode: 'inline',
+      };
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+          ok: true,
+          json: vi.fn().mockResolvedValue(seedSettings),
+        }),
+      );
+
+      // Act
+      await RelayService.getInstance().initialize();
+
+      // Assert
+      expect(mockApplySyncedSettings).toHaveBeenCalledWith(
+        expect.objectContaining({
+          theme: 'dark',
+          pickerMode: 'multi',
+          commentEntryMode: 'inline',
+        }),
+      );
+    });
+
+    it('applies an incoming OVERLAY_SETTINGS_UPDATED broadcast via applySyncedSettings', async () => {
+      // Arrange
+      await RelayService.getInstance().initialize();
+      const handler = handlers.get(WS_EVENTS.OVERLAY_SETTINGS_UPDATED);
+      expect(handler).toBeDefined();
+
+      // Act
+      handler?.({
+        theme: 'dark',
+        pickerMode: 'element',
+        commentEntryMode: 'workspace',
+      });
+
+      // Assert
+      expect(mockApplySyncedSettings).toHaveBeenCalledWith(
+        expect.objectContaining({ theme: 'dark' }),
+      );
+    });
+
+    it('requestSettingsUpdate sends a WS message with the partial payload', async () => {
+      // Arrange
+      await RelayService.getInstance().initialize();
+
+      // Act
+      RelayService.getInstance().requestSettingsUpdate({ theme: 'dark' });
+
+      // Assert
+      expect(mockSend).toHaveBeenCalledWith(
+        WS_EVENTS.OVERLAY_SETTINGS_REQUEST,
+        { theme: 'dark' },
+      );
+    });
+
+    it('falls back gracefully when GET /api/overlay-settings fails (no throw)', async () => {
+      // Arrange
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockRejectedValue(new Error('network error')),
+      );
+
+      // Act + Assert — should not throw
+      await expect(
+        RelayService.getInstance().initialize(),
+      ).resolves.toBeDefined();
     });
   });
 

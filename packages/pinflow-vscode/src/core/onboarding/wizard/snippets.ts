@@ -30,7 +30,7 @@ function agentToProvider(agent: SnippetInput['agent']): RunnerProvider {
  */
 export function generatePinflowConfigJson(input: SnippetInput): string {
   const config = {
-    appRoot: input.appRoot,
+    appRoot: '.',
     framework: input.framework,
     runner: {
       provider: agentToProvider(input.agent),

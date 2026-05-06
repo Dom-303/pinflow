@@ -1,7 +1,8 @@
 /**
- * Wizard step 3 — Framework selection QuickPick.
- * If a framework was auto-detected, offer a confirm/change choice.
- * Otherwise show all options directly.
+ * Wizard step — Framework selection.
+ * If the app's framework was auto-detected, returns synchronously after a
+ * fire-and-forget toast. Otherwise prompts the user to pick from the four
+ * supported options.
  * @module
  */
 import * as vscode from 'vscode';
@@ -12,7 +13,6 @@ export type FrameworkChoice = 'vite' | 'webpack' | 'next' | 'nuxt';
 
 interface FrameworkQuickPickItem {
   readonly label: string;
-  readonly description?: string;
   readonly value: FrameworkChoice;
 }
 
@@ -22,6 +22,7 @@ export interface FrameworkStepDeps {
     items: readonly FrameworkQuickPickItem[],
     options?: { title?: string; placeHolder?: string },
   ) => Promise<FrameworkQuickPickItem | undefined>;
+  readonly showInformationMessage: (message: string) => void;
 }
 
 const ALL_FRAMEWORK_ITEMS: readonly FrameworkQuickPickItem[] = [
@@ -31,39 +32,48 @@ const ALL_FRAMEWORK_ITEMS: readonly FrameworkQuickPickItem[] = [
   { label: 'Nuxt', value: 'nuxt' },
 ];
 
+const FRAMEWORK_LABELS: Record<FrameworkChoice, string> = {
+  vite: 'Vite',
+  webpack: 'Webpack',
+  next: 'Next.js',
+  nuxt: 'Nuxt',
+};
+
 const DEFAULT_DEPS: FrameworkStepDeps = {
   showQuickPick: (items, options) =>
     vscode.window.showQuickPick([...items], options) as Promise<FrameworkQuickPickItem | undefined>,
+  showInformationMessage: (message) => {
+    void vscode.window.showInformationMessage(message);
+  },
 };
 
-function buildDetectedItems(detected: FrameworkChoice): readonly FrameworkQuickPickItem[] {
-  return [
-    { label: ALL_FRAMEWORK_ITEMS.find((i) => i.value === detected)?.label ?? detected, description: '✓ erkannt', value: detected },
-    ...ALL_FRAMEWORK_ITEMS.filter((item) => item.value !== detected),
-  ];
-}
-
 /**
- * Show a framework QuickPick. If `detectedFromApp.framework` is set,
- * the detected item is first with a `'✓ erkannt'` badge. When nothing was
- * detected the placeholder hint guides the user to pick manually.
- * Picking any item returns its value; Esc returns `undefined`.
+ * Resolve the framework for an app.
+ *
+ * - If `detectedFromApp.framework` is set → fire silent info toast and return
+ *   the detected framework synchronously (no QuickPick).
+ * - Otherwise → show the QuickPick. Picking returns the value; Esc returns
+ *   `undefined`.
+ *
+ * @param stepLabel  e.g. `"Schritt 3/3"` or `""` for single-step wizards.
+ *                   Prepended to the QuickPick title when shown.
  */
 export async function pickFramework(
   detectedFromApp: DetectedApp,
+  stepLabel: string,
   deps: FrameworkStepDeps = DEFAULT_DEPS,
 ): Promise<FrameworkChoice | undefined> {
-  const items = detectedFromApp.framework
-    ? buildDetectedItems(detectedFromApp.framework)
-    : ALL_FRAMEWORK_ITEMS;
+  if (detectedFromApp.framework) {
+    deps.showInformationMessage(
+      `Framework erkannt: ${FRAMEWORK_LABELS[detectedFromApp.framework]}`,
+    );
+    return detectedFromApp.framework;
+  }
 
-  const placeHolder = detectedFromApp.framework
-    ? 'Choose the build framework for this app'
-    : 'Konnte kein Framework erkennen — wähle manuell';
-
-  const picked = await deps.showQuickPick(items, {
-    title: 'PinFlow Setup · Schritt 3/3 — Framework wählen',
-    placeHolder,
+  const titlePrefix = stepLabel ? `${stepLabel} — ` : '';
+  const picked = await deps.showQuickPick(ALL_FRAMEWORK_ITEMS, {
+    title: `PinFlow Setup · ${titlePrefix}Framework wählen`,
+    placeHolder: 'Konnte kein Framework erkennen — wähle manuell',
   });
 
   return picked?.value;

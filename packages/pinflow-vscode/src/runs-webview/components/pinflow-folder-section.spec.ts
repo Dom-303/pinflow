@@ -127,3 +127,60 @@ describe('<pinflow-folder-section>', () => {
     el.remove();
   });
 });
+
+describe('<pinflow-folder-section> unconfigured state', () => {
+  it('renders Setup button when folderStatus is not-configured', async () => {
+    // Arrange
+    const el = document.createElement('pinflow-folder-section') as PinflowFolderSection;
+    el.folderPath = '/repo';
+    el.displayName = 'repo';
+    el.folderStatus = 'not-configured';
+    el.defaultExpanded = true;
+    document.body.appendChild(el);
+    await el.updateComplete;
+
+    // Act
+    const button = el.shadowRoot!.querySelector<HTMLButtonElement>('.setup-button');
+
+    // Assert
+    expect(button).not.toBeNull();
+    expect(button!.textContent!.trim()).toContain('Setup PinFlow');
+    el.remove();
+  });
+
+  it('emits setup-clicked event with folderPath when button clicked', async () => {
+    // Arrange
+    const el = document.createElement('pinflow-folder-section') as PinflowFolderSection;
+    el.folderPath = '/repo';
+    el.folderStatus = 'not-configured';
+    el.defaultExpanded = true;
+    document.body.appendChild(el);
+    await el.updateComplete;
+    let received: CustomEvent | undefined;
+    el.addEventListener('setup-clicked', (e) => {
+      received = e as CustomEvent;
+    });
+
+    // Act
+    el.shadowRoot!.querySelector<HTMLButtonElement>('.setup-button')!.click();
+
+    // Assert
+    expect(received).toBeDefined();
+    expect(received!.detail).toEqual({ folderPath: '/repo' });
+    el.remove();
+  });
+
+  it('does not render run cards when not-configured', async () => {
+    // Arrange
+    const el = document.createElement('pinflow-folder-section') as PinflowFolderSection;
+    el.folderPath = '/repo';
+    el.folderStatus = 'not-configured';
+    el.defaultExpanded = true;
+    document.body.appendChild(el);
+    await el.updateComplete;
+
+    // Assert
+    expect(el.shadowRoot!.querySelector('pinflow-run-card')).toBeNull();
+    el.remove();
+  });
+});

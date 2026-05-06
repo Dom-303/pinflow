@@ -12,6 +12,7 @@ import {
 
 interface PinflowRunsAppProps {
   runsByFolder: Readonly<Record<string, readonly PinFlowRunEvidence[]>>;
+  folderStatuses: Readonly<Record<string, 'configured' | 'not-configured'>>;
   activeFolder: string | undefined;
   settings: RunsWebviewSettings;
 }
@@ -37,10 +38,12 @@ if (!app) {
     const data = event.data;
     if (data.type === 'webview:init-ack') {
       app.runsByFolder = data.runsByFolder;
+      app.folderStatuses = data.folderStatuses;
       app.activeFolder = data.activeFolder;
       app.settings = data.settings;
     } else if (data.type === 'runs:update') {
       app.runsByFolder = data.runsByFolder;
+      app.folderStatuses = data.folderStatuses;
       app.activeFolder = data.activeFolder;
     } else if (data.type === 'settings:update') {
       app.settings = data.settings;
@@ -52,6 +55,11 @@ if (!app) {
     if (detail?.runId) {
       postToHost({ type: 'run:open-prompt', runId: detail.runId });
     }
+  });
+
+  window.addEventListener('setup-clicked', (event) => {
+    const detail = (event as CustomEvent<{ folderPath: string }>).detail;
+    postToHost({ type: 'webview:run-init', folder: detail.folderPath });
   });
 }
 

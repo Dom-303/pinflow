@@ -233,20 +233,26 @@ export interface StatusFolderGroup {
 export interface BuildStatusFolderGroupsOptions {
   readonly activeFolder?: string;
   readonly externalClaim?: ExternalHandoffClaim | null;
+  readonly onboardingMode?: 'auto' | 'terminal';
 }
 
 const SETUP_ITEM_BASE = {
   id: 'setup' as StatusItemId,
   label: 'Setup PinFlow',
   description: 'run pinflow init',
-  tooltip: 'Click to scaffold .pinflow/ in this folder',
   themeIcon: 'rocket',
 } as const;
+
+function buildSetupTooltip(mode: 'auto' | 'terminal'): string {
+  const suffix = mode === 'terminal' ? '(terminal mode)' : '(auto mode)';
+  return `Click to scaffold .pinflow/ in this folder ${suffix}`;
+}
 
 export function buildStatusFolderGroups(
   folders: readonly PerFolderState[],
   options: BuildStatusFolderGroupsOptions = {},
 ): readonly StatusFolderGroup[] {
+  const tooltip = buildSetupTooltip(options.onboardingMode ?? 'auto');
   return folders.map((state) => {
     const isConfigured = state.status.status !== 'not-configured';
     const children: readonly StatusViewItem[] = isConfigured
@@ -258,6 +264,7 @@ export function buildStatusFolderGroups(
       : [
           {
             ...SETUP_ITEM_BASE,
+            tooltip,
             command: {
               command: 'pinflow.runInit',
               arguments: [state.folder],

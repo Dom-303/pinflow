@@ -167,6 +167,7 @@ describe('<pinflow-folder-section> unconfigured state', () => {
     // Assert
     expect(received).toBeDefined();
     expect(received!.detail).toEqual({ folderPath: '/repo' });
+
     el.remove();
   });
 
@@ -181,6 +182,7 @@ describe('<pinflow-folder-section> unconfigured state', () => {
 
     // Assert
     expect(el.shadowRoot!.querySelector('pinflow-run-card')).toBeNull();
+
     el.remove();
   });
 });

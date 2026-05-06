@@ -399,4 +399,26 @@ describe('buildStatusFolderGroups with not-configured folder', () => {
     // Assert
     expect(group.runCount).toBe(0);
   });
+
+  it('Setup tooltip in auto mode mentions auto mode', () => {
+    // Arrange
+    const state = notConfiguredState('/repo');
+
+    // Act
+    const groups = buildStatusFolderGroups([state], { onboardingMode: 'auto' });
+
+    // Assert
+    expect(groups[0].children[0].tooltip).toContain('(auto mode)');
+  });
+
+  it('Setup tooltip in terminal mode mentions terminal mode', () => {
+    // Arrange
+    const state = notConfiguredState('/repo');
+
+    // Act
+    const groups = buildStatusFolderGroups([state], { onboardingMode: 'terminal' });
+
+    // Assert
+    expect(groups[0].children[0].tooltip).toContain('(terminal mode)');
+  });
 });

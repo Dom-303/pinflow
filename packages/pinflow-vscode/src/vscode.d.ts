@@ -114,10 +114,33 @@ declare module 'vscode' {
     readonly Right: number;
   };
 
+  export const ProgressLocation: {
+    readonly Notification: number;
+    readonly SourceControl: number;
+    readonly Window: number;
+  };
+
+  export interface Progress<T> {
+    report(value: T): void;
+  }
+
+  export interface CancellationToken {
+    readonly isCancellationRequested: boolean;
+    onCancellationRequested: Event<unknown>;
+  }
+
   export const window: {
     createStatusBarItem(alignment: number, priority?: number): StatusBarItem;
     showInformationMessage(message: string, ...items: string[]): Thenable<string | undefined>;
-    showErrorMessage(message: string): Thenable<string | undefined>;
+    showErrorMessage(message: string, ...items: string[]): Thenable<string | undefined>;
+    withProgress<T>(
+      options: {
+        location: number | { viewId: string };
+        title?: string;
+        cancellable?: boolean;
+      },
+      task: (progress: Progress<{ message?: string; increment?: number }>, token: CancellationToken) => Thenable<T>,
+    ): Thenable<T>;
     showInputBox(options?: {
       prompt?: string;
       placeHolder?: string;

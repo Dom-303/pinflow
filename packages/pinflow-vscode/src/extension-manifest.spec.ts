@@ -101,6 +101,7 @@ describe('VS Code extension manifest', () => {
       'pinflow.openDocumentation',
       'pinflow.openPreview',
       'pinflow.switchFolder',
+      'pinflow.runInitInTerminal',
     ]);
   });
 
@@ -141,6 +142,7 @@ describe('VS Code extension manifest', () => {
       'pinflow.externalHandoff.defaultProvider',
       'pinflow.workspace.preferredFolder',
       'pinflow.preview.autoOpen',
+      'pinflow.onboarding.mode',
     ]);
     expect(props['pinflow.refreshIntervalMs'].default).toBe(3000);
     expect(props['pinflow.refreshIntervalMs'].minimum).toBe(500);
@@ -246,5 +248,26 @@ describe('VS Code extension manifest', () => {
     expect(props['pinflow.preview.autoOpen']).toBeDefined();
     expect(props['pinflow.preview.autoOpen'].type).toBe('boolean');
     expect(props['pinflow.preview.autoOpen'].default).toBe(true);
+  });
+
+  it('contributes pinflow.onboarding.mode setting with auto/terminal enum', () => {
+    // Arrange
+    const setting = manifest.contributes?.configuration?.properties?.['pinflow.onboarding.mode'];
+
+    // Act + Assert
+    expect(setting).toBeDefined();
+    expect(setting?.enum).toEqual(['auto', 'terminal']);
+    expect(setting?.default).toBe('auto');
+  });
+
+  it('contributes pinflow.runInitInTerminal command', () => {
+    // Arrange + Act
+    const command = manifest.contributes?.commands?.find(
+      (c: { command: string }) => c.command === 'pinflow.runInitInTerminal',
+    );
+
+    // Assert
+    expect(command).toBeDefined();
+    expect(command!.title).toContain('Run Init in Terminal');
   });
 });

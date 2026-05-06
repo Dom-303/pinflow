@@ -60,7 +60,7 @@ describe('runWizard step plan', () => {
     expect(internal.runPostInstall).toHaveBeenCalled();
   });
 
-  it('monorepo all-detected: 2-step counter (agent + multi-select), framework auto-skips per app', async () => {
+  it('monorepo all-detected: 2-step counter (agent + multi-select), no framework step', async () => {
     // Arrange
     const internal = makeInternalDeps({
       detectApps: vi.fn(() => [
@@ -91,42 +91,7 @@ describe('runWizard step plan', () => {
     });
   });
 
-  it('monorepo mixed (one ambiguous): 3-step counter, shared framework applied to ambiguous only', async () => {
-    // Arrange
-    const internal = makeInternalDeps({
-      detectApps: vi.fn(() => [
-        { path: '/repo/apps/web', framework: 'vite' },
-        { path: '/repo/tools/scripts' }, // no framework
-      ]),
-      pickAppRoot: vi.fn(async () => ['/repo/apps/web', '/repo/tools/scripts']),
-      pickFramework: vi.fn(async () => 'webpack'),
-    });
-
-    // Act
-    await runWizard('/repo', makeUserDeps(), internal);
-
-    // Assert
-    expect(internal.pickAgent).toHaveBeenCalledWith(expect.anything(), 'Schritt 1/3');
-    expect(internal.pickAppRoot).toHaveBeenCalledWith(
-      '/repo',
-      expect.any(Array),
-      'Schritt 2/3',
-    );
-    expect(internal.pickFramework).toHaveBeenCalledWith(
-      expect.objectContaining({ path: '/repo/tools/scripts' }),
-      'Schritt 3/3',
-    );
-    expect(internal.writeWizardConfig).toHaveBeenCalledWith({
-      cwd: '/repo',
-      agent: 'codex',
-      perApp: [
-        { appPath: '/repo/apps/web', framework: 'vite' },
-        { appPath: '/repo/tools/scripts', framework: 'webpack' },
-      ],
-    });
-  });
-
-  it('zero apps: 2-step counter (agent + framework), InputBox-supplied path used', async () => {
+  it('zero apps detected: 3-step counter (agent + manual path + framework)', async () => {
     // Arrange
     const internal = makeInternalDeps({
       detectApps: vi.fn(() => []),
@@ -139,10 +104,12 @@ describe('runWizard step plan', () => {
 
     // Assert
     expect(internal.pickAgent).toHaveBeenCalledWith(expect.anything(), 'Schritt 1/3');
-    expect(internal.pickFramework).toHaveBeenCalledWith(
-      expect.objectContaining({ path: '/manual/path' }),
-      'Schritt 3/3',
+    expect(internal.pickAppRoot).toHaveBeenCalledWith(
+      '/repo',
+      expect.any(Array),
+      'Schritt 2/3',
     );
+    expect(internal.pickFramework).toHaveBeenCalledWith('Schritt 3/3');
     expect(internal.writeWizardConfig).toHaveBeenCalledWith({
       cwd: '/repo',
       agent: 'codex',
@@ -170,8 +137,8 @@ describe('runWizard cancellation', () => {
     // Arrange
     const internal = makeInternalDeps({
       detectApps: vi.fn(() => [
-        { path: '/repo/apps/web' },
-        { path: '/repo/apps/api' },
+        { path: '/repo/apps/web', framework: 'vite' },
+        { path: '/repo/apps/api', framework: 'webpack' },
       ]),
       pickAppRoot: vi.fn(async () => undefined),
     });
@@ -188,8 +155,8 @@ describe('runWizard cancellation', () => {
     // Arrange
     const internal = makeInternalDeps({
       detectApps: vi.fn(() => [
-        { path: '/repo/apps/web' },
-        { path: '/repo/apps/api' },
+        { path: '/repo/apps/web', framework: 'vite' },
+        { path: '/repo/apps/api', framework: 'webpack' },
       ]),
       pickAppRoot: vi.fn(async () => []),
     });
@@ -201,11 +168,11 @@ describe('runWizard cancellation', () => {
     expect(internal.writeWizardConfig).not.toHaveBeenCalled();
   });
 
-  it('returns early when framework step cancelled', async () => {
+  it('returns early when framework step cancelled (manual-path branch)', async () => {
     // Arrange
     const internal = makeInternalDeps({
-      detectApps: vi.fn(() => [{ path: '/repo' }]),
-      pickAppRoot: vi.fn(async () => ['/repo']),
+      detectApps: vi.fn(() => []),
+      pickAppRoot: vi.fn(async () => ['/manual/path']),
       pickFramework: vi.fn(async () => undefined),
     });
 
@@ -267,8 +234,6 @@ describe('runWizard reconfigure flow', () => {
     await runWizard('/repo', makeUserDeps(), internal);
 
     // Assert — showInformationMessage is not called for the reconfigure prompt
-    // (it might still be called by other code paths, so we check the specific
-    // call with "Überschreiben" wasn't made)
     const calls = (internal.showInformationMessage as ReturnType<typeof vi.fn>).mock.calls;
     const reconfigureCall = calls.find((c) => c[0]?.includes?.('Überschreiben'));
     expect(reconfigureCall).toBeUndefined();
@@ -320,8 +285,7 @@ describe('runWizard concurrency lock', () => {
     // Act — start two wizards for the same cwd concurrently
     const first = runWizard('/repo', makeUserDeps(), internal);
     const second = runWizard('/repo', makeUserDeps(), internal);
-    // Flush microtask queue (detectInstalledAgents + detectApps both async) so
-    // pickAgent is called and agentResolve is populated before we resolve it.
+    // Flush microtasks + macrotasks so the first wizard reaches pickAgent
     await new Promise((r) => setTimeout(r, 0));
     agentResolve?.('codex');
     await Promise.all([first, second]);

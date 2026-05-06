@@ -14,12 +14,11 @@ import type { AgentChoice } from './agent-step.js';
 // Install command map (hardcoded, mirrored from relay's cli/init/types.ts AGENTS)
 // ---------------------------------------------------------------------------
 
-// NOTE: The codex marketplace command is known-broken upstream; it is still
-// shipped so the user can see the real failure in their own terminal and fix
-// it locally — gating the Run button would be worse UX.
+// INSTALL_COMMANDS — codex marketplace command was upstream-broken in
+// the user-installed Codex CLI; only the load-bearing MCP registration ships.
+// Re-add the marketplace step when the Codex CLI bug is fixed.
 const INSTALL_COMMANDS: Partial<Record<AgentChoice, readonly string[]>> = {
   codex: [
-    'codex marketplace add Dom-303/pinflow',
     'codex mcp add pinflow -- npx -y --package @pinflow/mcp pinflow-mcp',
   ],
   'claude-code': [
@@ -60,7 +59,7 @@ export interface RunPostInstallDeps {
 
 function defaultRunInstallInTerminal(cwd: string, commands: readonly string[], agentLabel: string): void {
   const terminal = vscode.window.createTerminal({
-    name: `PinFlow — Install ${agentLabel} plugin`,
+    name: `PinFlow — ${agentLabel}-Plugin installieren`,
     cwd,
   });
   terminal.show();
@@ -101,29 +100,27 @@ export async function runPostInstall(
   const agentLabel = AGENT_LABELS[agent] ?? agent;
 
   if (commands === undefined) {
-    // No install commands available — plain success toast.
-    await showMsg(`PinFlow ready in ${folderName}.`);
+    await showMsg(`PinFlow ist eingerichtet in ${folderName}.`);
     return;
   }
 
-  // Agents with install commands get the 3-button prompt.
   const action = await showMsg(
-    `PinFlow ready in ${folderName}. Install ${agentLabel} plugin?`,
-    'Run',
-    'Show command',
-    'Skip',
+    `PinFlow ist eingerichtet in ${folderName}. ${agentLabel}-Plugin installieren?`,
+    'Ausführen',
+    'Befehl anzeigen',
+    'Überspringen',
   );
 
-  if (action === 'Run') {
+  if (action === 'Ausführen') {
     runInstall(cwd, commands, agentLabel);
     return;
   }
 
-  if (action === 'Show command') {
+  if (action === 'Befehl anzeigen') {
     await writeText(commands.join('\n'));
-    await showMsg(`${agentLabel} install command copied to clipboard.`);
+    await showMsg(`${agentLabel}-Installationsbefehl in Zwischenablage kopiert.`);
     return;
   }
 
-  // 'Skip' or dismissed (undefined) → silent no-op.
+  // 'Überspringen' or dismissed — silent no-op.
 }

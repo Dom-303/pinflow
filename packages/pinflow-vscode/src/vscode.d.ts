@@ -210,5 +210,9 @@ declare module 'vscode' {
 
   export const env: {
     openExternal(target: Uri): Thenable<boolean>;
+    readonly clipboard: {
+      writeText(value: string): Thenable<void>;
+      readText(): Thenable<string>;
+    };
   };
 }

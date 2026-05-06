@@ -246,15 +246,18 @@ export class OverlayStore {
   }
 
   /**
-   * Set and persist the active product theme
+   * Set and persist the active product theme.
+   * No-ops when the value is unchanged; also propagates the change to the relay.
    */
   setTheme(theme: OverlayTheme): void {
+    if (this.state.theme === theme) return;
     this.setState({ theme });
     try {
       localStorage.setItem(OverlayStore.THEME_KEY, theme);
     } catch {
       // localStorage unavailable
     }
+    RelayService.getInstance().requestSettingsUpdate({ theme });
   }
 
   /**
@@ -635,15 +638,18 @@ export class OverlayStore {
   }
 
   setPickerMode(pickerMode: PickerMode): void {
+    if (this.state.pickerMode === pickerMode) return;
     this.setState({ pickerMode });
     try {
       localStorage.setItem(OverlayStore.PICKER_MODE_KEY, pickerMode);
     } catch {
       // localStorage unavailable
     }
+    RelayService.getInstance().requestSettingsUpdate({ pickerMode });
   }
 
   setCommentEntryMode(commentEntryMode: CommentEntryMode): void {
+    if (this.state.commentEntryMode === commentEntryMode) return;
     this.setState({ commentEntryMode });
     try {
       localStorage.setItem(
@@ -653,6 +659,7 @@ export class OverlayStore {
     } catch {
       // localStorage unavailable
     }
+    RelayService.getInstance().requestSettingsUpdate({ commentEntryMode });
   }
 
   /**
@@ -716,10 +723,45 @@ export class OverlayStore {
     this.setState({ runnerStatus });
   }
 
-  // C.1.14 Task 4 placeholder — full impl in Task 5
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  applySyncedSettings(_settings: Partial<import('@pinflow/core').OverlaySettings>): void {
-    /* implemented in Task 5 */
+  /**
+   * Apply settings received from the relay (sync-driven path).
+   * Writes each differing key to state + localStorage.
+   * Does NOT call RelayService.requestSettingsUpdate — sync-driven writes must not echo back.
+   * Is a no-op (no setState, no listener fire) when all values already match current state.
+   */
+  applySyncedSettings(settings: Partial<import('@pinflow/core').OverlaySettings>): void {
+    const patch: Partial<OverlayState> = {};
+
+    if (settings.theme !== undefined && settings.theme !== this.state.theme) {
+      patch.theme = settings.theme;
+      try {
+        localStorage.setItem(OverlayStore.THEME_KEY, settings.theme);
+      } catch {
+        // localStorage unavailable
+      }
+    }
+
+    if (settings.pickerMode !== undefined && settings.pickerMode !== this.state.pickerMode) {
+      patch.pickerMode = settings.pickerMode;
+      try {
+        localStorage.setItem(OverlayStore.PICKER_MODE_KEY, settings.pickerMode);
+      } catch {
+        // localStorage unavailable
+      }
+    }
+
+    if (settings.commentEntryMode !== undefined && settings.commentEntryMode !== this.state.commentEntryMode) {
+      patch.commentEntryMode = settings.commentEntryMode;
+      try {
+        localStorage.setItem(OverlayStore.COMMENT_ENTRY_MODE_KEY, settings.commentEntryMode);
+      } catch {
+        // localStorage unavailable
+      }
+    }
+
+    if (Object.keys(patch).length === 0) return;
+
+    this.setState(patch);
   }
 
   /**

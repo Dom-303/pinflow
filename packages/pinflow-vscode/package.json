@@ -201,6 +201,24 @@
           ],
           "default": "auto",
           "description": "How PinFlow should run 'pinflow init' when you click 'Setup PinFlow' on an unconfigured folder."
+        },
+        "pinflow.overlay.theme": {
+          "type": "string",
+          "enum": ["light", "dark"],
+          "default": "light",
+          "description": "Overlay color theme. Synced bidirectionally with the browser overlay via .pinflow/overlay-settings.json. Changes here apply to all open browser tabs of this workspace within ~500 ms."
+        },
+        "pinflow.overlay.pickerMode": {
+          "type": "string",
+          "enum": ["element", "region", "multi"],
+          "default": "element",
+          "description": "Default capture mode in the overlay picker. 'element' picks one element on click, 'region' draws a selection rectangle, 'multi' allows multiple element picks per annotation. Synced bidirectionally with the browser overlay."
+        },
+        "pinflow.overlay.commentEntryMode": {
+          "type": "string",
+          "enum": ["workspace", "inline"],
+          "default": "workspace",
+          "description": "Where annotation comments are entered. 'workspace' uses the right-side workspace panel, 'inline' shows a popover next to the picked element. Synced bidirectionally with the browser overlay."
         }
       }
     },

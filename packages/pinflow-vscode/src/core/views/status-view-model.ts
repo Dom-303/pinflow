@@ -10,7 +10,8 @@ export type StatusItemId =
   | 'runner'
   | 'workspace'
   | 'preview'
-  | 'externalClaim';
+  | 'externalClaim'
+  | 'setup';
 
 export interface BuildStatusViewItemsOptions {
   readonly workspaceFolderCount?: number;
@@ -234,19 +235,41 @@ export interface BuildStatusFolderGroupsOptions {
   readonly externalClaim?: ExternalHandoffClaim | null;
 }
 
+const SETUP_ITEM_BASE = {
+  id: 'setup' as StatusItemId,
+  label: 'Setup PinFlow',
+  description: 'run pinflow init',
+  tooltip: 'Click to scaffold .pinflow/ in this folder',
+  themeIcon: 'rocket',
+} as const;
+
 export function buildStatusFolderGroups(
   folders: readonly PerFolderState[],
   options: BuildStatusFolderGroupsOptions = {},
 ): readonly StatusFolderGroup[] {
-  return folders.map((state) => ({
-    id: state.folder,
-    displayName: path.basename(state.folder),
-    runCount: state.runs.length,
-    isActive: state.folder === options.activeFolder,
-    children: buildStatusViewItems(
-      state.status,
-      options.externalClaim ?? null,
-      state.runs[0] ?? null,
-    ),
-  }));
+  return folders.map((state) => {
+    const isConfigured = state.status.status !== 'not-configured';
+    const children: readonly StatusViewItem[] = isConfigured
+      ? buildStatusViewItems(
+          state.status,
+          options.externalClaim ?? null,
+          state.runs[0] ?? null,
+        )
+      : [
+          {
+            ...SETUP_ITEM_BASE,
+            command: {
+              command: 'pinflow.runInit',
+              arguments: [state.folder],
+            },
+          },
+        ];
+    return {
+      id: state.folder,
+      displayName: path.basename(state.folder),
+      runCount: isConfigured ? state.runs.length : 0,
+      isActive: state.folder === options.activeFolder,
+      children,
+    };
+  });
 }

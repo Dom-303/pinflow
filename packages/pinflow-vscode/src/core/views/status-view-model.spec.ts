@@ -1,7 +1,36 @@
 import type { ExternalHandoffClaim } from '../external-handoff.js';
+import type { PerFolderState } from '../multi-folder-state.js';
 import type { PinFlowRunEvidence } from '../run-evidence.js';
 import type { PinFlowWorkspaceResult } from '../workspace.js';
 import { buildStatusFolderGroups, buildStatusViewItems } from './status-view-model.js';
+
+function readyState(folder: string): PerFolderState {
+  return {
+    folder,
+    status: {
+      status: 'ready',
+      workspaceFolder: folder,
+      workspaceRoot: folder,
+      appRoot: folder,
+      relay: { host: '127.0.0.1', port: 12345, pid: 999 },
+      devServer: undefined,
+      message: 'PinFlow ready',
+    },
+    runs: [],
+  };
+}
+
+function notConfiguredState(folder: string): PerFolderState {
+  return {
+    folder,
+    status: {
+      status: 'not-configured',
+      workspaceFolder: folder,
+      message: 'PinFlow app not configured',
+    },
+    runs: [],
+  };
+}
 
 function readyStatus(): PinFlowWorkspaceResult {
   return {
@@ -309,5 +338,65 @@ describe('buildStatusFolderGroups', () => {
     );
 
     expect(groups[0].runCount).toBe(3);
+  });
+});
+
+describe('buildStatusFolderGroups with not-configured folder', () => {
+  it('renders a single Setup leaf for not-configured state', () => {
+    // Arrange
+    const state: PerFolderState = {
+      folder: '/path/to/repo',
+      status: { status: 'not-configured', workspaceFolder: '/path/to/repo', message: 'PinFlow app not configured' },
+      runs: [],
+    };
+
+    // Act
+    const groups = buildStatusFolderGroups([state]);
+
+    // Assert
+    expect(groups).toHaveLength(1);
+    expect(groups[0].children).toHaveLength(1);
+    expect(groups[0].children[0]).toMatchObject({
+      id: 'setup',
+      label: 'Setup PinFlow',
+      themeIcon: 'rocket',
+      command: { command: 'pinflow.runInit', arguments: ['/path/to/repo'] },
+    });
+  });
+
+  it('renders mixed groups: configured full, unconfigured Setup-only', () => {
+    // Arrange
+    const states = [readyState('/repo/a'), notConfiguredState('/repo/b')];
+
+    // Act
+    const groups = buildStatusFolderGroups(states);
+
+    // Assert
+    expect(groups[0].children.length).toBeGreaterThan(1); // Relay/Runner/Workspace/Preview
+    expect(groups[1].children).toHaveLength(1);
+    expect(groups[1].children[0].id).toBe('setup');
+  });
+
+  it('Setup leaf has correct description and tooltip', () => {
+    // Arrange
+    const state = notConfiguredState('/x');
+
+    // Act
+    const setup = buildStatusFolderGroups([state])[0].children[0];
+
+    // Assert
+    expect(setup.description).toBe('run pinflow init');
+    expect(setup.tooltip).toContain('Click to scaffold');
+  });
+
+  it('runCount is 0 for not-configured group', () => {
+    // Arrange
+    const state = notConfiguredState('/x');
+
+    // Act
+    const group = buildStatusFolderGroups([state])[0];
+
+    // Assert
+    expect(group.runCount).toBe(0);
   });
 });

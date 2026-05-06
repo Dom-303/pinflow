@@ -26,16 +26,20 @@ export interface RunsWebviewSettings {
   readonly timeFormat: '24h' | '12h';
 }
 
+export type FolderStatus = 'configured' | 'not-configured';
+
 export type ExtToWebviewMessage =
   | {
       readonly type: 'webview:init-ack';
       readonly runsByFolder: Readonly<Record<string, readonly PinFlowRunEvidence[]>>;
+      readonly folderStatuses: Readonly<Record<string, FolderStatus>>;
       readonly activeFolder?: string;
       readonly settings: RunsWebviewSettings;
     }
   | {
       readonly type: 'runs:update';
       readonly runsByFolder: Readonly<Record<string, readonly PinFlowRunEvidence[]>>;
+      readonly folderStatuses: Readonly<Record<string, FolderStatus>>;
       readonly activeFolder?: string;
     }
   | {
@@ -45,6 +49,7 @@ export type ExtToWebviewMessage =
 
 export type WebviewToExtMessage =
   | { readonly type: 'webview:ready' }
+  | { readonly type: 'webview:run-init'; readonly folder: string }
   | { readonly type: 'run:open-prompt'; readonly runId: string }
   | { readonly type: 'run:open-evidence-file'; readonly filePath: string };
 
@@ -64,17 +69,33 @@ function isRunsByFolder(value: unknown): value is Record<string, unknown[]> {
   return Object.values(value).every((v) => Array.isArray(v));
 }
 
+function isFolderStatus(value: unknown): value is FolderStatus {
+  return value === 'configured' || value === 'not-configured';
+}
+
+function isFolderStatuses(
+  value: unknown,
+): value is Record<string, FolderStatus> {
+  if (!isObject(value)) return false;
+  return Object.values(value).every(isFolderStatus);
+}
+
 export function isExtToWebviewMessage(
   value: unknown,
 ): value is ExtToWebviewMessage {
   if (!isObject(value)) return false;
   const type = value['type'];
   if (type === 'runs:update') {
-    return isRunsByFolder(value['runsByFolder']);
+    return (
+      isRunsByFolder(value['runsByFolder']) &&
+      isFolderStatuses(value['folderStatuses'])
+    );
   }
   if (type === 'webview:init-ack') {
     return (
-      isRunsByFolder(value['runsByFolder']) && isSettings(value['settings'])
+      isRunsByFolder(value['runsByFolder']) &&
+      isFolderStatuses(value['folderStatuses']) &&
+      isSettings(value['settings'])
     );
   }
   if (type === 'settings:update') {
@@ -89,6 +110,9 @@ export function isWebviewToExtMessage(
   if (!isObject(value)) return false;
   const type = value['type'];
   if (type === 'webview:ready') return true;
+  if (type === 'webview:run-init') {
+    return typeof value['folder'] === 'string' && value['folder'].length > 0;
+  }
   if (type === 'run:open-prompt') return typeof value['runId'] === 'string';
   if (type === 'run:open-evidence-file')
     return typeof value['filePath'] === 'string';

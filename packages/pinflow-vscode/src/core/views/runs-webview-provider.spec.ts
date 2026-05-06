@@ -82,7 +82,7 @@ describe('RunsWebviewProvider', () => {
     const provider = new RunsWebviewProvider({
       extensionUri: fakeUri as never,
       onOpenPrompt: vi.fn(),
-      getCurrentSnapshot: () => ({ runsByFolder: {} }),
+      getCurrentSnapshot: () => ({ runsByFolder: {}, folderStatuses: {} }),
       getCurrentSettings: () => ({ timeFormat: '24h' }),
     });
 
@@ -105,7 +105,7 @@ describe('RunsWebviewProvider', () => {
     const provider = new RunsWebviewProvider({
       extensionUri: fakeUri as never,
       onOpenPrompt: vi.fn(),
-      getCurrentSnapshot: () => ({ runsByFolder: { '/repo': [sampleRun] } }),
+      getCurrentSnapshot: () => ({ runsByFolder: { '/repo': [sampleRun] }, folderStatuses: { '/repo': 'configured' } }),
       getCurrentSettings: () => ({ timeFormat: '24h' }),
     });
 
@@ -122,10 +122,11 @@ describe('RunsWebviewProvider', () => {
     const wb = createMockWebview();
     const view = createMockView(wb.webview);
     const runsByFolder = { '/repo': [sampleRun] };
+    const folderStatuses = { '/repo': 'configured' as const };
     const provider = new RunsWebviewProvider({
       extensionUri: fakeUri as never,
       onOpenPrompt: vi.fn(),
-      getCurrentSnapshot: () => ({ runsByFolder, activeFolder: '/repo' }),
+      getCurrentSnapshot: () => ({ runsByFolder, folderStatuses, activeFolder: '/repo' }),
       getCurrentSettings: () => ({ timeFormat: '12h' }),
     });
 
@@ -139,6 +140,7 @@ describe('RunsWebviewProvider', () => {
     expect(wb.webview.postMessage).toHaveBeenCalledWith({
       type: 'webview:init-ack',
       runsByFolder,
+      folderStatuses,
       activeFolder: '/repo',
       settings: { timeFormat: '12h' },
     });
@@ -148,14 +150,15 @@ describe('RunsWebviewProvider', () => {
     const wb = createMockWebview();
     const view = createMockView(wb.webview);
     const runsByFolder = { '/repo': [sampleRun] };
+    const folderStatuses = { '/repo': 'configured' as const };
     const provider = new RunsWebviewProvider({
       extensionUri: fakeUri as never,
       onOpenPrompt: vi.fn(),
-      getCurrentSnapshot: () => ({ runsByFolder }),
+      getCurrentSnapshot: () => ({ runsByFolder, folderStatuses }),
       getCurrentSettings: () => ({ timeFormat: '24h' }),
     });
 
-    provider.postRuns({ runsByFolder });
+    provider.postRuns({ runsByFolder, folderStatuses });
     expect(wb.webview.postMessage).not.toHaveBeenCalled();
 
     provider.resolveWebviewView(
@@ -163,11 +166,12 @@ describe('RunsWebviewProvider', () => {
       { state: undefined } as never,
       { isCancellationRequested: false } as never,
     );
-    provider.postRuns({ runsByFolder });
+    provider.postRuns({ runsByFolder, folderStatuses });
 
     expect(wb.webview.postMessage).toHaveBeenCalledWith({
       type: 'runs:update',
       runsByFolder,
+      folderStatuses,
       activeFolder: undefined,
     });
   });
@@ -176,10 +180,11 @@ describe('RunsWebviewProvider', () => {
     const wb = createMockWebview();
     const view = createMockView(wb.webview);
     const runsByFolder = { '/repo': [sampleRun] };
+    const folderStatuses = { '/repo': 'configured' as const };
     const provider = new RunsWebviewProvider({
       extensionUri: fakeUri as never,
       onOpenPrompt: vi.fn(),
-      getCurrentSnapshot: () => ({ runsByFolder }),
+      getCurrentSnapshot: () => ({ runsByFolder, folderStatuses }),
       getCurrentSettings: () => ({ timeFormat: '24h' }),
     });
 
@@ -188,11 +193,12 @@ describe('RunsWebviewProvider', () => {
       { state: undefined } as never,
       { isCancellationRequested: false } as never,
     );
-    provider.postRuns({ runsByFolder, activeFolder: '/repo' });
+    provider.postRuns({ runsByFolder, folderStatuses, activeFolder: '/repo' });
 
     expect(wb.webview.postMessage).toHaveBeenCalledWith({
       type: 'runs:update',
       runsByFolder,
+      folderStatuses,
       activeFolder: '/repo',
     });
   });
@@ -203,7 +209,7 @@ describe('RunsWebviewProvider', () => {
     const provider = new RunsWebviewProvider({
       extensionUri: fakeUri as never,
       onOpenPrompt: vi.fn(),
-      getCurrentSnapshot: () => ({ runsByFolder: {} }),
+      getCurrentSnapshot: () => ({ runsByFolder: {}, folderStatuses: {} }),
       getCurrentSettings: () => ({ timeFormat: '24h' }),
     });
 
@@ -228,7 +234,7 @@ describe('RunsWebviewProvider', () => {
     const provider = new RunsWebviewProvider({
       extensionUri: fakeUri as never,
       onOpenPrompt,
-      getCurrentSnapshot: () => ({ runsByFolder }),
+      getCurrentSnapshot: () => ({ runsByFolder, folderStatuses: { '/repo': 'configured', '/repo2': 'configured' } }),
       getCurrentSettings: () => ({ timeFormat: '24h' }),
     });
 
@@ -249,7 +255,7 @@ describe('RunsWebviewProvider', () => {
     const provider = new RunsWebviewProvider({
       extensionUri: fakeUri as never,
       onOpenPrompt,
-      getCurrentSnapshot: () => ({ runsByFolder: { '/repo': [sampleRun] } }),
+      getCurrentSnapshot: () => ({ runsByFolder: { '/repo': [sampleRun] }, folderStatuses: { '/repo': 'configured' } }),
       getCurrentSettings: () => ({ timeFormat: '24h' }),
     });
 

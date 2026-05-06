@@ -77,6 +77,9 @@ export function activate(context: vscode.ExtensionContext): void {
       runsByFolder: Object.fromEntries(
         trackedFolders.map((s) => [s.folder, s.runs] as const),
       ),
+      folderStatuses: Object.fromEntries(
+        trackedFolders.map((s) => [s.folder, 'configured' as const]),
+      ),
       activeFolder,
     }),
     getCurrentSettings: readRunsWebviewSettings,
@@ -198,7 +201,7 @@ export function activate(context: vscode.ExtensionContext): void {
       statusItem.show();
       statusProvider.setFolderGroups([]);
       actionsProvider.setFolderGroups([]);
-      runsWebviewProvider.postRuns({ runsByFolder: {}, activeFolder: undefined });
+      runsWebviewProvider.postRuns({ runsByFolder: {}, folderStatuses: {}, activeFolder: undefined });
       trackedFolders = [];
       activeFolder = undefined;
       void vscode.commands.executeCommand('setContext', 'pinflow.notConfigured', false);
@@ -213,7 +216,7 @@ export function activate(context: vscode.ExtensionContext): void {
       void vscode.commands.executeCommand('setContext', 'pinflow.notConfigured', true);
       statusProvider.setFolderGroups([]);
       actionsProvider.setFolderGroups([]);
-      runsWebviewProvider.postRuns({ runsByFolder: {}, activeFolder: undefined });
+      runsWebviewProvider.postRuns({ runsByFolder: {}, folderStatuses: {}, activeFolder: undefined });
       trackedFolders = [];
       activeFolder = undefined;
       statusItem.text = 'PinFlow: not configured';
@@ -230,14 +233,16 @@ export function activate(context: vscode.ExtensionContext): void {
     activeFolder = pickActiveFolder(folderStates, preferredFolder);
 
     const runsByFolder: Record<string, readonly PinFlowRunEvidence[]> = {};
+    const folderStatuses: Record<string, import('./core/views/runs-webview-messages.js').FolderStatus> = {};
     for (const state of folderStates) {
       runsByFolder[state.folder] = state.runs;
+      folderStatuses[state.folder] = 'configured';
     }
 
     statusProvider.setFolderGroups(
       buildStatusFolderGroups(folderStates, { activeFolder, externalClaim }),
     );
-    runsWebviewProvider.postRuns({ runsByFolder, activeFolder });
+    runsWebviewProvider.postRuns({ runsByFolder, folderStatuses, activeFolder });
     actionsProvider.setFolderGroups(
       buildActionFolderGroups(folderStates, externalClaim, activeFolder),
     );

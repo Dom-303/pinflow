@@ -1,6 +1,13 @@
 /**
  * Pure project-shape detection for the in-extension wizard.
  * No vscode, no spawn — real defaults use synchronous Node fs APIs.
+ *
+ * @remarks
+ * Skips `node_modules`, dotfile-prefixed dirs (`.git`, `.next`, ...) and
+ * common build outputs (`dist`, `build`, `out`, `coverage`). When the root
+ * `package.json` declares `workspaces` and itself has no frontend framework,
+ * the root is omitted from the result — it's a monorepo wrapper, not an app.
+ *
  * @module
  */
 import { readFileSync, readdirSync } from 'node:fs';
@@ -37,6 +44,20 @@ const DEFAULT_DEPS: AppDetectionDeps = {
 interface PackageJson {
   readonly dependencies?: Record<string, string>;
   readonly devDependencies?: Record<string, string>;
+  readonly workspaces?: readonly string[] | { readonly packages?: readonly string[] };
+}
+
+const SKIP_DIR_NAMES: ReadonlySet<string> = new Set([
+  'node_modules',
+  'dist',
+  'build',
+  'out',
+  'coverage',
+]);
+
+function shouldSkipDir(name: string): boolean {
+  if (name.startsWith('.')) return true;
+  return SKIP_DIR_NAMES.has(name);
 }
 
 function hasDep(pkg: PackageJson, name: string): boolean {
@@ -75,9 +96,22 @@ function tryDetect(
   return { path: dir, framework: classifyFramework(pkg) };
 }
 
+function hasWorkspaces(pkg: PackageJson | undefined): boolean {
+  const ws = pkg?.workspaces;
+  if (!ws) return false;
+  if (Array.isArray(ws)) return ws.length > 0;
+  // ws is the legacy yarn-classic shape: { packages?: string[] }
+  const packages = (ws as { packages?: readonly string[] }).packages;
+  return Array.isArray(packages) && packages.length > 0;
+}
+
 /**
- * Find package.json files at `cwd` and depth-1 sub-folders, classify each
+ * Find package.json files at `cwd` and depth-1/2 sub-folders, classify each
  * by framework, and return a flat list of detected apps.
+ *
+ * Excludes `node_modules`, dotfile-prefixed dirs (`.git`, `.next`, ...) and
+ * common build outputs. When the root declares `workspaces` and is not itself
+ * a frontend app, the root is omitted from the result.
  */
 export function detectApps(
   cwd: string,
@@ -85,12 +119,16 @@ export function detectApps(
 ): DetectedApp[] {
   const results: DetectedApp[] = [];
 
-  // Check cwd itself
-  const root = tryDetect(cwd, deps);
-  if (root) results.push(root);
+  const rootPkg = readPackageJson(cwd, deps.readFile);
+  const rootIsMonorepoWrapper =
+    hasWorkspaces(rootPkg) && classifyFramework(rootPkg ?? {}) === undefined;
 
-  // Check depth-1 subdirectories
+  if (rootPkg && !rootIsMonorepoWrapper) {
+    results.push({ path: cwd, framework: classifyFramework(rootPkg) });
+  }
+
   for (const entry of deps.readdir(cwd)) {
+    if (shouldSkipDir(entry)) continue;
     const subdir = path.join(cwd, entry);
     const sub = tryDetect(subdir, deps);
     if (sub) {
@@ -98,8 +136,8 @@ export function detectApps(
       continue;
     }
 
-    // Check depth-2 subdirectories (e.g. packages/a, packages/b)
     for (const child of deps.readdir(subdir)) {
+      if (shouldSkipDir(child)) continue;
       const childDir = path.join(subdir, child);
       const detected = tryDetect(childDir, deps);
       if (detected) results.push(detected);

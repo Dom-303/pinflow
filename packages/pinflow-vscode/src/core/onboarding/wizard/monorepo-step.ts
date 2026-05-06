@@ -1,6 +1,8 @@
 /**
- * Wizard step 2 — App-root selection (QuickPick for monorepos, InputBox for
- * unknown roots, auto-pick for single-app repos).
+ * Wizard step — App-root selection.
+ * - 1 app → silent auto-pick.
+ * - 2+ apps → multi-select QuickPick with all items pre-checked.
+ * - 0 apps → InputBox for a manual path.
  * @module
  */
 import path from 'node:path';
@@ -12,6 +14,7 @@ import type { DetectedApp } from './app-detection.js';
 interface AppQuickPickItem {
   readonly label: string;
   readonly description?: string;
+  readonly picked: boolean;
   readonly value: string;
 }
 
@@ -19,55 +22,73 @@ interface AppQuickPickItem {
 export interface MonorepoStepDeps {
   readonly showQuickPick: (
     items: readonly AppQuickPickItem[],
-    options?: { title?: string; placeHolder?: string },
-  ) => Promise<AppQuickPickItem | undefined>;
+    options: {
+      readonly title?: string;
+      readonly placeHolder?: string;
+      readonly canPickMany: true;
+    },
+  ) => Promise<readonly AppQuickPickItem[] | undefined>;
   readonly showInputBox: (options?: {
-    title?: string;
-    prompt?: string;
-    value?: string;
+    readonly title?: string;
+    readonly prompt?: string;
+    readonly value?: string;
   }) => Promise<string | undefined>;
 }
 
 const DEFAULT_DEPS: MonorepoStepDeps = {
   showQuickPick: (items, options) =>
-    vscode.window.showQuickPick([...items], options) as Promise<AppQuickPickItem | undefined>,
+    vscode.window.showQuickPick([...items], options) as Promise<readonly AppQuickPickItem[] | undefined>,
   showInputBox: (options) => vscode.window.showInputBox(options),
 };
 
 /**
- * Resolve the app root for the wizard:
- * - 1 app → auto-pick, no UI shown.
- * - 2+ apps → QuickPick, return chosen path.
- * - 0 apps → InputBox with `cwd` as default; return entered path or `undefined`.
+ * Resolve one or more app roots for the wizard.
+ *
+ * @param stepLabel  e.g. `"Schritt 2/3"` or `""` for single-step wizards.
+ *
+ * @returns
+ *  - `[singlePath]` when exactly one app was detected (silent auto-pick).
+ *  - The user's multi-select picks (1..N) when 2+ apps were detected.
+ *  - `[manualPath]` from the InputBox when 0 apps were detected.
+ *  - `undefined` when the user cancelled or deselected everything.
  */
 export async function pickAppRoot(
   cwd: string,
   apps: readonly DetectedApp[],
+  stepLabel: string,
   deps: MonorepoStepDeps = DEFAULT_DEPS,
-): Promise<string | undefined> {
+): Promise<readonly string[] | undefined> {
   if (apps.length === 1) {
-    return apps[0].path;
+    return [apps[0].path];
   }
+
+  const titlePrefix = stepLabel ? `${stepLabel} — ` : '';
 
   if (apps.length > 1) {
     const items: AppQuickPickItem[] = apps.map((app) => ({
       label: path.relative(cwd, app.path) || path.basename(app.path),
-      description: app.framework ?? 'unknown framework',
+      description: app.framework ?? 'unbekanntes Framework',
+      picked: true,
       value: app.path,
     }));
 
     const picked = await deps.showQuickPick(items, {
-      title: 'PinFlow Setup · Schritt 2/3 — App-Root wählen',
-      placeHolder: 'Multiple package.json files found — choose the app to configure',
+      title: `PinFlow Setup · ${titlePrefix}Apps auswählen`,
+      placeHolder: 'Mehrere Apps gefunden — wähle eine oder mehrere',
+      canPickMany: true,
     });
 
-    return picked?.value;
+    if (picked === undefined) return undefined;
+    if (picked.length === 0) return undefined;
+    return picked.map((p) => p.value);
   }
 
-  // No apps detected — ask user for manual path
-  return deps.showInputBox({
-    title: 'PinFlow Setup · Schritt 2/3 — App-Root wählen',
-    prompt: 'No package.json found automatically. Enter the path to your app root.',
+  const entered = await deps.showInputBox({
+    title: `PinFlow Setup · ${titlePrefix}App-Root wählen`,
+    prompt: 'Keine package.json gefunden. Pfad zum App-Root eingeben:',
     value: cwd,
   });
+
+  if (entered === undefined || entered.trim() === '') return undefined;
+  return [entered];
 }

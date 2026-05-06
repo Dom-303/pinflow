@@ -129,6 +129,11 @@ declare module 'vscode' {
     onCancellationRequested: Event<unknown>;
   }
 
+  export interface OutputChannel extends Disposable {
+    appendLine(value: string): void;
+    show(preserveFocus?: boolean): void;
+  }
+
   export const window: {
     createStatusBarItem(alignment: number, priority?: number): StatusBarItem;
     showInformationMessage(message: string, ...items: string[]): Thenable<string | undefined>;
@@ -154,11 +159,12 @@ declare module 'vscode' {
         canPickMany?: boolean;
       },
     ): Thenable<T | undefined>;
-    showTextDocument(uri: Uri): Thenable<unknown>;
+    showTextDocument(uri: Uri, options?: { preview?: boolean }): Thenable<unknown>;
     createTerminal(options: { name: string; cwd?: string }): {
       sendText(text: string): void;
       show(): void;
     };
+    createOutputChannel(name: string): OutputChannel;
     registerTreeDataProvider<T>(
       viewId: string,
       treeDataProvider: TreeDataProvider<T>,
@@ -199,6 +205,11 @@ declare module 'vscode' {
     readonly removed: ReadonlyArray<{ uri: { fsPath: string } }>;
   }
 
+  export interface TextDocument {
+    readonly uri: Uri;
+    readonly getText: () => string;
+  }
+
   export const workspace: {
     workspaceFolders?: Array<{ uri: { fsPath: string } }>;
     onDidChangeWorkspaceFolders(listener: (event: WorkspaceFoldersChangeEvent) => void): Disposable;
@@ -206,6 +217,8 @@ declare module 'vscode' {
       listener: (event: ConfigurationChangeEvent) => void,
     ): Disposable;
     getConfiguration(section?: string): WorkspaceConfiguration;
+    openTextDocument(uri: Uri): Thenable<TextDocument>;
+    openTextDocument(options: { content?: string; language?: string }): Thenable<TextDocument>;
   };
 
   export const env: {

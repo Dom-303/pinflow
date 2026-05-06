@@ -26,6 +26,16 @@ function makeInternalDeps(
     showInformationMessage: vi.fn(async () => undefined),
     showErrorMessage: vi.fn(async () => undefined),
     createTerminal: vi.fn(() => ({ sendText: vi.fn(), show: vi.fn() })),
+    installFrameworkPlugin: vi.fn(async () => ({
+      status: 'patched' as const,
+      framework: 'react-vite' as const,
+      appPath: '/repo',
+    })),
+    withProgress: vi.fn(async (_title: string, task: (report: (progress: { message?: string; increment?: number }) => void) => Promise<unknown>) =>
+      task(vi.fn()),
+    ),
+    outputAppend: vi.fn(),
+    outputShow: vi.fn(),
     ...overrides,
   };
 }
@@ -41,7 +51,7 @@ describe('runWizard step plan', () => {
   it('single-app fresh: 1-step counter, no app-root prompt, no framework prompt, writes once', async () => {
     // Arrange
     const internal = makeInternalDeps({
-      detectApps: vi.fn(() => [{ path: '/repo', framework: 'vite' }]),
+      detectApps: vi.fn(() => [{ path: '/repo', framework: 'react-vite' as const }]),
       pickAppRoot: vi.fn(async () => ['/repo']),
     });
     const userDeps = makeUserDeps();
@@ -55,8 +65,15 @@ describe('runWizard step plan', () => {
     expect(internal.writeWizardConfig).toHaveBeenCalledWith({
       cwd: '/repo',
       agent: 'codex',
-      perApp: [{ appPath: '/repo', framework: 'vite' }],
+      perApp: [{ appPath: '/repo', framework: 'react-vite' }],
     });
+    expect(internal.installFrameworkPlugin).toHaveBeenCalledTimes(1);
+    expect(internal.installFrameworkPlugin).toHaveBeenCalledWith(
+      '/repo',
+      'react-vite',
+      '/repo',
+      expect.any(Function),
+    );
     expect(internal.runPostInstall).toHaveBeenCalled();
   });
 
@@ -64,8 +81,8 @@ describe('runWizard step plan', () => {
     // Arrange
     const internal = makeInternalDeps({
       detectApps: vi.fn(() => [
-        { path: '/repo/apps/web', framework: 'vite' },
-        { path: '/repo/apps/api', framework: 'webpack' },
+        { path: '/repo/apps/web', framework: 'react-vite' as const },
+        { path: '/repo/apps/api', framework: 'vue-webpack' as const },
       ]),
       pickAppRoot: vi.fn(async () => ['/repo/apps/web', '/repo/apps/api']),
     });
@@ -85,10 +102,25 @@ describe('runWizard step plan', () => {
       cwd: '/repo',
       agent: 'codex',
       perApp: [
-        { appPath: '/repo/apps/web', framework: 'vite' },
-        { appPath: '/repo/apps/api', framework: 'webpack' },
+        { appPath: '/repo/apps/web', framework: 'react-vite' },
+        { appPath: '/repo/apps/api', framework: 'vue-webpack' },
       ],
     });
+    expect(internal.installFrameworkPlugin).toHaveBeenCalledTimes(2);
+    expect(internal.installFrameworkPlugin).toHaveBeenNthCalledWith(
+      1,
+      '/repo/apps/web',
+      'react-vite',
+      '/repo',
+      expect.any(Function),
+    );
+    expect(internal.installFrameworkPlugin).toHaveBeenNthCalledWith(
+      2,
+      '/repo/apps/api',
+      'vue-webpack',
+      '/repo',
+      expect.any(Function),
+    );
   });
 
   it('zero apps detected: 3-step counter (agent + manual path + framework)', async () => {
@@ -110,10 +142,11 @@ describe('runWizard step plan', () => {
       'Schritt 2/3',
     );
     expect(internal.pickFramework).toHaveBeenCalledWith('Schritt 3/3');
+    // FrameworkChoice 'vite' is mapped to FrameworkId 'other-vite' in Phase 6.
     expect(internal.writeWizardConfig).toHaveBeenCalledWith({
       cwd: '/repo',
       agent: 'codex',
-      perApp: [{ appPath: '/manual/path', framework: 'vite' }],
+      perApp: [{ appPath: '/manual/path', framework: 'other-vite' }],
     });
   });
 });
@@ -137,8 +170,8 @@ describe('runWizard cancellation', () => {
     // Arrange
     const internal = makeInternalDeps({
       detectApps: vi.fn(() => [
-        { path: '/repo/apps/web', framework: 'vite' },
-        { path: '/repo/apps/api', framework: 'webpack' },
+        { path: '/repo/apps/web', framework: 'react-vite' as const },
+        { path: '/repo/apps/api', framework: 'vue-webpack' as const },
       ]),
       pickAppRoot: vi.fn(async () => undefined),
     });
@@ -155,8 +188,8 @@ describe('runWizard cancellation', () => {
     // Arrange
     const internal = makeInternalDeps({
       detectApps: vi.fn(() => [
-        { path: '/repo/apps/web', framework: 'vite' },
-        { path: '/repo/apps/api', framework: 'webpack' },
+        { path: '/repo/apps/web', framework: 'react-vite' as const },
+        { path: '/repo/apps/api', framework: 'vue-webpack' as const },
       ]),
       pickAppRoot: vi.fn(async () => []),
     });
@@ -188,7 +221,7 @@ describe('runWizard reconfigure flow', () => {
   it('shows reconfigure prompt when picked app already has config; "Überschreiben" continues', async () => {
     // Arrange
     const internal = makeInternalDeps({
-      detectApps: vi.fn(() => [{ path: '/repo', framework: 'vite' }]),
+      detectApps: vi.fn(() => [{ path: '/repo', framework: 'react-vite' as const }]),
       pickAppRoot: vi.fn(async () => ['/repo']),
       detectExistingConfigs: vi.fn(async () => ['/repo']),
       showInformationMessage: vi.fn(async () => 'Überschreiben'),
@@ -209,7 +242,7 @@ describe('runWizard reconfigure flow', () => {
   it('cancels when user picks "Abbrechen" on reconfigure prompt', async () => {
     // Arrange
     const internal = makeInternalDeps({
-      detectApps: vi.fn(() => [{ path: '/repo', framework: 'vite' }]),
+      detectApps: vi.fn(() => [{ path: '/repo', framework: 'react-vite' as const }]),
       pickAppRoot: vi.fn(async () => ['/repo']),
       detectExistingConfigs: vi.fn(async () => ['/repo']),
       showInformationMessage: vi.fn(async () => 'Abbrechen'),
@@ -225,7 +258,7 @@ describe('runWizard reconfigure flow', () => {
   it('skips reconfigure prompt when no picked app has existing config', async () => {
     // Arrange
     const internal = makeInternalDeps({
-      detectApps: vi.fn(() => [{ path: '/repo', framework: 'vite' }]),
+      detectApps: vi.fn(() => [{ path: '/repo', framework: 'react-vite' as const }]),
       pickAppRoot: vi.fn(async () => ['/repo']),
       detectExistingConfigs: vi.fn(async () => []),
     });
@@ -246,7 +279,7 @@ describe('runWizard error handling', () => {
     // Arrange
     const userDeps = makeUserDeps();
     const internal = makeInternalDeps({
-      detectApps: vi.fn(() => [{ path: '/repo', framework: 'vite' }]),
+      detectApps: vi.fn(() => [{ path: '/repo', framework: 'react-vite' as const }]),
       pickAppRoot: vi.fn(async () => ['/repo']),
       writeWizardConfig: vi.fn(async () => {
         throw new Error('disk full');
@@ -267,12 +300,103 @@ describe('runWizard error handling', () => {
   });
 });
 
+describe('runWizard Phase 7.5 — framework plugin install', () => {
+  it('calls installFrameworkPlugin once per app in perApp with correct args', async () => {
+    // Arrange
+    const internal = makeInternalDeps({
+      detectApps: vi.fn(() => [{ path: '/repo/apps/web', framework: 'react-vite' as const }]),
+      pickAppRoot: vi.fn(async () => ['/repo/apps/web']),
+    });
+
+    // Act
+    await runWizard('/repo', makeUserDeps(), internal);
+
+    // Assert
+    expect(internal.installFrameworkPlugin).toHaveBeenCalledTimes(1);
+    expect(internal.installFrameworkPlugin).toHaveBeenCalledWith(
+      '/repo/apps/web',
+      'react-vite',
+      '/repo',
+      expect.any(Function),
+    );
+  });
+
+  it('shows error message with "Output anzeigen" when install-failed; post-install still runs', async () => {
+    // Arrange
+    const internal = makeInternalDeps({
+      detectApps: vi.fn(() => [{ path: '/repo', framework: 'react-vite' as const }]),
+      pickAppRoot: vi.fn(async () => ['/repo']),
+      installFrameworkPlugin: vi.fn(async () => ({
+        status: 'install-failed' as const,
+        framework: 'react-vite' as const,
+        appPath: '/repo',
+        detail: 'ENOENT',
+      })),
+      showErrorMessage: vi.fn(async () => undefined),
+    });
+
+    // Act
+    await runWizard('/repo', makeUserDeps(), internal);
+
+    // Assert — error message contains expected strings
+    expect(internal.showErrorMessage).toHaveBeenCalledWith(
+      expect.stringContaining('Plugin-Setup fehlgeschlagen'),
+      'Output anzeigen',
+    );
+
+    // Assert — post-install still runs after failure
+    expect(internal.runPostInstall).toHaveBeenCalled();
+  });
+
+  it('calls outputShow when user picks "Output anzeigen" in the failure toast', async () => {
+    // Arrange
+    const internal = makeInternalDeps({
+      detectApps: vi.fn(() => [{ path: '/repo', framework: 'react-vite' as const }]),
+      pickAppRoot: vi.fn(async () => ['/repo']),
+      installFrameworkPlugin: vi.fn(async () => ({
+        status: 'install-failed' as const,
+        framework: 'react-vite' as const,
+        appPath: '/repo',
+        detail: 'ENOENT',
+      })),
+      showErrorMessage: vi.fn(async () => 'Output anzeigen'),
+    });
+
+    // Act
+    await runWizard('/repo', makeUserDeps(), internal);
+
+    // Assert
+    expect(internal.outputShow).toHaveBeenCalled();
+  });
+
+  it('does not show error message when all installs succeed', async () => {
+    // Arrange
+    const internal = makeInternalDeps({
+      detectApps: vi.fn(() => [{ path: '/repo', framework: 'react-vite' as const }]),
+      pickAppRoot: vi.fn(async () => ['/repo']),
+      installFrameworkPlugin: vi.fn(async () => ({
+        status: 'patched' as const,
+        framework: 'react-vite' as const,
+        appPath: '/repo',
+      })),
+    });
+
+    // Act
+    await runWizard('/repo', makeUserDeps(), internal);
+
+    // Assert — showErrorMessage not called for plugin-setup failure
+    const calls = (internal.showErrorMessage as ReturnType<typeof vi.fn>).mock.calls;
+    const pluginFailureCall = calls.find((c) => c[0]?.includes?.('Plugin-Setup'));
+    expect(pluginFailureCall).toBeUndefined();
+  });
+});
+
 describe('runWizard concurrency lock', () => {
   it('prevents concurrent invocations for same cwd', async () => {
     // Arrange
     let agentResolve: ((v: 'codex') => void) | null = null;
     const internal = makeInternalDeps({
-      detectApps: vi.fn(() => [{ path: '/repo', framework: 'vite' }]),
+      detectApps: vi.fn(() => [{ path: '/repo', framework: 'react-vite' as const }]),
       pickAppRoot: vi.fn(async () => ['/repo']),
       pickAgent: vi.fn(
         () =>

@@ -9,7 +9,8 @@ import path from 'node:path';
 
 import * as vscode from 'vscode';
 
-import type { DetectedApp } from './app-detection.js';
+import { FRAMEWORKS } from './app-detection.js';
+import type { DetectedApp, FrameworkId } from './app-detection.js';
 
 interface AppQuickPickItem {
   readonly label: string;
@@ -33,6 +34,10 @@ export interface MonorepoStepDeps {
     readonly prompt?: string;
     readonly value?: string;
   }) => Promise<string | undefined>;
+}
+
+function frameworkLabel(id: FrameworkId): string {
+  return FRAMEWORKS.find((f) => f.id === id)?.label ?? id;
 }
 
 const DEFAULT_DEPS: MonorepoStepDeps = {
@@ -67,7 +72,7 @@ export async function pickAppRoot(
   if (apps.length > 1) {
     const items: AppQuickPickItem[] = apps.map((app) => ({
       label: path.relative(cwd, app.path) || path.basename(app.path),
-      description: app.framework,
+      description: frameworkLabel(app.framework),
       picked: true,
       value: app.path,
     }));

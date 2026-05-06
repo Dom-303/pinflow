@@ -36,6 +36,7 @@ function makeInternalDeps(
     ),
     outputAppend: vi.fn(),
     outputShow: vi.fn(),
+    setLongInstallTimer: vi.fn((_cb: () => void, _ms: number) => vi.fn()),
     ...overrides,
   };
 }
@@ -321,7 +322,7 @@ describe('runWizard Phase 7.5 — framework plugin install', () => {
     );
   });
 
-  it('shows error message with "Output anzeigen" when install-failed; post-install still runs', async () => {
+  it('shows error message with retry/output/close actions when install-failed; post-install still runs', async () => {
     // Arrange
     const internal = makeInternalDeps({
       detectApps: vi.fn(() => [{ path: '/repo', framework: 'react-vite' as const }]),
@@ -341,7 +342,9 @@ describe('runWizard Phase 7.5 — framework plugin install', () => {
     // Assert — error message contains expected strings
     expect(internal.showErrorMessage).toHaveBeenCalledWith(
       expect.stringContaining('Plugin-Setup fehlgeschlagen'),
+      'Erneut versuchen',
       'Output anzeigen',
+      'Schließen',
     );
 
     // Assert — post-install still runs after failure
@@ -367,6 +370,193 @@ describe('runWizard Phase 7.5 — framework plugin install', () => {
 
     // Assert
     expect(internal.outputShow).toHaveBeenCalled();
+  });
+
+  it('retry succeeds on second attempt: installFrameworkPlugin called twice, runPostInstall called', async () => {
+    // Arrange
+    const installMock = vi.fn()
+      .mockResolvedValueOnce({ status: 'install-failed' as const, framework: 'react-vite' as const, appPath: '/repo', detail: 'ENOENT' })
+      .mockResolvedValueOnce({ status: 'patched' as const, framework: 'react-vite' as const, appPath: '/repo' });
+
+    const internal = makeInternalDeps({
+      detectApps: vi.fn(() => [{ path: '/repo', framework: 'react-vite' as const }]),
+      pickAppRoot: vi.fn(async () => ['/repo']),
+      installFrameworkPlugin: installMock,
+      showErrorMessage: vi.fn(async () => 'Erneut versuchen'),
+    });
+
+    // Act
+    await runWizard('/repo', makeUserDeps(), internal);
+
+    // Assert — install called once in original loop, once in retry
+    expect(installMock).toHaveBeenCalledTimes(2);
+    // Assert — success path: runPostInstall runs
+    expect(internal.runPostInstall).toHaveBeenCalled();
+  });
+
+  it('retry-only-failed-apps: only the failed app is retried, not the successful sibling', async () => {
+    // Arrange
+    // app1 succeeds on first call; app2 fails on first call, succeeds on retry
+    const installMock = vi.fn()
+      .mockImplementation(async (appPath: string) => {
+        if (appPath === '/repo/apps/web') {
+          return { status: 'patched' as const, framework: 'react-vite' as const, appPath: '/repo/apps/web' };
+        }
+        // app2 fails first time, succeeds on retry (second call)
+        const callsForApp2 = installMock.mock.calls.filter((c) => c[0] === '/repo/apps/api').length;
+        if (callsForApp2 <= 1) {
+          return { status: 'install-failed' as const, framework: 'vue-webpack' as const, appPath: '/repo/apps/api', detail: 'ENOENT' };
+        }
+        return { status: 'patched' as const, framework: 'vue-webpack' as const, appPath: '/repo/apps/api' };
+      });
+
+    const internal = makeInternalDeps({
+      detectApps: vi.fn(() => [
+        { path: '/repo/apps/web', framework: 'react-vite' as const },
+        { path: '/repo/apps/api', framework: 'vue-webpack' as const },
+      ]),
+      pickAppRoot: vi.fn(async () => ['/repo/apps/web', '/repo/apps/api']),
+      installFrameworkPlugin: installMock,
+      showErrorMessage: vi.fn(async () => 'Erneut versuchen'),
+    });
+
+    // Act
+    await runWizard('/repo', makeUserDeps(), internal);
+
+    // Assert — original loop called install for both apps
+    const allCalls = installMock.mock.calls;
+    const originalLoopCalls = allCalls.slice(0, 2);
+    expect(originalLoopCalls[0][0]).toBe('/repo/apps/web');
+    expect(originalLoopCalls[1][0]).toBe('/repo/apps/api');
+
+    // Assert — retry only called install for app2 (the failed one)
+    const retryCalls = allCalls.slice(2);
+    expect(retryCalls).toHaveLength(1);
+    expect(retryCalls[0][0]).toBe('/repo/apps/api');
+  });
+
+  it('3-retry cap: after 3rd retry fails, toast has no retry button; install called 4 times total', async () => {
+    // Arrange
+    const installMock = vi.fn(async () => ({
+      status: 'install-failed' as const,
+      framework: 'react-vite' as const,
+      appPath: '/repo',
+      detail: 'ENOENT',
+    }));
+
+    // First 3 showErrorMessage calls return 'Erneut versuchen'; 4th is the cap toast
+    const showErrorMock = vi.fn()
+      .mockResolvedValueOnce('Erneut versuchen')
+      .mockResolvedValueOnce('Erneut versuchen')
+      .mockResolvedValueOnce('Erneut versuchen')
+      .mockResolvedValueOnce(undefined);
+
+    const internal = makeInternalDeps({
+      detectApps: vi.fn(() => [{ path: '/repo', framework: 'react-vite' as const }]),
+      pickAppRoot: vi.fn(async () => ['/repo']),
+      installFrameworkPlugin: installMock,
+      showErrorMessage: showErrorMock,
+    });
+
+    // Act
+    await runWizard('/repo', makeUserDeps(), internal);
+
+    // Assert — install was called 4 times (original + 3 retries)
+    expect(installMock).toHaveBeenCalledTimes(4);
+
+    // Assert — 4th toast (after 3 retries exhausted) has no retry button
+    const fourthToastCall = showErrorMock.mock.calls[3];
+    expect(fourthToastCall).toBeDefined();
+    expect(fourthToastCall).not.toContain('Erneut versuchen');
+    expect(fourthToastCall).toContain('Output anzeigen');
+    expect(fourthToastCall).toContain('Schließen');
+  });
+
+  it('long-install hint fires: report called with Output-anzeigen hint when timer callback invoked', async () => {
+    // Arrange
+    let capturedHintCallback: (() => void) | undefined;
+    const cancelFn = vi.fn();
+    const setLongInstallTimer = vi.fn((cb: () => void, _ms: number) => {
+      capturedHintCallback = cb;
+      return cancelFn;
+    });
+
+    let capturedReport: ((p: { message?: string }) => void) | undefined;
+    const withProgress = vi.fn(async (_title: string, task: (report: (p: { message?: string; increment?: number }) => void) => Promise<unknown>) => {
+      const report = vi.fn();
+      capturedReport = report;
+      await task(report);
+    });
+
+    const internal = makeInternalDeps({
+      detectApps: vi.fn(() => [{ path: '/repo', framework: 'react-vite' as const }]),
+      pickAppRoot: vi.fn(async () => ['/repo']),
+      withProgress,
+      setLongInstallTimer,
+    });
+
+    // Act
+    await runWizard('/repo', makeUserDeps(), internal);
+
+    // Manually fire the hint callback (simulates the 30s timer elapsing)
+    capturedHintCallback?.();
+
+    // Assert — report was called with the hint message containing 'Output anzeigen'
+    expect(capturedReport).toBeDefined();
+    const hintCall = (capturedReport as ReturnType<typeof vi.fn>).mock.calls.find(
+      (c) => c[0]?.message?.includes('Output anzeigen'),
+    );
+    expect(hintCall).toBeDefined();
+  });
+
+  it('long-install timer is cleared on success: cancel function called after install completes', async () => {
+    // Arrange
+    const cancelFn = vi.fn();
+    const setLongInstallTimer = vi.fn((_cb: () => void, _ms: number) => cancelFn);
+
+    const internal = makeInternalDeps({
+      detectApps: vi.fn(() => [{ path: '/repo', framework: 'react-vite' as const }]),
+      pickAppRoot: vi.fn(async () => ['/repo']),
+      setLongInstallTimer,
+    });
+
+    // Act
+    await runWizard('/repo', makeUserDeps(), internal);
+
+    // Assert — cancel function was called (timer was cleared)
+    expect(cancelFn).toHaveBeenCalled();
+  });
+
+  it('long-install timer is cleared on retry success: each attempt clears its own timer', async () => {
+    // Arrange
+    const cancelFns = [vi.fn(), vi.fn()];
+    let timerCallCount = 0;
+    const setLongInstallTimer = vi.fn((_cb: () => void, _ms: number) => {
+      const fn = cancelFns[timerCallCount] ?? vi.fn();
+      timerCallCount += 1;
+      return fn;
+    });
+
+    const installMock = vi.fn()
+      .mockResolvedValueOnce({ status: 'install-failed' as const, framework: 'react-vite' as const, appPath: '/repo', detail: 'ENOENT' })
+      .mockResolvedValueOnce({ status: 'patched' as const, framework: 'react-vite' as const, appPath: '/repo' });
+
+    const internal = makeInternalDeps({
+      detectApps: vi.fn(() => [{ path: '/repo', framework: 'react-vite' as const }]),
+      pickAppRoot: vi.fn(async () => ['/repo']),
+      installFrameworkPlugin: installMock,
+      showErrorMessage: vi.fn(async () => 'Erneut versuchen'),
+      setLongInstallTimer,
+    });
+
+    // Act
+    await runWizard('/repo', makeUserDeps(), internal);
+
+    // Assert — setLongInstallTimer was called twice (once per attempt)
+    expect(setLongInstallTimer).toHaveBeenCalledTimes(2);
+    // Assert — both cancel functions were called
+    expect(cancelFns[0]).toHaveBeenCalled();
+    expect(cancelFns[1]).toHaveBeenCalled();
   });
 
   it('does not show error message when all installs succeed', async () => {

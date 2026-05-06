@@ -103,6 +103,8 @@ export interface WizardInternalDeps {
   ) => Promise<T>;
   readonly outputAppend: (line: string) => void;
   readonly outputShow: () => void;
+  /** Schedules a one-shot callback after `ms` milliseconds. Returns a cancel function. */
+  readonly setLongInstallTimer: (callback: () => void, ms: number) => () => void;
 }
 
 const DEFAULT_INTERNAL_DEPS: WizardInternalDeps = {
@@ -175,6 +177,10 @@ const DEFAULT_INTERNAL_DEPS: WizardInternalDeps = {
     ) as Promise<T>,
   outputAppend: (line) => getOutputChannel().appendLine(line),
   outputShow: () => getOutputChannel().show(true),
+  setLongInstallTimer: (cb, ms) => {
+    const id = setTimeout(cb, ms);
+    return () => clearTimeout(id);
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -322,39 +328,94 @@ async function runWizardSteps(
   }
 
   // Phase 7.5 — install + auto-patch framework plugin per app.
-  const failures: FrameworkPluginResult[] = [];
   const headerSep = '═════════════════════════════════════════════════════════';
   internal.outputAppend(`\n${headerSep}`);
   internal.outputAppend(`PinFlow Setup · ${new Date().toISOString()} · ${cwd}`);
   internal.outputAppend(headerSep);
 
-  await internal.withProgress(
-    'PinFlow: Plugin einrichten',
-    async (report) => {
-      for (let i = 0; i < perApp.length; i++) {
-        const entry = perApp[i];
-        const rel = path.relative(cwd, entry.appPath) || path.basename(entry.appPath);
-        report({ message: `(${i + 1}/${perApp.length}) ${rel}` });
-        const result = await internal.installFrameworkPlugin(
-          entry.appPath,
-          entry.framework,
-          cwd,
-          (line) => internal.outputAppend(`[${rel}] ${line}`),
-        );
-        if (result.status === 'install-failed') failures.push(result);
-      }
-    },
-  );
+  /**
+   * Runs the install loop for the given subset of perApp entries.
+   * Returns the entries that failed with `install-failed`.
+   */
+  async function runInstallLoop(
+    entries: { readonly appPath: string; readonly framework: FrameworkId }[],
+  ): Promise<FrameworkPluginResult[]> {
+    const attemptFailures: FrameworkPluginResult[] = [];
 
-  if (failures.length > 0) {
-    const apps = failures
+    await internal.withProgress(
+      'PinFlow: Plugin einrichten',
+      async (report) => {
+        // Track the most-recent base message so the hint can append to it.
+        let currentBaseMessage = '';
+
+        const cancelHint = internal.setLongInstallTimer(() => {
+          report({
+            message: `${currentBaseMessage} · Bei langsamer Verbindung kann das dauern. Output anzeigen: View → Output → PinFlow Setup`,
+          });
+        }, 30_000);
+
+        try {
+          for (let i = 0; i < entries.length; i++) {
+            const entry = entries[i];
+            const rel = path.relative(cwd, entry.appPath) || path.basename(entry.appPath);
+            currentBaseMessage = `(${i + 1}/${entries.length}) ${rel}`;
+            report({ message: currentBaseMessage });
+            const result = await internal.installFrameworkPlugin(
+              entry.appPath,
+              entry.framework,
+              cwd,
+              (line) => internal.outputAppend(`[${rel}] ${line}`),
+            );
+            if (result.status === 'install-failed') attemptFailures.push(result);
+          }
+        } finally {
+          cancelHint();
+        }
+      },
+    );
+
+    return attemptFailures;
+  }
+
+  // Run the initial install attempt.
+  let currentFailures = await runInstallLoop(perApp);
+
+  // Retry loop — hard cap of 3 retries.
+  const MAX_RETRIES = 3;
+  let retryCount = 0;
+
+  while (currentFailures.length > 0) {
+    const failedApps = currentFailures
       .map((f) => path.relative(cwd, f.appPath) || path.basename(f.appPath))
       .join(', ');
+
+    const retryAllowed = retryCount < MAX_RETRIES;
+    const actions: string[] = retryAllowed
+      ? ['Erneut versuchen', 'Output anzeigen', 'Schließen']
+      : ['Output anzeigen', 'Schließen'];
+
     const action = await internal.showErrorMessage(
-      `Plugin-Setup fehlgeschlagen für: ${apps}.`,
-      'Output anzeigen',
+      `Plugin-Setup fehlgeschlagen für: ${failedApps}.`,
+      ...actions,
     );
-    if (action === 'Output anzeigen') internal.outputShow();
+
+    if (action === 'Output anzeigen') {
+      internal.outputShow();
+      break;
+    }
+
+    if (action === 'Erneut versuchen') {
+      retryCount += 1;
+      // Retry only the failed entries from the previous attempt.
+      const failedEntries = perApp.filter((entry) =>
+        currentFailures.some((f) => f.appPath === entry.appPath),
+      );
+      currentFailures = await runInstallLoop(failedEntries);
+      continue;
+    }
+
+    // 'Schließen' or dismissed — stop.
+    break;
   }
 
   // Phase 8 — refresh + post-install (runs even if Phase 7.5 had failures).

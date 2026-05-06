@@ -4,6 +4,7 @@ import path from 'node:path';
 
 import {
   expandToCandidateFolders,
+  expandToAllWorkspaceFolders,
   buildPerFolderState,
   pickActiveFolder,
 } from './multi-folder-state.js';
@@ -104,5 +105,92 @@ describe('pickActiveFolder', () => {
     const active = pickActiveFolder(folders, '');
 
     expect(active).toBe('/a');
+  });
+});
+
+describe('expandToAllWorkspaceFolders', () => {
+  let tempUnconfiguredA: string;
+  let tempUnconfiguredB: string;
+  let tempConfiguredA: string;
+  let tempConfiguredB: string;
+  let tempRootWithNestedPinflow: string;
+
+  beforeEach(async () => {
+    tempUnconfiguredA = await mkdtemp(path.join(tmpdir(), 'pinflow-etawf-ua-'));
+    tempUnconfiguredB = await mkdtemp(path.join(tmpdir(), 'pinflow-etawf-ub-'));
+    tempConfiguredA = await mkdtemp(path.join(tmpdir(), 'pinflow-etawf-ca-'));
+    tempConfiguredB = await mkdtemp(path.join(tmpdir(), 'pinflow-etawf-cb-'));
+    tempRootWithNestedPinflow = await mkdtemp(path.join(tmpdir(), 'pinflow-etawf-rn-'));
+
+    await mkdir(path.join(tempConfiguredA, '.pinflow'), { recursive: true });
+    await mkdir(path.join(tempConfiguredB, '.pinflow'), { recursive: true });
+    await mkdir(path.join(tempRootWithNestedPinflow, 'app', '.pinflow'), { recursive: true });
+  });
+
+  afterEach(async () => {
+    await rm(tempUnconfiguredA, { recursive: true, force: true });
+    await rm(tempUnconfiguredB, { recursive: true, force: true });
+    await rm(tempConfiguredA, { recursive: true, force: true });
+    await rm(tempConfiguredB, { recursive: true, force: true });
+    await rm(tempRootWithNestedPinflow, { recursive: true, force: true });
+  });
+
+  it('returns all workspace folders when none are configured', () => {
+    // Arrange
+    const folders = [tempUnconfiguredA, tempUnconfiguredB];
+
+    // Act
+    const result = expandToAllWorkspaceFolders(folders);
+
+    // Assert
+    expect(result).toEqual(folders);
+  });
+
+  it('returns nested configured candidates plus unconfigured roots', () => {
+    // Arrange
+    const root1 = tempRootWithNestedPinflow;
+    const root2 = tempUnconfiguredB;
+
+    // Act
+    const result = expandToAllWorkspaceFolders([root1, root2]);
+
+    // Assert
+    expect(result).toEqual([path.join(root1, 'app'), root2]);
+  });
+
+  it('matches expandToCandidateFolders when all configured', () => {
+    // Arrange
+    const folders = [tempConfiguredA, tempConfiguredB];
+
+    // Act
+    const all = expandToAllWorkspaceFolders(folders);
+    const configured = expandToCandidateFolders(folders);
+
+    // Assert
+    expect(all).toEqual(configured);
+  });
+
+  it('dedupes when same path arrives via multiple inputs', () => {
+    // Arrange
+    const folders = [tempConfiguredA, tempConfiguredA];
+
+    // Act
+    const result = expandToAllWorkspaceFolders(folders);
+
+    // Assert
+    expect(result).toEqual([tempConfiguredA]);
+  });
+
+  it('preserves input order', () => {
+    // Arrange
+    const folders = [tempUnconfiguredB, tempConfiguredA, tempUnconfiguredA];
+
+    // Act
+    const result = expandToAllWorkspaceFolders(folders);
+
+    // Assert
+    expect(result[0]).toBe(tempUnconfiguredB);
+    expect(result[1]).toBe(tempConfiguredA);
+    expect(result[2]).toBe(tempUnconfiguredA);
   });
 });

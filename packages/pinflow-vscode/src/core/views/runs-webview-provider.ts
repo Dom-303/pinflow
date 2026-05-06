@@ -58,6 +58,10 @@ export class RunsWebviewProvider implements vscode.WebviewViewProvider {
         void webviewView.webview.postMessage(ack);
         return;
       }
+      if (message.type === 'webview:run-init') {
+        void vscode.commands.executeCommand('pinflow.runInit', message.folder);
+        return;
+      }
       if (message.type === 'run:open-prompt') {
         const snapshot = this.deps.getCurrentSnapshot();
         for (const runs of Object.values(snapshot.runsByFolder)) {

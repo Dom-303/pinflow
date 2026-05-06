@@ -1,5 +1,6 @@
 import { vi } from 'vitest';
 
+import { commands as vsCodeCommands } from '../../__test-utils__/vscode-stub.js';
 import type { PinFlowRunEvidence } from '../run-evidence.js';
 import { RunsWebviewProvider } from './runs-webview-provider.js';
 
@@ -246,6 +247,61 @@ describe('RunsWebviewProvider', () => {
     wb.sendFromWebview({ type: 'run:open-prompt', runId: 'r_2' });
 
     expect(onOpenPrompt).toHaveBeenCalledWith(sampleRun2);
+  });
+
+  it('forwards webview:run-init to pinflow.runInit command with folder argument', () => {
+    // Arrange
+    const wb = createMockWebview();
+    const view = createMockView(wb.webview);
+    const provider = new RunsWebviewProvider({
+      extensionUri: fakeUri as never,
+      onOpenPrompt: vi.fn(),
+      getCurrentSnapshot: () => ({ runsByFolder: {}, folderStatuses: {} }),
+      getCurrentSettings: () => ({ timeFormat: '24h' }),
+    });
+    provider.resolveWebviewView(
+      view as never,
+      { state: undefined } as never,
+      { isCancellationRequested: false } as never,
+    );
+    vsCodeCommands.executeCommand.mockClear();
+
+    // Act
+    wb.sendFromWebview({ type: 'webview:run-init', folder: '/repo/unconfigured' });
+
+    // Assert
+    expect(vsCodeCommands.executeCommand).toHaveBeenCalledWith(
+      'pinflow.runInit',
+      '/repo/unconfigured',
+    );
+  });
+
+  it('run:open-prompt still works after webview:run-init branch is added (smoke regression)', () => {
+    // Arrange
+    const wb = createMockWebview();
+    const view = createMockView(wb.webview);
+    const onOpenPrompt = vi.fn();
+    const runsByFolder = { '/repo': [sampleRun] };
+    const provider = new RunsWebviewProvider({
+      extensionUri: fakeUri as never,
+      onOpenPrompt,
+      getCurrentSnapshot: () => ({
+        runsByFolder,
+        folderStatuses: { '/repo': 'configured' as const },
+      }),
+      getCurrentSettings: () => ({ timeFormat: '24h' }),
+    });
+    provider.resolveWebviewView(
+      view as never,
+      { state: undefined } as never,
+      { isCancellationRequested: false } as never,
+    );
+
+    // Act
+    wb.sendFromWebview({ type: 'run:open-prompt', runId: 'r_1' });
+
+    // Assert
+    expect(onOpenPrompt).toHaveBeenCalledWith(sampleRun);
   });
 
   it('ignores malformed messages from the webview', () => {

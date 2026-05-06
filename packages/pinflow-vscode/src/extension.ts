@@ -515,11 +515,7 @@ export function activate(context: vscode.ExtensionContext): void {
         return {
           get: <T,>(key: string) => c.get<T>(key),
           update: async (key: string, value: unknown, target?: unknown) =>
-            c.update(
-              key,
-              value,
-              target as vscode.ConfigurationTarget | undefined,
-            ),
+            c.update(key, value, target as number | boolean | undefined),
         };
       },
       onDidChangeConfiguration: (listener) =>

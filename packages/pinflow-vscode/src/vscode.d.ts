@@ -210,6 +210,12 @@ declare module 'vscode' {
     readonly getText: () => string;
   }
 
+  export interface FileSystemWatcher extends Disposable {
+    onDidChange(listener: () => void): Disposable;
+    onDidCreate(listener: () => void): Disposable;
+    onDidDelete(listener: () => void): Disposable;
+  }
+
   export const workspace: {
     workspaceFolders?: Array<{ uri: { fsPath: string } }>;
     onDidChangeWorkspaceFolders(listener: (event: WorkspaceFoldersChangeEvent) => void): Disposable;
@@ -217,6 +223,7 @@ declare module 'vscode' {
       listener: (event: ConfigurationChangeEvent) => void,
     ): Disposable;
     getConfiguration(section?: string): WorkspaceConfiguration;
+    createFileSystemWatcher(globPattern: string): FileSystemWatcher;
     openTextDocument(uri: Uri): Thenable<TextDocument>;
     openTextDocument(options: { content?: string; language?: string }): Thenable<TextDocument>;
   };

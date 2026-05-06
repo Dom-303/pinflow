@@ -19,7 +19,8 @@ import type {
 } from '@pinflow/core';
 import type { RunnerSnapshot } from '@pinflow/relay/client';
 import type { AnnotationRunEvidenceResponse } from '@pinflow/relay/client';
-import { AnnotationStatusEnum, WS_EVENTS } from '@pinflow/core';
+import { AnnotationStatusEnum, WS_EVENTS, OverlaySettingsSchema } from '@pinflow/core';
+import type { OverlaySettings } from '@pinflow/core';
 import { BridgeDispatch } from '@pinflow/runtime';
 import type { DispatchChannel } from '../core/dispatch-config.js';
 
@@ -204,11 +205,55 @@ export class RelayService {
     // Update store with initial connection state
     this.store.setRelayConnection(true, port, host);
 
+    // Seed overlay settings from the relay (one-time HTTP GET).
+    const initialSettings = await this.fetchOverlaySettings();
+    if (initialSettings) {
+      this.store.applySyncedSettings(initialSettings);
+    }
+
+    // Subscribe to broadcasts for cross-tab sync.
+    this.unsubscribers.push(
+      this.wsClient.on(WS_EVENTS.OVERLAY_SETTINGS_UPDATED, (data: unknown) => {
+        try {
+          const settings = OverlaySettingsSchema.parse(data);
+          this.store.applySyncedSettings(settings);
+        } catch {
+          /* ignore malformed payload */
+        }
+      }),
+    );
+
     // Load initial annotations
     await this.refreshAnnotations();
     this.startStatusPolling();
 
     return true;
+  }
+
+  /**
+   * Fetch current overlay settings from the relay HTTP endpoint.
+   * Returns null on any failure — never throws.
+   */
+  private async fetchOverlaySettings(): Promise<OverlaySettings | null> {
+    const port = window.__PINFLOW_RELAY_PORT__;
+    const host = window.__PINFLOW_RELAY_HOST__ ?? '127.0.0.1';
+    if (!port) return null;
+    try {
+      const res = await fetch(`http://${host}:${port}/api/overlay-settings`);
+      if (!res.ok) return null;
+      const json = (await res.json()) as unknown;
+      return OverlaySettingsSchema.parse(json);
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Send a partial overlay-settings update to the relay.
+   * Called by the OverlayStore's user-driven setters; sync-driven setters MUST NOT call this.
+   */
+  requestSettingsUpdate(partial: Partial<OverlaySettings>): void {
+    this.wsClient?.send(WS_EVENTS.OVERLAY_SETTINGS_REQUEST, partial);
   }
 
   async refreshStatus(): Promise<void> {

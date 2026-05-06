@@ -716,6 +716,12 @@ export class OverlayStore {
     this.setState({ runnerStatus });
   }
 
+  // C.1.14 Task 4 placeholder — full impl in Task 5
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  applySyncedSettings(_settings: Partial<import('@pinflow/core').OverlaySettings>): void {
+    /* implemented in Task 5 */
+  }
+
   /**
    * Set hovered element during capture mode
    */

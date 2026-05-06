@@ -21,6 +21,7 @@ import type {
   OverlayTheme,
   PickerMode,
   CommentEntryMode,
+  SettingsTab,
   DispatchBatch,
   DispatchBatchStatus,
   UndoAction,
@@ -57,6 +58,7 @@ const DEFAULT_STATE: OverlayState = {
   theme: 'light',
   sidebarWidth: 360,
   tabOffsetY: 50,
+  activeTab: 'workspace',
   dispatchProjectDefaults: DEFAULT_DISPATCH_PROJECT_DEFAULTS,
   dispatchSession: DEFAULT_DISPATCH_SESSION_STATE,
   dispatchBatches: [],
@@ -111,14 +113,17 @@ export class OverlayStore {
   private static readonly DISPATCH_DEFAULTS_KEY = 'pinflow:dispatchDefaults';
   private static readonly PICKER_MODE_KEY = 'pinflow:pickerMode';
   private static readonly COMMENT_ENTRY_MODE_KEY = 'pinflow:commentEntryMode';
+  private static readonly MODE_KEY = 'pinflow:mode';
+  private static readonly ACTIVE_TAB_KEY = 'pinflow:activeTab';
 
   private constructor(options?: OverlayOptions) {
     this.state = {
       ...DEFAULT_STATE,
-      mode: options?.initialMode ?? 'collapsed',
+      mode: options?.initialMode ?? OverlayStore.loadMode(),
       theme: options?.initialTheme ?? OverlayStore.loadTheme(),
       pickerMode: OverlayStore.loadPickerMode(),
       commentEntryMode: OverlayStore.loadCommentEntryMode(),
+      activeTab: OverlayStore.loadActiveTab(),
       sidebarWidth: options?.sidebarWidth ?? 360,
       tabOffsetY: OverlayStore.loadTabOffsetY(),
       dispatchProjectDefaults: OverlayStore.loadDispatchProjectDefaults(),
@@ -188,6 +193,34 @@ export class OverlayStore {
     try {
       const stored = localStorage.getItem(OverlayStore.COMMENT_ENTRY_MODE_KEY);
       if (stored === 'workspace' || stored === 'inline') {
+        return stored;
+      }
+    } catch {
+      // localStorage unavailable
+    }
+    return 'workspace';
+  }
+
+  static loadMode(): OverlayMode {
+    try {
+      const stored = localStorage.getItem(OverlayStore.MODE_KEY);
+      if (stored === 'collapsed' || stored === 'expanded') {
+        return stored;
+      }
+    } catch {
+      // localStorage unavailable
+    }
+    return 'collapsed';
+  }
+
+  static loadActiveTab(): SettingsTab {
+    try {
+      const stored = localStorage.getItem(OverlayStore.ACTIVE_TAB_KEY);
+      if (
+        stored === 'workspace' ||
+        stored === 'flow' ||
+        stored === 'history'
+      ) {
         return stored;
       }
     } catch {
@@ -540,10 +573,35 @@ export class OverlayStore {
   // ============================================================================
 
   /**
-   * Set the overlay mode
+   * Set the overlay mode and persist if it is a durable mode.
+   * 'capturing' and 'mini' are transient — they are applied in-memory only.
    */
   setMode(mode: OverlayMode): void {
     this.setState({ mode });
+    this.persistMode(mode);
+  }
+
+  private persistMode(mode: OverlayMode): void {
+    if (mode !== 'collapsed' && mode !== 'expanded') {
+      return;
+    }
+    try {
+      localStorage.setItem(OverlayStore.MODE_KEY, mode);
+    } catch {
+      // localStorage unavailable
+    }
+  }
+
+  /**
+   * Set and persist the active settings tab
+   */
+  setActiveTab(tab: SettingsTab): void {
+    this.setState({ activeTab: tab });
+    try {
+      localStorage.setItem(OverlayStore.ACTIVE_TAB_KEY, tab);
+    } catch {
+      // localStorage unavailable
+    }
   }
 
   /**
@@ -552,13 +610,13 @@ export class OverlayStore {
   toggleSidebar(): void {
     const currentMode = this.state.mode;
     if (currentMode === 'collapsed') {
-      this.setState({ mode: 'expanded' });
+      this.setMode('expanded');
     } else if (
       currentMode === 'expanded' ||
       currentMode === 'mini' ||
       currentMode === 'capturing'
     ) {
-      this.setState({ mode: 'collapsed' });
+      this.setMode('collapsed');
     }
   }
 
@@ -572,6 +630,8 @@ export class OverlayStore {
       hoveredElement: null,
       inlineCommentDraft: null,
     });
+    // 'capturing' is transient — persistMode is a no-op for it
+    this.persistMode('capturing');
   }
 
   setPickerMode(pickerMode: PickerMode): void {
@@ -604,6 +664,7 @@ export class OverlayStore {
       hoveredElement: null,
       inlineCommentDraft: null,
     });
+    this.persistMode('expanded');
   }
 
   /**
@@ -681,6 +742,7 @@ export class OverlayStore {
       hoveredElement: null,
       inlineCommentDraft: null,
     });
+    this.persistMode('expanded');
 
     // Capture runtime context asynchronously
     try {
@@ -740,6 +802,7 @@ export class OverlayStore {
         pickerMode: 'element',
       },
     });
+    this.persistMode('capturing');
 
     await this.capturePrimaryContext(element);
 
@@ -769,6 +832,7 @@ export class OverlayStore {
       hoveredElement: null,
       inlineCommentDraft: null,
     });
+    this.persistMode('expanded');
 
     await this.capturePrimaryContext(primaryElement);
     await this.resolveManifestEntries(uniqueElements);
@@ -802,6 +866,7 @@ export class OverlayStore {
         pickerMode: 'multi',
       },
     });
+    this.persistMode('capturing');
 
     await this.capturePrimaryContext(primaryElement);
     await this.resolveManifestEntries(uniqueElements);
@@ -827,6 +892,7 @@ export class OverlayStore {
       hoveredElement: null,
       inlineCommentDraft: null,
     });
+    this.persistMode('expanded');
 
     if (primaryElement) {
       await this.capturePrimaryContext(primaryElement);
@@ -859,6 +925,7 @@ export class OverlayStore {
         pickerMode: 'region',
       },
     });
+    this.persistMode('capturing');
 
     if (primaryElement) {
       await this.capturePrimaryContext(primaryElement);
@@ -873,6 +940,7 @@ export class OverlayStore {
       mode: 'expanded',
       hoveredElement: null,
     });
+    this.persistMode('expanded');
   }
 
   /**
@@ -969,6 +1037,7 @@ export class OverlayStore {
         inlineCommentDraft: null,
         mode: 'expanded',
       });
+      this.persistMode('expanded');
       this.recordSubmittedAnnotation(annotation);
 
       // Clear the selected element so the user can pick a new one

@@ -1,58 +1,68 @@
 import { describe, it, expect } from 'vitest';
 
-import { generatePinflowConfigJson, type SnippetInput } from './snippets.js';
+import { generatePinflowConfigJson } from './snippets.js';
 
 describe('generatePinflowConfigJson', () => {
-  it('vite + codex produces correct JSON shape', () => {
+  it('writes appRoot as "." regardless of input.appRoot', () => {
     // Arrange
-    const input: SnippetInput = { agent: 'codex', framework: 'vite', appRoot: '.' };
+    const input = {
+      agent: 'codex' as const,
+      framework: 'vite' as const,
+      appRoot: '/anything/can/be/here',
+    };
 
     // Act
     const result = generatePinflowConfigJson(input);
-    const parsed = JSON.parse(result) as Record<string, unknown>;
+    const parsed = JSON.parse(result);
 
     // Assert
-    expect(parsed).toMatchObject({
-      appRoot: '.',
-      framework: 'vite',
-      runner: { provider: 'codex' },
-    });
+    expect(parsed.appRoot).toBe('.');
   });
 
-  it('webpack + claude-code produces runner.provider "claude"', () => {
+  it('maps agent="claude-code" to runner.provider="claude"', () => {
     // Arrange
-    const input: SnippetInput = { agent: 'claude-code', framework: 'webpack', appRoot: 'app' };
+    const input = {
+      agent: 'claude-code' as const,
+      framework: 'next' as const,
+      appRoot: '/repo',
+    };
 
     // Act
-    const result = generatePinflowConfigJson(input);
-    const parsed = JSON.parse(result) as Record<string, unknown>;
+    const result = JSON.parse(generatePinflowConfigJson(input));
 
     // Assert
-    expect((parsed as { runner: { provider: string } }).runner.provider).toBe('claude');
+    expect(result.runner.provider).toBe('claude');
   });
 
-  it('next + claude-code returns valid parseable JSON', () => {
+  it('maps agent="codex" to runner.provider="codex"', () => {
     // Arrange
-    const input: SnippetInput = { agent: 'claude-code', framework: 'next', appRoot: 'frontend' };
+    const input = {
+      agent: 'codex' as const,
+      framework: 'vite' as const,
+      appRoot: '/repo',
+    };
 
     // Act
-    const result = generatePinflowConfigJson(input);
+    const result = JSON.parse(generatePinflowConfigJson(input));
 
     // Assert
-    expect(() => JSON.parse(result)).not.toThrow();
-    const parsed = JSON.parse(result) as Record<string, unknown>;
-    expect(parsed).toHaveProperty('framework', 'next');
+    expect(result.runner.provider).toBe('codex');
   });
 
-  it('preserves relative appRoot value verbatim', () => {
+  it('writes framework verbatim', () => {
     // Arrange
-    const input: SnippetInput = { agent: 'other', framework: 'vite', appRoot: 'packages/web' };
+    const frameworks = ['vite', 'webpack', 'next', 'nuxt'] as const;
 
-    // Act
-    const result = generatePinflowConfigJson(input);
-    const parsed = JSON.parse(result) as Record<string, unknown>;
-
-    // Assert
-    expect(parsed).toHaveProperty('appRoot', 'packages/web');
+    // Act + Assert
+    for (const framework of frameworks) {
+      const result = JSON.parse(
+        generatePinflowConfigJson({
+          agent: 'codex',
+          framework,
+          appRoot: '/repo',
+        }),
+      );
+      expect(result.framework).toBe(framework);
+    }
   });
 });

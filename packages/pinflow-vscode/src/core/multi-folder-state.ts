@@ -27,10 +27,21 @@ export function expandToCandidateFolders(
   const expanded = workspaceFolders.flatMap((folder) =>
     getWorkspaceCandidateFolders(folder),
   );
-  return expanded.filter((folder) => {
+  // Dedupe by workspaceRoot so sub-folders that all walkUp to the same
+  // .pinflow/ collapse into one entry. Without this, a configured aluna/
+  // with N sub-folders renders N accordions all pointing to aluna.
+  const roots = new Set<string>();
+  const result: string[] = [];
+  for (const folder of expanded) {
     const status = getPinFlowWorkspaceStatus(folder);
-    return status.status !== 'not-configured';
-  });
+    if (status.status === 'not-configured') continue;
+    const root = status.workspaceRoot;
+    if (root && !roots.has(root)) {
+      roots.add(root);
+      result.push(root);
+    }
+  }
+  return result;
 }
 
 export function expandToAllWorkspaceFolders(

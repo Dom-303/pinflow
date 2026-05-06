@@ -46,6 +46,37 @@ describe('expandToCandidateFolders', () => {
 
     expect(result).toEqual([]);
   });
+
+  it('dedupes by workspaceRoot when sub-folders walk up to the same .pinflow/', async () => {
+    // Arrange — workspaceA configured at root, with several sub-folders that
+    // would otherwise each render as a distinct PerFolderState even though
+    // they all belong to the same configured project.
+    await mkdir(path.join(workspaceA, '.pinflow'), { recursive: true });
+    await mkdir(path.join(workspaceA, 'docs'), { recursive: true });
+    await mkdir(path.join(workspaceA, 'reports'), { recursive: true });
+    await mkdir(path.join(workspaceA, 'assets'), { recursive: true });
+
+    // Act
+    const result = expandToCandidateFolders([workspaceA]);
+
+    // Assert
+    expect(result).toEqual([workspaceA]);
+  });
+
+  it('keeps distinct entries when nested sub-folders have their own .pinflow/', async () => {
+    // Arrange — workspaceA has .pinflow/ at root AND a nested sub-app with its
+    // own .pinflow/ — these are two genuinely distinct PinFlow projects.
+    await mkdir(path.join(workspaceA, '.pinflow'), { recursive: true });
+    await mkdir(path.join(workspaceA, 'app', '.pinflow'), { recursive: true });
+
+    // Act
+    const result = expandToCandidateFolders([workspaceA]);
+
+    // Assert
+    expect(result).toContain(workspaceA);
+    expect(result).toContain(path.join(workspaceA, 'app'));
+    expect(result).toHaveLength(2);
+  });
 });
 
 describe('buildPerFolderState', () => {

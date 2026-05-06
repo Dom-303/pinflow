@@ -143,6 +143,9 @@ describe('VS Code extension manifest', () => {
       'pinflow.workspace.preferredFolder',
       'pinflow.preview.autoOpen',
       'pinflow.onboarding.mode',
+      'pinflow.overlay.theme',
+      'pinflow.overlay.pickerMode',
+      'pinflow.overlay.commentEntryMode',
     ]);
     expect(props['pinflow.refreshIntervalMs'].default).toBe(3000);
     expect(props['pinflow.refreshIntervalMs'].minimum).toBe(500);

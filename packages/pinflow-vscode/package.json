@@ -292,7 +292,8 @@
   },
   "dependencies": {
     "lit": "^3.1.0",
-    "@vscode/codicons": "^0.0.36"
+    "@vscode/codicons": "^0.0.36",
+    "@pinflow/core": "workspace:*"
   },
   "devDependencies": {
     "happy-dom": "^15.11.6"

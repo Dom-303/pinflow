@@ -19,6 +19,7 @@ import {
   AnnotationService,
   FileAnnotationStorage,
   RunnerSessionService,
+  createOverlaySettingsService,
 } from './services/index.js';
 import {
   registerManifestHandlers,
@@ -26,6 +27,7 @@ import {
   registerStatusHandler,
   registerHealthHandler,
   registerShutdownHandler,
+  createOverlaySettingsHandler,
   type StatusHandlerOptions,
 } from './handlers/index.js';
 import { createWSServer, type WSServer } from './ws-server.js';
@@ -127,10 +129,15 @@ export async function createRelayServer(
   const annotationService = new AnnotationService(annotationStorage);
   const runnerSessionService = new RunnerSessionService();
   const manifestReader = new ManifestReader(workspaceRoot);
+  const overlaySettingsService = createOverlaySettingsService({
+    workspaceRoot,
+    debug,
+  });
 
   // Initialize services
   await annotationService.initialize();
   manifestReader.initialize();
+  await overlaySettingsService.start();
 
   // Register handlers — statusOptions.port is updated after listen() to reflect the bound port
   const statusOptions: StatusHandlerOptions = {
@@ -144,11 +151,16 @@ export async function createRelayServer(
     app,
     annotationService,
     manifestReader,
+    overlaySettingsService,
     debug,
   });
 
   registerShutdownHandler(app);
   registerHealthHandler(app, manifestReader, annotationService);
+  app.get(
+    '/api/overlay-settings',
+    createOverlaySettingsHandler({ service: overlaySettingsService }),
+  );
   statusOptions.wsServer = ws;
   registerRoute(RunnerHeartbeatRoute, { app, runnerSessionService });
   registerStatusHandler(app, manifestReader, annotationService, statusOptions);
@@ -210,6 +222,7 @@ export async function createRelayServer(
     async stop() {
       ws.close();
       manifestReader.close();
+      await overlaySettingsService.close();
       await app.close();
     },
   };

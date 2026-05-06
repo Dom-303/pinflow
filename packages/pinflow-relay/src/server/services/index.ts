@@ -4,6 +4,10 @@
  */
 export { AnnotationService } from './annotation-service.js';
 export { RunnerSessionService } from './runner-session-service.js';
+export {
+  createOverlaySettingsService,
+  type OverlaySettingsService,
+} from './overlay-settings-service.js';
 export type {
   CreateAnnotationInput,
   ListAnnotationsOptions,

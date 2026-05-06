@@ -10,3 +10,7 @@ export {
 } from './status-handler.js';
 export { registerHealthHandler } from './health-handler.js';
 export { registerShutdownHandler } from './shutdown-handler.js';
+export {
+  createOverlaySettingsHandler,
+  type OverlaySettingsHandlerDeps,
+} from './overlay-settings-handler.js';

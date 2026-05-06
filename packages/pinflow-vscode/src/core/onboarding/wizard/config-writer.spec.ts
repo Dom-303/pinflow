@@ -28,8 +28,8 @@ describe('writeWizardConfig', () => {
       cwd: workdir,
       agent: 'codex',
       perApp: [
-        { appPath: appA, framework: 'vite' },
-        { appPath: appB, framework: 'webpack' },
+        { appPath: appA, framework: 'react-vite' },
+        { appPath: appB, framework: 'react-webpack' },
       ],
     });
 
@@ -52,7 +52,7 @@ describe('writeWizardConfig', () => {
     await writeWizardConfig({
       cwd: workdir,
       agent: 'codex',
-      perApp: [{ appPath: appA, framework: 'vite' }],
+      perApp: [{ appPath: appA, framework: 'react-vite' }],
     });
 
     // Assert
@@ -70,7 +70,7 @@ describe('writeWizardConfig', () => {
     await writeWizardConfig({
       cwd: workdir,
       agent: 'codex',
-      perApp: [{ appPath: appA, framework: 'vite' }],
+      perApp: [{ appPath: appA, framework: 'react-vite' }],
     });
 
     // Assert
@@ -88,7 +88,7 @@ describe('writeWizardConfig', () => {
     await writeWizardConfig({
       cwd: workdir,
       agent: 'codex',
-      perApp: [{ appPath: appA, framework: 'vite' }],
+      perApp: [{ appPath: appA, framework: 'vue-vite' }],
     });
 
     // Assert
@@ -108,7 +108,7 @@ describe('writeWizardConfig', () => {
     await writeWizardConfig({
       cwd: workdir,
       agent: 'codex',
-      perApp: [{ appPath: appA, framework: 'vite' }],
+      perApp: [{ appPath: appA, framework: 'other-vite' }],
     });
 
     // Assert
@@ -128,8 +128,8 @@ describe('writeWizardConfig', () => {
       cwd: workdir,
       agent: 'codex',
       perApp: [
-        { appPath: appA, framework: 'vite' },
-        { appPath: appB, framework: 'webpack' },
+        { appPath: appA, framework: 'react-vite' },
+        { appPath: appB, framework: 'vue-webpack' },
       ],
     });
 

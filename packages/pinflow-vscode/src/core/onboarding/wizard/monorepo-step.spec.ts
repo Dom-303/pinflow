@@ -11,7 +11,7 @@ describe('pickAppRoot', () => {
     // Act
     const result = await pickAppRoot(
       '/repo',
-      [{ path: '/repo/apps/web', framework: 'vite' }],
+      [{ path: '/repo/apps/web', framework: 'react-vite' }],
       'Schritt 2/3',
       { showQuickPick, showInputBox },
     );
@@ -34,8 +34,8 @@ describe('pickAppRoot', () => {
     const result = await pickAppRoot(
       '/repo',
       [
-        { path: '/repo/apps/web', framework: 'vite' },
-        { path: '/repo/apps/api', framework: 'webpack' },
+        { path: '/repo/apps/web', framework: 'react-vite' },
+        { path: '/repo/apps/api', framework: 'vue-webpack' },
       ],
       'Schritt 2/2',
       { showQuickPick, showInputBox },
@@ -45,8 +45,8 @@ describe('pickAppRoot', () => {
     expect(result).toEqual(['/repo/apps/web', '/repo/apps/api']);
     const [items, options] = showQuickPick.mock.calls[0];
     expect(items).toEqual([
-      { label: 'apps/web', description: 'vite', picked: true, value: '/repo/apps/web' },
-      { label: 'apps/api', description: 'webpack', picked: true, value: '/repo/apps/api' },
+      { label: 'apps/web', description: 'React + Vite', picked: true, value: '/repo/apps/web' },
+      { label: 'apps/api', description: 'Vue + Webpack', picked: true, value: '/repo/apps/api' },
     ]);
     expect(options.canPickMany).toBe(true);
     expect(options.title).toBe('PinFlow Setup · Schritt 2/2 — Apps auswählen');
@@ -64,8 +64,8 @@ describe('pickAppRoot', () => {
     const result = await pickAppRoot(
       '/repo',
       [
-        { path: '/repo/apps/web', framework: 'vite' },
-        { path: '/repo/apps/api', framework: 'webpack' },
+        { path: '/repo/apps/web', framework: 'react-vite' },
+        { path: '/repo/apps/api', framework: 'other-webpack' },
       ],
       'Schritt 2/3',
       { showQuickPick, showInputBox },
@@ -84,8 +84,8 @@ describe('pickAppRoot', () => {
     const result = await pickAppRoot(
       '/repo',
       [
-        { path: '/repo/apps/web', framework: 'vite' },
-        { path: '/repo/apps/api', framework: 'webpack' },
+        { path: '/repo/apps/web', framework: 'react-vite' },
+        { path: '/repo/apps/api', framework: 'vue-webpack' },
       ],
       'Schritt 2/3',
       { showQuickPick, showInputBox },
@@ -144,8 +144,8 @@ describe('pickAppRoot', () => {
     await pickAppRoot(
       '/repo',
       [
-        { path: '/repo/apps/web', framework: 'vite' },
-        { path: '/repo/apps/api', framework: 'webpack' },
+        { path: '/repo/apps/web', framework: 'react-vite' },
+        { path: '/repo/apps/api', framework: 'next' },
       ],
       '',
       { showQuickPick, showInputBox },
@@ -154,5 +154,27 @@ describe('pickAppRoot', () => {
     // Assert
     const [, options] = showQuickPick.mock.calls[0];
     expect(options.title).toBe('PinFlow Setup · Apps auswählen');
+  });
+
+  it('uses readable labels from FRAMEWORKS table in descriptions', async () => {
+    // Arrange
+    const showQuickPick = vi.fn().mockResolvedValue([]);
+    const showInputBox = vi.fn();
+
+    // Act
+    await pickAppRoot(
+      '/repo',
+      [
+        { path: '/repo/apps/web', framework: 'nuxt' },
+        { path: '/repo/apps/overlay', framework: 'other-vite' },
+      ],
+      '',
+      { showQuickPick, showInputBox },
+    );
+
+    // Assert
+    const [items] = showQuickPick.mock.calls[0];
+    expect(items[0].description).toBe('Nuxt');
+    expect(items[1].description).toBe('Other (Vite)');
   });
 });

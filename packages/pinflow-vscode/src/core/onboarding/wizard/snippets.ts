@@ -4,9 +4,11 @@
  * @module
  */
 
+import type { FrameworkId } from './app-detection.js';
+
 export interface SnippetInput {
   readonly agent: 'codex' | 'claude-code' | 'copilot' | 'other';
-  readonly framework: 'vite' | 'webpack' | 'next' | 'nuxt';
+  readonly framework: FrameworkId;
   readonly appRoot: string;
 }
 
@@ -14,6 +16,17 @@ type RunnerProvider = 'codex' | 'claude';
 
 function agentToProvider(agent: SnippetInput['agent']): RunnerProvider {
   return agent === 'claude-code' ? 'claude' : 'codex';
+}
+
+/**
+ * Map FrameworkId back to the legacy runtime bucket that
+ * `pinflow.config.json` and `@pinflow/core` schema accept.
+ */
+function frameworkBucket(id: FrameworkId): 'vite' | 'webpack' | 'next' | 'nuxt' {
+  if (id === 'next') return 'next';
+  if (id === 'nuxt') return 'nuxt';
+  if (id.endsWith('-vite')) return 'vite';
+  return 'webpack';
 }
 
 /**
@@ -31,7 +44,7 @@ function agentToProvider(agent: SnippetInput['agent']): RunnerProvider {
 export function generatePinflowConfigJson(input: SnippetInput): string {
   const config = {
     appRoot: '.',
-    framework: input.framework,
+    framework: frameworkBucket(input.framework),
     runner: {
       provider: agentToProvider(input.agent),
     },

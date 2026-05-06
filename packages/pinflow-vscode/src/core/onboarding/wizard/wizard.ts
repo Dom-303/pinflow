@@ -1,8 +1,8 @@
 /**
  * Wizard orchestrator — computes the step plan, runs the steps the user
  * needs to see, gates a reconfigure prompt when configs already exist,
- * writes one config per picked app, then triggers post-install. No spawn,
- * no terminal, no CLI dependency.
+ * writes one config per picked app, then installs the framework plugin
+ * and triggers post-install. No spawn, no terminal, no CLI dependency.
  * @module
  */
 import path from 'node:path';
@@ -17,12 +17,30 @@ import { pickFramework } from './framework-step.js';
 import { writeWizardConfig } from './config-writer.js';
 import { detectExistingConfigs } from './existing-configs.js';
 import { runPostInstall } from './post-install.js';
-import type { DetectedApp } from './app-detection.js';
+import { installFrameworkPlugin as installFrameworkPluginImpl } from './framework-plugin.js';
+import { detectPackageManager } from './package-manager.js';
+import { installPackage } from './package-installer.js';
+import { patchViteConfig } from './vite-config-patcher.js';
+import type { DetectedApp, FrameworkId } from './app-detection.js';
 import type { InstalledAgents } from './agent-detection.js';
 import type { AgentChoice } from './agent-step.js';
 import type { FrameworkChoice } from './framework-step.js';
 import type { WriteConfigBatchInput } from './config-writer.js';
 import type { RunPostInstallDeps } from './post-install.js';
+import type { FrameworkPluginResult } from './framework-plugin.js';
+
+// ---------------------------------------------------------------------------
+// Output channel lazy singleton
+// ---------------------------------------------------------------------------
+
+let cachedOutputChannel: vscode.OutputChannel | undefined;
+
+function getOutputChannel(): vscode.OutputChannel {
+  if (!cachedOutputChannel) {
+    cachedOutputChannel = vscode.window.createOutputChannel('PinFlow Setup');
+  }
+  return cachedOutputChannel;
+}
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -71,6 +89,20 @@ export interface WizardInternalDeps {
     sendText: (text: string) => void;
     show: () => void;
   };
+  readonly installFrameworkPlugin: (
+    appPath: string,
+    framework: FrameworkId,
+    workspaceRoot: string,
+    onOutput: (line: string) => void,
+  ) => Promise<FrameworkPluginResult>;
+  readonly withProgress: <T>(
+    title: string,
+    task: (
+      report: (progress: { message?: string; increment?: number }) => void,
+    ) => Promise<T>,
+  ) => Promise<T>;
+  readonly outputAppend: (line: string) => void;
+  readonly outputShow: () => void;
 }
 
 const DEFAULT_INTERNAL_DEPS: WizardInternalDeps = {
@@ -94,6 +126,55 @@ const DEFAULT_INTERNAL_DEPS: WizardInternalDeps = {
   showErrorMessage: (message, ...actions) =>
     vscode.window.showErrorMessage(message, ...actions),
   createTerminal: (options) => vscode.window.createTerminal(options),
+  installFrameworkPlugin: (appPath, framework, workspaceRoot, onOutput) =>
+    installFrameworkPluginImpl(appPath, framework, workspaceRoot, onOutput, {
+      detectPackageManager,
+      installPackage,
+      patchViteConfig,
+      showSnippetFallback: async ({ appPath, framework, snippet }) => {
+        // Try to open the config file for context; fall back to an untitled doc.
+        const configUri = vscode.Uri.file(path.join(appPath, 'vite.config.ts'));
+        try {
+          const doc = await vscode.workspace.openTextDocument(configUri);
+          await vscode.window.showTextDocument(doc, { preview: true });
+        } catch {
+          // Config file doesn't exist — open untitled with the snippet.
+          const untitled = await vscode.workspace.openTextDocument({
+            content: snippet,
+            language: 'typescript',
+          });
+          await vscode.window.showTextDocument(untitled);
+        }
+
+        const label = framework;
+        const action = await vscode.window.showInformationMessage(
+          `PinFlow: Bitte Snippet für ${label} manuell einfügen.`,
+          'Snippet kopieren',
+          'Snippet anzeigen',
+          'Verstanden',
+        );
+
+        if (action === 'Snippet kopieren') {
+          await vscode.env.clipboard.writeText(snippet);
+        } else if (action === 'Snippet anzeigen') {
+          const untitled = await vscode.workspace.openTextDocument({
+            content: snippet,
+            language: 'typescript',
+          });
+          await vscode.window.showTextDocument(untitled);
+        }
+      },
+    }),
+  withProgress: <T>(
+    title: string,
+    task: (report: (progress: { message?: string; increment?: number }) => void) => Promise<T>,
+  ): Promise<T> =>
+    vscode.window.withProgress(
+      { location: vscode.ProgressLocation.Notification, title },
+      (progress) => task((p) => progress.report(p)),
+    ) as Promise<T>,
+  outputAppend: (line) => getOutputChannel().appendLine(line),
+  outputShow: () => getOutputChannel().show(true),
 };
 
 // ---------------------------------------------------------------------------
@@ -214,14 +295,21 @@ async function runWizardSteps(
   if (plan.frameworkStepNeeded && manualFramework === undefined) return;
 
   // Phase 6 — assemble per-app config inputs.
-  const perApp = appRoots.map((appPath) => {
+  const perApp: { readonly appPath: string; readonly framework: FrameworkId }[] = appRoots.map((appPath) => {
     const detected = apps.find((a) => a.path === appPath)?.framework;
-    const framework = detected ?? manualFramework;
-    if (framework === undefined) {
+    const resolved = detected ?? manualFramework;
+    if (resolved === undefined) {
       // Cannot happen: detected apps always carry a framework, and the
       // manual-path branch sets manualFramework before reaching this point.
       throw new Error(`No framework resolved for app ${appPath}`);
     }
+    // Map FrameworkChoice bare values ('vite', 'webpack') to FrameworkId.
+    const framework: FrameworkId =
+      resolved === 'vite'
+        ? 'other-vite'
+        : resolved === 'webpack'
+          ? 'other-webpack'
+          : resolved;
     return { appPath, framework };
   });
 
@@ -233,7 +321,43 @@ async function runWizardSteps(
     return;
   }
 
-  // Phase 8 — refresh + post-install.
+  // Phase 7.5 — install + auto-patch framework plugin per app.
+  const failures: FrameworkPluginResult[] = [];
+  const headerSep = '═════════════════════════════════════════════════════════';
+  internal.outputAppend(`\n${headerSep}`);
+  internal.outputAppend(`PinFlow Setup · ${new Date().toISOString()} · ${cwd}`);
+  internal.outputAppend(headerSep);
+
+  await internal.withProgress(
+    'PinFlow: Plugin einrichten',
+    async (report) => {
+      for (let i = 0; i < perApp.length; i++) {
+        const entry = perApp[i];
+        const rel = path.relative(cwd, entry.appPath) || path.basename(entry.appPath);
+        report({ message: `(${i + 1}/${perApp.length}) ${rel}` });
+        const result = await internal.installFrameworkPlugin(
+          entry.appPath,
+          entry.framework,
+          cwd,
+          (line) => internal.outputAppend(`[${rel}] ${line}`),
+        );
+        if (result.status === 'install-failed') failures.push(result);
+      }
+    },
+  );
+
+  if (failures.length > 0) {
+    const apps = failures
+      .map((f) => path.relative(cwd, f.appPath) || path.basename(f.appPath))
+      .join(', ');
+    const action = await internal.showErrorMessage(
+      `Plugin-Setup fehlgeschlagen für: ${apps}.`,
+      'Output anzeigen',
+    );
+    if (action === 'Output anzeigen') internal.outputShow();
+  }
+
+  // Phase 8 — refresh + post-install (runs even if Phase 7.5 had failures).
   await deps.onSuccess();
 
   const postInstallDeps: RunPostInstallDeps = {
@@ -281,3 +405,4 @@ async function showFailureToast(
   const action = await internal.showErrorMessage(message, 'Terminal öffnen');
   if (action === 'Terminal öffnen') runInitInTerminal(cwd);
 }
+

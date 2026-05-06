@@ -1,79 +1,64 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 
 import { pickAgent } from './agent-step.js';
-import type { AgentStepDeps } from './agent-step.js';
-import type { InstalledAgents } from './agent-detection.js';
 
 describe('pickAgent', () => {
-  it('returns "codex" when user picks the Codex item', async () => {
+  it('shows German title and placeholder with step label', async () => {
     // Arrange
-    const deps: AgentStepDeps = {
-      showQuickPick: vi.fn().mockResolvedValue({ value: 'codex' }),
-    };
+    const showQuickPick = vi.fn().mockResolvedValue({ label: 'Codex', value: 'codex' });
 
     // Act
-    const result = await pickAgent(deps);
+    const result = await pickAgent({
+      showQuickPick,
+      stepLabel: 'Schritt 1/2',
+    });
 
     // Assert
     expect(result).toBe('codex');
+    const [, options] = showQuickPick.mock.calls[0];
+    expect(options.title).toBe('PinFlow Setup · Schritt 1/2 — Agent wählen');
+    expect(options.placeHolder).toBe('Wähle den Agent für dieses Projekt');
   });
 
-  it('returns "claude-code" when user picks the Claude Code item', async () => {
+  it('omits step prefix when stepLabel is undefined', async () => {
     // Arrange
-    const deps: AgentStepDeps = {
-      showQuickPick: vi.fn().mockResolvedValue({ value: 'claude-code' }),
-    };
+    const showQuickPick = vi.fn().mockResolvedValue(undefined);
 
     // Act
-    const result = await pickAgent(deps);
+    await pickAgent({ showQuickPick });
 
     // Assert
-    expect(result).toBe('claude-code');
+    const [, options] = showQuickPick.mock.calls[0];
+    expect(options.title).toBe('PinFlow Setup · Agent wählen');
   });
 
-  it('returns undefined when user cancels (showQuickPick returns undefined)', async () => {
+  it('reorders installed agents to the top with German badge', async () => {
     // Arrange
-    const deps: AgentStepDeps = {
-      showQuickPick: vi.fn().mockResolvedValue(undefined),
-    };
+    const showQuickPick = vi.fn().mockResolvedValue(undefined);
 
     // Act
-    const result = await pickAgent(deps);
+    await pickAgent({
+      showQuickPick,
+      installedAgents: { codex: false, 'claude-code': true, copilot: false },
+      stepLabel: 'Schritt 1/3',
+    });
+
+    // Assert
+    const [items] = showQuickPick.mock.calls[0];
+    const claudeItem = items.find((i: { value: string }) => i.value === 'claude-code');
+    expect(claudeItem.description).toBe('✓ installiert');
+    // Claude is reordered to the top
+    expect(items[0].value).toBe('claude-code');
+  });
+
+  it('returns undefined when user cancels', async () => {
+    // Arrange
+    const showQuickPick = vi.fn().mockResolvedValue(undefined);
+
+    // Act
+    const result = await pickAgent({ showQuickPick });
 
     // Assert
     expect(result).toBeUndefined();
-  });
-
-  it('title contains "Schritt 1/3"', async () => {
-    // Arrange
-    const showQuickPick = vi.fn().mockResolvedValue(undefined);
-    const deps: AgentStepDeps = { showQuickPick };
-
-    // Act
-    await pickAgent(deps);
-
-    // Assert
-    expect(showQuickPick).toHaveBeenCalledWith(
-      expect.anything(),
-      expect.objectContaining({ title: expect.stringContaining('Schritt 1/3') }),
-    );
-  });
-
-  it('installed agent appears first with "✓ installiert" description', async () => {
-    // Arrange
-    const installedAgents: InstalledAgents = { codex: false, 'claude-code': true, copilot: false };
-    const showQuickPick = vi.fn().mockResolvedValue(undefined);
-    const deps: AgentStepDeps = { showQuickPick, installedAgents };
-
-    // Act
-    await pickAgent(deps);
-
-    // Assert
-    const [items] = showQuickPick.mock.calls[0] as [readonly { label: string; description?: string; value: string }[], unknown];
-    expect(items[0].value).toBe('claude-code');
-    expect(items[0].description).toBe('✓ installiert');
-    // Non-installed items follow after
-    const restValues = items.slice(1).map((i) => i.value);
-    expect(restValues).not.toContain('claude-code');
   });
 });

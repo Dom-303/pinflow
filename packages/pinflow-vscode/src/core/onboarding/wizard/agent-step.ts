@@ -21,6 +21,7 @@ export interface AgentStepDeps {
     options?: { title?: string; placeHolder?: string },
   ) => Promise<AgentQuickPickItem | undefined>;
   readonly installedAgents?: InstalledAgents;
+  readonly stepLabel?: string;
 }
 
 const AGENT_ITEMS: readonly AgentQuickPickItem[] = [
@@ -64,10 +65,11 @@ function buildOrderedItems(installedAgents?: InstalledAgents): readonly AgentQui
  */
 export async function pickAgent(deps: AgentStepDeps = DEFAULT_DEPS): Promise<AgentChoice | undefined> {
   const items = buildOrderedItems(deps.installedAgents);
+  const titlePrefix = deps.stepLabel ? `${deps.stepLabel} — ` : '';
 
   const picked = await deps.showQuickPick(items, {
-    title: 'PinFlow Setup · Schritt 1/3 — Agent wählen',
-    placeHolder: 'Select the AI coding agent you use with this project',
+    title: `PinFlow Setup · ${titlePrefix}Agent wählen`,
+    placeHolder: 'Wähle den Agent für dieses Projekt',
   });
 
   return picked?.value;

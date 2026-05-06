@@ -49,4 +49,35 @@ describe('pickFramework', () => {
     // Assert
     expect(result).toBeUndefined();
   });
+
+  it('detected framework has "✓ erkannt" description and appears first', async () => {
+    // Arrange
+    const app: DetectedApp = { path: '/workspace/app', framework: 'vite' };
+    const showQuickPick = vi.fn().mockResolvedValue(undefined);
+    const deps: FrameworkStepDeps = { showQuickPick };
+
+    // Act
+    await pickFramework(app, deps);
+
+    // Assert
+    const [items] = showQuickPick.mock.calls[0] as [readonly { label: string; description?: string; value: string }[], unknown];
+    expect(items[0].value).toBe('vite');
+    expect(items[0].description).toBe('✓ erkannt');
+  });
+
+  it('placeholder shows fallback hint when nothing detected', async () => {
+    // Arrange
+    const app: DetectedApp = { path: '/workspace/app' }; // no framework
+    const showQuickPick = vi.fn().mockResolvedValue(undefined);
+    const deps: FrameworkStepDeps = { showQuickPick };
+
+    // Act
+    await pickFramework(app, deps);
+
+    // Assert
+    expect(showQuickPick).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ placeHolder: 'Konnte kein Framework erkennen — wähle manuell' }),
+    );
+  });
 });

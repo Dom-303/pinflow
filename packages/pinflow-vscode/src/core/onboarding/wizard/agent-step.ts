@@ -4,6 +4,8 @@
  */
 import * as vscode from 'vscode';
 
+import type { InstalledAgents } from './agent-detection.js';
+
 export type AgentChoice = 'codex' | 'claude-code' | 'copilot' | 'other';
 
 interface AgentQuickPickItem {
@@ -18,6 +20,7 @@ export interface AgentStepDeps {
     items: readonly AgentQuickPickItem[],
     options?: { title?: string; placeHolder?: string },
   ) => Promise<AgentQuickPickItem | undefined>;
+  readonly installedAgents?: InstalledAgents;
 }
 
 const AGENT_ITEMS: readonly AgentQuickPickItem[] = [
@@ -32,13 +35,38 @@ const DEFAULT_DEPS: AgentStepDeps = {
     vscode.window.showQuickPick([...items], options) as Promise<AgentQuickPickItem | undefined>,
 };
 
+function buildOrderedItems(installedAgents?: InstalledAgents): readonly AgentQuickPickItem[] {
+  if (!installedAgents) {
+    return AGENT_ITEMS;
+  }
+
+  const installed: AgentQuickPickItem[] = [];
+  const rest: AgentQuickPickItem[] = [];
+
+  for (const item of AGENT_ITEMS) {
+    const isInstalled = installedAgents[item.value as keyof InstalledAgents] === true;
+    if (isInstalled) {
+      installed.push({ ...item, description: '✓ installiert' });
+    } else {
+      rest.push(item);
+    }
+  }
+
+  return [...installed, ...rest];
+}
+
 /**
  * Show the agent-selection QuickPick and return the chosen agent ID, or
  * `undefined` if the user cancelled (Esc).
+ *
+ * Pass `installedAgents` via `deps` to surface detection badges and reorder
+ * installed agents to the top of the list.
  */
 export async function pickAgent(deps: AgentStepDeps = DEFAULT_DEPS): Promise<AgentChoice | undefined> {
-  const picked = await deps.showQuickPick(AGENT_ITEMS, {
-    title: 'Choose coding agent',
+  const items = buildOrderedItems(deps.installedAgents);
+
+  const picked = await deps.showQuickPick(items, {
+    title: 'PinFlow Setup · Schritt 1/3 — Agent wählen',
     placeHolder: 'Select the AI coding agent you use with this project',
   });
 

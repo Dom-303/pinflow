@@ -57,7 +57,7 @@ export async function pickAppRoot(
     }));
 
     const picked = await deps.showQuickPick(items, {
-      title: 'Select app root',
+      title: 'PinFlow Setup · Schritt 2/3 — App-Root wählen',
       placeHolder: 'Multiple package.json files found — choose the app to configure',
     });
 
@@ -66,7 +66,7 @@ export async function pickAppRoot(
 
   // No apps detected — ask user for manual path
   return deps.showInputBox({
-    title: 'Enter app root path',
+    title: 'PinFlow Setup · Schritt 2/3 — App-Root wählen',
     prompt: 'No package.json found automatically. Enter the path to your app root.',
     value: cwd,
   });

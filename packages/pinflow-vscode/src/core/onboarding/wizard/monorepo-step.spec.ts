@@ -82,4 +82,23 @@ describe('pickAppRoot', () => {
     // Assert
     expect(result).toBeUndefined();
   });
+
+  it('QuickPick title contains "Schritt 2/3"', async () => {
+    // Arrange
+    const apps: DetectedApp[] = [
+      { path: '/workspace/myproject/packages/a', framework: 'vite' },
+      { path: '/workspace/myproject/packages/b', framework: 'webpack' },
+    ];
+    const showQuickPick = vi.fn().mockResolvedValue(undefined);
+    const deps = makeDeps({ showQuickPick });
+
+    // Act
+    await pickAppRoot(CWD, apps, deps);
+
+    // Assert
+    expect(showQuickPick).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ title: expect.stringContaining('Schritt 2/3') }),
+    );
+  });
 });

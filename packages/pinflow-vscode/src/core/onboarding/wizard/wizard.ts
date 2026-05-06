@@ -9,14 +9,18 @@ import path from 'node:path';
 import * as vscode from 'vscode';
 
 import { detectApps } from './app-detection.js';
+import { detectInstalledAgents } from './agent-detection.js';
 import { pickAgent } from './agent-step.js';
 import { pickAppRoot } from './monorepo-step.js';
 import { pickFramework } from './framework-step.js';
 import { writeWizardConfig } from './config-writer.js';
+import { runPostInstall } from './post-install.js';
 import type { DetectedApp } from './app-detection.js';
+import type { InstalledAgents } from './agent-detection.js';
 import type { AgentChoice } from './agent-step.js';
 import type { FrameworkChoice } from './framework-step.js';
 import type { WriteConfigInput } from './config-writer.js';
+import type { RunPostInstallDeps } from './post-install.js';
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -36,37 +40,35 @@ export interface RunWizardDeps {
 /** Internal dependencies — injected for testing, defaults to real vscode bindings. */
 export interface WizardInternalDeps {
   readonly detectApps: (cwd: string) => DetectedApp[];
-  readonly pickAgent: () => Promise<AgentChoice | undefined>;
+  readonly detectInstalledAgents: () => Promise<InstalledAgents>;
+  readonly pickAgent: (installedAgents: InstalledAgents) => Promise<AgentChoice | undefined>;
   readonly pickAppRoot: (cwd: string, apps: readonly DetectedApp[]) => Promise<string | undefined>;
   readonly pickFramework: (detectedApp: DetectedApp) => Promise<FrameworkChoice | undefined>;
   readonly writeWizardConfig: (input: WriteConfigInput) => Promise<void>;
-  readonly showInformationMessage: (
-    message: string,
-    ...actions: string[]
-  ) => Promise<string | undefined>;
+  readonly runPostInstall: (agent: AgentChoice, cwd: string, postInstallDeps: RunPostInstallDeps) => Promise<void>;
   readonly showErrorMessage: (
     message: string,
     ...actions: string[]
   ) => Promise<string | undefined>;
-  readonly openExternal: (uri: unknown) => Promise<boolean>;
-  readonly parseUri: (url: string) => unknown;
+  readonly createTerminal: (options: { name: string; cwd: string }) => { sendText: (text: string) => void; show: () => void };
 }
-
-const AGENT_PLUGIN_DOCS_URL = 'https://github.com/Dom-303/pinflow#agent-plugins';
 
 const DEFAULT_INTERNAL_DEPS: WizardInternalDeps = {
   detectApps: (cwd) => detectApps(cwd),
-  pickAgent: () => pickAgent(),
+  detectInstalledAgents: () => detectInstalledAgents(),
+  pickAgent: (installedAgents) =>
+    pickAgent({
+      installedAgents,
+      showQuickPick: (items, options) =>
+        vscode.window.showQuickPick([...items], options) as Promise<(typeof items)[number] | undefined>,
+    }),
   pickAppRoot: (cwd, apps) => pickAppRoot(cwd, apps),
   pickFramework: (detectedApp) => pickFramework(detectedApp),
   writeWizardConfig: (input) => writeWizardConfig(input),
-  showInformationMessage: (message, ...actions) =>
-    vscode.window.showInformationMessage(message, ...actions),
+  runPostInstall: (agent, cwd, postInstallDeps) => runPostInstall(agent, cwd, postInstallDeps),
   showErrorMessage: (message, ...actions) =>
     vscode.window.showErrorMessage(message, ...actions),
-  openExternal: (uri) =>
-    vscode.env.openExternal(uri as Parameters<typeof vscode.env.openExternal>[0]),
-  parseUri: (url) => vscode.Uri.parse(url),
+  createTerminal: (options) => vscode.window.createTerminal(options),
 };
 
 // ---------------------------------------------------------------------------
@@ -108,11 +110,14 @@ async function runWizardSteps(
   deps: RunWizardDeps,
   internal: WizardInternalDeps,
 ): Promise<void> {
-  // Step 1 — detect apps
-  const apps = internal.detectApps(cwd);
+  // Step 1 — detect apps + installed agents in parallel (both pure and fast)
+  const [apps, installedAgents] = await Promise.all([
+    Promise.resolve(internal.detectApps(cwd)),
+    internal.detectInstalledAgents(),
+  ]);
 
-  // Step 2 — agent selection
-  const agent = await internal.pickAgent();
+  // Step 2 — agent selection (with installed-agent badges)
+  const agent = await internal.pickAgent(installedAgents);
   if (agent === undefined) return;
 
   // Step 3 — app-root selection
@@ -132,21 +137,23 @@ async function runWizardSteps(
     return;
   }
 
-  // Step 6 — notify caller + show success toast
+  // Step 6 — notify caller, then run post-install flow
   await deps.onSuccess();
-  showSuccessToast(cwd, internal);
-}
 
-function showSuccessToast(cwd: string, internal: WizardInternalDeps): void {
-  const folderName = path.basename(cwd);
-
-  void internal
-    .showInformationMessage(`PinFlow ready in ${folderName}.`, 'Install Agent Plugin')
-    .then((action) => {
-      if (action === 'Install Agent Plugin') {
-        void internal.openExternal(internal.parseUri(AGENT_PLUGIN_DOCS_URL));
+  const postInstallDeps: RunPostInstallDeps = {
+    runInstallInTerminal: (terminalCwd, commands, agentLabel) => {
+      const terminal = internal.createTerminal({
+        name: `PinFlow — Install ${agentLabel} plugin`,
+        cwd: terminalCwd,
+      });
+      for (const cmd of commands) {
+        terminal.sendText(cmd);
       }
-    });
+      terminal.show();
+    },
+  };
+
+  await internal.runPostInstall(agent, cwd, postInstallDeps);
 }
 
 async function showFailureToast(

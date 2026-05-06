@@ -36,33 +36,34 @@ const DEFAULT_DEPS: FrameworkStepDeps = {
     vscode.window.showQuickPick([...items], options) as Promise<FrameworkQuickPickItem | undefined>,
 };
 
-function buildConfirmItems(detected: FrameworkChoice): readonly FrameworkQuickPickItem[] {
+function buildDetectedItems(detected: FrameworkChoice): readonly FrameworkQuickPickItem[] {
   return [
-    { label: `${detected} (detected)`, description: 'use this', value: detected },
+    { label: ALL_FRAMEWORK_ITEMS.find((i) => i.value === detected)?.label ?? detected, description: '✓ erkannt', value: detected },
     ...ALL_FRAMEWORK_ITEMS.filter((item) => item.value !== detected),
   ];
 }
 
 /**
  * Show a framework QuickPick. If `detectedFromApp.framework` is set,
- * the first item is the detected one (acting as the default). Picking any
- * item returns its value; Esc returns `undefined`.
+ * the detected item is first with a `'✓ erkannt'` badge. When nothing was
+ * detected the placeholder hint guides the user to pick manually.
+ * Picking any item returns its value; Esc returns `undefined`.
  */
 export async function pickFramework(
   detectedFromApp: DetectedApp,
   deps: FrameworkStepDeps = DEFAULT_DEPS,
 ): Promise<FrameworkChoice | undefined> {
   const items = detectedFromApp.framework
-    ? buildConfirmItems(detectedFromApp.framework)
+    ? buildDetectedItems(detectedFromApp.framework)
     : ALL_FRAMEWORK_ITEMS;
 
-  const title = detectedFromApp.framework
-    ? `Framework detected: ${detectedFromApp.framework}`
-    : 'Select framework';
+  const placeHolder = detectedFromApp.framework
+    ? 'Choose the build framework for this app'
+    : 'Konnte kein Framework erkennen — wähle manuell';
 
   const picked = await deps.showQuickPick(items, {
-    title,
-    placeHolder: 'Choose the build framework for this app',
+    title: 'PinFlow Setup · Schritt 3/3 — Framework wählen',
+    placeHolder,
   });
 
   return picked?.value;

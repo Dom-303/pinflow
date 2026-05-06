@@ -1,3 +1,5 @@
+import path from 'node:path';
+
 import {
   findRunEvidence,
   type PinFlowRunEvidence,
@@ -29,6 +31,33 @@ export function expandToCandidateFolders(
     const status = getPinFlowWorkspaceStatus(folder);
     return status.status !== 'not-configured';
   });
+}
+
+export function expandToAllWorkspaceFolders(
+  workspaceFolders: readonly string[],
+): readonly string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+
+  for (const root of workspaceFolders) {
+    const configured = expandToCandidateFolders([root]);
+    if (configured.length > 0) {
+      for (const folder of configured) {
+        if (!seen.has(folder)) {
+          seen.add(folder);
+          result.push(folder);
+        }
+      }
+    } else {
+      const resolved = path.resolve(root);
+      if (!seen.has(resolved)) {
+        seen.add(resolved);
+        result.push(resolved);
+      }
+    }
+  }
+
+  return result;
 }
 
 export async function buildPerFolderState(

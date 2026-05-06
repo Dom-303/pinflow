@@ -11,6 +11,7 @@ export class PinflowFolderSection extends LitElement {
   @property({ attribute: false }) displayName = '';
   @property({ attribute: false }) runs: readonly PinFlowRunEvidence[] = [];
   @property({ attribute: false }) timeFormat: RunsWebviewSettings['timeFormat'] = '24h';
+  @property({ attribute: false }) folderStatus: 'configured' | 'not-configured' = 'configured';
   @property({ type: Boolean }) defaultExpanded = false;
   @property({ type: Boolean }) isActive = false;
 
@@ -81,6 +82,20 @@ export class PinflowFolderSection extends LitElement {
       font-family: var(--vscode-font-family);
       font-size: 11px;
     }
+    .setup-button {
+      margin-top: 8px;
+      padding: 4px 12px;
+      background: var(--pf-accent);
+      color: var(--vscode-button-foreground, #fff);
+      border: none;
+      border-radius: 2px;
+      cursor: pointer;
+      font-family: var(--vscode-font-family);
+      font-size: 11px;
+    }
+    .setup-button:hover {
+      filter: brightness(1.1);
+    }
   `;
 
   protected updated(changed: Map<string, unknown>): void {
@@ -99,25 +114,49 @@ export class PinflowFolderSection extends LitElement {
       </div>
       <div class="content">
         ${this.expanded
-          ? this.runs.length > 0
-            ? html`<div class="body">
-                ${repeat(
-                  this.runs,
-                  (run) => run.runId ?? run.summaryPath,
-                  (run, index) => html`
-                    <pinflow-run-card
-                      .run=${run}
-                      .timeFormat=${this.timeFormat}
-                      .index=${index}
-                    ></pinflow-run-card>
-                  `,
-                )}
-              </div>`
-            : html`<div class="empty">No runs yet for this folder.</div>`
+          ? this.folderStatus === 'not-configured'
+            ? this.renderSetupBody()
+            : this.runs.length > 0
+              ? html`<div class="body">
+                  ${repeat(
+                    this.runs,
+                    (run) => run.runId ?? run.summaryPath,
+                    (run, index) => html`
+                      <pinflow-run-card
+                        .run=${run}
+                        .timeFormat=${this.timeFormat}
+                        .index=${index}
+                      ></pinflow-run-card>
+                    `,
+                  )}
+                </div>`
+              : html`<div class="empty">No runs yet for this folder.</div>`
           : null}
       </div>
     `;
   }
+
+  private renderSetupBody() {
+    return html`
+      <div class="empty">
+        <p>Run <code>pinflow init</code> to start tracking this folder.</p>
+        <button class="setup-button" @click=${this.onSetupClick} type="button">
+          Setup PinFlow
+        </button>
+      </div>
+    `;
+  }
+
+  private onSetupClick = (event: Event): void => {
+    event.stopPropagation();
+    this.dispatchEvent(
+      new CustomEvent('setup-clicked', {
+        detail: { folderPath: this.folderPath },
+        bubbles: true,
+        composed: true,
+      }),
+    );
+  };
 
   private toggle = (): void => {
     this.expanded = !this.expanded;

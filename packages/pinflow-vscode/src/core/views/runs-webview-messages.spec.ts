@@ -9,7 +9,11 @@ describe('runs-webview message guards', () => {
   describe('isExtToWebviewMessage', () => {
     it('accepts a valid runs:update', () => {
       expect(
-        isExtToWebviewMessage({ type: 'runs:update', runsByFolder: {} }),
+        isExtToWebviewMessage({
+          type: 'runs:update',
+          runsByFolder: {},
+          folderStatuses: {},
+        }),
       ).toBe(true);
     });
 
@@ -18,6 +22,7 @@ describe('runs-webview message guards', () => {
         isExtToWebviewMessage({
           type: 'webview:init-ack',
           runsByFolder: {},
+          folderStatuses: {},
           settings: { timeFormat: '24h' },
         }),
       ).toBe(true);
@@ -28,6 +33,7 @@ describe('runs-webview message guards', () => {
         isExtToWebviewMessage({
           type: 'webview:init-ack',
           runsByFolder: {},
+          folderStatuses: { '/folder/path': 'configured' },
           activeFolder: '/folder/path',
           settings: { timeFormat: '24h' },
         }),
@@ -66,6 +72,42 @@ describe('runs-webview message guards', () => {
         isExtToWebviewMessage({
           type: 'webview:init-ack',
           runsByFolder: {},
+          folderStatuses: {},
+        }),
+      ).toBe(false);
+    });
+  });
+
+  describe('isExtToWebviewMessage with folderStatuses', () => {
+    it('accepts runs:update with folderStatuses', () => {
+      // Arrange
+      const msg = {
+        type: 'runs:update',
+        runsByFolder: { '/a': [] },
+        folderStatuses: { '/a': 'configured' },
+      };
+
+      // Act + Assert
+      expect(isExtToWebviewMessage(msg)).toBe(true);
+    });
+
+    it('rejects runs:update without folderStatuses', () => {
+      // Arrange + Act + Assert
+      expect(
+        isExtToWebviewMessage({
+          type: 'runs:update',
+          runsByFolder: { '/a': [] },
+        }),
+      ).toBe(false);
+    });
+
+    it('rejects folderStatuses with invalid status value', () => {
+      // Arrange + Act + Assert
+      expect(
+        isExtToWebviewMessage({
+          type: 'runs:update',
+          runsByFolder: { '/a': [] },
+          folderStatuses: { '/a': 'wrong' },
         }),
       ).toBe(false);
     });
@@ -109,11 +151,26 @@ describe('runs-webview message guards', () => {
     });
   });
 
+  describe('isWebviewToExtMessage with run-init', () => {
+    it('accepts webview:run-init with folder', () => {
+      // Arrange + Act + Assert
+      expect(
+        isWebviewToExtMessage({ type: 'webview:run-init', folder: '/a' }),
+      ).toBe(true);
+    });
+
+    it('rejects webview:run-init without folder', () => {
+      // Arrange + Act + Assert
+      expect(isWebviewToExtMessage({ type: 'webview:run-init' })).toBe(false);
+    });
+  });
+
   describe('JSON round-trip', () => {
     it('preserves all fields of init-ack', () => {
       const message: ExtToWebviewMessage = {
         type: 'webview:init-ack',
         runsByFolder: { '/workspace/project': [] },
+        folderStatuses: { '/workspace/project': 'configured' },
         activeFolder: '/workspace/project',
         settings: { timeFormat: '24h' },
       };
@@ -129,6 +186,23 @@ describe('runs-webview message guards', () => {
       };
       const round = JSON.parse(JSON.stringify(message)) as unknown;
       expect(isWebviewToExtMessage(round)).toBe(true);
+      expect(round).toEqual(message);
+    });
+
+    it('preserves folderStatuses in runs:update round-trip', () => {
+      // Arrange
+      const message: ExtToWebviewMessage = {
+        type: 'runs:update',
+        runsByFolder: { '/a': [], '/b': [] },
+        folderStatuses: { '/a': 'configured', '/b': 'not-configured' },
+        activeFolder: '/a',
+      };
+
+      // Act
+      const round = JSON.parse(JSON.stringify(message)) as unknown;
+
+      // Assert
+      expect(isExtToWebviewMessage(round)).toBe(true);
       expect(round).toEqual(message);
     });
   });

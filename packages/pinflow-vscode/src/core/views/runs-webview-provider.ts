@@ -5,11 +5,13 @@ import type { PinFlowRunEvidence } from '../run-evidence.js';
 import {
   isWebviewToExtMessage,
   type ExtToWebviewMessage,
+  type FolderStatus,
   type RunsWebviewSettings,
 } from './runs-webview-messages.js';
 
 export interface RunsSnapshot {
   readonly runsByFolder: Readonly<Record<string, readonly PinFlowRunEvidence[]>>;
+  readonly folderStatuses: Readonly<Record<string, FolderStatus>>;
   readonly activeFolder?: string;
 }
 
@@ -49,10 +51,15 @@ export class RunsWebviewProvider implements vscode.WebviewViewProvider {
         const ack: ExtToWebviewMessage = {
           type: 'webview:init-ack',
           runsByFolder: snapshot.runsByFolder,
+          folderStatuses: snapshot.folderStatuses,
           activeFolder: snapshot.activeFolder,
           settings: this.deps.getCurrentSettings(),
         };
         void webviewView.webview.postMessage(ack);
+        return;
+      }
+      if (message.type === 'webview:run-init') {
+        void vscode.commands.executeCommand('pinflow.runInit', message.folder);
         return;
       }
       if (message.type === 'run:open-prompt') {
@@ -77,6 +84,7 @@ export class RunsWebviewProvider implements vscode.WebviewViewProvider {
     const update: ExtToWebviewMessage = {
       type: 'runs:update',
       runsByFolder: snapshot.runsByFolder,
+      folderStatuses: snapshot.folderStatuses,
       activeFolder: snapshot.activeFolder,
     };
     void this.webviewView.webview.postMessage(update);

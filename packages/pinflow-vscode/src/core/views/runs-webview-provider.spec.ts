@@ -1,5 +1,6 @@
 import { vi } from 'vitest';
 
+import { commands as vsCodeCommands } from '../../__test-utils__/vscode-stub.js';
 import type { PinFlowRunEvidence } from '../run-evidence.js';
 import { RunsWebviewProvider } from './runs-webview-provider.js';
 
@@ -82,7 +83,7 @@ describe('RunsWebviewProvider', () => {
     const provider = new RunsWebviewProvider({
       extensionUri: fakeUri as never,
       onOpenPrompt: vi.fn(),
-      getCurrentSnapshot: () => ({ runsByFolder: {} }),
+      getCurrentSnapshot: () => ({ runsByFolder: {}, folderStatuses: {} }),
       getCurrentSettings: () => ({ timeFormat: '24h' }),
     });
 
@@ -105,7 +106,7 @@ describe('RunsWebviewProvider', () => {
     const provider = new RunsWebviewProvider({
       extensionUri: fakeUri as never,
       onOpenPrompt: vi.fn(),
-      getCurrentSnapshot: () => ({ runsByFolder: { '/repo': [sampleRun] } }),
+      getCurrentSnapshot: () => ({ runsByFolder: { '/repo': [sampleRun] }, folderStatuses: { '/repo': 'configured' } }),
       getCurrentSettings: () => ({ timeFormat: '24h' }),
     });
 
@@ -122,10 +123,11 @@ describe('RunsWebviewProvider', () => {
     const wb = createMockWebview();
     const view = createMockView(wb.webview);
     const runsByFolder = { '/repo': [sampleRun] };
+    const folderStatuses = { '/repo': 'configured' as const };
     const provider = new RunsWebviewProvider({
       extensionUri: fakeUri as never,
       onOpenPrompt: vi.fn(),
-      getCurrentSnapshot: () => ({ runsByFolder, activeFolder: '/repo' }),
+      getCurrentSnapshot: () => ({ runsByFolder, folderStatuses, activeFolder: '/repo' }),
       getCurrentSettings: () => ({ timeFormat: '12h' }),
     });
 
@@ -139,6 +141,7 @@ describe('RunsWebviewProvider', () => {
     expect(wb.webview.postMessage).toHaveBeenCalledWith({
       type: 'webview:init-ack',
       runsByFolder,
+      folderStatuses,
       activeFolder: '/repo',
       settings: { timeFormat: '12h' },
     });
@@ -148,14 +151,15 @@ describe('RunsWebviewProvider', () => {
     const wb = createMockWebview();
     const view = createMockView(wb.webview);
     const runsByFolder = { '/repo': [sampleRun] };
+    const folderStatuses = { '/repo': 'configured' as const };
     const provider = new RunsWebviewProvider({
       extensionUri: fakeUri as never,
       onOpenPrompt: vi.fn(),
-      getCurrentSnapshot: () => ({ runsByFolder }),
+      getCurrentSnapshot: () => ({ runsByFolder, folderStatuses }),
       getCurrentSettings: () => ({ timeFormat: '24h' }),
     });
 
-    provider.postRuns({ runsByFolder });
+    provider.postRuns({ runsByFolder, folderStatuses });
     expect(wb.webview.postMessage).not.toHaveBeenCalled();
 
     provider.resolveWebviewView(
@@ -163,11 +167,12 @@ describe('RunsWebviewProvider', () => {
       { state: undefined } as never,
       { isCancellationRequested: false } as never,
     );
-    provider.postRuns({ runsByFolder });
+    provider.postRuns({ runsByFolder, folderStatuses });
 
     expect(wb.webview.postMessage).toHaveBeenCalledWith({
       type: 'runs:update',
       runsByFolder,
+      folderStatuses,
       activeFolder: undefined,
     });
   });
@@ -176,10 +181,11 @@ describe('RunsWebviewProvider', () => {
     const wb = createMockWebview();
     const view = createMockView(wb.webview);
     const runsByFolder = { '/repo': [sampleRun] };
+    const folderStatuses = { '/repo': 'configured' as const };
     const provider = new RunsWebviewProvider({
       extensionUri: fakeUri as never,
       onOpenPrompt: vi.fn(),
-      getCurrentSnapshot: () => ({ runsByFolder }),
+      getCurrentSnapshot: () => ({ runsByFolder, folderStatuses }),
       getCurrentSettings: () => ({ timeFormat: '24h' }),
     });
 
@@ -188,11 +194,12 @@ describe('RunsWebviewProvider', () => {
       { state: undefined } as never,
       { isCancellationRequested: false } as never,
     );
-    provider.postRuns({ runsByFolder, activeFolder: '/repo' });
+    provider.postRuns({ runsByFolder, folderStatuses, activeFolder: '/repo' });
 
     expect(wb.webview.postMessage).toHaveBeenCalledWith({
       type: 'runs:update',
       runsByFolder,
+      folderStatuses,
       activeFolder: '/repo',
     });
   });
@@ -203,7 +210,7 @@ describe('RunsWebviewProvider', () => {
     const provider = new RunsWebviewProvider({
       extensionUri: fakeUri as never,
       onOpenPrompt: vi.fn(),
-      getCurrentSnapshot: () => ({ runsByFolder: {} }),
+      getCurrentSnapshot: () => ({ runsByFolder: {}, folderStatuses: {} }),
       getCurrentSettings: () => ({ timeFormat: '24h' }),
     });
 
@@ -228,7 +235,7 @@ describe('RunsWebviewProvider', () => {
     const provider = new RunsWebviewProvider({
       extensionUri: fakeUri as never,
       onOpenPrompt,
-      getCurrentSnapshot: () => ({ runsByFolder }),
+      getCurrentSnapshot: () => ({ runsByFolder, folderStatuses: { '/repo': 'configured', '/repo2': 'configured' } }),
       getCurrentSettings: () => ({ timeFormat: '24h' }),
     });
 
@@ -242,6 +249,61 @@ describe('RunsWebviewProvider', () => {
     expect(onOpenPrompt).toHaveBeenCalledWith(sampleRun2);
   });
 
+  it('forwards webview:run-init to pinflow.runInit command with folder argument', () => {
+    // Arrange
+    const wb = createMockWebview();
+    const view = createMockView(wb.webview);
+    const provider = new RunsWebviewProvider({
+      extensionUri: fakeUri as never,
+      onOpenPrompt: vi.fn(),
+      getCurrentSnapshot: () => ({ runsByFolder: {}, folderStatuses: {} }),
+      getCurrentSettings: () => ({ timeFormat: '24h' }),
+    });
+    provider.resolveWebviewView(
+      view as never,
+      { state: undefined } as never,
+      { isCancellationRequested: false } as never,
+    );
+    vsCodeCommands.executeCommand.mockClear();
+
+    // Act
+    wb.sendFromWebview({ type: 'webview:run-init', folder: '/repo/unconfigured' });
+
+    // Assert
+    expect(vsCodeCommands.executeCommand).toHaveBeenCalledWith(
+      'pinflow.runInit',
+      '/repo/unconfigured',
+    );
+  });
+
+  it('run:open-prompt still works after webview:run-init branch is added (smoke regression)', () => {
+    // Arrange
+    const wb = createMockWebview();
+    const view = createMockView(wb.webview);
+    const onOpenPrompt = vi.fn();
+    const runsByFolder = { '/repo': [sampleRun] };
+    const provider = new RunsWebviewProvider({
+      extensionUri: fakeUri as never,
+      onOpenPrompt,
+      getCurrentSnapshot: () => ({
+        runsByFolder,
+        folderStatuses: { '/repo': 'configured' as const },
+      }),
+      getCurrentSettings: () => ({ timeFormat: '24h' }),
+    });
+    provider.resolveWebviewView(
+      view as never,
+      { state: undefined } as never,
+      { isCancellationRequested: false } as never,
+    );
+
+    // Act
+    wb.sendFromWebview({ type: 'run:open-prompt', runId: 'r_1' });
+
+    // Assert
+    expect(onOpenPrompt).toHaveBeenCalledWith(sampleRun);
+  });
+
   it('ignores malformed messages from the webview', () => {
     const wb = createMockWebview();
     const view = createMockView(wb.webview);
@@ -249,7 +311,7 @@ describe('RunsWebviewProvider', () => {
     const provider = new RunsWebviewProvider({
       extensionUri: fakeUri as never,
       onOpenPrompt,
-      getCurrentSnapshot: () => ({ runsByFolder: { '/repo': [sampleRun] } }),
+      getCurrentSnapshot: () => ({ runsByFolder: { '/repo': [sampleRun] }, folderStatuses: { '/repo': 'configured' } }),
       getCurrentSettings: () => ({ timeFormat: '24h' }),
     });
 

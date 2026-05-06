@@ -18,7 +18,7 @@ import {
 } from './core/run-evidence.js';
 import {
   buildPerFolderState,
-  expandToCandidateFolders,
+  expandToAllWorkspaceFolders,
   pickActiveFolder,
   type PerFolderState,
 } from './core/multi-folder-state.js';
@@ -28,7 +28,7 @@ import {
   type ActionsViewItem,
 } from './core/views/actions-view-model.js';
 import { RunsWebviewProvider } from './core/views/runs-webview-provider.js';
-import type { RunsWebviewSettings } from './core/views/runs-webview-messages.js';
+import type { FolderStatus, RunsWebviewSettings } from './core/views/runs-webview-messages.js';
 import {
   buildStatusFolderGroups,
   type StatusFolderGroup,
@@ -76,6 +76,12 @@ export function activate(context: vscode.ExtensionContext): void {
     getCurrentSnapshot: () => ({
       runsByFolder: Object.fromEntries(
         trackedFolders.map((s) => [s.folder, s.runs] as const),
+      ),
+      folderStatuses: Object.fromEntries(
+        trackedFolders.map((s) => [
+          s.folder,
+          (s.status.status === 'not-configured' ? 'not-configured' : 'configured') satisfies FolderStatus,
+        ] as const),
       ),
       activeFolder,
     }),
@@ -198,7 +204,7 @@ export function activate(context: vscode.ExtensionContext): void {
       statusItem.show();
       statusProvider.setFolderGroups([]);
       actionsProvider.setFolderGroups([]);
-      runsWebviewProvider.postRuns({ runsByFolder: {}, activeFolder: undefined });
+      runsWebviewProvider.postRuns({ runsByFolder: {}, folderStatuses: {}, activeFolder: undefined });
       trackedFolders = [];
       activeFolder = undefined;
       void vscode.commands.executeCommand('setContext', 'pinflow.notConfigured', false);
@@ -208,20 +214,7 @@ export function activate(context: vscode.ExtensionContext): void {
     const config = vscode.workspace.getConfiguration('pinflow');
     const preferredFolder = config.get<string>('workspace.preferredFolder', '');
 
-    const candidates = expandToCandidateFolders(workspaceFolders);
-    if (candidates.length === 0) {
-      void vscode.commands.executeCommand('setContext', 'pinflow.notConfigured', true);
-      statusProvider.setFolderGroups([]);
-      actionsProvider.setFolderGroups([]);
-      runsWebviewProvider.postRuns({ runsByFolder: {}, activeFolder: undefined });
-      trackedFolders = [];
-      activeFolder = undefined;
-      statusItem.text = 'PinFlow: not configured';
-      statusItem.tooltip = 'No PinFlow-configured folder in this workspace.';
-      statusItem.show();
-      return;
-    }
-    void vscode.commands.executeCommand('setContext', 'pinflow.notConfigured', false);
+    const candidates = expandToAllWorkspaceFolders(workspaceFolders);
 
     const folderStates = await Promise.all(
       candidates.map((folder) => buildPerFolderState(folder)),
@@ -229,15 +222,27 @@ export function activate(context: vscode.ExtensionContext): void {
     trackedFolders = folderStates;
     activeFolder = pickActiveFolder(folderStates, preferredFolder);
 
+    const allUnconfigured = folderStates.every(
+      (s) => s.status.status === 'not-configured',
+    );
+    void vscode.commands.executeCommand(
+      'setContext',
+      'pinflow.notConfigured',
+      allUnconfigured,
+    );
+
     const runsByFolder: Record<string, readonly PinFlowRunEvidence[]> = {};
+    const folderStatuses: Record<string, FolderStatus> = {};
     for (const state of folderStates) {
       runsByFolder[state.folder] = state.runs;
+      folderStatuses[state.folder] =
+        state.status.status === 'not-configured' ? 'not-configured' : 'configured';
     }
 
     statusProvider.setFolderGroups(
       buildStatusFolderGroups(folderStates, { activeFolder, externalClaim }),
     );
-    runsWebviewProvider.postRuns({ runsByFolder, activeFolder });
+    runsWebviewProvider.postRuns({ runsByFolder, folderStatuses, activeFolder });
     actionsProvider.setFolderGroups(
       buildActionFolderGroups(folderStates, externalClaim, activeFolder),
     );
@@ -252,8 +257,9 @@ export function activate(context: vscode.ExtensionContext): void {
       statusItem.hide();
     }
 
-    // Per-folder side effects:
+    // Per-folder side effects — skip unconfigured folders:
     for (const state of folderStates) {
+      if (state.status.status === 'not-configured') continue;
       notifyFailedRunsForFolder(state, config);
       maybeFireFirstRunToast(state);
       handleAutoBrowserForFolder(state, config);
@@ -359,7 +365,7 @@ export function activate(context: vscode.ExtensionContext): void {
       );
       refreshStatus();
     }),
-    vscode.commands.registerCommand('pinflow.runInit', () => {
+    vscode.commands.registerCommand('pinflow.runInit', (folderPath?: unknown) => {
       const folders = vscode.workspace.workspaceFolders;
       if (!folders?.length) {
         void vscode.window.showInformationMessage(
@@ -367,11 +373,8 @@ export function activate(context: vscode.ExtensionContext): void {
         );
         return;
       }
-      const cwd = folders[0].uri.fsPath;
-      const terminal = vscode.window.createTerminal({
-        name: 'PinFlow Init',
-        cwd,
-      });
+      const cwd = resolveRunInitCwd(folderPath, folders, activeFolder);
+      const terminal = vscode.window.createTerminal({ name: 'PinFlow Init', cwd });
       terminal.sendText(formatPinFlowCliCommand(cwd, ['init']));
       terminal.show();
     }),
@@ -495,6 +498,16 @@ function statusLabel(status: 'ready' | 'relay-missing' | 'not-configured'): stri
   if (status === 'ready') return 'configured + relay running';
   if (status === 'relay-missing') return 'configured';
   return 'not configured';
+}
+
+function resolveRunInitCwd(
+  folderPath: unknown,
+  workspaceFolders: readonly { uri: { fsPath: string } }[],
+  active: string | undefined,
+): string {
+  if (typeof folderPath === 'string' && folderPath.trim()) return folderPath;
+  if (active) return active;
+  return workspaceFolders[0].uri.fsPath;
 }
 
 function getCurrentWorkspaceRoot(): string | undefined {

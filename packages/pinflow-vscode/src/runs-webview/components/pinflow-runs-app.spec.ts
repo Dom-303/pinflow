@@ -1,5 +1,6 @@
 import './pinflow-runs-app.js';
 import { PinflowRunsApp } from './pinflow-runs-app.js';
+import { PinflowFolderSection } from './pinflow-folder-section.js';
 
 describe('<pinflow-runs-app>', () => {
   it('renders empty-state when runsByFolder is empty', async () => {
@@ -55,6 +56,25 @@ describe('<pinflow-runs-app>', () => {
     expect(betaSection.defaultExpanded).toBe(false);
     expect(betaSection.isActive).toBe(false);
     el.remove();
+  });
+
+  it('forwards folderStatus="not-configured" to the matching folder-section', async () => {
+    // Arrange
+    const app = document.createElement('pinflow-runs-app') as PinflowRunsApp;
+    app.runsByFolder = { '/a': [], '/b': [] };
+    app.folderStatuses = { '/a': 'configured', '/b': 'not-configured' };
+    document.body.appendChild(app);
+    await app.updateComplete;
+
+    // Act
+    const sections = Array.from(
+      app.shadowRoot!.querySelectorAll<PinflowFolderSection>('pinflow-folder-section'),
+    );
+
+    // Assert
+    expect(sections[0].folderStatus).toBe('configured');
+    expect(sections[1].folderStatus).toBe('not-configured');
+    app.remove();
   });
 
   it('renders 5 folders × 80 runs each without throwing (stress test)', async () => {

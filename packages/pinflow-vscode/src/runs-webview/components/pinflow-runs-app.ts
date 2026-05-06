@@ -16,6 +16,7 @@ function basename(p: string): string {
 @customElement('pinflow-runs-app')
 export class PinflowRunsApp extends LitElement {
   @property({ attribute: false }) runsByFolder: Readonly<Record<string, readonly PinFlowRunEvidence[]>> = {};
+  @property({ attribute: false }) folderStatuses: Readonly<Record<string, 'configured' | 'not-configured'>> = {};
   @property({ attribute: false }) activeFolder?: string;
   @property({ attribute: false }) settings: RunsWebviewSettings = { timeFormat: '24h' };
 
@@ -46,6 +47,7 @@ export class PinflowRunsApp extends LitElement {
               .folderPath=${folder}
               .displayName=${basename(folder)}
               .runs=${this.runsByFolder[folder] ?? []}
+              .folderStatus=${this.folderStatuses[folder] ?? 'configured'}
               .timeFormat=${this.settings.timeFormat}
               .defaultExpanded=${folder === this.activeFolder}
               .isActive=${folder === this.activeFolder}

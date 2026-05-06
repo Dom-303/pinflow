@@ -1,10 +1,23 @@
 # PinFlow VS Code Extension — Package 4 Roadmap
 
-**Status:** Roadmap-Dokument. Nicht-blockierend für 3B-1-Smoke. Wird in 5 Phasen umgesetzt; jede Phase bekommt ihre eigene Spec + Plan vor Implementation.
+**Status:** Roadmap-Dokument. Living Document — nach jeder Phase aktualisiert.
+
+**Phase-Status** (Stand 2026-05-06):
+- ✅ **Phase A** — UX & Onboarding (DONE, e9a5320)
+- ✅ **Phase C.1** — Multi-Folder simultaneous Tracking (DONE, 9b4e30c..50bc756)
+- ✅ **Phase C.1.5** — Mixed-State Workspace Onboarding (DONE, PR #1 / merge c61eded)
+- ⏳ **Phase C.1.6** — Dual-Mode Onboarding (Auto vs. Terminal) — **NEXT**
+- ⏳ Phase B — Run-Visualisierung (Live-Log, Diff, Run-Detail-Drawer)
+- ⏳ Phase C.2 — Run-Cost-Tracking
+- ⏳ Phase C.3 — Multi-Agent-Comparison-View
+- ⏳ Phase D — Filter / Polish / Pre-Marketplace
+- ⏳ Phase E — Marketplace v1.0 (Release)
 
 **Goal:** PinFlow VS Code Extension von "MVP mit Lücken" zu **production-ready v1.0 mit Marketplace-Listing**. Konsolidiert alle aufgeschobenen 3B-2/3B-3-Features, die UX-Lücken aus dem 3B-1-Smoke-Test, sowie alle ursprünglich für Package 4+ geplanten Power-Features in einen einheitlichen Plan.
 
 **Treiber:** Power-User kann 5 Repos parallel mit PinFlow + Coding-Agent bearbeiten. Heute geht das im CLI; in der Extension nicht. Plus: Onboarding fühlt sich heute nicht "geleitet" an (3B-1-Smoke 2026-05-04 hat das deutlich gezeigt).
+
+**UX-Leitplanke (2026-05-06 ergänzt):** Standardflows müssen ohne Terminal/CLI-Touch funktionieren. Power-User-/Dev-Modus mit Terminal bleibt explizit erhalten als Opt-in — aber NIE als Default. Marketplace-Readiness (Phase E) setzt voraus, dass Setup, Init, Run und Stop alle ohne Terminal-Aufmachung gehen.
 
 ---
 
@@ -94,6 +107,38 @@
 ## Phase C — Multi-Repo Power-Features (das eigentliche "Package 4")
 
 **Bedarf:** Power-User mit 5 Repos. Heute Extension-side nicht möglich. Das ist die Architektur-schwerste Phase.
+
+### C.1.5 — Mixed-State Workspace Onboarding ✅ DONE 2026-05-06
+
+**Bedarf:** C.1 hat Multi-Folder simultaneous Tracking gebracht, aber mixed-state Workspaces (manche Folder konfiguriert, manche nicht) übersah. Real-world Smoke 2026-05-06 mit User-Workspace (4 Repos, 1 PinFlow) zeigte: nur 1 Akkordeon, keine Onboarding-Affordance für die anderen 3.
+
+**Was geliefert wurde:**
+- Status / Actions / Runs zeigen Akkordeons für ALLE Workspace-Folder, auch nicht-konfigurierte
+- Per-Folder „Setup PinFlow"-Action (rocket icon) → öffnet Terminal am exakt richtigen Folder, ruft `pinflow init`
+- `pinflow.runInit` ist folder-aware (optionales `folderPath`-Argument)
+- Webview-Protocol Clean-Break: `folderStatuses` Pflichtfeld, neue `webview:run-init` Message
+- `pinflow.notConfigured` true ⇔ alle Folder unconfigured
+
+**Spec/Plan:** `2026-05-06-pinflow-vscode-package-4c15-mixed-state-onboarding-{design,implementation}.md`
+
+### C.1.6 — Dual-Mode Onboarding (Auto vs. Terminal) ⏳ NEXT
+
+**Bedarf:** C.1.5-Smoke 2026-05-06 hat User-Intent kristallisiert: das heutige „Setup PinFlow"-Verhalten (Terminal öffnet, User tippt durch `pinflow init`) ist Power-User-tauglich, aber nicht Marketplace-Standard. Standardnutzer erwarten „klick und es geht". Power-User wollen das Terminal sehen, durch Prompts steppen, Custom-Flags setzen.
+
+**Was kommen soll:**
+
+- **Setting `pinflow.onboarding.mode`**: `'auto' | 'terminal'`, default `'auto'`
+- **Auto-Modus (Default)**: Klick auf Setup → Extension spawnt `pinflow init --yes --agent ${defaultProvider} --app-root ${folder}` als Background-Child-Process. Progress-Notification während Lauf, Erfolgs-Toast „PinFlow ready in $folder", automatischer Refresh-Tick → Akkordeon flippt. Kein Terminal-Panel öffnet sich.
+- **Terminal-Modus (Power-User)**: heutiges Verhalten — Terminal öffnet sich mit `pinflow init`, User steppt durch.
+- **CLI-Not-Found-Handling**: wenn `pinflow` Binary nicht ausführbar oder nicht im PATH, Fallback auf Toast „PinFlow CLI nicht verfügbar — installiere via [Doku] oder verwende Terminal-Modus" mit „Open Terminal Anyway"-Action.
+- **Power-User-Discoverability**: zusätzlicher Command `PinFlow: Run Init in Terminal` immer in Command-Palette verfügbar (forciert Terminal-Modus, ignoriert Setting).
+- **Polish-Items**: AAA-Leerzeile-Nits aus C.1.5-Task 6 fixen, executable-Bit Build-Step für `pinflow.js`, optional „Actual command not found /13"-Toast investigieren falls reproduzierbar.
+
+**Acceptance:** Standardnutzer klickt Setup → 5-10s später ist Folder konfiguriert, kein Terminal je gesehen. Power-User aktiviert Setting `terminal` oder ruft Command-Palette → bekommt heutiges Verhalten unverändert.
+
+**Aufwand:** ~1-1.5 Tage. Subagent-driven mit ~6 Tasks.
+
+**Out-of-Scope für C.1.6:** Run-Workflow (`pinflow dev`) bleibt vorerst Terminal-basiert — Auto-Mode für Run-Workflow ist eigene spätere Phase, weil komplexer (langlaufender Subprocess + Output-Streaming + Stop-Affordance).
 
 ### C.1 — Multi-Folder simultaneous Tracking
 

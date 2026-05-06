@@ -1,83 +1,82 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 
 import { pickFramework } from './framework-step.js';
-import type { FrameworkStepDeps } from './framework-step.js';
-import type { DetectedApp } from './app-detection.js';
-
-function makeDeps(returnValue: unknown): FrameworkStepDeps {
-  return {
-    showQuickPick: vi.fn().mockResolvedValue(returnValue),
-  };
-}
 
 describe('pickFramework', () => {
-  it('returns the detected framework when user confirms via the confirm QuickPick', async () => {
+  it('returns detected framework synchronously without QuickPick', async () => {
     // Arrange
-    const app: DetectedApp = { path: '/workspace/app', framework: 'vite' };
-    // User picks the "detected (default)" option in the confirm prompt
-    const deps = makeDeps({ value: 'vite' });
+    const showQuickPick = vi.fn();
+    const showInformationMessage = vi.fn();
 
     // Act
-    const result = await pickFramework(app, deps);
+    const result = await pickFramework(
+      { path: '/repo/apps/web', framework: 'vite' },
+      'Schritt 3/3',
+      { showQuickPick, showInformationMessage },
+    );
 
     // Assert
     expect(result).toBe('vite');
-    expect(deps.showQuickPick).toHaveBeenCalledOnce();
+    expect(showQuickPick).not.toHaveBeenCalled();
+    expect(showInformationMessage).toHaveBeenCalledWith('Framework erkannt: Vite');
   });
 
-  it('returns the picked framework when detection failed and all options shown', async () => {
+  it('shows QuickPick with all four options when nothing detected', async () => {
     // Arrange
-    const app: DetectedApp = { path: '/workspace/app' }; // no framework detected
-    const deps = makeDeps({ value: 'next' });
+    const showQuickPick = vi.fn().mockResolvedValue({ label: 'Webpack', value: 'webpack' });
+    const showInformationMessage = vi.fn();
 
     // Act
-    const result = await pickFramework(app, deps);
+    const result = await pickFramework(
+      { path: '/repo/apps/web' },
+      'Schritt 2/2',
+      { showQuickPick, showInformationMessage },
+    );
 
     // Assert
-    expect(result).toBe('next');
-    expect(deps.showQuickPick).toHaveBeenCalledOnce();
+    expect(result).toBe('webpack');
+    expect(showInformationMessage).not.toHaveBeenCalled();
+    const [items, options] = showQuickPick.mock.calls[0];
+    expect(items.map((i: { value: string }) => i.value)).toEqual([
+      'vite',
+      'webpack',
+      'next',
+      'nuxt',
+    ]);
+    expect(options.title).toBe('PinFlow Setup · Schritt 2/2 — Framework wählen');
+    expect(options.placeHolder).toBe('Konnte kein Framework erkennen — wähle manuell');
   });
 
-  it('returns undefined when user cancels', async () => {
+  it('omits step prefix when stepLabel is empty', async () => {
     // Arrange
-    const app: DetectedApp = { path: '/workspace/app', framework: 'webpack' };
-    const deps = makeDeps(undefined);
+    const showQuickPick = vi.fn().mockResolvedValue(undefined);
+    const showInformationMessage = vi.fn();
 
     // Act
-    const result = await pickFramework(app, deps);
+    await pickFramework(
+      { path: '/repo' },
+      '',
+      { showQuickPick, showInformationMessage },
+    );
+
+    // Assert
+    const [, options] = showQuickPick.mock.calls[0];
+    expect(options.title).toBe('PinFlow Setup · Framework wählen');
+  });
+
+  it('returns undefined when QuickPick is cancelled', async () => {
+    // Arrange
+    const showQuickPick = vi.fn().mockResolvedValue(undefined);
+    const showInformationMessage = vi.fn();
+
+    // Act
+    const result = await pickFramework(
+      { path: '/repo' },
+      'Schritt 1/1',
+      { showQuickPick, showInformationMessage },
+    );
 
     // Assert
     expect(result).toBeUndefined();
-  });
-
-  it('detected framework has "✓ erkannt" description and appears first', async () => {
-    // Arrange
-    const app: DetectedApp = { path: '/workspace/app', framework: 'vite' };
-    const showQuickPick = vi.fn().mockResolvedValue(undefined);
-    const deps: FrameworkStepDeps = { showQuickPick };
-
-    // Act
-    await pickFramework(app, deps);
-
-    // Assert
-    const [items] = showQuickPick.mock.calls[0] as [readonly { label: string; description?: string; value: string }[], unknown];
-    expect(items[0].value).toBe('vite');
-    expect(items[0].description).toBe('✓ erkannt');
-  });
-
-  it('placeholder shows fallback hint when nothing detected', async () => {
-    // Arrange
-    const app: DetectedApp = { path: '/workspace/app' }; // no framework
-    const showQuickPick = vi.fn().mockResolvedValue(undefined);
-    const deps: FrameworkStepDeps = { showQuickPick };
-
-    // Act
-    await pickFramework(app, deps);
-
-    // Assert
-    expect(showQuickPick).toHaveBeenCalledWith(
-      expect.anything(),
-      expect.objectContaining({ placeHolder: 'Konnte kein Framework erkennen — wähle manuell' }),
-    );
   });
 });

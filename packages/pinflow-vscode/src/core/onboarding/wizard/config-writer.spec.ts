@@ -1,80 +1,141 @@
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { mkdtempSync, rmSync, readFileSync, existsSync, writeFileSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 import { writeWizardConfig } from './config-writer.js';
 
 describe('writeWizardConfig', () => {
-  let cwd: string;
+  let workdir: string;
 
-  beforeEach(async () => {
-    cwd = await mkdtemp(path.join(tmpdir(), 'pinflow-cw-'));
+  beforeEach(() => {
+    workdir = mkdtempSync(path.join(tmpdir(), 'pinflow-writer-spec-'));
   });
 
-  afterEach(async () => {
-    await rm(cwd, { recursive: true, force: true });
+  afterEach(() => {
+    rmSync(workdir, { recursive: true, force: true });
   });
 
-  it('writes pinflow.config.json with correct framework field', async () => {
+  it('writes one pinflow.config.json per app at the app path', async () => {
     // Arrange
-    const input = { cwd, agent: 'codex' as const, framework: 'vite' as const, appRoot: '.' };
+    const appA = path.join(workdir, 'apps', 'web');
+    const appB = path.join(workdir, 'apps', 'api');
+    mkdirSync(appA, { recursive: true });
+    mkdirSync(appB, { recursive: true });
 
     // Act
-    await writeWizardConfig(input);
+    await writeWizardConfig({
+      cwd: workdir,
+      agent: 'codex',
+      perApp: [
+        { appPath: appA, framework: 'vite' },
+        { appPath: appB, framework: 'webpack' },
+      ],
+    });
 
     // Assert
-    const raw = await readFile(path.join(cwd, 'pinflow.config.json'), 'utf-8');
-    const parsed = JSON.parse(raw) as { framework: string };
-    expect(parsed.framework).toBe('vite');
+    const configA = JSON.parse(readFileSync(path.join(appA, 'pinflow.config.json'), 'utf-8'));
+    const configB = JSON.parse(readFileSync(path.join(appB, 'pinflow.config.json'), 'utf-8'));
+    expect(configA.appRoot).toBe('.');
+    expect(configA.framework).toBe('vite');
+    expect(configB.appRoot).toBe('.');
+    expect(configB.framework).toBe('webpack');
   });
 
-  it('throws when pinflow.config.json already exists', async () => {
+  it('overwrites an existing pinflow.config.json without throwing', async () => {
     // Arrange
-    const configPath = path.join(cwd, 'pinflow.config.json');
-    await writeFile(configPath, '{}', 'utf-8');
-
-    // Act & Assert
-    await expect(
-      writeWizardConfig({ cwd, agent: 'codex' as const, framework: 'vite' as const, appRoot: '.' }),
-    ).rejects.toThrow('pinflow.config.json already exists');
-  });
-
-  it('appends .pinflow/ block to existing .gitignore', async () => {
-    // Arrange
-    const gitignorePath = path.join(cwd, '.gitignore');
-    await writeFile(gitignorePath, 'node_modules/\n', 'utf-8');
+    const appA = path.join(workdir, 'apps', 'web');
+    mkdirSync(appA, { recursive: true });
+    writeFileSync(path.join(appA, 'pinflow.config.json'), '{"old":"content"}', 'utf-8');
 
     // Act
-    await writeWizardConfig({ cwd, agent: 'claude-code' as const, framework: 'next' as const, appRoot: '.' });
+    await writeWizardConfig({
+      cwd: workdir,
+      agent: 'codex',
+      perApp: [{ appPath: appA, framework: 'vite' }],
+    });
 
     // Assert
-    const content = await readFile(gitignorePath, 'utf-8');
-    expect(content).toContain('.pinflow/');
-    expect(content).toContain('node_modules/');
+    const config = JSON.parse(readFileSync(path.join(appA, 'pinflow.config.json'), 'utf-8'));
+    expect(config.appRoot).toBe('.');
+    expect(config.framework).toBe('vite');
   });
 
-  it('creates .gitignore with block when file does not exist', async () => {
-    // Arrange — no .gitignore in temp dir
-
-    // Act
-    await writeWizardConfig({ cwd, agent: 'copilot' as const, framework: 'webpack' as const, appRoot: '.' });
-
-    // Assert
-    const content = await readFile(path.join(cwd, '.gitignore'), 'utf-8');
-    expect(content).toContain('.pinflow/');
-  });
-
-  it('does not duplicate .pinflow/ block when already present (idempotent)', async () => {
+  it('creates .gitignore at workspace root with the .pinflow/ block when absent', async () => {
     // Arrange
-    const gitignorePath = path.join(cwd, '.gitignore');
-    await writeFile(gitignorePath, 'node_modules/\n.pinflow/\n', 'utf-8');
+    const appA = path.join(workdir, 'apps', 'web');
+    mkdirSync(appA, { recursive: true });
 
     // Act
-    await writeWizardConfig({ cwd, agent: 'codex' as const, framework: 'nuxt' as const, appRoot: '.' });
+    await writeWizardConfig({
+      cwd: workdir,
+      agent: 'codex',
+      perApp: [{ appPath: appA, framework: 'vite' }],
+    });
 
     // Assert
-    const content = await readFile(gitignorePath, 'utf-8');
-    const occurrences = content.split('.pinflow/').length - 1;
-    expect(occurrences).toBe(1);
+    const gitignore = readFileSync(path.join(workdir, '.gitignore'), 'utf-8');
+    expect(gitignore).toContain('.pinflow/');
+  });
+
+  it('appends to an existing .gitignore that lacks .pinflow/', async () => {
+    // Arrange
+    const appA = path.join(workdir, 'apps', 'web');
+    mkdirSync(appA, { recursive: true });
+    writeFileSync(path.join(workdir, '.gitignore'), 'node_modules\n', 'utf-8');
+
+    // Act
+    await writeWizardConfig({
+      cwd: workdir,
+      agent: 'codex',
+      perApp: [{ appPath: appA, framework: 'vite' }],
+    });
+
+    // Assert
+    const gitignore = readFileSync(path.join(workdir, '.gitignore'), 'utf-8');
+    expect(gitignore).toContain('node_modules');
+    expect(gitignore).toContain('.pinflow/');
+  });
+
+  it('does not duplicate the entry when .gitignore already contains .pinflow/', async () => {
+    // Arrange
+    const appA = path.join(workdir, 'apps', 'web');
+    mkdirSync(appA, { recursive: true });
+    const original = '# PinFlow artifacts\n.pinflow/\n';
+    writeFileSync(path.join(workdir, '.gitignore'), original, 'utf-8');
+
+    // Act
+    await writeWizardConfig({
+      cwd: workdir,
+      agent: 'codex',
+      perApp: [{ appPath: appA, framework: 'vite' }],
+    });
+
+    // Assert
+    const gitignore = readFileSync(path.join(workdir, '.gitignore'), 'utf-8');
+    expect(gitignore).toBe(original);
+  });
+
+  it('updates gitignore exactly once for multi-app input', async () => {
+    // Arrange
+    const appA = path.join(workdir, 'apps', 'web');
+    const appB = path.join(workdir, 'apps', 'api');
+    mkdirSync(appA, { recursive: true });
+    mkdirSync(appB, { recursive: true });
+
+    // Act
+    await writeWizardConfig({
+      cwd: workdir,
+      agent: 'codex',
+      perApp: [
+        { appPath: appA, framework: 'vite' },
+        { appPath: appB, framework: 'webpack' },
+      ],
+    });
+
+    // Assert — gitignore only at workspace root, not at app paths
+    expect(existsSync(path.join(workdir, '.gitignore'))).toBe(true);
+    expect(existsSync(path.join(appA, '.gitignore'))).toBe(false);
+    expect(existsSync(path.join(appB, '.gitignore'))).toBe(false);
   });
 });

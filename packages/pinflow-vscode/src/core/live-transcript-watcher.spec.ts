@@ -1,7 +1,7 @@
 import { mkdtemp, rm, writeFile, appendFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 
 vi.mock('vscode', async () => import('../__test-utils__/vscode-stub.js'));
 
@@ -35,10 +35,19 @@ function makeEvidence(transcript: string, diff: string): PinFlowRunEvidence {
   };
 }
 
+const tmpDirs: string[] = [];
+const watchers: LiveTranscriptWatcher[] = [];
+
+afterEach(async () => {
+  for (const w of watchers.splice(0)) w.dispose();
+  await Promise.all(tmpDirs.splice(0).map((d) => rm(d, { recursive: true, force: true })));
+});
+
 describe('LiveTranscriptWatcher', () => {
   it('emits transcript:initial on construction with full file content', async () => {
     // Arrange
     const { dir, transcript, diff } = await tmpRun();
+    tmpDirs.push(dir);
     await writeFile(transcript, 'first line\nsecond line\n');
     await writeFile(diff, '');
     const events: TranscriptEvent[] = [];
@@ -47,6 +56,7 @@ describe('LiveTranscriptWatcher', () => {
     const watcher = new LiveTranscriptWatcher(makeEvidence(transcript, diff), (e) =>
       events.push(e),
     );
+    watchers.push(watcher);
     await watcher.ready;
 
     // Assert
@@ -56,10 +66,6 @@ describe('LiveTranscriptWatcher', () => {
       text: 'first line\nsecond line\n',
       isLive: false,
     });
-
-    // Cleanup
-    watcher.dispose();
-    await rm(dir, { recursive: true, force: true });
   });
 });
 
@@ -67,12 +73,14 @@ describe('LiveTranscriptWatcher append behaviour', () => {
   it('emits transcript:append with delta when file grows', async () => {
     // Arrange
     const { dir, transcript, diff } = await tmpRun();
+    tmpDirs.push(dir);
     await writeFile(transcript, 'a\n');
     await writeFile(diff, '');
     const events: TranscriptEvent[] = [];
     const watcher = new LiveTranscriptWatcher(makeEvidence(transcript, diff), (e) =>
       events.push(e),
     );
+    watchers.push(watcher);
     await watcher.ready;
     events.length = 0;
 
@@ -89,21 +97,19 @@ describe('LiveTranscriptWatcher append behaviour', () => {
         delta: 'b\n',
       }),
     );
-
-    // Cleanup
-    watcher.dispose();
-    await rm(dir, { recursive: true, force: true });
   });
 
   it('emits a fresh transcript:initial (not append) when file shrinks', async () => {
     // Arrange
     const { dir, transcript, diff } = await tmpRun();
+    tmpDirs.push(dir);
     await writeFile(transcript, 'long content here\n');
     await writeFile(diff, '');
     const events: TranscriptEvent[] = [];
     const watcher = new LiveTranscriptWatcher(makeEvidence(transcript, diff), (e) =>
       events.push(e),
     );
+    watchers.push(watcher);
     await watcher.ready;
     events.length = 0;
 
@@ -116,10 +122,6 @@ describe('LiveTranscriptWatcher append behaviour', () => {
     const initial = events.find((e) => e.type === 'transcript:initial');
     expect(initial).toMatchObject({ type: 'transcript:initial', text: 'tiny\n' });
     expect(events.find((e) => e.type === 'transcript:append')).toBeUndefined();
-
-    // Cleanup
-    watcher.dispose();
-    await rm(dir, { recursive: true, force: true });
   });
 });
 
@@ -127,6 +129,7 @@ describe('LiveTranscriptWatcher diff updates', () => {
   it('re-parses diff and emits diff:update on diff.patch change', async () => {
     // Arrange
     const { dir, transcript, diff } = await tmpRun();
+    tmpDirs.push(dir);
     await writeFile(transcript, '');
     await writeFile(
       diff,
@@ -136,6 +139,7 @@ describe('LiveTranscriptWatcher diff updates', () => {
     const watcher = new LiveTranscriptWatcher(makeEvidence(transcript, diff), (e) =>
       events.push(e),
     );
+    watchers.push(watcher);
     await watcher.ready;
     events.length = 0;
 
@@ -150,10 +154,6 @@ describe('LiveTranscriptWatcher diff updates', () => {
       runId: 'r_1',
       changedFiles: [expect.objectContaining({ path: 'src/foo.ts' })],
     });
-
-    // Cleanup
-    watcher.dispose();
-    await rm(dir, { recursive: true, force: true });
   });
 });
 
@@ -161,6 +161,7 @@ describe('LiveTranscriptWatcher disposal', () => {
   it('ignores subsequent change events after dispose', async () => {
     // Arrange
     const { dir, transcript, diff } = await tmpRun();
+    tmpDirs.push(dir);
     await writeFile(transcript, 'a');
     await writeFile(diff, '');
     const events: TranscriptEvent[] = [];
@@ -178,8 +179,5 @@ describe('LiveTranscriptWatcher disposal', () => {
 
     // Assert
     expect(events).toEqual([]);
-
-    // Cleanup
-    await rm(dir, { recursive: true, force: true });
   });
 });

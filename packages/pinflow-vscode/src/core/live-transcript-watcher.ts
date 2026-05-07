@@ -50,9 +50,7 @@ export class LiveTranscriptWatcher {
     let text = '';
     try {
       text = await readFile(filePath, 'utf8');
-    } catch {
-      // File does not exist yet — empty initial; watcher picks up creation.
-    }
+    } catch {} // eslint-disable-line no-empty
     this.lastReadByteOffset = Buffer.byteLength(text, 'utf8');
     if (this.disposed) return;
     this.emit({ type: 'transcript:initial', runId: this.runId, text, isLive: this.isLive });
@@ -112,9 +110,7 @@ export class LiveTranscriptWatcher {
     let diffText = '';
     try {
       diffText = await readFile(filePath, 'utf8');
-    } catch {
-      // Treat missing file as empty diff.
-    }
+    } catch {} // eslint-disable-line no-empty
     if (this.disposed) return;
     const parsed = parseDiff(diffText);
     this.emit({ type: 'diff:update', runId: this.runId, changedFiles: parsed.changedFiles });
@@ -124,7 +120,7 @@ export class LiveTranscriptWatcher {
     if (this.disposed) return;
     this.disposed = true;
     for (const w of this.watchers) {
-      try { w.dispose(); } catch { /* swallow */ }
+      try { w.dispose(); } catch {} // eslint-disable-line no-empty
     }
     this.watchers.length = 0;
   }

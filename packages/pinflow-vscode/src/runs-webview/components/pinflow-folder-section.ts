@@ -2,7 +2,7 @@ import { LitElement, css, html } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
 import './pinflow-run-card.js';
-import type { PinFlowRunEvidence } from '../../core/run-evidence.js';
+import type { PinFlowChangedFile, PinFlowRunEvidence } from '../../core/run-evidence.js';
 import type { RunsWebviewSettings } from '../../core/views/runs-webview-messages.js';
 
 @customElement('pinflow-folder-section')
@@ -14,6 +14,9 @@ export class PinflowFolderSection extends LitElement {
   @property({ attribute: false }) folderStatus: 'configured' | 'not-configured' = 'configured';
   @property({ type: Boolean }) defaultExpanded = false;
   @property({ type: Boolean }) isActive = false;
+  @property({ attribute: false }) activeRunId: string | null = null;
+  @property({ attribute: false }) liveTranscript = '';
+  @property({ attribute: false }) liveChangedFiles: readonly PinFlowChangedFile[] | null = null;
 
   @state() private expanded = false;
 
@@ -126,6 +129,9 @@ export class PinflowFolderSection extends LitElement {
                         .run=${run}
                         .timeFormat=${this.timeFormat}
                         .index=${index}
+                        .isExpanded=${run.runId === this.activeRunId}
+                        .liveTranscript=${run.runId === this.activeRunId ? this.liveTranscript : ''}
+                        .liveChangedFiles=${run.runId === this.activeRunId ? this.liveChangedFiles : null}
                       ></pinflow-run-card>
                     `,
                   )}

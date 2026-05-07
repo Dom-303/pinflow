@@ -2,7 +2,8 @@ import { LitElement, css, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import './pinflow-lifecycle-pill.js';
 import { mapStatusToPillState } from './pinflow-lifecycle-pill.js';
-import type { PinFlowRunEvidence } from '../../core/run-evidence.js';
+import './pinflow-run-detail.js';
+import type { PinFlowChangedFile, PinFlowRunEvidence } from '../../core/run-evidence.js';
 import type { RunsWebviewSettings } from '../../core/views/runs-webview-messages.js';
 
 @customElement('pinflow-run-card')
@@ -10,6 +11,9 @@ export class PinflowRunCard extends LitElement {
   @property({ attribute: false }) run!: PinFlowRunEvidence;
   @property({ attribute: false }) timeFormat: RunsWebviewSettings['timeFormat'] = '24h';
   @property({ type: Number }) index = 0;
+  @property({ type: Boolean, attribute: false }) isExpanded = false;
+  @property({ attribute: false }) liveTranscript = '';
+  @property({ attribute: false }) liveChangedFiles: readonly PinFlowChangedFile[] | null = null;
 
   static styles = css`
     :host {
@@ -120,7 +124,7 @@ export class PinflowRunCard extends LitElement {
     }
   `;
 
-  protected updated(changed: Map<string, unknown>): void {
+  protected override updated(changed: Map<string, unknown>): void {
     if (changed.has('index')) {
       // CSS custom properties only inherit DOWN; setting --card-index on
       // an inner descendant won't reach :host. Set it on the host element
@@ -172,10 +176,12 @@ export class PinflowRunCard extends LitElement {
     );
   };
 
-  render() {
+  override render() {
     const label = this.run?.annotationId ?? this.run?.runId ?? 'unknown';
     const summary = this.run?.summary?.label ?? '';
     const pillState = mapStatusToPillState(this.run?.summary?.status);
+    const changedFiles = this.liveChangedFiles ?? this.run?.changedFiles ?? [];
+    const isLive = this.run?.summary?.status === 'processing';
     return html`
       <div
         class="card"
@@ -192,6 +198,16 @@ export class PinflowRunCard extends LitElement {
         <div class="footer">
           <pinflow-lifecycle-pill .state=${pillState}></pinflow-lifecycle-pill>
         </div>
+        ${this.isExpanded
+          ? html`<pinflow-run-detail
+              @click=${(e: Event) => e.stopPropagation()}
+              .runId=${this.run?.runId ?? ''}
+              .transcriptText=${this.liveTranscript}
+              .changedFiles=${changedFiles}
+              .promptPath=${this.run?.promptPath ?? null}
+              .isLive=${isLive}
+            ></pinflow-run-detail>`
+          : null}
       </div>
     `;
   }

@@ -71,3 +71,97 @@ describe('<pinflow-run-card>', () => {
     el.remove();
   });
 });
+
+describe('<pinflow-run-card> expanded detail', () => {
+  it('does not render <pinflow-run-detail> when isExpanded is false (default)', async () => {
+    // Arrange
+    const el = document.createElement('pinflow-run-card') as PinflowRunCard;
+    el.run = makeRun();
+
+    // Act
+    document.body.appendChild(el);
+    await el.updateComplete;
+
+    // Assert
+    expect(el.shadowRoot!.querySelector('pinflow-run-detail')).toBeNull();
+    el.remove();
+  });
+
+  it('renders <pinflow-run-detail> when isExpanded is true and forwards props', async () => {
+    // Arrange
+    const el = document.createElement('pinflow-run-card') as PinflowRunCard;
+    el.run = makeRun({
+      runId: 'r_42',
+      changedFiles: [{ path: 'src/foo.ts' }],
+      promptPath: '/repo/prompt.md',
+    });
+    el.isExpanded = true;
+    el.liveTranscript = 'streaming...';
+    el.liveChangedFiles = [{ path: 'src/bar.ts' }];
+
+    // Act
+    document.body.appendChild(el);
+    await el.updateComplete;
+
+    // Assert
+    const detail = el.shadowRoot!.querySelector('pinflow-run-detail') as
+      | (HTMLElement & {
+          runId: string;
+          transcriptText: string;
+          changedFiles: readonly { path: string }[];
+          promptPath: string | null;
+        })
+      | null;
+    expect(detail).not.toBeNull();
+    expect(detail!.runId).toBe('r_42');
+    expect(detail!.transcriptText).toBe('streaming...');
+    expect(detail!.changedFiles).toEqual([{ path: 'src/bar.ts' }]);
+    expect(detail!.promptPath).toBe('/repo/prompt.md');
+    el.remove();
+  });
+
+  it('falls back to run.changedFiles when liveChangedFiles is null', async () => {
+    // Arrange
+    const el = document.createElement('pinflow-run-card') as PinflowRunCard;
+    el.run = makeRun({
+      changedFiles: [{ path: 'src/static.ts' }],
+    });
+    el.isExpanded = true;
+    el.liveChangedFiles = null;
+
+    // Act
+    document.body.appendChild(el);
+    await el.updateComplete;
+
+    // Assert
+    const detail = el.shadowRoot!.querySelector('pinflow-run-detail') as
+      | (HTMLElement & { changedFiles: readonly { path: string }[] })
+      | null;
+    expect(detail!.changedFiles).toEqual([{ path: 'src/static.ts' }]);
+    el.remove();
+  });
+
+  it('still emits pinflow-card:click on outer card click when expanded', async () => {
+    // Arrange
+    const el = document.createElement('pinflow-run-card') as PinflowRunCard;
+    el.run = makeRun({ runId: 'r_clicked' });
+    el.isExpanded = true;
+    document.body.appendChild(el);
+    await el.updateComplete;
+
+    const events: Array<CustomEvent<{ runId: string }>> = [];
+    el.addEventListener('pinflow-card:click', (e) =>
+      events.push(e as CustomEvent<{ runId: string }>),
+    );
+
+    // Act
+    el.shadowRoot!
+      .querySelector<HTMLElement>('.card')!
+      .dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true }));
+
+    // Assert
+    expect(events).toHaveLength(1);
+    expect(events[0].detail.runId).toBe('r_clicked');
+    el.remove();
+  });
+});

@@ -329,6 +329,15 @@ describe('RunsWebviewProvider', () => {
 });
 
 describe('RunsWebviewProvider run-expand/collapse lifecycle', () => {
+  type ProviderInternals = {
+    activeRunId: string | null;
+    activeWatcher: { dispose: () => void } | null;
+  };
+
+  function internalsOf(provider: RunsWebviewProvider): ProviderInternals {
+    return provider as unknown as ProviderInternals;
+  }
+
   it('creates a watcher when run:expand arrives for a known run', () => {
     // Arrange
     const wb = createMockWebview();
@@ -348,7 +357,8 @@ describe('RunsWebviewProvider run-expand/collapse lifecycle', () => {
     wb.sendFromWebview({ type: 'run:expand', runId: 'r_1' });
 
     // Assert
-    expect((provider as unknown as { activeRunId: string | null }).activeRunId).toBe('r_1');
+    expect(internalsOf(provider).activeRunId).toBe('r_1');
+    expect(internalsOf(provider).activeWatcher).not.toBeNull();
   });
 
   it('disposes the watcher on run:collapse', () => {
@@ -366,12 +376,14 @@ describe('RunsWebviewProvider run-expand/collapse lifecycle', () => {
     });
     provider.resolveWebviewView(view as never, { state: undefined }, { isCancellationRequested: false });
     wb.sendFromWebview({ type: 'run:expand', runId: 'r_1' });
+    const disposeSpy = vi.spyOn(internalsOf(provider).activeWatcher!, 'dispose');
 
     // Act
     wb.sendFromWebview({ type: 'run:collapse', runId: 'r_1' });
 
     // Assert
-    expect((provider as unknown as { activeRunId: string | null }).activeRunId).toBeNull();
+    expect(disposeSpy).toHaveBeenCalledOnce();
+    expect(internalsOf(provider).activeRunId).toBeNull();
   });
 
   it('disposes the old watcher when switching to a different run', () => {
@@ -391,14 +403,14 @@ describe('RunsWebviewProvider run-expand/collapse lifecycle', () => {
 
     // Act
     wb.sendFromWebview({ type: 'run:expand', runId: 'r_1' });
-    const firstWatcher = (provider as unknown as { activeWatcher: unknown }).activeWatcher;
+    const firstWatcher = internalsOf(provider).activeWatcher;
     wb.sendFromWebview({ type: 'run:expand', runId: 'r_2' });
-    const secondWatcher = (provider as unknown as { activeWatcher: unknown }).activeWatcher;
+    const secondWatcher = internalsOf(provider).activeWatcher;
 
     // Assert
     expect(firstWatcher).not.toBeNull();
     expect(secondWatcher).not.toBeNull();
     expect(firstWatcher).not.toBe(secondWatcher);
-    expect((provider as unknown as { activeRunId: string | null }).activeRunId).toBe('r_2');
+    expect(internalsOf(provider).activeRunId).toBe('r_2');
   });
 });

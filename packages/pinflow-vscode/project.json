@@ -19,20 +19,24 @@
       }
     },
     "build": {
-      "executor": "@nx/js:tsc",
+      "executor": "nx:run-commands",
       "dependsOn": ["^build", "build:webview"],
-      "outputs": ["{projectRoot}/dist"],
+      "outputs": [
+        "{projectRoot}/dist/extension.cjs",
+        "{projectRoot}/dist/extension.cjs.map"
+      ],
+      "inputs": [
+        "{projectRoot}/src/**/*.ts",
+        "!{projectRoot}/src/runs-webview/**",
+        "!{projectRoot}/src/**/*.spec.ts",
+        "!{projectRoot}/src/**/*.test.ts",
+        "{projectRoot}/esbuild.config.mjs",
+        "{projectRoot}/tsconfig.lib.json",
+        "{workspaceRoot}/tsconfig.base.json"
+      ],
       "options": {
-        "rootDir": "packages/pinflow-vscode/src",
-        "outputPath": "packages/pinflow-vscode/dist",
-        "main": "packages/pinflow-vscode/src/extension.ts",
-        "tsConfig": "packages/pinflow-vscode/tsconfig.lib.json",
-        "generatePackageJson": false,
-        "clean": false,
-        "assets": [
-          "packages/pinflow-vscode/README.md",
-          "packages/pinflow-vscode/media"
-        ]
+        "command": "node esbuild.config.mjs",
+        "cwd": "{projectRoot}"
       }
     },
     "lint": {

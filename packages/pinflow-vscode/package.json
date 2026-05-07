@@ -5,7 +5,7 @@
   "description": "VS Code extension for viewing the local PinFlow workflow.",
   "type": "module",
   "publisher": "dom-303",
-  "main": "./dist/extension.js",
+  "main": "./dist/extension.cjs",
   "icon": "media/icon.png",
   "license": "MIT",
   "preview": true,
@@ -296,10 +296,11 @@
     "@pinflow/core": "workspace:*"
   },
   "devDependencies": {
-    "happy-dom": "^15.11.6"
+    "happy-dom": "^15.11.6",
+    "esbuild": "^0.27.3"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.lib.json",
+    "build": "node esbuild.config.mjs",
     "test": "vitest run --config vite.config.ts",
     "package:vsix": "corepack pnpm nx build pinflow-vscode && corepack pnpm dlx @vscode/vsce package --no-dependencies --out ../../tmp/pinflow-vscode.vsix"
   },

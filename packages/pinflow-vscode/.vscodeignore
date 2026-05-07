@@ -13,3 +13,5 @@ dist/*.vsix
 # (src/** already excludes the webview source via line 1)
 vite.webview.config.ts
 scripts/check-webview-bundle-size.mjs
+# esbuild config — build-time only, not needed inside the VSIX
+esbuild.config.mjs

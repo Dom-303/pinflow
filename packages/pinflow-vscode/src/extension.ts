@@ -20,6 +20,7 @@ import {
 import {
   buildPerFolderState,
   expandToAllWorkspaceFolders,
+  expandToCandidateFolders,
   pickActiveFolder,
   type PerFolderState,
 } from './core/multi-folder-state.js';
@@ -305,6 +306,8 @@ function activateInternal(context: vscode.ExtensionContext, outputChannel: vscod
       maybeFireFirstRunToast(state);
       handleAutoBrowserForFolder(state, config);
     }
+
+    void syncOverlayBridges();
   }
 
   context.subscriptions.push(
@@ -582,7 +585,11 @@ function activateInternal(context: vscode.ExtensionContext, outputChannel: vscod
     const fsPaths = (vscode.workspace.workspaceFolders ?? []).map(
       (f) => f.uri.fsPath,
     );
-    const expected = new Set(expandToAllWorkspaceFolders(fsPaths));
+    // Only attach bridges to configured PinFlow roots (no fallback to raw VS Code
+    // workspace root) — otherwise cold-start in a monorepo whose configured
+    // workspace lives in a child folder would mkdir a stray .pinflow/ at the
+    // parent before the wizard runs.
+    const expected = new Set(expandToCandidateFolders(fsPaths));
     for (const fsPath of [...overlayBridges.keys()]) {
       if (!expected.has(fsPath)) {
         await removeOverlayBridge(fsPath);

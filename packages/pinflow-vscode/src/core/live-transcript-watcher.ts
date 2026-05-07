@@ -95,8 +95,8 @@ export class LiveTranscriptWatcher {
     if (size === this.lastReadByteOffset) return;
     let delta: string;
     try {
-      const fullText = await readFile(filePath, 'utf8');
-      delta = fullText.slice(this.lastReadByteOffset);
+      const fullBuffer = await readFile(filePath);
+      delta = fullBuffer.subarray(this.lastReadByteOffset, size).toString('utf8');
     } catch {
       return;
     }

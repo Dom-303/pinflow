@@ -157,6 +157,36 @@ describe('LiveTranscriptWatcher diff updates', () => {
   });
 });
 
+describe('LiveTranscriptWatcher multibyte content', () => {
+  it('correctly slices delta when transcript contains umlauts', async () => {
+    // Arrange
+    const { dir, transcript, diff } = await tmpRun();
+    tmpDirs.push(dir);
+    await writeFile(transcript, 'Schöne Grüße\n', 'utf8');
+    await writeFile(diff, '');
+    const events: TranscriptEvent[] = [];
+    const watcher = new LiveTranscriptWatcher(makeEvidence(transcript, diff), (e) =>
+      events.push(e),
+    );
+    watchers.push(watcher);
+    await watcher.ready;
+    events.length = 0;
+
+    // Act
+    await appendFile(transcript, 'mehr Ümlaüte\n', 'utf8');
+    workspaceStub.__triggerChange?.(transcript);
+    await new Promise((resolve) => setTimeout(resolve, 10));
+
+    // Assert
+    const append = events.find((e) => e.type === 'transcript:append');
+    expect(append).toMatchObject({
+      type: 'transcript:append',
+      runId: 'r_1',
+      delta: 'mehr Ümlaüte\n',
+    });
+  });
+});
+
 describe('LiveTranscriptWatcher disposal', () => {
   it('ignores subsequent change events after dispose', async () => {
     // Arrange

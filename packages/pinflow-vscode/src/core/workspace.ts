@@ -213,6 +213,11 @@ function findConfiguredWorkspace(
       configPath?: string;
     }
   | undefined {
+  // Pass 1 — explicit configuration markers (.pinflow/, config file, monorepo
+  // demo). Walked all the way up so a parent's .pinflow/ wins over a child's
+  // package-only signal. Without this, an app like apps/web/ that lists
+  // @pinflow/react in package.json would shadow its parent monorepo's real
+  // .pinflow/ setup, producing two unrelated accordions in the sidebar.
   for (const dir of walkUp(startPath)) {
     if (hasPinFlowArtifacts(dir)) {
       return {
@@ -239,7 +244,12 @@ function findConfiguredWorkspace(
         appRoot: monorepoDemoAppRoot,
       };
     }
+  }
 
+  // Pass 2 — fallback to package-level detection when no explicit config was
+  // found anywhere up the tree. The closest-with-pinflow-package wins, which
+  // matches a workspace whose only signal is the @pinflow/* dependency.
+  for (const dir of walkUp(startPath)) {
     if (hasPinFlowPackage(dir)) {
       return {
         workspaceRoot: dir,

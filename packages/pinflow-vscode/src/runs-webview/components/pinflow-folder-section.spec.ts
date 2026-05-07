@@ -186,3 +186,43 @@ describe('<pinflow-folder-section> unconfigured state', () => {
     el.remove();
   });
 });
+
+describe('<pinflow-folder-section> active-run forwarding', () => {
+  it('marks only the matching card as expanded and forwards live data', async () => {
+    // Arrange
+    const el = document.createElement('pinflow-folder-section') as PinflowFolderSection;
+    el.folderPath = '/repo';
+    el.displayName = 'repo';
+    el.runs = [
+      { runId: 'r_1', summaryPath: '/p1' } as never,
+      { runId: 'r_2', summaryPath: '/p2' } as never,
+    ];
+    el.folderStatus = 'configured';
+    el.defaultExpanded = true;
+    el.activeRunId = 'r_2';
+    el.liveTranscript = 'live!';
+    el.liveChangedFiles = [{ path: 'src/x.ts' }] as never;
+
+    // Act
+    document.body.appendChild(el);
+    await el.updateComplete;
+
+    // Assert
+    const cards = Array.from(el.shadowRoot!.querySelectorAll('pinflow-run-card')) as Array<
+      HTMLElement & {
+        isExpanded: boolean;
+        liveTranscript: string;
+        liveChangedFiles: readonly { path: string }[] | null;
+      }
+    >;
+    expect(cards.length).toBe(2);
+    expect(cards[0].isExpanded).toBe(false);
+    expect(cards[0].liveTranscript).toBe('');
+    expect(cards[0].liveChangedFiles).toBeNull();
+    expect(cards[1].isExpanded).toBe(true);
+    expect(cards[1].liveTranscript).toBe('live!');
+    expect(cards[1].liveChangedFiles).toEqual([{ path: 'src/x.ts' }]);
+
+    el.remove();
+  });
+});

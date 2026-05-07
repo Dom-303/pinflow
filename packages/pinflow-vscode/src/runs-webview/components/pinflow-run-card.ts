@@ -1,146 +1,122 @@
 import { LitElement, css, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import './pinflow-lifecycle-pill.js';
-import { mapStatusToPillState } from './pinflow-lifecycle-pill.js';
-import type { PinFlowRunEvidence } from '../../core/run-evidence.js';
+import { mapStatusToPillState, type PillState } from './pinflow-lifecycle-pill.js';
+import './pinflow-run-detail.js';
+import type { PinFlowChangedFile, PinFlowRunEvidence } from '../../core/run-evidence.js';
 import type { RunsWebviewSettings } from '../../core/views/runs-webview-messages.js';
+
+const STATE_ICON: Record<PillState, string> = {
+  processing: 'codicon-loading codicon-modifier-spin',
+  processed: 'codicon-check',
+  failed: 'codicon-error',
+  unknown: 'codicon-circle-outline',
+};
 
 @customElement('pinflow-run-card')
 export class PinflowRunCard extends LitElement {
   @property({ attribute: false }) run!: PinFlowRunEvidence;
   @property({ attribute: false }) timeFormat: RunsWebviewSettings['timeFormat'] = '24h';
   @property({ type: Number }) index = 0;
+  @property({ type: Boolean, attribute: false }) isExpanded = false;
+  @property({ attribute: false }) liveTranscript = '';
+  @property({ attribute: false }) liveChangedFiles: readonly PinFlowChangedFile[] | null = null;
 
   static styles = css`
     :host {
       display: block;
-      --stagger-delay: calc(var(--card-index, 0) * 50ms);
+      --stagger-delay: calc(var(--card-index, 0) * 30ms);
     }
     .card {
       position: relative;
-      background: var(--pf-card-surface);
-      background-image: var(--pf-paper-grain);
-      background-blend-mode: overlay;
-      border: 1px solid var(--pf-border);
-      border-radius: var(--pf-radius);
-      padding: 10px 14px 12px 16px;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      padding: 5px 8px 5px 12px;
       cursor: pointer;
-      box-shadow: var(--pf-card-shadow);
-      transition: transform 150ms ease, box-shadow 150ms ease;
+      transition: background 80ms ease;
       overflow: hidden;
     }
     .card::before {
       content: '';
       position: absolute;
-      left: 0;
-      top: 12px;
-      bottom: 12px;
+      left: 4px;
+      top: 8px;
+      bottom: 8px;
       width: 2px;
-      background: var(--pf-accent);
       border-radius: 2px;
+      background: var(--pf-text-muted);
+      opacity: 0.4;
+    }
+    .card[data-state='processed']::before { background: var(--pf-status-done); opacity: 0.7; }
+    .card[data-state='processing']::before { background: var(--pf-status-running); opacity: 0.9; }
+    .card[data-state='failed']::before { background: var(--pf-status-failed); opacity: 0.8; }
+    .card:hover {
+      background: var(--pf-bg-elevated);
+    }
+    :host([is-expanded]) .card {
+      background: var(--pf-bg-elevated);
     }
     @media (prefers-reduced-motion: no-preference) {
       :host {
-        animation: card-fade-in 350ms ease-out both;
+        animation: card-fade-in 250ms ease-out both;
         animation-delay: var(--stagger-delay);
-      }
-      .card:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--pf-card-shadow-hover);
-      }
-      .card[data-just-processed]::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: linear-gradient(
-          90deg,
-          transparent 0%,
-          var(--pf-accent) 50%,
-          transparent 100%
-        );
-        animation: gold-sweep 600ms ease-out;
       }
     }
     @keyframes card-fade-in {
-      from { opacity: 0; transform: translateY(6px); }
+      from { opacity: 0; transform: translateY(2px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    @keyframes gold-sweep {
-      from { transform: translateX(-100%); }
-      to { transform: translateX(100%); }
-    }
-    .header {
+    .row {
       display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: var(--pf-space);
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    .status-icon {
+      flex-shrink: 0;
+      font-family: codicon;
+      font-size: 12px;
+      color: var(--pf-text-muted);
+      width: 14px;
+      text-align: center;
+    }
+    .status-icon.processed { color: var(--pf-status-done); }
+    .status-icon.processing { color: var(--pf-status-running); }
+    .status-icon.failed { color: var(--pf-status-failed); }
+    .label {
+      flex: 1;
+      min-width: 0;
+      font-family: var(--vscode-font-family);
+      font-size: 12px;
+      color: var(--pf-text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
     .annotation-id {
       font-family: var(--vscode-editor-font-family, var(--vscode-font-family));
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--pf-text);
-      letter-spacing: 0.01em;
-      flex: 1;
-      min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .header-divider {
-      width: 1px;
-      align-self: stretch;
-      background: var(--pf-accent);
-      opacity: 0.5;
-      margin: 2px 4px;
+      font-size: 11px;
+      color: var(--pf-text-muted);
+      margin-left: 6px;
     }
     .time {
+      flex-shrink: 0;
       font-family: var(--vscode-font-family);
       font-size: 11px;
       color: var(--pf-text-muted);
-      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
     }
-    .summary {
-      margin-top: 6px;
-      font-family: var(--vscode-font-family);
-      font-size: 12px;
-      color: var(--pf-text-muted);
-      line-height: 1.4;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .footer {
-      margin-top: 8px;
-      display: flex;
-      justify-content: flex-end;
+    .detail-slot {
+      margin-top: 4px;
     }
   `;
 
-  protected updated(changed: Map<string, unknown>): void {
+  protected override updated(changed: Map<string, unknown>): void {
     if (changed.has('index')) {
-      // CSS custom properties only inherit DOWN; setting --card-index on
-      // an inner descendant won't reach :host. Set it on the host element
-      // directly so :host's stagger animation can read it.
       this.style.setProperty('--card-index', String(this.index));
     }
-    if (!changed.has('run')) return;
-    const prev = changed.get('run') as PinFlowRunEvidence | undefined;
-    const previousStatus = prev?.summary?.status;
-    const currentStatus = this.run?.summary?.status;
-    if (
-      currentStatus === 'processed' &&
-      previousStatus !== undefined &&
-      previousStatus !== 'processed'
-    ) {
-      const card = this.shadowRoot?.querySelector<HTMLElement>('.card');
-      if (card) {
-        card.dataset['justProcessed'] = '';
-        setTimeout(() => delete card.dataset['justProcessed'], 700);
-      }
+    if (changed.has('isExpanded')) {
+      this.toggleAttribute('is-expanded', this.isExpanded);
     }
   }
 
@@ -172,26 +148,44 @@ export class PinflowRunCard extends LitElement {
     );
   };
 
-  render() {
-    const label = this.run?.annotationId ?? this.run?.runId ?? 'unknown';
-    const summary = this.run?.summary?.label ?? '';
+  override render() {
+    const intent = this.run?.summary?.userIntent?.trim();
+    const annotationId = this.run?.annotationId ?? this.run?.runId ?? '';
+    const primary = intent || annotationId || 'unknown';
+    const showAnnotationSuffix = Boolean(intent && annotationId);
     const pillState = mapStatusToPillState(this.run?.summary?.status);
+    const iconClass = STATE_ICON[pillState];
+    const changedFiles = this.liveChangedFiles ?? this.run?.changedFiles ?? [];
+    const isLive = pillState === 'processing';
     return html`
       <div
         class="card"
+        data-state=${pillState}
         @click=${this.handleClick}
       >
-        <div class="header">
-          <span class="annotation-id">${label}</span>
-          <span class="header-divider"></span>
+        <div class="row">
+          <i
+            class=${`status-icon codicon ${iconClass} ${pillState}`}
+            aria-label=${pillState}
+          ></i>
+          <span class="label">
+            ${primary}${showAnnotationSuffix
+              ? html`<span class="annotation-id">${annotationId}</span>`
+              : null}
+          </span>
           <span class="time">${this.formatTime()}</span>
         </div>
-        ${summary
-          ? html`<div class="summary">${summary}</div>`
-          : html`<div class="summary">&nbsp;</div>`}
-        <div class="footer">
-          <pinflow-lifecycle-pill .state=${pillState}></pinflow-lifecycle-pill>
-        </div>
+        ${this.isExpanded
+          ? html`<div class="detail-slot">
+              <pinflow-run-detail
+                @click=${(e: Event) => e.stopPropagation()}
+                .run=${this.run}
+                .transcriptText=${this.liveTranscript}
+                .changedFiles=${changedFiles}
+                .isLive=${isLive}
+              ></pinflow-run-detail>
+            </div>`
+          : null}
       </div>
     `;
   }

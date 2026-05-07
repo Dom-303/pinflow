@@ -6,6 +6,18 @@ const here = import.meta.dirname;
 export default defineConfig({
   root: path.resolve(here, 'src/runs-webview'),
   base: './',
+  // Lit's @customElement / @property / @state are TC39 stage-1 (legacy)
+  // decorators. Without these flags esbuild emits stage-3 form, which
+  // throws "Unsupported decorator location: field" at runtime when the
+  // bundle loads — silently blanking the entire webview.
+  esbuild: {
+    tsconfigRaw: {
+      compilerOptions: {
+        experimentalDecorators: true,
+        useDefineForClassFields: false,
+      },
+    },
+  },
   build: {
     outDir: path.resolve(here, 'dist/runs-webview'),
     emptyOutDir: true,

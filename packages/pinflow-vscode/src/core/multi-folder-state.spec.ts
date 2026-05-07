@@ -189,6 +189,21 @@ describe('expandToAllWorkspaceFolders', () => {
     expect(result).toEqual([path.join(root1, 'app'), root2]);
   });
 
+  it('excludes monorepo parent when only a child is configured', () => {
+    // Regression: extension.ts wires overlay-settings bridges through this helper.
+    // A naive iteration over vscode.workspace.workspaceFolders would create a
+    // bridge at the parent and write a stray .pinflow/ there.
+    // Arrange
+    const monorepoRoot = tempRootWithNestedPinflow;
+
+    // Act
+    const result = expandToAllWorkspaceFolders([monorepoRoot]);
+
+    // Assert
+    expect(result).toEqual([path.join(monorepoRoot, 'app')]);
+    expect(result).not.toContain(monorepoRoot);
+  });
+
   it('matches expandToCandidateFolders when all configured', () => {
     // Arrange
     const folders = [tempConfiguredA, tempConfiguredB];

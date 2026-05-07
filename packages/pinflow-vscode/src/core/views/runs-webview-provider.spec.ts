@@ -76,12 +76,19 @@ const fakeUri = {
   toString: () => '/ext',
 };
 
+const fakeOutputChannel = () => ({
+  appendLine: vi.fn(),
+  show: vi.fn(),
+  dispose: vi.fn(),
+});
+
 describe('RunsWebviewProvider', () => {
   it('sets enableScripts and html on resolveWebviewView', () => {
     const wb = createMockWebview();
     const view = createMockView(wb.webview);
     const provider = new RunsWebviewProvider({
       extensionUri: fakeUri as never,
+      outputChannel: fakeOutputChannel() as never,
       onOpenPrompt: vi.fn(),
       getCurrentSnapshot: () => ({ runsByFolder: {}, folderStatuses: {} }),
       getCurrentSettings: () => ({ timeFormat: '24h' }),
@@ -105,6 +112,7 @@ describe('RunsWebviewProvider', () => {
     const view = createMockView(wb.webview);
     const provider = new RunsWebviewProvider({
       extensionUri: fakeUri as never,
+      outputChannel: fakeOutputChannel() as never,
       onOpenPrompt: vi.fn(),
       getCurrentSnapshot: () => ({ runsByFolder: { '/repo': [sampleRun] }, folderStatuses: { '/repo': 'configured' } }),
       getCurrentSettings: () => ({ timeFormat: '24h' }),
@@ -126,6 +134,7 @@ describe('RunsWebviewProvider', () => {
     const folderStatuses = { '/repo': 'configured' as const };
     const provider = new RunsWebviewProvider({
       extensionUri: fakeUri as never,
+      outputChannel: fakeOutputChannel() as never,
       onOpenPrompt: vi.fn(),
       getCurrentSnapshot: () => ({ runsByFolder, folderStatuses, activeFolder: '/repo' }),
       getCurrentSettings: () => ({ timeFormat: '12h' }),
@@ -154,6 +163,7 @@ describe('RunsWebviewProvider', () => {
     const folderStatuses = { '/repo': 'configured' as const };
     const provider = new RunsWebviewProvider({
       extensionUri: fakeUri as never,
+      outputChannel: fakeOutputChannel() as never,
       onOpenPrompt: vi.fn(),
       getCurrentSnapshot: () => ({ runsByFolder, folderStatuses }),
       getCurrentSettings: () => ({ timeFormat: '24h' }),
@@ -184,6 +194,7 @@ describe('RunsWebviewProvider', () => {
     const folderStatuses = { '/repo': 'configured' as const };
     const provider = new RunsWebviewProvider({
       extensionUri: fakeUri as never,
+      outputChannel: fakeOutputChannel() as never,
       onOpenPrompt: vi.fn(),
       getCurrentSnapshot: () => ({ runsByFolder, folderStatuses }),
       getCurrentSettings: () => ({ timeFormat: '24h' }),
@@ -209,6 +220,7 @@ describe('RunsWebviewProvider', () => {
     const view = createMockView(wb.webview);
     const provider = new RunsWebviewProvider({
       extensionUri: fakeUri as never,
+      outputChannel: fakeOutputChannel() as never,
       onOpenPrompt: vi.fn(),
       getCurrentSnapshot: () => ({ runsByFolder: {}, folderStatuses: {} }),
       getCurrentSettings: () => ({ timeFormat: '24h' }),
@@ -255,6 +267,7 @@ describe('RunsWebviewProvider', () => {
     const view = createMockView(wb.webview);
     const provider = new RunsWebviewProvider({
       extensionUri: fakeUri as never,
+      outputChannel: fakeOutputChannel() as never,
       onOpenPrompt: vi.fn(),
       getCurrentSnapshot: () => ({ runsByFolder: {}, folderStatuses: {} }),
       getCurrentSettings: () => ({ timeFormat: '24h' }),
@@ -325,5 +338,164 @@ describe('RunsWebviewProvider', () => {
     wb.sendFromWebview(null);
 
     expect(onOpenPrompt).not.toHaveBeenCalled();
+  });
+});
+
+describe('RunsWebviewProvider run-expand/collapse lifecycle', () => {
+  type ProviderInternals = {
+    activeRunId: string | null;
+    activeWatcher: { dispose: () => void } | null;
+  };
+
+  function internalsOf(provider: RunsWebviewProvider): ProviderInternals {
+    return provider as unknown as ProviderInternals;
+  }
+
+  it('creates a watcher when run:expand arrives for a known run', () => {
+    // Arrange
+    const wb = createMockWebview();
+    const view = createMockView(wb.webview);
+    const provider = new RunsWebviewProvider({
+      extensionUri: fakeUri as never,
+      outputChannel: fakeOutputChannel() as never,
+      onOpenPrompt: vi.fn(),
+      getCurrentSnapshot: () => ({
+        runsByFolder: { '/repo': [sampleRun] },
+        folderStatuses: { '/repo': 'configured' },
+      }),
+      getCurrentSettings: () => ({ timeFormat: '24h' }),
+    });
+    provider.resolveWebviewView(view as never, { state: undefined }, { isCancellationRequested: false });
+
+    // Act
+    wb.sendFromWebview({ type: 'run:expand', runId: 'r_1' });
+
+    // Assert
+    expect(internalsOf(provider).activeRunId).toBe('r_1');
+    expect(internalsOf(provider).activeWatcher).not.toBeNull();
+  });
+
+  it('disposes the watcher on run:collapse', () => {
+    // Arrange
+    const wb = createMockWebview();
+    const view = createMockView(wb.webview);
+    const provider = new RunsWebviewProvider({
+      extensionUri: fakeUri as never,
+      outputChannel: fakeOutputChannel() as never,
+      onOpenPrompt: vi.fn(),
+      getCurrentSnapshot: () => ({
+        runsByFolder: { '/repo': [sampleRun] },
+        folderStatuses: { '/repo': 'configured' },
+      }),
+      getCurrentSettings: () => ({ timeFormat: '24h' }),
+    });
+    provider.resolveWebviewView(view as never, { state: undefined }, { isCancellationRequested: false });
+    wb.sendFromWebview({ type: 'run:expand', runId: 'r_1' });
+    const disposeSpy = vi.spyOn(internalsOf(provider).activeWatcher!, 'dispose');
+
+    // Act
+    wb.sendFromWebview({ type: 'run:collapse', runId: 'r_1' });
+
+    // Assert
+    expect(disposeSpy).toHaveBeenCalledOnce();
+    expect(internalsOf(provider).activeRunId).toBeNull();
+  });
+
+  it('disposes the old watcher when switching to a different run', () => {
+    // Arrange
+    const wb = createMockWebview();
+    const view = createMockView(wb.webview);
+    const provider = new RunsWebviewProvider({
+      extensionUri: fakeUri as never,
+      outputChannel: fakeOutputChannel() as never,
+      onOpenPrompt: vi.fn(),
+      getCurrentSnapshot: () => ({
+        runsByFolder: { '/repo': [sampleRun, sampleRun2] },
+        folderStatuses: { '/repo': 'configured' },
+      }),
+      getCurrentSettings: () => ({ timeFormat: '24h' }),
+    });
+    provider.resolveWebviewView(view as never, { state: undefined }, { isCancellationRequested: false });
+
+    // Act
+    wb.sendFromWebview({ type: 'run:expand', runId: 'r_1' });
+    const firstWatcher = internalsOf(provider).activeWatcher;
+    wb.sendFromWebview({ type: 'run:expand', runId: 'r_2' });
+    const secondWatcher = internalsOf(provider).activeWatcher;
+
+    // Assert
+    expect(firstWatcher).not.toBeNull();
+    expect(secondWatcher).not.toBeNull();
+    expect(firstWatcher).not.toBe(secondWatcher);
+    expect(internalsOf(provider).activeRunId).toBe('r_2');
+  });
+});
+
+describe('RunsWebviewProvider open-diff command wiring', () => {
+  it('calls vscode.diff with git: left, file: right URIs', async () => {
+    // Arrange
+    const wb = createMockWebview();
+    const view = createMockView(wb.webview);
+    const outputChannel = {
+      appendLine: vi.fn(),
+      show: vi.fn(),
+      dispose: vi.fn(),
+    };
+    const provider = new RunsWebviewProvider({
+      extensionUri: fakeUri as never,
+      outputChannel: outputChannel as never,
+      onOpenPrompt: vi.fn(),
+      getCurrentSnapshot: () => ({
+        runsByFolder: { '/repo': [sampleRun] },
+        folderStatuses: { '/repo': 'configured' },
+      }),
+      getCurrentSettings: () => ({ timeFormat: '24h' }),
+    });
+    provider.resolveWebviewView(view as never, { state: undefined }, { isCancellationRequested: false });
+    vsCodeCommands.executeCommand.mockClear();
+
+    // Act
+    wb.sendFromWebview({ type: 'run:open-diff', runId: 'r_1', filePath: 'src/foo.ts' });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    // Assert
+    expect(vsCodeCommands.executeCommand).toHaveBeenCalledWith(
+      'vscode.diff',
+      expect.objectContaining({ toString: expect.any(Function) }),
+      expect.objectContaining({ toString: expect.any(Function) }),
+      expect.stringContaining('foo.ts'),
+    );
+  });
+
+  it('falls back to showTextDocument and logs when vscode.diff throws', async () => {
+    // Arrange
+    const wb = createMockWebview();
+    const view = createMockView(wb.webview);
+    const outputChannel = {
+      appendLine: vi.fn(),
+      show: vi.fn(),
+      dispose: vi.fn(),
+    };
+    const provider = new RunsWebviewProvider({
+      extensionUri: fakeUri as never,
+      outputChannel: outputChannel as never,
+      onOpenPrompt: vi.fn(),
+      getCurrentSnapshot: () => ({
+        runsByFolder: { '/repo': [sampleRun] },
+        folderStatuses: { '/repo': 'configured' },
+      }),
+      getCurrentSettings: () => ({ timeFormat: '24h' }),
+    });
+    provider.resolveWebviewView(view as never, { state: undefined }, { isCancellationRequested: false });
+    vsCodeCommands.executeCommand.mockRejectedValueOnce(new Error('git provider unavailable'));
+
+    // Act
+    wb.sendFromWebview({ type: 'run:open-diff', runId: 'r_1', filePath: 'src/foo.ts' });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    // Assert
+    expect(outputChannel.appendLine).toHaveBeenCalledWith(
+      expect.stringContaining('vscode.diff failed'),
+    );
   });
 });

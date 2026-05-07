@@ -1,6 +1,8 @@
 import { randomBytes } from 'node:crypto';
+import * as path from 'node:path';
 import * as vscode from 'vscode';
 
+import { LiveTranscriptWatcher, type TranscriptEvent } from '../live-transcript-watcher.js';
 import type { PinFlowRunEvidence } from '../run-evidence.js';
 import {
   isWebviewToExtMessage,
@@ -17,6 +19,7 @@ export interface RunsSnapshot {
 
 export interface RunsWebviewProviderDeps {
   readonly extensionUri: vscode.Uri;
+  readonly outputChannel: vscode.OutputChannel;
   readonly onOpenPrompt: (run: PinFlowRunEvidence) => void;
   readonly getCurrentSnapshot: () => RunsSnapshot;
   readonly getCurrentSettings: () => RunsWebviewSettings;
@@ -24,6 +27,8 @@ export interface RunsWebviewProviderDeps {
 
 export class RunsWebviewProvider implements vscode.WebviewViewProvider {
   private webviewView: vscode.WebviewView | null = null;
+  private activeWatcher: LiveTranscriptWatcher | null = null;
+  private activeRunId: string | null = null;
 
   constructor(private readonly deps: RunsWebviewProviderDeps) {}
 
@@ -72,9 +77,26 @@ export class RunsWebviewProvider implements vscode.WebviewViewProvider {
           }
         }
       }
+      if (message.type === 'run:expand') {
+        const evidence = this.findRun(message.runId);
+        if (!evidence) return;
+        this.startWatcher(evidence);
+        return;
+      }
+      if (message.type === 'run:collapse') {
+        if (this.activeRunId === message.runId) {
+          this.disposeActiveWatcher();
+        }
+        return;
+      }
+      if (message.type === 'run:open-diff') {
+        void this.openDiff(message.runId, message.filePath);
+        return;
+      }
     });
 
     webviewView.onDidDispose(() => {
+      this.disposeActiveWatcher();
       this.webviewView = null;
     });
   }
@@ -94,6 +116,79 @@ export class RunsWebviewProvider implements vscode.WebviewViewProvider {
     if (!this.webviewView) return;
     const update: ExtToWebviewMessage = { type: 'settings:update', settings };
     void this.webviewView.webview.postMessage(update);
+  }
+
+  private findRun(runId: string): PinFlowRunEvidence | undefined {
+    const snapshot = this.deps.getCurrentSnapshot();
+    for (const runs of Object.values(snapshot.runsByFolder)) {
+      const match = runs.find((r) => r.runId === runId);
+      if (match) return match;
+    }
+    return undefined;
+  }
+
+  private async openDiff(runId: string, filePath: string): Promise<void> {
+    const evidence = this.findRun(runId);
+    if (!evidence) return;
+
+    const snapshot = this.deps.getCurrentSnapshot();
+    const folderRoot = Object.entries(snapshot.runsByFolder).find(([, runs]) =>
+      runs.some((r) => r.runId === runId),
+    )?.[0];
+    if (!folderRoot) return;
+
+    const absoluteFile = path.isAbsolute(filePath)
+      ? filePath
+      : path.join(folderRoot, filePath);
+    const fileUri = vscode.Uri.file(absoluteFile);
+    const gitUri = vscode.Uri.parse(
+      'git:' +
+        absoluteFile +
+        '?' +
+        encodeURIComponent(JSON.stringify({ path: absoluteFile, ref: 'HEAD' })),
+    );
+    const title = `${path.basename(absoluteFile)} (HEAD ↔ working tree) — ${runId}`;
+
+    try {
+      await vscode.commands.executeCommand('vscode.diff', gitUri, fileUri, title);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.deps.outputChannel.appendLine(
+        `[run:open-diff] vscode.diff failed for ${absoluteFile}: ${message}`,
+      );
+      this.deps.outputChannel.appendLine('[run:open-diff] Falling back to showTextDocument.');
+      try {
+        await vscode.window.showTextDocument(fileUri);
+        await vscode.window.showInformationMessage(
+          `Opened ${path.basename(absoluteFile)} (diff view unavailable in this workspace).`,
+        );
+      } catch (fallbackError) {
+        const fbMessage =
+          fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
+        this.deps.outputChannel.appendLine(
+          `[run:open-diff] Fallback showTextDocument also failed: ${fbMessage}`,
+        );
+      }
+    }
+  }
+
+  private disposeActiveWatcher(): void {
+    this.activeWatcher?.dispose();
+    this.activeWatcher = null;
+    this.activeRunId = null;
+  }
+
+  private startWatcher(evidence: PinFlowRunEvidence): void {
+    this.disposeActiveWatcher();
+    this.activeRunId = evidence.runId ?? null;
+    this.activeWatcher = new LiveTranscriptWatcher(evidence, (event) => {
+      this.forwardEvent(event);
+    });
+  }
+
+  private forwardEvent(event: TranscriptEvent): void {
+    if (!this.webviewView) return;
+    void this.webviewView.webview.postMessage(event);
   }
 
   private buildHtml(webview: vscode.Webview, distRoot: vscode.Uri): string {

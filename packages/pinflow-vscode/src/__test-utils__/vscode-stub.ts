@@ -38,6 +38,7 @@ export const Uri = {
     fsPath: [base.fsPath, ...segments].join('/'),
     toString: () => [base.fsPath, ...segments].join('/'),
   }),
+  file: (fsPath: string) => ({ fsPath, toString: () => `file://${fsPath}` }),
   parse: (url: string) => ({ toString: () => url }),
 };
 

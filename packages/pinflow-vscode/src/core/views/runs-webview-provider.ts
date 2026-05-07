@@ -1,4 +1,5 @@
 import { randomBytes } from 'node:crypto';
+import * as path from 'node:path';
 import * as vscode from 'vscode';
 
 import { LiveTranscriptWatcher, type TranscriptEvent } from '../live-transcript-watcher.js';
@@ -18,6 +19,7 @@ export interface RunsSnapshot {
 
 export interface RunsWebviewProviderDeps {
   readonly extensionUri: vscode.Uri;
+  readonly outputChannel: vscode.OutputChannel;
   readonly onOpenPrompt: (run: PinFlowRunEvidence) => void;
   readonly getCurrentSnapshot: () => RunsSnapshot;
   readonly getCurrentSettings: () => RunsWebviewSettings;
@@ -88,6 +90,7 @@ export class RunsWebviewProvider implements vscode.WebviewViewProvider {
         return;
       }
       if (message.type === 'run:open-diff') {
+        void this.openDiff(message.runId, message.filePath);
         return;
       }
     });
@@ -122,6 +125,51 @@ export class RunsWebviewProvider implements vscode.WebviewViewProvider {
       if (match) return match;
     }
     return undefined;
+  }
+
+  private async openDiff(runId: string, filePath: string): Promise<void> {
+    const evidence = this.findRun(runId);
+    if (!evidence) return;
+
+    const snapshot = this.deps.getCurrentSnapshot();
+    const folderRoot = Object.entries(snapshot.runsByFolder).find(([, runs]) =>
+      runs.some((r) => r.runId === runId),
+    )?.[0];
+    if (!folderRoot) return;
+
+    const absoluteFile = path.isAbsolute(filePath)
+      ? filePath
+      : path.join(folderRoot, filePath);
+    const fileUri = vscode.Uri.file(absoluteFile);
+    const gitUri = vscode.Uri.parse(
+      'git:' +
+        absoluteFile +
+        '?' +
+        encodeURIComponent(JSON.stringify({ path: absoluteFile, ref: 'HEAD' })),
+    );
+    const title = `${path.basename(absoluteFile)} (HEAD ↔ working tree) — ${runId}`;
+
+    try {
+      await vscode.commands.executeCommand('vscode.diff', gitUri, fileUri, title);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.deps.outputChannel.appendLine(
+        `[run:open-diff] vscode.diff failed for ${absoluteFile}: ${message}`,
+      );
+      this.deps.outputChannel.appendLine('[run:open-diff] Falling back to showTextDocument.');
+      try {
+        await vscode.window.showTextDocument(fileUri);
+        await vscode.window.showInformationMessage(
+          `Opened ${path.basename(absoluteFile)} (diff view unavailable in this workspace).`,
+        );
+      } catch (fallbackError) {
+        const fbMessage =
+          fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
+        this.deps.outputChannel.appendLine(
+          `[run:open-diff] Fallback showTextDocument also failed: ${fbMessage}`,
+        );
+      }
+    }
   }
 
   private disposeActiveWatcher(): void {

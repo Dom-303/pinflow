@@ -65,7 +65,7 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(outputChannel);
 
   try {
-    activateInternal(context);
+    activateInternal(context, outputChannel);
     outputChannel.appendLine('PinFlow extension activated.');
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -84,7 +84,7 @@ export function activate(context: vscode.ExtensionContext): void {
   }
 }
 
-function activateInternal(context: vscode.ExtensionContext): void {
+function activateInternal(context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel): void {
   const statusItem = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Left,
     100,
@@ -109,6 +109,7 @@ function activateInternal(context: vscode.ExtensionContext): void {
 
   const runsWebviewProvider = new RunsWebviewProvider({
     extensionUri: context.extensionUri,
+    outputChannel,
     getCurrentSnapshot: () => ({
       runsByFolder: Object.fromEntries(
         trackedFolders.map((s) => [s.folder, s.runs] as const),

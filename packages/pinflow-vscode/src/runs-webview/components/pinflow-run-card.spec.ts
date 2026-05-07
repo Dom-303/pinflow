@@ -73,6 +73,10 @@ describe('<pinflow-run-card>', () => {
 });
 
 describe('<pinflow-run-card> expanded detail', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+  });
+
   it('does not render <pinflow-run-detail> when isExpanded is false (default)', async () => {
     // Arrange
     const el = document.createElement('pinflow-run-card') as PinflowRunCard;
@@ -84,7 +88,6 @@ describe('<pinflow-run-card> expanded detail', () => {
 
     // Assert
     expect(el.shadowRoot!.querySelector('pinflow-run-detail')).toBeNull();
-    el.remove();
   });
 
   it('renders <pinflow-run-detail> when isExpanded is true and forwards props', async () => {
@@ -117,7 +120,6 @@ describe('<pinflow-run-card> expanded detail', () => {
     expect(detail!.transcriptText).toBe('streaming...');
     expect(detail!.changedFiles).toEqual([{ path: 'src/bar.ts' }]);
     expect(detail!.promptPath).toBe('/repo/prompt.md');
-    el.remove();
   });
 
   it('falls back to run.changedFiles when liveChangedFiles is null', async () => {
@@ -138,7 +140,6 @@ describe('<pinflow-run-card> expanded detail', () => {
       | (HTMLElement & { changedFiles: readonly { path: string }[] })
       | null;
     expect(detail!.changedFiles).toEqual([{ path: 'src/static.ts' }]);
-    el.remove();
   });
 
   it('still emits pinflow-card:click on outer card click when expanded', async () => {
@@ -162,6 +163,5 @@ describe('<pinflow-run-card> expanded detail', () => {
     // Assert
     expect(events).toHaveLength(1);
     expect(events[0].detail.runId).toBe('r_clicked');
-    el.remove();
   });
 });

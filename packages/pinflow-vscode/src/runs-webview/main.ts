@@ -84,18 +84,6 @@ if (!app) {
     postToHost({ type: 'run:open-prompt', runId: detail.runId });
   });
 
-  app.addEventListener('pinflow-detail:open-transcript', (event) => {
-    const detail = (event as CustomEvent<{ runId: string }>).detail;
-    if (!detail?.runId) return;
-    const matched = Object.values(app.runsByFolder)
-      .flatMap((runs) => Array.from(runs))
-      .find((r: PinFlowRunEvidence) => r.runId === detail.runId);
-    const transcriptPath = matched?.transcriptPath;
-    if (transcriptPath) {
-      postToHost({ type: 'run:open-evidence-file', filePath: transcriptPath });
-    }
-  });
-
   window.addEventListener('setup-clicked', (event) => {
     const detail = (event as CustomEvent<{ folderPath: string }>).detail;
     postToHost({ type: 'webview:run-init', folder: detail.folderPath });

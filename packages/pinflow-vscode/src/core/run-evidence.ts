@@ -2,6 +2,13 @@ import { access, readdir, readFile } from 'node:fs/promises';
 import type { Dirent } from 'node:fs';
 import path from 'node:path';
 
+export interface PinFlowSourceLocation {
+  readonly file?: string;
+  readonly line?: number;
+  readonly column?: number;
+  readonly tagName?: string;
+}
+
 export interface PinFlowRunSummary {
   readonly annotationId?: string;
   readonly runId?: string;
@@ -9,6 +16,8 @@ export interface PinFlowRunSummary {
   readonly status?: string;
   readonly provider?: string;
   readonly label?: string;
+  readonly userIntent?: string;
+  readonly sourceLocation?: PinFlowSourceLocation;
   readonly startedAt?: string;
   readonly finishedAt?: string;
   readonly promptPath?: string;

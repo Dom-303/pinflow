@@ -2,14 +2,30 @@ import { describe, it, expect, afterEach } from 'vitest';
 
 import './pinflow-run-detail.js';
 import { PinflowRunDetail } from './pinflow-run-detail.js';
-import type { PinFlowChangedFile } from '../../core/run-evidence.js';
+import type { PinFlowChangedFile, PinFlowRunEvidence } from '../../core/run-evidence.js';
 
 function makeChangedFiles(): PinFlowChangedFile[] {
   return [{ path: 'src/foo.ts' }, { path: 'src/bar.ts' }];
 }
 
+function makeRun(overrides: Partial<PinFlowRunEvidence> = {}): PinFlowRunEvidence {
+  return {
+    annotationId: 'ann_abc',
+    runId: 'r_1',
+    summary: { status: 'processed', startedAt: '2026-05-04T10:00:00Z' },
+    summaryPath: '/repo/.pinflow/runs/r_1/summary.json',
+    promptPath: null,
+    transcriptPath: null,
+    diffPath: null,
+    hasDiff: false,
+    changedFiles: [],
+    additions: 0,
+    deletions: 0,
+    ...overrides,
+  };
+}
+
 afterEach(() => {
-  // Remove all children to tear down custom elements between tests
   while (document.body.firstChild) {
     document.body.removeChild(document.body.firstChild);
   }
@@ -19,10 +35,9 @@ describe('<pinflow-run-detail>', () => {
   it('renders transcript text in a monospace <pre>', async () => {
     // Arrange
     const el = document.createElement('pinflow-run-detail') as PinflowRunDetail;
-    el.runId = 'r_1';
+    el.run = makeRun();
     el.transcriptText = 'line 1\nline 2\n';
     el.changedFiles = [];
-    el.promptPath = '/repo/.pinflow/runs/r_1/prompt.md';
     el.isLive = false;
 
     // Act
@@ -35,16 +50,50 @@ describe('<pinflow-run-detail>', () => {
     expect(pre!.textContent).toContain('line 1');
     expect(pre!.textContent).toContain('line 2');
   });
+
+  it('renders the user intent in the request section', async () => {
+    // Arrange
+    const el = document.createElement('pinflow-run-detail') as PinflowRunDetail;
+    el.run = makeRun({
+      summary: { status: 'processed', userIntent: 'remove the logo' },
+    });
+
+    // Act
+    document.body.appendChild(el);
+    await el.updateComplete;
+
+    // Assert
+    expect(el.shadowRoot!.querySelector('.intent')!.textContent).toContain(
+      'remove the logo',
+    );
+  });
+
+  it('renders the source location when present', async () => {
+    // Arrange
+    const el = document.createElement('pinflow-run-detail') as PinflowRunDetail;
+    el.run = makeRun({
+      summary: {
+        status: 'processed',
+        sourceLocation: { file: '/repo/src/components/Foo.tsx', line: 42 },
+      },
+    });
+
+    // Act
+    document.body.appendChild(el);
+    await el.updateComplete;
+
+    // Assert
+    expect(el.shadowRoot!.querySelector('.source')!.textContent).toContain('Foo.tsx:42');
+  });
 });
 
 describe('<pinflow-run-detail> sticky-bottom autoscroll', () => {
   it('autoscrolls to bottom on first transcript update', async () => {
     // Arrange
     const el = document.createElement('pinflow-run-detail') as PinflowRunDetail;
-    el.runId = 'r_1';
+    el.run = makeRun();
     el.transcriptText = '';
     el.changedFiles = [];
-    el.promptPath = null;
     document.body.appendChild(el);
     await el.updateComplete;
 
@@ -61,10 +110,9 @@ describe('<pinflow-run-detail> sticky-bottom autoscroll', () => {
   it('does NOT autoscroll when user has scrolled up', async () => {
     // Arrange
     const el = document.createElement('pinflow-run-detail') as PinflowRunDetail;
-    el.runId = 'r_1';
+    el.run = makeRun();
     el.transcriptText = 'long\n'.repeat(100);
     el.changedFiles = [];
-    el.promptPath = null;
     document.body.appendChild(el);
     await el.updateComplete;
 
@@ -85,10 +133,9 @@ describe('<pinflow-run-detail> events', () => {
   it('emits pinflow-detail:open-diff when a file row is clicked', async () => {
     // Arrange
     const el = document.createElement('pinflow-run-detail') as PinflowRunDetail;
-    el.runId = 'r_1';
+    el.run = makeRun({ runId: 'r_1' });
     el.transcriptText = '';
     el.changedFiles = makeChangedFiles();
-    el.promptPath = null;
     document.body.appendChild(el);
     await el.updateComplete;
 
@@ -109,10 +156,9 @@ describe('<pinflow-run-detail> events', () => {
   it('emits pinflow-detail:open-prompt when prompt button is clicked', async () => {
     // Arrange
     const el = document.createElement('pinflow-run-detail') as PinflowRunDetail;
-    el.runId = 'r_1';
+    el.run = makeRun({ runId: 'r_1', promptPath: '/repo/prompt.md' });
     el.transcriptText = '';
     el.changedFiles = [];
-    el.promptPath = '/repo/prompt.md';
     document.body.appendChild(el);
     await el.updateComplete;
 
@@ -130,28 +176,16 @@ describe('<pinflow-run-detail> events', () => {
     expect((events[0].detail as { runId: string }).runId).toBe('r_1');
   });
 
-  it('emits pinflow-detail:open-transcript when transcript button is clicked', async () => {
+  it('does not render the prompt button when promptPath is missing', async () => {
     // Arrange
     const el = document.createElement('pinflow-run-detail') as PinflowRunDetail;
-    el.runId = 'r_1';
-    el.transcriptText = '';
-    el.changedFiles = [];
-    el.promptPath = null;
+    el.run = makeRun({ promptPath: null });
+
+    // Act
     document.body.appendChild(el);
     await el.updateComplete;
 
-    const events: CustomEvent[] = [];
-    el.addEventListener('pinflow-detail:open-transcript', (e) =>
-      events.push(e as CustomEvent),
-    );
-
-    // Act
-    // Without promptPath, the only button.action is the transcript one.
-    const button = el.shadowRoot!.querySelector<HTMLButtonElement>('button.action')!;
-    button.click();
-
     // Assert
-    expect(events).toHaveLength(1);
-    expect((events[0].detail as { runId: string }).runId).toBe('r_1');
+    expect(el.shadowRoot!.querySelector('button.action')).toBeNull();
   });
 });

@@ -578,19 +578,29 @@ function activateInternal(context: vscode.ExtensionContext, outputChannel: vscod
     await bridge.dispose();
   }
 
-  for (const folder of vscode.workspace.workspaceFolders ?? []) {
-    void addOverlayBridge(folder.uri.fsPath);
+  async function syncOverlayBridges(): Promise<void> {
+    const fsPaths = (vscode.workspace.workspaceFolders ?? []).map(
+      (f) => f.uri.fsPath,
+    );
+    const expected = new Set(expandToAllWorkspaceFolders(fsPaths));
+    for (const fsPath of [...overlayBridges.keys()]) {
+      if (!expected.has(fsPath)) {
+        await removeOverlayBridge(fsPath);
+      }
+    }
+    for (const fsPath of expected) {
+      if (!overlayBridges.has(fsPath)) {
+        await addOverlayBridge(fsPath);
+      }
+    }
   }
 
+  void syncOverlayBridges();
+
   context.subscriptions.push(
-    vscode.workspace.onDidChangeWorkspaceFolders(async (event) => {
-      for (const added of event.added) {
-        await addOverlayBridge(added.uri.fsPath);
-      }
-      for (const removed of event.removed) {
-        await removeOverlayBridge(removed.uri.fsPath);
-      }
-    }),
+    vscode.workspace.onDidChangeWorkspaceFolders(() =>
+      syncOverlayBridges(),
+    ),
     {
       dispose: () => {
         for (const bridge of overlayBridges.values()) {

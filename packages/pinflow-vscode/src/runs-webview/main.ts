@@ -1,5 +1,6 @@
 import './components/pinflow-lifecycle-pill.js';
 import './components/pinflow-run-card.js';
+import './components/pinflow-run-detail.js';
 import './components/pinflow-runs-app.js';
 import './components/pinflow-runs-header.js';
 import './components/pinflow-empty-state.js';

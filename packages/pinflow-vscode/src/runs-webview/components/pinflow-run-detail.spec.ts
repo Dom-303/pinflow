@@ -129,4 +129,29 @@ describe('<pinflow-run-detail> events', () => {
     expect(events).toHaveLength(1);
     expect((events[0].detail as { runId: string }).runId).toBe('r_1');
   });
+
+  it('emits pinflow-detail:open-transcript when transcript button is clicked', async () => {
+    // Arrange
+    const el = document.createElement('pinflow-run-detail') as PinflowRunDetail;
+    el.runId = 'r_1';
+    el.transcriptText = '';
+    el.changedFiles = [];
+    el.promptPath = null;
+    document.body.appendChild(el);
+    await el.updateComplete;
+
+    const events: CustomEvent[] = [];
+    el.addEventListener('pinflow-detail:open-transcript', (e) =>
+      events.push(e as CustomEvent),
+    );
+
+    // Act
+    // Without promptPath, the only button.action is the transcript one.
+    const button = el.shadowRoot!.querySelector<HTMLButtonElement>('button.action')!;
+    button.click();
+
+    // Assert
+    expect(events).toHaveLength(1);
+    expect((events[0].detail as { runId: string }).runId).toBe('r_1');
+  });
 });

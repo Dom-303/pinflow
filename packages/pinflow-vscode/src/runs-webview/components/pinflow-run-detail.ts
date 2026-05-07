@@ -99,7 +99,7 @@ export class PinflowRunDetail extends LitElement {
     }
   `;
 
-  protected updated(changed: Map<string, unknown>): void {
+  protected override updated(changed: Map<string, unknown>): void {
     if (changed.has('transcriptText')) {
       const pre = this.shadowRoot?.querySelector<HTMLPreElement>('pre.transcript');
       if (!pre) return;
@@ -145,7 +145,7 @@ export class PinflowRunDetail extends LitElement {
     );
   };
 
-  render() {
+  override render() {
     return html`
       <pre class="transcript" @scroll=${this.handleScroll}>${this.transcriptText}</pre>
       <div class="files-header">

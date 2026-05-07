@@ -1,5 +1,5 @@
-import { LitElement, css, html } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { LitElement, css, html, type PropertyValues } from 'lit';
+import { customElement, property, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
 import type { PinFlowChangedFile, PinFlowRunEvidence } from '../../core/run-evidence.js';
 
@@ -32,6 +32,9 @@ export class PinflowRunDetail extends LitElement {
   @property({ attribute: false }) transcriptText = '';
   @property({ attribute: false }) changedFiles: readonly PinFlowChangedFile[] = [];
   @property({ type: Boolean }) isLive = false;
+
+  // Transcript is mostly noise on completed runs; auto-open only while live.
+  @state() private transcriptOpen = false;
 
   private wasAtBottom = true;
 
@@ -66,6 +69,39 @@ export class PinflowRunDetail extends LitElement {
       margin-top: 4px;
       font-size: 10px;
       color: var(--pf-text-muted);
+    }
+    .transcript-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 8px;
+      margin-bottom: 8px;
+      background: transparent;
+      color: var(--pf-text-muted);
+      border: 1px solid var(--pf-border);
+      border-radius: 3px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 11px;
+    }
+    .transcript-toggle:hover {
+      background: var(--pf-bg-elevated);
+      color: var(--pf-text);
+    }
+    .transcript-toggle .chevron {
+      font-family: codicon;
+      font-size: 12px;
+      transition: transform 150ms ease;
+    }
+    .transcript-toggle[aria-expanded='true'] .chevron {
+      transform: rotate(90deg);
+    }
+    .transcript-toggle .live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--pf-status-running);
+      animation: pulse 1.4s ease-in-out infinite;
     }
     pre.transcript {
       max-height: 220px;
@@ -157,8 +193,15 @@ export class PinflowRunDetail extends LitElement {
     }
   `;
 
+  protected override willUpdate(changed: PropertyValues): void {
+    // Live runs auto-expand the transcript so the user sees the agent working.
+    if (changed.has('isLive') && this.isLive) {
+      this.transcriptOpen = true;
+    }
+  }
+
   protected override updated(changed: Map<string, unknown>): void {
-    if (changed.has('transcriptText')) {
+    if (changed.has('transcriptText') || changed.has('transcriptOpen')) {
       const pre = this.shadowRoot?.querySelector<HTMLPreElement>('pre.transcript');
       if (!pre) return;
       if (this.wasAtBottom) {
@@ -166,6 +209,10 @@ export class PinflowRunDetail extends LitElement {
       }
     }
   }
+
+  private toggleTranscript = (): void => {
+    this.transcriptOpen = !this.transcriptOpen;
+  };
 
   private handleScroll = (event: Event): void => {
     const pre = event.target as HTMLPreElement;
@@ -221,11 +268,22 @@ export class PinflowRunDetail extends LitElement {
           ? html`<div class="meta" style="color: var(--pf-status-failed);">${errorDetails}</div>`
           : null}
       </section>
-      <pre class="transcript" @scroll=${this.handleScroll}>${this.transcriptText}</pre>
+      <button
+        class="transcript-toggle"
+        type="button"
+        aria-expanded=${this.transcriptOpen ? 'true' : 'false'}
+        @click=${this.toggleTranscript}
+      >
+        <i class="codicon codicon-chevron-right chevron" aria-hidden="true"></i>
+        <span>${this.transcriptOpen ? 'Hide output' : 'Show output'}</span>
+        ${this.isLive ? html`<span class="live-dot" aria-label="live"></span>` : null}
+      </button>
+      ${this.transcriptOpen
+        ? html`<pre class="transcript" @scroll=${this.handleScroll}>${this.transcriptText}</pre>`
+        : null}
       ${fileCount > 0
         ? html`<section class="files-section">
             <div class="files-header">
-              ${this.isLive ? html`<span class="live-dot" aria-hidden="true"></span>` : null}
               <span>Changed files (${fileCount})</span>
             </div>
             <ul class="files">

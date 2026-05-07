@@ -32,13 +32,13 @@ afterEach(() => {
 });
 
 describe('<pinflow-run-detail>', () => {
-  it('renders transcript text in a monospace <pre>', async () => {
+  it('renders transcript text in a monospace <pre> when expanded', async () => {
     // Arrange
     const el = document.createElement('pinflow-run-detail') as PinflowRunDetail;
     el.run = makeRun();
     el.transcriptText = 'line 1\nline 2\n';
     el.changedFiles = [];
-    el.isLive = false;
+    el.isLive = true; // live runs auto-expand the transcript
 
     // Act
     document.body.appendChild(el);
@@ -49,6 +49,47 @@ describe('<pinflow-run-detail>', () => {
     expect(pre).not.toBeNull();
     expect(pre!.textContent).toContain('line 1');
     expect(pre!.textContent).toContain('line 2');
+  });
+
+  it('hides the transcript by default for completed runs', async () => {
+    // Arrange
+    const el = document.createElement('pinflow-run-detail') as PinflowRunDetail;
+    el.run = makeRun();
+    el.transcriptText = 'completed run output\n';
+    el.changedFiles = [];
+    el.isLive = false;
+
+    // Act
+    document.body.appendChild(el);
+    await el.updateComplete;
+
+    // Assert — pre is not in the DOM, but the toggle button is
+    expect(el.shadowRoot!.querySelector('pre.transcript')).toBeNull();
+    const toggle = el.shadowRoot!.querySelector<HTMLButtonElement>('.transcript-toggle');
+    expect(toggle).not.toBeNull();
+    expect(toggle!.getAttribute('aria-expanded')).toBe('false');
+    expect(toggle!.textContent).toContain('Show output');
+  });
+
+  it('reveals the transcript when the toggle is clicked', async () => {
+    // Arrange
+    const el = document.createElement('pinflow-run-detail') as PinflowRunDetail;
+    el.run = makeRun();
+    el.transcriptText = 'hidden until clicked\n';
+    el.changedFiles = [];
+    el.isLive = false;
+    document.body.appendChild(el);
+    await el.updateComplete;
+
+    // Act
+    const toggle = el.shadowRoot!.querySelector<HTMLButtonElement>('.transcript-toggle')!;
+    toggle.click();
+    await el.updateComplete;
+
+    // Assert
+    expect(el.shadowRoot!.querySelector('pre.transcript')).not.toBeNull();
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    expect(toggle.textContent).toContain('Hide output');
   });
 
   it('renders the user intent in the request section', async () => {
@@ -94,6 +135,7 @@ describe('<pinflow-run-detail> sticky-bottom autoscroll', () => {
     el.run = makeRun();
     el.transcriptText = '';
     el.changedFiles = [];
+    el.isLive = true;
     document.body.appendChild(el);
     await el.updateComplete;
 
@@ -113,6 +155,7 @@ describe('<pinflow-run-detail> sticky-bottom autoscroll', () => {
     el.run = makeRun();
     el.transcriptText = 'long\n'.repeat(100);
     el.changedFiles = [];
+    el.isLive = true;
     document.body.appendChild(el);
     await el.updateComplete;
 

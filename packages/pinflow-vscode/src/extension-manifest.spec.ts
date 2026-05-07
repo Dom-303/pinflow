@@ -53,8 +53,10 @@ describe('VS Code extension manifest', () => {
   };
   const packageRoot = path.resolve(__dirname, '..');
 
-  it('points VS Code at the compiled extension entrypoint', () => {
-    expect(manifest.main).toBe('./dist/extension.js');
+  it('points VS Code at the bundled extension entrypoint', () => {
+    // CJS bundle produced by esbuild. The .cjs extension keeps Node's loader
+    // unambiguous despite the package's `"type": "module"` field.
+    expect(manifest.main).toBe('./dist/extension.cjs');
   });
 
   it('has marketplace-ready package metadata without publishing by default', () => {

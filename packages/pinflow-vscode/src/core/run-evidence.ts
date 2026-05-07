@@ -157,7 +157,7 @@ function summaryTime(summary: PinFlowRunSummary): number {
   return new Date(summary.finishedAt ?? summary.startedAt ?? 0).getTime();
 }
 
-function parseDiff(diff: string): {
+export function parseDiff(diff: string): {
   hasDiff: boolean;
   changedFiles: PinFlowChangedFile[];
   additions: number;

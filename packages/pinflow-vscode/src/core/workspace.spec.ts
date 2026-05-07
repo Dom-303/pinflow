@@ -106,6 +106,31 @@ describe('getPinFlowWorkspaceStatus', () => {
     });
   });
 
+  it('prefers the parent .pinflow/ directory over a child @pinflow package signal', async () => {
+    // Monorepo case: the parent has the real .pinflow/ setup, while a child
+    // app has @pinflow/react in its package.json (e.g. installed by the
+    // C.1.12 auto-installer). walkUp from the child should reach the parent
+    // and recognise it as the workspace root, instead of treating the child
+    // as its own independent configuration. Two-pass detection in
+    // findConfiguredWorkspace exists to enforce this priority.
+    const childAppRoot = path.join(workspaceRoot, 'apps', 'web');
+    await mkdir(path.join(workspaceRoot, '.pinflow'), { recursive: true });
+    await writeJson(path.join(childAppRoot, 'package.json'), {
+      dependencies: {
+        '@pinflow/react': '0.6.0',
+      },
+    });
+
+    const status = getPinFlowWorkspaceStatus(childAppRoot);
+
+    expect(status).toMatchObject({
+      status: 'relay-missing',
+      workspaceFolder: childAppRoot,
+      workspaceRoot,
+      appRoot: workspaceRoot,
+    });
+  });
+
   it('reports ready when the configured app has a live relay lock', async () => {
     const pinflowDir = path.join(workspaceRoot, '.pinflow');
     await mkdir(pinflowDir, { recursive: true });

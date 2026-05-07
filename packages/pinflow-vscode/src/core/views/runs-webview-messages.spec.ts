@@ -165,8 +165,9 @@ describe('runs-webview message guards', () => {
     });
   });
 
-  describe('isExtToWebviewMessage — 4B additions', () => {
+  describe('isExtToWebviewMessage — live-log variants', () => {
     it('accepts transcript:initial with runId, text, isLive', () => {
+      // Arrange + Act + Assert
       expect(
         isExtToWebviewMessage({
           type: 'transcript:initial',
@@ -178,6 +179,7 @@ describe('runs-webview message guards', () => {
     });
 
     it('rejects transcript:initial without isLive flag', () => {
+      // Arrange + Act + Assert
       expect(
         isExtToWebviewMessage({
           type: 'transcript:initial',
@@ -188,34 +190,40 @@ describe('runs-webview message guards', () => {
     });
 
     it('accepts transcript:append with runId and delta', () => {
+      // Arrange + Act + Assert
       expect(
         isExtToWebviewMessage({ type: 'transcript:append', runId: 'r_1', delta: 'next' }),
       ).toBe(true);
     });
 
     it('accepts diff:update with array changedFiles', () => {
+      // Arrange + Act + Assert
       expect(
         isExtToWebviewMessage({ type: 'diff:update', runId: 'r_1', changedFiles: [] }),
       ).toBe(true);
     });
 
     it('rejects diff:update with non-array changedFiles', () => {
+      // Arrange + Act + Assert
       expect(
         isExtToWebviewMessage({ type: 'diff:update', runId: 'r_1', changedFiles: {} }),
       ).toBe(false);
     });
   });
 
-  describe('isWebviewToExtMessage — 4B additions', () => {
+  describe('isWebviewToExtMessage — run expansion variants', () => {
     it('accepts run:expand with runId', () => {
+      // Arrange + Act + Assert
       expect(isWebviewToExtMessage({ type: 'run:expand', runId: 'r_1' })).toBe(true);
     });
 
     it('accepts run:collapse with runId', () => {
+      // Arrange + Act + Assert
       expect(isWebviewToExtMessage({ type: 'run:collapse', runId: 'r_1' })).toBe(true);
     });
 
     it('accepts run:open-diff with runId and filePath', () => {
+      // Arrange + Act + Assert
       expect(
         isWebviewToExtMessage({
           type: 'run:open-diff',
@@ -226,6 +234,7 @@ describe('runs-webview message guards', () => {
     });
 
     it('rejects run:open-diff without filePath', () => {
+      // Arrange + Act + Assert
       expect(
         isWebviewToExtMessage({ type: 'run:open-diff', runId: 'r_1' }),
       ).toBe(false);

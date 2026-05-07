@@ -588,10 +588,10 @@ export class DsSettingsOverlay extends LitElement {
           aria-label="Einstellungsbereiche"
         >
           <button
-            class="tab-btn ${this.activeTab === 'workspace' ? 'active' : ''}"
+            class="tab-btn ${activeTab === 'workspace' ? 'active' : ''}"
             @click=${() => this.selectTab('workspace')}
             role="tab"
-            aria-selected=${this.activeTab === 'workspace'}
+            aria-selected=${activeTab === 'workspace'}
             title="Arbeitsbereich"
           >
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -604,10 +604,10 @@ export class DsSettingsOverlay extends LitElement {
             </svg>
           </button>
           <button
-            class="tab-btn ${this.activeTab === 'flow' ? 'active' : ''}"
+            class="tab-btn ${activeTab === 'flow' ? 'active' : ''}"
             @click=${() => this.selectTab('flow')}
             role="tab"
-            aria-selected=${this.activeTab === 'flow'}
+            aria-selected=${activeTab === 'flow'}
             title="Flow und Versand"
           >
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -621,10 +621,10 @@ export class DsSettingsOverlay extends LitElement {
             </svg>
           </button>
           <button
-            class="tab-btn ${this.activeTab === 'history' ? 'active' : ''}"
+            class="tab-btn ${activeTab === 'history' ? 'active' : ''}"
             @click=${() => this.selectTab('history')}
             role="tab"
-            aria-selected=${this.activeTab === 'history'}
+            aria-selected=${activeTab === 'history'}
             title="Verlauf"
           >
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -641,7 +641,7 @@ export class DsSettingsOverlay extends LitElement {
 
         <div class="sheet-body scrollable">
           <div
-            class="tab-panel ${this.activeTab === 'workspace' ? 'active' : ''}"
+            class="tab-panel ${activeTab === 'workspace' ? 'active' : ''}"
             role="tabpanel"
           >
             <div class="panel-surface workspace-stack">
@@ -829,7 +829,7 @@ export class DsSettingsOverlay extends LitElement {
           </div>
 
           <div
-            class="tab-panel ${this.activeTab === 'flow' ? 'active' : ''}"
+            class="tab-panel ${activeTab === 'flow' ? 'active' : ''}"
             role="tabpanel"
           >
             <div class="panel-frame">
@@ -838,7 +838,7 @@ export class DsSettingsOverlay extends LitElement {
           </div>
 
           <div
-            class="tab-panel ${this.activeTab === 'history' ? 'active' : ''}"
+            class="tab-panel ${activeTab === 'history' ? 'active' : ''}"
             role="tabpanel"
           >
             <div class="panel-frame">

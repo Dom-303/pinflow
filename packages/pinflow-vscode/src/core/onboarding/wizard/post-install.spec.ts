@@ -37,9 +37,9 @@ describe('runPostInstall', () => {
     return { showInformationMessage, clipboardWriteText, runInstallInTerminal };
   }
 
-  it("'Ausführen' triggers runInstallInTerminal with codex commands and German agent label", async () => {
+  it("'Install' triggers runInstallInTerminal with codex commands and agent label", async () => {
     // Arrange
-    const deps = makeDeps('Ausführen');
+    const deps = makeDeps('Install');
 
     // Act
     await runPostInstall('codex', '/projects/myapp', {
@@ -57,9 +57,9 @@ describe('runPostInstall', () => {
     );
   });
 
-  it("toast prompt uses German wording", async () => {
+  it('toast prompt uses install/show/skip wording', async () => {
     // Arrange
-    const deps = makeDeps('Überspringen');
+    const deps = makeDeps('Skip');
 
     // Act
     await runPostInstall('codex', '/projects/myapp', {
@@ -70,15 +70,15 @@ describe('runPostInstall', () => {
 
     // Assert
     const [msg, ...actions] = deps.showInformationMessage.mock.calls[0] as [string, ...string[]];
-    expect(msg).toBe('PinFlow ist eingerichtet in myapp. Codex-Plugin installieren?');
-    expect(actions).toEqual(['Ausführen', 'Befehl anzeigen', 'Überspringen']);
+    expect(msg).toBe('PinFlow is set up in myapp. Install the Codex plugin?');
+    expect(actions).toEqual(['Install', 'Show command', 'Skip']);
   });
 
-  it("'Befehl anzeigen' copies command and shows German confirmation", async () => {
+  it("'Show command' copies command and shows confirmation toast", async () => {
     // Arrange
-    const deps = makeDeps('Befehl anzeigen');
+    const deps = makeDeps('Show command');
     deps.showInformationMessage
-      .mockResolvedValueOnce('Befehl anzeigen')
+      .mockResolvedValueOnce('Show command')
       .mockResolvedValueOnce(undefined);
 
     // Act
@@ -93,12 +93,12 @@ describe('runPostInstall', () => {
       'codex mcp add pinflow -- npx -y --package @pinflow/mcp pinflow-mcp',
     );
     const secondCall = deps.showInformationMessage.mock.calls[1];
-    expect(secondCall[0]).toBe('Codex-Installationsbefehl in Zwischenablage kopiert.');
+    expect(secondCall[0]).toBe('Codex install command copied to clipboard.');
   });
 
-  it("'Überspringen' returns without calling terminal or clipboard", async () => {
+  it("'Skip' returns without calling terminal or clipboard", async () => {
     // Arrange
-    const deps = makeDeps('Überspringen');
+    const deps = makeDeps('Skip');
 
     // Act
     await runPostInstall('codex', '/projects/myapp', {
@@ -112,7 +112,7 @@ describe('runPostInstall', () => {
     expect(deps.clipboardWriteText).not.toHaveBeenCalled();
   });
 
-  it("agent='copilot' shows plain German success toast, no choice prompt", async () => {
+  it("agent='copilot' shows plain success toast, no choice prompt", async () => {
     // Arrange
     const deps = makeDeps(undefined);
 
@@ -126,12 +126,12 @@ describe('runPostInstall', () => {
     // Assert
     expect(deps.showInformationMessage).toHaveBeenCalledOnce();
     const [msg, ...actions] = deps.showInformationMessage.mock.calls[0] as [string, ...string[]];
-    expect(msg).toBe('PinFlow ist eingerichtet in copilot-folder.');
+    expect(msg).toBe('PinFlow is set up in copilot-folder.');
     expect(actions).toHaveLength(0);
     expect(deps.runInstallInTerminal).not.toHaveBeenCalled();
   });
 
-  it("agent='other' shows plain German success toast, no choice prompt", async () => {
+  it("agent='other' shows plain success toast, no choice prompt", async () => {
     // Arrange
     const deps = makeDeps(undefined);
 
@@ -145,7 +145,7 @@ describe('runPostInstall', () => {
     // Assert
     expect(deps.showInformationMessage).toHaveBeenCalledOnce();
     const [msg, ...actions] = deps.showInformationMessage.mock.calls[0] as [string, ...string[]];
-    expect(msg).toBe('PinFlow ist eingerichtet in other-folder.');
+    expect(msg).toBe('PinFlow is set up in other-folder.');
     expect(actions).toHaveLength(0);
   });
 });

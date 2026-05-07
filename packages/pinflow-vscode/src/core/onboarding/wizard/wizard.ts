@@ -150,15 +150,15 @@ const DEFAULT_INTERNAL_DEPS: WizardInternalDeps = {
 
         const label = framework;
         const action = await vscode.window.showInformationMessage(
-          `PinFlow: Bitte Snippet für ${label} manuell einfügen.`,
-          'Snippet kopieren',
-          'Snippet anzeigen',
-          'Verstanden',
+          `PinFlow: please paste the ${label} snippet manually.`,
+          'Copy snippet',
+          'Show snippet',
+          'Got it',
         );
 
-        if (action === 'Snippet kopieren') {
+        if (action === 'Copy snippet') {
           await vscode.env.clipboard.writeText(snippet);
-        } else if (action === 'Snippet anzeigen') {
+        } else if (action === 'Show snippet') {
           const untitled = await vscode.workspace.openTextDocument({
             content: snippet,
             language: 'typescript',
@@ -245,7 +245,7 @@ function planSteps(apps: readonly DetectedApp[]): StepPlan {
   if (appRootShown) count += 1;
   if (frameworkShown) count += 1;
 
-  const fmt = (i: number) => (count === 1 ? '' : `Schritt ${i}/${count}`);
+  const fmt = (i: number) => (count === 1 ? '' : `Step ${i}/${count}`);
 
   let nextIdx = 1;
   const agentLabel = fmt(nextIdx++);
@@ -343,14 +343,14 @@ async function runWizardSteps(
     const attemptFailures: FrameworkPluginResult[] = [];
 
     await internal.withProgress(
-      'PinFlow: Plugin einrichten',
+      'PinFlow: setting up plugin',
       async (report) => {
         // Track the most-recent base message so the hint can append to it.
         let currentBaseMessage = '';
 
         const cancelHint = internal.setLongInstallTimer(() => {
           report({
-            message: `${currentBaseMessage} · Bei langsamer Verbindung kann das dauern. Output anzeigen: View → Output → PinFlow Setup`,
+            message: `${currentBaseMessage} · This can take a while on a slow connection. Show output: View → Output → PinFlow Setup`,
           });
         }, 30_000);
 
@@ -391,20 +391,20 @@ async function runWizardSteps(
 
     const retryAllowed = retryCount < MAX_RETRIES;
     const actions: string[] = retryAllowed
-      ? ['Erneut versuchen', 'Output anzeigen', 'Schließen']
-      : ['Output anzeigen', 'Schließen'];
+      ? ['Retry', 'Show output', 'Close']
+      : ['Show output', 'Close'];
 
     const action = await internal.showErrorMessage(
-      `Plugin-Setup fehlgeschlagen für: ${failedApps}.`,
+      `Plugin setup failed for: ${failedApps}.`,
       ...actions,
     );
 
-    if (action === 'Output anzeigen') {
+    if (action === 'Show output') {
       internal.outputShow();
       break;
     }
 
-    if (action === 'Erneut versuchen') {
+    if (action === 'Retry') {
       retryCount += 1;
       // Retry only the failed entries from the previous attempt.
       const failedEntries = perApp.filter((entry) =>
@@ -414,7 +414,7 @@ async function runWizardSteps(
       continue;
     }
 
-    // 'Schließen' or dismissed — stop.
+    // 'Close' or dismissed — stop.
     break;
   }
 
@@ -444,11 +444,11 @@ async function confirmReconfigure(
 ): Promise<boolean> {
   const labels = existing.map((p) => path.relative(cwd, p) || path.basename(p)).join(', ');
   const action = await internal.showInformationMessage(
-    `PinFlow ist bereits konfiguriert in: ${labels}. Bestehende Konfiguration überschreiben?`,
-    'Überschreiben',
-    'Abbrechen',
+    `PinFlow is already configured in: ${labels}. Overwrite the existing configuration?`,
+    'Overwrite',
+    'Cancel',
   );
-  return action === 'Überschreiben';
+  return action === 'Overwrite';
 }
 
 async function showFailureToast(
@@ -460,10 +460,10 @@ async function showFailureToast(
   const folderName = path.basename(cwd);
   const message =
     err instanceof Error
-      ? `PinFlow-Setup fehlgeschlagen für ${folderName}: ${err.message}`
-      : `PinFlow-Setup fehlgeschlagen für ${folderName}.`;
+      ? `PinFlow setup failed for ${folderName}: ${err.message}`
+      : `PinFlow setup failed for ${folderName}.`;
 
-  const action = await internal.showErrorMessage(message, 'Terminal öffnen');
-  if (action === 'Terminal öffnen') runInitInTerminal(cwd);
+  const action = await internal.showErrorMessage(message, 'Open terminal');
+  if (action === 'Open terminal') runInitInTerminal(cwd);
 }
 

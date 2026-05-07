@@ -100,27 +100,27 @@ export async function runPostInstall(
   const agentLabel = AGENT_LABELS[agent] ?? agent;
 
   if (commands === undefined) {
-    await showMsg(`PinFlow ist eingerichtet in ${folderName}.`);
+    await showMsg(`PinFlow is set up in ${folderName}.`);
     return;
   }
 
   const action = await showMsg(
-    `PinFlow ist eingerichtet in ${folderName}. ${agentLabel}-Plugin installieren?`,
-    'Ausführen',
-    'Befehl anzeigen',
-    'Überspringen',
+    `PinFlow is set up in ${folderName}. Install the ${agentLabel} plugin?`,
+    'Install',
+    'Show command',
+    'Skip',
   );
 
-  if (action === 'Ausführen') {
+  if (action === 'Install') {
     runInstall(cwd, commands, agentLabel);
     return;
   }
 
-  if (action === 'Befehl anzeigen') {
+  if (action === 'Show command') {
     await writeText(commands.join('\n'));
-    await showMsg(`${agentLabel}-Installationsbefehl in Zwischenablage kopiert.`);
+    await showMsg(`${agentLabel} install command copied to clipboard.`);
     return;
   }
 
-  // 'Überspringen' or dismissed — silent no-op.
+  // 'Skip' or dismissed — silent no-op.
 }

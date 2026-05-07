@@ -61,3 +61,9 @@ pnpm run package:vsix
 This does not publish the extension. Marketplace publishing still requires
 explicit manual approval. The local VSIX is written to
 `../../tmp/pinflow-vscode.vsix` from this package directory.
+
+## Telemetry
+
+PinFlow does not collect telemetry. The extension never sends usage data,
+analytics, or crash reports off your machine. Everything it reads — relay
+status, run evidence, repo diffs — stays on your local filesystem.

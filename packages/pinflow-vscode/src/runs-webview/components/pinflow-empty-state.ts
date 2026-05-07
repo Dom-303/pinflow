@@ -33,8 +33,8 @@ export class PinflowEmptyState extends LitElement {
     return html`
       <div class="accent" aria-hidden="true"></div>
       <div class="body">
-        Noch keine Runs.
-        <br />Workflow aus der Actions-Ansicht starten.
+        No runs yet.
+        <br />Start a workflow from the Actions view.
       </div>
     `;
   }

@@ -38,7 +38,7 @@ const DEFAULT_DEPS: FrameworkStepDeps = {
  * Show the framework QuickPick. Returns the picked value, or `undefined`
  * when the user cancels (Esc).
  *
- * @param stepLabel  e.g. `"Schritt 3/3"` or `""` for single-step wizards.
+ * @param stepLabel  e.g. `"Step 3/3"` or `""` for single-step wizards.
  *                   Prepended to the QuickPick title.
  */
 export async function pickFramework(
@@ -47,8 +47,8 @@ export async function pickFramework(
 ): Promise<FrameworkChoice | undefined> {
   const titlePrefix = stepLabel ? `${stepLabel} — ` : '';
   const picked = await deps.showQuickPick(ALL_FRAMEWORK_ITEMS, {
-    title: `PinFlow Setup · ${titlePrefix}Framework wählen`,
-    placeHolder: 'Keine Frontend-App erkannt — wähle das Framework manuell',
+    title: `PinFlow Setup · ${titlePrefix}Choose framework`,
+    placeHolder: 'No frontend app detected — choose the framework manually',
   });
 
   return picked?.value;

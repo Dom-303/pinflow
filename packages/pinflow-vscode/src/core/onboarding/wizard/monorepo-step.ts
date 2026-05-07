@@ -49,7 +49,7 @@ const DEFAULT_DEPS: MonorepoStepDeps = {
 /**
  * Resolve one or more app roots for the wizard.
  *
- * @param stepLabel  e.g. `"Schritt 2/3"` or `""` for single-step wizards.
+ * @param stepLabel  e.g. `"Step 2/3"` or `""` for single-step wizards.
  *
  * @returns
  *  - `[singlePath]` when exactly one app was detected (silent auto-pick).
@@ -78,8 +78,8 @@ export async function pickAppRoot(
     }));
 
     const picked = await deps.showQuickPick(items, {
-      title: `PinFlow Setup · ${titlePrefix}Apps auswählen`,
-      placeHolder: 'Mehrere Frontend-Apps gefunden — wähle eine oder mehrere',
+      title: `PinFlow Setup · ${titlePrefix}Choose apps`,
+      placeHolder: 'Multiple frontend apps found — choose one or more',
       canPickMany: true,
     });
 
@@ -89,9 +89,9 @@ export async function pickAppRoot(
   }
 
   const entered = await deps.showInputBox({
-    title: `PinFlow Setup · ${titlePrefix}App-Root wählen`,
+    title: `PinFlow Setup · ${titlePrefix}Choose app root`,
     prompt:
-      'Keine Frontend-App (Vite/Webpack/Next.js/Nuxt) erkannt. Pfad zum App-Root eingeben:',
+      'No frontend app (Vite/Webpack/Next.js/Nuxt) detected. Enter the path to the app root:',
     value: cwd,
   });
 

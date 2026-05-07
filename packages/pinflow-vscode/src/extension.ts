@@ -61,6 +61,30 @@ function runInitInTerminal(cwd: string): void {
 }
 
 export function activate(context: vscode.ExtensionContext): void {
+  const outputChannel = vscode.window.createOutputChannel('PinFlow');
+  context.subscriptions.push(outputChannel);
+
+  try {
+    activateInternal(context);
+    outputChannel.appendLine('PinFlow extension activated.');
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    const stack = error instanceof Error ? error.stack ?? '' : '';
+    outputChannel.appendLine(`PinFlow activation failed: ${message}`);
+    if (stack) outputChannel.appendLine(stack);
+
+    void vscode.window
+      .showErrorMessage(
+        'PinFlow could not start. See the "PinFlow" output channel for details.',
+        'Open Logs',
+      )
+      .then((choice) => {
+        if (choice === 'Open Logs') outputChannel.show();
+      });
+  }
+}
+
+function activateInternal(context: vscode.ExtensionContext): void {
   const statusItem = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Left,
     100,
@@ -586,11 +610,11 @@ export function deactivate(): void {
 
 async function showFirstRunToast(run: PinFlowRunEvidence): Promise<void> {
   const choice = await vscode.window.showInformationMessage(
-    `Erster PinFlow-Run abgeschlossen: ${run.annotationId ?? run.runId ?? 'unknown'}`,
-    'Run öffnen',
+    `First PinFlow run complete: ${run.annotationId ?? run.runId ?? 'unknown'}`,
+    'Open run',
     'OK',
   );
-  if (choice === 'Run öffnen' && run.promptPath) {
+  if (choice === 'Open run' && run.promptPath) {
     await vscode.window.showTextDocument(vscode.Uri.file(run.promptPath));
   }
 }

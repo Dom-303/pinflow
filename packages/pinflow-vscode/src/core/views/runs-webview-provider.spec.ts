@@ -327,3 +327,78 @@ describe('RunsWebviewProvider', () => {
     expect(onOpenPrompt).not.toHaveBeenCalled();
   });
 });
+
+describe('RunsWebviewProvider run-expand/collapse lifecycle', () => {
+  it('creates a watcher when run:expand arrives for a known run', () => {
+    // Arrange
+    const wb = createMockWebview();
+    const view = createMockView(wb.webview);
+    const provider = new RunsWebviewProvider({
+      extensionUri: fakeUri as never,
+      onOpenPrompt: vi.fn(),
+      getCurrentSnapshot: () => ({
+        runsByFolder: { '/repo': [sampleRun] },
+        folderStatuses: { '/repo': 'configured' },
+      }),
+      getCurrentSettings: () => ({ timeFormat: '24h' }),
+    });
+    provider.resolveWebviewView(view as never, { state: undefined }, { isCancellationRequested: false });
+
+    // Act
+    wb.sendFromWebview({ type: 'run:expand', runId: 'r_1' });
+
+    // Assert
+    expect((provider as unknown as { activeRunId: string | null }).activeRunId).toBe('r_1');
+  });
+
+  it('disposes the watcher on run:collapse', () => {
+    // Arrange
+    const wb = createMockWebview();
+    const view = createMockView(wb.webview);
+    const provider = new RunsWebviewProvider({
+      extensionUri: fakeUri as never,
+      onOpenPrompt: vi.fn(),
+      getCurrentSnapshot: () => ({
+        runsByFolder: { '/repo': [sampleRun] },
+        folderStatuses: { '/repo': 'configured' },
+      }),
+      getCurrentSettings: () => ({ timeFormat: '24h' }),
+    });
+    provider.resolveWebviewView(view as never, { state: undefined }, { isCancellationRequested: false });
+    wb.sendFromWebview({ type: 'run:expand', runId: 'r_1' });
+
+    // Act
+    wb.sendFromWebview({ type: 'run:collapse', runId: 'r_1' });
+
+    // Assert
+    expect((provider as unknown as { activeRunId: string | null }).activeRunId).toBeNull();
+  });
+
+  it('disposes the old watcher when switching to a different run', () => {
+    // Arrange
+    const wb = createMockWebview();
+    const view = createMockView(wb.webview);
+    const provider = new RunsWebviewProvider({
+      extensionUri: fakeUri as never,
+      onOpenPrompt: vi.fn(),
+      getCurrentSnapshot: () => ({
+        runsByFolder: { '/repo': [sampleRun, sampleRun2] },
+        folderStatuses: { '/repo': 'configured' },
+      }),
+      getCurrentSettings: () => ({ timeFormat: '24h' }),
+    });
+    provider.resolveWebviewView(view as never, { state: undefined }, { isCancellationRequested: false });
+
+    // Act
+    wb.sendFromWebview({ type: 'run:expand', runId: 'r_1' });
+    const firstWatcher = (provider as unknown as { activeWatcher: unknown }).activeWatcher;
+    wb.sendFromWebview({ type: 'run:expand', runId: 'r_2' });
+    const secondWatcher = (provider as unknown as { activeWatcher: unknown }).activeWatcher;
+
+    // Assert
+    expect(firstWatcher).not.toBeNull();
+    expect(secondWatcher).not.toBeNull();
+    expect(firstWatcher).not.toBe(secondWatcher);
+    expect((provider as unknown as { activeRunId: string | null }).activeRunId).toBe('r_2');
+  });
+});

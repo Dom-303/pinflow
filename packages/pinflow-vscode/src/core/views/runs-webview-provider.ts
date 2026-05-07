@@ -1,6 +1,7 @@
 import { randomBytes } from 'node:crypto';
 import * as vscode from 'vscode';
 
+import { LiveTranscriptWatcher, type TranscriptEvent } from '../live-transcript-watcher.js';
 import type { PinFlowRunEvidence } from '../run-evidence.js';
 import {
   isWebviewToExtMessage,
@@ -24,6 +25,8 @@ export interface RunsWebviewProviderDeps {
 
 export class RunsWebviewProvider implements vscode.WebviewViewProvider {
   private webviewView: vscode.WebviewView | null = null;
+  private activeWatcher: LiveTranscriptWatcher | null = null;
+  private activeRunId: string | null = null;
 
   constructor(private readonly deps: RunsWebviewProviderDeps) {}
 
@@ -72,9 +75,25 @@ export class RunsWebviewProvider implements vscode.WebviewViewProvider {
           }
         }
       }
+      if (message.type === 'run:expand') {
+        const evidence = this.findRun(message.runId);
+        if (!evidence) return;
+        this.startWatcher(evidence);
+        return;
+      }
+      if (message.type === 'run:collapse') {
+        if (this.activeRunId === message.runId) {
+          this.disposeActiveWatcher();
+        }
+        return;
+      }
+      if (message.type === 'run:open-diff') {
+        return;
+      }
     });
 
     webviewView.onDidDispose(() => {
+      this.disposeActiveWatcher();
       this.webviewView = null;
     });
   }
@@ -94,6 +113,34 @@ export class RunsWebviewProvider implements vscode.WebviewViewProvider {
     if (!this.webviewView) return;
     const update: ExtToWebviewMessage = { type: 'settings:update', settings };
     void this.webviewView.webview.postMessage(update);
+  }
+
+  private findRun(runId: string): PinFlowRunEvidence | undefined {
+    const snapshot = this.deps.getCurrentSnapshot();
+    for (const runs of Object.values(snapshot.runsByFolder)) {
+      const match = runs.find((r) => r.runId === runId);
+      if (match) return match;
+    }
+    return undefined;
+  }
+
+  private disposeActiveWatcher(): void {
+    this.activeWatcher?.dispose();
+    this.activeWatcher = null;
+    this.activeRunId = null;
+  }
+
+  private startWatcher(evidence: PinFlowRunEvidence): void {
+    this.disposeActiveWatcher();
+    this.activeRunId = evidence.runId ?? null;
+    this.activeWatcher = new LiveTranscriptWatcher(evidence, (event) => {
+      this.forwardEvent(event);
+    });
+  }
+
+  private forwardEvent(event: TranscriptEvent): void {
+    if (!this.webviewView) return;
+    void this.webviewView.webview.postMessage(event);
   }
 
   private buildHtml(webview: vscode.Webview, distRoot: vscode.Uri): string {

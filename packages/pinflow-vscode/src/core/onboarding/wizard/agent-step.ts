@@ -47,7 +47,7 @@ function buildOrderedItems(installedAgents?: InstalledAgents): readonly AgentQui
   for (const item of AGENT_ITEMS) {
     const isInstalled = installedAgents[item.value as keyof InstalledAgents] === true;
     if (isInstalled) {
-      installed.push({ ...item, description: '✓ installiert' });
+      installed.push({ ...item, description: '✓ installed' });
     } else {
       rest.push(item);
     }
@@ -68,8 +68,8 @@ export async function pickAgent(deps: AgentStepDeps = DEFAULT_DEPS): Promise<Age
   const titlePrefix = deps.stepLabel ? `${deps.stepLabel} — ` : '';
 
   const picked = await deps.showQuickPick(items, {
-    title: `PinFlow Setup · ${titlePrefix}Agent wählen`,
-    placeHolder: 'Wähle den Agent für dieses Projekt',
+    title: `PinFlow Setup · ${titlePrefix}Choose agent`,
+    placeHolder: 'Choose the coding agent for this project',
   });
 
   return picked?.value;

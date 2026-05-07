@@ -12,7 +12,7 @@ describe('pickAppRoot', () => {
     const result = await pickAppRoot(
       '/repo',
       [{ path: '/repo/apps/web', framework: 'react-vite' }],
-      'Schritt 2/3',
+      'Step 2/3',
       { showQuickPick, showInputBox },
     );
 
@@ -37,7 +37,7 @@ describe('pickAppRoot', () => {
         { path: '/repo/apps/web', framework: 'react-vite' },
         { path: '/repo/apps/api', framework: 'vue-webpack' },
       ],
-      'Schritt 2/2',
+      'Step 2/2',
       { showQuickPick, showInputBox },
     );
 
@@ -49,9 +49,9 @@ describe('pickAppRoot', () => {
       { label: 'apps/api', description: 'Vue + Webpack', picked: true, value: '/repo/apps/api' },
     ]);
     expect(options.canPickMany).toBe(true);
-    expect(options.title).toBe('PinFlow Setup · Schritt 2/2 — Apps auswählen');
+    expect(options.title).toBe('PinFlow Setup · Step 2/2 — Choose apps');
     expect(options.placeHolder).toBe(
-      'Mehrere Frontend-Apps gefunden — wähle eine oder mehrere',
+      'Multiple frontend apps found — choose one or more',
     );
   });
 
@@ -67,7 +67,7 @@ describe('pickAppRoot', () => {
         { path: '/repo/apps/web', framework: 'react-vite' },
         { path: '/repo/apps/api', framework: 'other-webpack' },
       ],
-      'Schritt 2/3',
+      'Step 2/3',
       { showQuickPick, showInputBox },
     );
 
@@ -87,7 +87,7 @@ describe('pickAppRoot', () => {
         { path: '/repo/apps/web', framework: 'react-vite' },
         { path: '/repo/apps/api', framework: 'vue-webpack' },
       ],
-      'Schritt 2/3',
+      'Step 2/3',
       { showQuickPick, showInputBox },
     );
 
@@ -95,7 +95,7 @@ describe('pickAppRoot', () => {
     expect(result).toBeUndefined();
   });
 
-  it('shows InputBox with German prompt when no apps detected (frontend-aware copy)', async () => {
+  it('shows InputBox prompt when no apps detected (frontend-aware copy)', async () => {
     // Arrange
     const showQuickPick = vi.fn();
     const showInputBox = vi.fn().mockResolvedValue('/manual/path');
@@ -104,16 +104,16 @@ describe('pickAppRoot', () => {
     const result = await pickAppRoot(
       '/repo',
       [],
-      'Schritt 2/2',
+      'Step 2/2',
       { showQuickPick, showInputBox },
     );
 
     // Assert
     expect(result).toEqual(['/manual/path']);
     const [options] = showInputBox.mock.calls[0];
-    expect(options.title).toBe('PinFlow Setup · Schritt 2/2 — App-Root wählen');
+    expect(options.title).toBe('PinFlow Setup · Step 2/2 — Choose app root');
     expect(options.prompt).toBe(
-      'Keine Frontend-App (Vite/Webpack/Next.js/Nuxt) erkannt. Pfad zum App-Root eingeben:',
+      'No frontend app (Vite/Webpack/Next.js/Nuxt) detected. Enter the path to the app root:',
     );
     expect(options.value).toBe('/repo');
   });
@@ -127,7 +127,7 @@ describe('pickAppRoot', () => {
     const result = await pickAppRoot(
       '/repo',
       [],
-      'Schritt 1/1',
+      'Step 1/1',
       { showQuickPick, showInputBox },
     );
 
@@ -153,7 +153,7 @@ describe('pickAppRoot', () => {
 
     // Assert
     const [, options] = showQuickPick.mock.calls[0];
-    expect(options.title).toBe('PinFlow Setup · Apps auswählen');
+    expect(options.title).toBe('PinFlow Setup · Choose apps');
   });
 
   it('uses readable labels from FRAMEWORKS table in descriptions', async () => {

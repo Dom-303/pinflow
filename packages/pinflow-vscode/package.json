@@ -245,12 +245,12 @@
       {
         "view": "pinflow.status",
         "when": "workbenchState != empty && pinflow.notConfigured",
-        "contents": "PinFlow ist in diesem Workspace nicht eingerichtet.\n\n[$(rocket) PinFlow einrichten](command:pinflow.runInit)\n\n[$(book) Dokumentation öffnen](command:pinflow.openDocumentation)\n\nVoraussetzung: PinFlow CLI verfügbar (lokal in deinem Projekt oder global installiert)."
+        "contents": "PinFlow is not set up in this workspace.\n\n[$(rocket) Set up PinFlow](command:pinflow.runInit)\n\n[$(book) Open documentation](command:pinflow.openDocumentation)\n\nPrerequisite: the PinFlow CLI is available (installed locally in your project, or globally)."
       },
       {
         "view": "pinflow.status",
         "when": "workbenchState == empty",
-        "contents": "PinFlow braucht einen geöffneten Ordner.\n\n[$(folder-opened) Ordner öffnen](command:vscode.openFolder)"
+        "contents": "PinFlow needs an open folder.\n\n[$(folder-opened) Open folder](command:vscode.openFolder)"
       }
     ],
     "walkthroughs": [

@@ -92,11 +92,11 @@ describe('runWizard step plan', () => {
     await runWizard('/repo', makeUserDeps(), internal);
 
     // Assert
-    expect(internal.pickAgent).toHaveBeenCalledWith(expect.anything(), 'Schritt 1/2');
+    expect(internal.pickAgent).toHaveBeenCalledWith(expect.anything(), 'Step 1/2');
     expect(internal.pickAppRoot).toHaveBeenCalledWith(
       '/repo',
       expect.any(Array),
-      'Schritt 2/2',
+      'Step 2/2',
     );
     expect(internal.pickFramework).not.toHaveBeenCalled();
     expect(internal.writeWizardConfig).toHaveBeenCalledWith({
@@ -136,13 +136,13 @@ describe('runWizard step plan', () => {
     await runWizard('/repo', makeUserDeps(), internal);
 
     // Assert
-    expect(internal.pickAgent).toHaveBeenCalledWith(expect.anything(), 'Schritt 1/3');
+    expect(internal.pickAgent).toHaveBeenCalledWith(expect.anything(), 'Step 1/3');
     expect(internal.pickAppRoot).toHaveBeenCalledWith(
       '/repo',
       expect.any(Array),
-      'Schritt 2/3',
+      'Step 2/3',
     );
-    expect(internal.pickFramework).toHaveBeenCalledWith('Schritt 3/3');
+    expect(internal.pickFramework).toHaveBeenCalledWith('Step 3/3');
     // FrameworkChoice 'vite' is mapped to FrameworkId 'other-vite' in Phase 6.
     expect(internal.writeWizardConfig).toHaveBeenCalledWith({
       cwd: '/repo',
@@ -219,13 +219,13 @@ describe('runWizard cancellation', () => {
 });
 
 describe('runWizard reconfigure flow', () => {
-  it('shows reconfigure prompt when picked app already has config; "Überschreiben" continues', async () => {
+  it('shows reconfigure prompt when picked app already has config; "Overwrite" continues', async () => {
     // Arrange
     const internal = makeInternalDeps({
       detectApps: vi.fn(() => [{ path: '/repo', framework: 'react-vite' as const }]),
       pickAppRoot: vi.fn(async () => ['/repo']),
       detectExistingConfigs: vi.fn(async () => ['/repo']),
-      showInformationMessage: vi.fn(async () => 'Überschreiben'),
+      showInformationMessage: vi.fn(async () => 'Overwrite'),
     });
 
     // Act
@@ -233,20 +233,20 @@ describe('runWizard reconfigure flow', () => {
 
     // Assert
     expect(internal.showInformationMessage).toHaveBeenCalledWith(
-      expect.stringContaining('Bestehende Konfiguration überschreiben?'),
-      'Überschreiben',
-      'Abbrechen',
+      expect.stringContaining('Overwrite the existing configuration?'),
+      'Overwrite',
+      'Cancel',
     );
     expect(internal.writeWizardConfig).toHaveBeenCalled();
   });
 
-  it('cancels when user picks "Abbrechen" on reconfigure prompt', async () => {
+  it('cancels when user picks "Cancel" on reconfigure prompt', async () => {
     // Arrange
     const internal = makeInternalDeps({
       detectApps: vi.fn(() => [{ path: '/repo', framework: 'react-vite' as const }]),
       pickAppRoot: vi.fn(async () => ['/repo']),
       detectExistingConfigs: vi.fn(async () => ['/repo']),
-      showInformationMessage: vi.fn(async () => 'Abbrechen'),
+      showInformationMessage: vi.fn(async () => 'Cancel'),
     });
 
     // Act
@@ -269,14 +269,14 @@ describe('runWizard reconfigure flow', () => {
 
     // Assert — showInformationMessage is not called for the reconfigure prompt
     const calls = (internal.showInformationMessage as ReturnType<typeof vi.fn>).mock.calls;
-    const reconfigureCall = calls.find((c) => c[0]?.includes?.('Überschreiben'));
+    const reconfigureCall = calls.find((c) => c[0]?.includes?.('Overwrite'));
     expect(reconfigureCall).toBeUndefined();
     expect(internal.writeWizardConfig).toHaveBeenCalled();
   });
 });
 
 describe('runWizard error handling', () => {
-  it('shows German error toast when writeWizardConfig throws; "Terminal öffnen" opens terminal', async () => {
+  it('shows error toast when writeWizardConfig throws; "Open terminal" opens terminal', async () => {
     // Arrange
     const userDeps = makeUserDeps();
     const internal = makeInternalDeps({
@@ -285,7 +285,7 @@ describe('runWizard error handling', () => {
       writeWizardConfig: vi.fn(async () => {
         throw new Error('disk full');
       }),
-      showErrorMessage: vi.fn(async () => 'Terminal öffnen'),
+      showErrorMessage: vi.fn(async () => 'Open terminal'),
     });
 
     // Act
@@ -293,8 +293,8 @@ describe('runWizard error handling', () => {
 
     // Assert
     expect(internal.showErrorMessage).toHaveBeenCalledWith(
-      expect.stringContaining('PinFlow-Setup fehlgeschlagen'),
-      'Terminal öffnen',
+      expect.stringContaining('PinFlow setup failed'),
+      'Open terminal',
     );
     expect(userDeps.runInitInTerminal).toHaveBeenCalledWith('/repo');
     expect(internal.runPostInstall).not.toHaveBeenCalled();
@@ -341,17 +341,17 @@ describe('runWizard Phase 7.5 — framework plugin install', () => {
 
     // Assert — error message contains expected strings
     expect(internal.showErrorMessage).toHaveBeenCalledWith(
-      expect.stringContaining('Plugin-Setup fehlgeschlagen'),
-      'Erneut versuchen',
-      'Output anzeigen',
-      'Schließen',
+      expect.stringContaining('Plugin setup failed'),
+      'Retry',
+      'Show output',
+      'Close',
     );
 
     // Assert — post-install still runs after failure
     expect(internal.runPostInstall).toHaveBeenCalled();
   });
 
-  it('calls outputShow when user picks "Output anzeigen" in the failure toast', async () => {
+  it('calls outputShow when user picks "Show output" in the failure toast', async () => {
     // Arrange
     const internal = makeInternalDeps({
       detectApps: vi.fn(() => [{ path: '/repo', framework: 'react-vite' as const }]),
@@ -362,7 +362,7 @@ describe('runWizard Phase 7.5 — framework plugin install', () => {
         appPath: '/repo',
         detail: 'ENOENT',
       })),
-      showErrorMessage: vi.fn(async () => 'Output anzeigen'),
+      showErrorMessage: vi.fn(async () => 'Show output'),
     });
 
     // Act
@@ -382,7 +382,7 @@ describe('runWizard Phase 7.5 — framework plugin install', () => {
       detectApps: vi.fn(() => [{ path: '/repo', framework: 'react-vite' as const }]),
       pickAppRoot: vi.fn(async () => ['/repo']),
       installFrameworkPlugin: installMock,
-      showErrorMessage: vi.fn(async () => 'Erneut versuchen'),
+      showErrorMessage: vi.fn(async () => 'Retry'),
     });
 
     // Act
@@ -417,7 +417,7 @@ describe('runWizard Phase 7.5 — framework plugin install', () => {
       ]),
       pickAppRoot: vi.fn(async () => ['/repo/apps/web', '/repo/apps/api']),
       installFrameworkPlugin: installMock,
-      showErrorMessage: vi.fn(async () => 'Erneut versuchen'),
+      showErrorMessage: vi.fn(async () => 'Retry'),
     });
 
     // Act
@@ -444,11 +444,11 @@ describe('runWizard Phase 7.5 — framework plugin install', () => {
       detail: 'ENOENT',
     }));
 
-    // First 3 showErrorMessage calls return 'Erneut versuchen'; 4th is the cap toast
+    // First 3 showErrorMessage calls return 'Retry'; 4th is the cap toast
     const showErrorMock = vi.fn()
-      .mockResolvedValueOnce('Erneut versuchen')
-      .mockResolvedValueOnce('Erneut versuchen')
-      .mockResolvedValueOnce('Erneut versuchen')
+      .mockResolvedValueOnce('Retry')
+      .mockResolvedValueOnce('Retry')
+      .mockResolvedValueOnce('Retry')
       .mockResolvedValueOnce(undefined);
 
     const internal = makeInternalDeps({
@@ -467,12 +467,12 @@ describe('runWizard Phase 7.5 — framework plugin install', () => {
     // Assert — 4th toast (after 3 retries exhausted) has no retry button
     const fourthToastCall = showErrorMock.mock.calls[3];
     expect(fourthToastCall).toBeDefined();
-    expect(fourthToastCall).not.toContain('Erneut versuchen');
-    expect(fourthToastCall).toContain('Output anzeigen');
-    expect(fourthToastCall).toContain('Schließen');
+    expect(fourthToastCall).not.toContain('Retry');
+    expect(fourthToastCall).toContain('Show output');
+    expect(fourthToastCall).toContain('Close');
   });
 
-  it('long-install hint fires: report called with Output-anzeigen hint when timer callback invoked', async () => {
+  it('long-install hint fires: report called with Show output hint when timer callback invoked', async () => {
     // Arrange
     let capturedHintCallback: (() => void) | undefined;
     const cancelFn = vi.fn();
@@ -501,10 +501,10 @@ describe('runWizard Phase 7.5 — framework plugin install', () => {
     // Manually fire the hint callback (simulates the 30s timer elapsing)
     capturedHintCallback?.();
 
-    // Assert — report was called with the hint message containing 'Output anzeigen'
+    // Assert — report was called with the hint message containing 'Show output'
     expect(capturedReport).toBeDefined();
     const hintCall = (capturedReport as ReturnType<typeof vi.fn>).mock.calls.find(
-      (c) => c[0]?.message?.includes('Output anzeigen'),
+      (c) => c[0]?.message?.includes('Show output'),
     );
     expect(hintCall).toBeDefined();
   });
@@ -545,7 +545,7 @@ describe('runWizard Phase 7.5 — framework plugin install', () => {
       detectApps: vi.fn(() => [{ path: '/repo', framework: 'react-vite' as const }]),
       pickAppRoot: vi.fn(async () => ['/repo']),
       installFrameworkPlugin: installMock,
-      showErrorMessage: vi.fn(async () => 'Erneut versuchen'),
+      showErrorMessage: vi.fn(async () => 'Retry'),
       setLongInstallTimer,
     });
 
@@ -576,7 +576,7 @@ describe('runWizard Phase 7.5 — framework plugin install', () => {
 
     // Assert — showErrorMessage not called for plugin-setup failure
     const calls = (internal.showErrorMessage as ReturnType<typeof vi.fn>).mock.calls;
-    const pluginFailureCall = calls.find((c) => c[0]?.includes?.('Plugin-Setup'));
+    const pluginFailureCall = calls.find((c) => c[0]?.includes?.('Plugin setup'));
     expect(pluginFailureCall).toBeUndefined();
   });
 });

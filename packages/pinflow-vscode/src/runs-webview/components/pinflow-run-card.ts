@@ -4,6 +4,12 @@ import { mapStatusToPillState, type PillState } from './pinflow-lifecycle-pill.j
 import './pinflow-run-detail.js';
 import type { PinFlowChangedFile, PinFlowRunEvidence } from '../../core/run-evidence.js';
 import type { RunsWebviewSettings } from '../../core/views/runs-webview-messages.js';
+import {
+  formatCostUsd,
+  formatDurationMs,
+  formatProviderModel,
+  formatTokens,
+} from '../format-run-metadata.js';
 
 const STATE_ICON: Record<PillState, string> = {
   processing: 'codicon-loading codicon-modifier-spin',
@@ -20,6 +26,8 @@ export class PinflowRunCard extends LitElement {
   @property({ type: Boolean, attribute: false }) isExpanded = false;
   @property({ attribute: false }) liveTranscript = '';
   @property({ attribute: false }) liveChangedFiles: readonly PinFlowChangedFile[] | null = null;
+  @property({ type: Boolean, attribute: false }) compareMode = false;
+  @property({ type: Boolean, attribute: false }) selected = false;
 
   static styles = css`
     :host {
@@ -55,6 +63,31 @@ export class PinflowRunCard extends LitElement {
     }
     :host([is-expanded]) .card {
       background: var(--pf-bg-elevated);
+    }
+    :host([selected]) .card {
+      background: var(--pf-accent-soft);
+      border-color: var(--pf-accent);
+    }
+    .checkbox {
+      flex-shrink: 0;
+      width: 14px;
+      height: 14px;
+      border: 1px solid var(--pf-border);
+      border-radius: 2px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      color: var(--pf-text);
+    }
+    :host([selected]) .checkbox {
+      background: var(--pf-accent);
+      border-color: var(--pf-accent);
+      color: var(--vscode-button-foreground, #fff);
+    }
+    .checkbox .codicon {
+      font-family: codicon;
+      font-size: 11px;
     }
     @media (prefers-reduced-motion: no-preference) {
       :host {
@@ -106,6 +139,17 @@ export class PinflowRunCard extends LitElement {
       color: var(--pf-text-muted);
       font-variant-numeric: tabular-nums;
     }
+    .cost-meta {
+      margin-top: 2px;
+      padding-left: 22px;
+      font-family: var(--vscode-font-family);
+      font-size: 10px;
+      color: var(--pf-text-muted);
+      font-variant-numeric: tabular-nums;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
     .detail-slot {
       margin-top: 4px;
     }
@@ -117,6 +161,9 @@ export class PinflowRunCard extends LitElement {
     }
     if (changed.has('isExpanded')) {
       this.toggleAttribute('is-expanded', this.isExpanded);
+    }
+    if (changed.has('selected')) {
+      this.toggleAttribute('selected', this.selected);
     }
   }
 
@@ -135,12 +182,29 @@ export class PinflowRunCard extends LitElement {
     }
   }
 
+  private buildCostMetaText(): string {
+    const summary = this.run?.summary;
+    if (!summary) return '';
+    const { provider, model, totalTokens, costUsd, durationMs } = summary;
+    const agentLabel = model
+      ? formatProviderModel(provider, model)
+      : '';
+    const segments = [
+      agentLabel,
+      totalTokens !== undefined ? `${formatTokens(totalTokens)} tok` : '',
+      costUsd !== undefined ? formatCostUsd(costUsd) : '',
+      durationMs !== undefined ? formatDurationMs(durationMs) : '',
+    ].filter(Boolean);
+    return segments.join(' · ');
+  }
+
   private handleClick = (event: MouseEvent): void => {
     event.preventDefault();
     const runId = this.run?.runId;
     if (!runId) return;
+    const eventName = this.compareMode ? 'pinflow-card:select' : 'pinflow-card:click';
     this.dispatchEvent(
-      new CustomEvent('pinflow-card:click', {
+      new CustomEvent(eventName, {
         detail: { runId },
         bubbles: true,
         composed: true,
@@ -157,6 +221,7 @@ export class PinflowRunCard extends LitElement {
     const iconClass = STATE_ICON[pillState];
     const changedFiles = this.liveChangedFiles ?? this.run?.changedFiles ?? [];
     const isLive = pillState === 'processing';
+    const costMetaText = this.buildCostMetaText();
     return html`
       <div
         class="card"
@@ -164,6 +229,13 @@ export class PinflowRunCard extends LitElement {
         @click=${this.handleClick}
       >
         <div class="row">
+          ${this.compareMode
+            ? html`<span
+                class="checkbox"
+                role="checkbox"
+                aria-checked=${this.selected ? 'true' : 'false'}
+              >${this.selected ? html`<i class="codicon codicon-check" aria-hidden="true"></i>` : null}</span>`
+            : null}
           <i
             class=${`status-icon codicon ${iconClass} ${pillState}`}
             aria-label=${pillState}
@@ -175,6 +247,9 @@ export class PinflowRunCard extends LitElement {
           </span>
           <span class="time">${this.formatTime()}</span>
         </div>
+        ${costMetaText
+          ? html`<div class="cost-meta">${costMetaText}</div>`
+          : null}
         ${this.isExpanded
           ? html`<div class="detail-slot">
               <pinflow-run-detail

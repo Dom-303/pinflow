@@ -128,6 +128,80 @@ describe('<pinflow-run-detail>', () => {
   });
 });
 
+describe('<pinflow-run-detail> cost metadata', () => {
+  it('renders provider · model · tokens · cost · duration on a meta line when all are present', async () => {
+    // Arrange
+    const el = document.createElement('pinflow-run-detail') as PinflowRunDetail;
+    el.run = makeRun({
+      summary: {
+        status: 'processed',
+        provider: 'codex',
+        model: 'gpt-5.5',
+        startedAt: '2026-05-08T10:00:00Z',
+        finishedAt: '2026-05-08T10:00:47Z',
+        durationMs: 47_000,
+        totalTokens: 12_400,
+        costUsd: 0.05,
+      },
+    });
+
+    // Act
+    document.body.appendChild(el);
+    await el.updateComplete;
+
+    // Assert
+    const metaText = el.shadowRoot!.querySelector('.meta')!.textContent ?? '';
+    expect(metaText).toContain('codex · gpt-5.5');
+    expect(metaText).toContain('12.4k tok');
+    expect(metaText).toContain('~$0.05');
+    expect(metaText).toContain('47s');
+  });
+
+  it('omits cost segments that are missing while still rendering known ones', async () => {
+    // Arrange
+    const el = document.createElement('pinflow-run-detail') as PinflowRunDetail;
+    el.run = makeRun({
+      summary: {
+        status: 'processed',
+        provider: 'codex',
+        startedAt: '2026-05-08T10:00:00Z',
+        finishedAt: '2026-05-08T10:00:30Z',
+        // model, totalTokens, costUsd missing
+      },
+    });
+
+    // Act
+    document.body.appendChild(el);
+    await el.updateComplete;
+
+    // Assert
+    const metaText = el.shadowRoot!.querySelector('.meta')!.textContent ?? '';
+    expect(metaText).toContain('via codex');
+    expect(metaText).toContain('30s');
+    expect(metaText).not.toContain('tok');
+    expect(metaText).not.toContain('$');
+  });
+
+  it('falls back to deriving duration from startedAt/finishedAt when durationMs is absent', async () => {
+    // Arrange
+    const el = document.createElement('pinflow-run-detail') as PinflowRunDetail;
+    el.run = makeRun({
+      summary: {
+        status: 'processed',
+        startedAt: '2026-05-08T10:00:00Z',
+        finishedAt: '2026-05-08T10:01:23Z',
+      },
+    });
+
+    // Act
+    document.body.appendChild(el);
+    await el.updateComplete;
+
+    // Assert
+    expect(el.shadowRoot!.querySelector('.meta')!.textContent).toContain('1m 23s');
+  });
+});
+
 describe('<pinflow-run-detail> sticky-bottom autoscroll', () => {
   it('autoscrolls to bottom on first transcript update', async () => {
     // Arrange

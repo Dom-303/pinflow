@@ -17,6 +17,8 @@ export class PinflowFolderSection extends LitElement {
   @property({ attribute: false }) activeRunId: string | null = null;
   @property({ attribute: false }) liveTranscript = '';
   @property({ attribute: false }) liveChangedFiles: readonly PinFlowChangedFile[] | null = null;
+  @property({ type: Boolean, attribute: false }) compareMode = false;
+  @property({ attribute: false }) selectedRunIds: ReadonlySet<string> = new Set();
 
   @state() private expanded = false;
 
@@ -129,9 +131,11 @@ export class PinflowFolderSection extends LitElement {
                         .run=${run}
                         .timeFormat=${this.timeFormat}
                         .index=${index}
-                        .isExpanded=${run.runId === this.activeRunId}
+                        .isExpanded=${!this.compareMode && run.runId === this.activeRunId}
                         .liveTranscript=${run.runId === this.activeRunId ? this.liveTranscript : ''}
                         .liveChangedFiles=${run.runId === this.activeRunId ? this.liveChangedFiles : null}
+                        .compareMode=${this.compareMode}
+                        .selected=${run.runId !== undefined && this.selectedRunIds.has(run.runId)}
                       ></pinflow-run-card>
                     `,
                   )}

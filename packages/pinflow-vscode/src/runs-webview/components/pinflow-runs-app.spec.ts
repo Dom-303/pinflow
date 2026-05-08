@@ -271,3 +271,178 @@ describe('<pinflow-runs-app> accordion authority', () => {
     expect(folderSection?.liveTranscript).toBe('');
   });
 });
+
+describe('<pinflow-runs-app> compare mode', () => {
+  const mounted: PinflowRunsApp[] = [];
+
+  function makeApp(): PinflowRunsApp {
+    const app = document.createElement('pinflow-runs-app') as PinflowRunsApp;
+    app.runsByFolder = {
+      '/repo': [
+        { runId: 'r_1', summaryPath: '/p1', summary: { provider: 'codex', model: 'gpt-5' }, changedFiles: [] } as never,
+        { runId: 'r_2', summaryPath: '/p2', summary: { provider: 'claude', model: 'opus' }, changedFiles: [] } as never,
+        { runId: 'r_3', summaryPath: '/p3', summary: { provider: 'codex', model: 'gpt-5' }, changedFiles: [] } as never,
+      ],
+    };
+    document.body.appendChild(app);
+    mounted.push(app);
+    return app;
+  }
+
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
+  afterEach(() => {
+    while (mounted.length) mounted.pop()!.remove();
+  });
+
+  it('flips compareMode on toggle event and propagates it to folder-section', async () => {
+    // Arrange
+    const app = makeApp();
+    await app.updateComplete;
+
+    // Act
+    app.dispatchEvent(
+      new CustomEvent('pinflow-compare-mode-toggle', { bubbles: true, composed: true }),
+    );
+    await app.updateComplete;
+
+    // Assert
+    const section = app.shadowRoot!.querySelector(
+      'pinflow-folder-section',
+    ) as (HTMLElement & { compareMode: boolean }) | null;
+    expect(section?.compareMode).toBe(true);
+  });
+
+  it('caps selection at 2 runs and ignores extra select events', async () => {
+    // Arrange
+    const app = makeApp();
+    app.dispatchEvent(
+      new CustomEvent('pinflow-compare-mode-toggle', { bubbles: true, composed: true }),
+    );
+    await app.updateComplete;
+
+    // Act
+    app.dispatchEvent(
+      new CustomEvent('pinflow-card:select', { detail: { runId: 'r_1' }, bubbles: true, composed: true }),
+    );
+    app.dispatchEvent(
+      new CustomEvent('pinflow-card:select', { detail: { runId: 'r_2' }, bubbles: true, composed: true }),
+    );
+    app.dispatchEvent(
+      new CustomEvent('pinflow-card:select', { detail: { runId: 'r_3' }, bubbles: true, composed: true }),
+    );
+    await app.updateComplete;
+
+    // Assert
+    const section = app.shadowRoot!.querySelector(
+      'pinflow-folder-section',
+    ) as (HTMLElement & { selectedRunIds: ReadonlySet<string> }) | null;
+    expect(section!.selectedRunIds.has('r_1')).toBe(true);
+    expect(section!.selectedRunIds.has('r_2')).toBe(true);
+    expect(section!.selectedRunIds.has('r_3')).toBe(false);
+  });
+
+  it('toggles a run off when re-selected', async () => {
+    // Arrange
+    const app = makeApp();
+    app.dispatchEvent(
+      new CustomEvent('pinflow-compare-mode-toggle', { bubbles: true, composed: true }),
+    );
+    await app.updateComplete;
+    app.dispatchEvent(
+      new CustomEvent('pinflow-card:select', { detail: { runId: 'r_1' }, bubbles: true, composed: true }),
+    );
+    await app.updateComplete;
+
+    // Act
+    app.dispatchEvent(
+      new CustomEvent('pinflow-card:select', { detail: { runId: 'r_1' }, bubbles: true, composed: true }),
+    );
+    await app.updateComplete;
+
+    // Assert
+    const section = app.shadowRoot!.querySelector(
+      'pinflow-folder-section',
+    ) as (HTMLElement & { selectedRunIds: ReadonlySet<string> }) | null;
+    expect(section!.selectedRunIds.size).toBe(0);
+  });
+
+  it('renders <pinflow-compare-panel> only when exactly 2 runs are selected', async () => {
+    // Arrange
+    const app = makeApp();
+    app.dispatchEvent(
+      new CustomEvent('pinflow-compare-mode-toggle', { bubbles: true, composed: true }),
+    );
+    await app.updateComplete;
+
+    // Act + Assert: 0 selected → no panel
+    expect(app.shadowRoot!.querySelector('pinflow-compare-panel')).toBeNull();
+
+    app.dispatchEvent(
+      new CustomEvent('pinflow-card:select', { detail: { runId: 'r_1' }, bubbles: true, composed: true }),
+    );
+    await app.updateComplete;
+    expect(app.shadowRoot!.querySelector('pinflow-compare-panel')).toBeNull();
+
+    app.dispatchEvent(
+      new CustomEvent('pinflow-card:select', { detail: { runId: 'r_2' }, bubbles: true, composed: true }),
+    );
+    await app.updateComplete;
+    expect(app.shadowRoot!.querySelector('pinflow-compare-panel')).not.toBeNull();
+  });
+
+  it('clears selection on pinflow-compare-clear', async () => {
+    // Arrange
+    const app = makeApp();
+    app.dispatchEvent(
+      new CustomEvent('pinflow-compare-mode-toggle', { bubbles: true, composed: true }),
+    );
+    app.dispatchEvent(
+      new CustomEvent('pinflow-card:select', { detail: { runId: 'r_1' }, bubbles: true, composed: true }),
+    );
+    app.dispatchEvent(
+      new CustomEvent('pinflow-card:select', { detail: { runId: 'r_2' }, bubbles: true, composed: true }),
+    );
+    await app.updateComplete;
+
+    // Act
+    app.dispatchEvent(
+      new CustomEvent('pinflow-compare-clear', { bubbles: true, composed: true }),
+    );
+    await app.updateComplete;
+
+    // Assert
+    const section = app.shadowRoot!.querySelector(
+      'pinflow-folder-section',
+    ) as (HTMLElement & { selectedRunIds: ReadonlySet<string> }) | null;
+    expect(section!.selectedRunIds.size).toBe(0);
+    expect(app.shadowRoot!.querySelector('pinflow-compare-panel')).toBeNull();
+  });
+
+  it('empties selection when leaving compare mode', async () => {
+    // Arrange
+    const app = makeApp();
+    app.dispatchEvent(
+      new CustomEvent('pinflow-compare-mode-toggle', { bubbles: true, composed: true }),
+    );
+    app.dispatchEvent(
+      new CustomEvent('pinflow-card:select', { detail: { runId: 'r_1' }, bubbles: true, composed: true }),
+    );
+    await app.updateComplete;
+
+    // Act: toggle compare mode off
+    app.dispatchEvent(
+      new CustomEvent('pinflow-compare-mode-toggle', { bubbles: true, composed: true }),
+    );
+    await app.updateComplete;
+
+    // Assert
+    const section = app.shadowRoot!.querySelector(
+      'pinflow-folder-section',
+    ) as (HTMLElement & { compareMode: boolean; selectedRunIds: ReadonlySet<string> }) | null;
+    expect(section!.compareMode).toBe(false);
+    expect(section!.selectedRunIds.size).toBe(0);
+  });
+});

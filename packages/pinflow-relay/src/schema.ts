@@ -275,6 +275,29 @@ export const AnnotationRunEvidenceSchema = z.object({
   model: z.string().optional(),
   startedAt: z.string(),
   finishedAt: z.string().optional(),
+  durationMs: z
+    .number()
+    .int()
+    .min(0)
+    .optional()
+    .describe(
+      'Wallclock duration of the run in milliseconds (finishedAt - startedAt)',
+    ),
+  totalTokens: z
+    .number()
+    .int()
+    .min(0)
+    .optional()
+    .describe(
+      'Total tokens consumed by the agent (input + output combined; some agents only expose this aggregate)',
+    ),
+  costUsd: z
+    .number()
+    .min(0)
+    .optional()
+    .describe(
+      'Estimated cost in USD based on a blended per-model rate; treat as approximate',
+    ),
   exitCode: z.number().nullable().optional(),
   errorDetails: z.string().optional(),
   promptPath: z.string(),

@@ -37,6 +37,10 @@ export interface RunEvidenceSummary extends RunEvidenceCreateInput {
   status: RunEvidenceStatus;
   startedAt: string;
   finishedAt?: string;
+  durationMs?: number;
+  model?: string;
+  totalTokens?: number;
+  costUsd?: number;
   exitCode?: number | null;
   errorDetails?: string;
   promptPath: string;
@@ -55,6 +59,7 @@ export interface RunEvidenceRecorder {
     diffPath: string;
     summaryPath: string;
   };
+  readonly startedAt: string;
   writePrompt(prompt: string): Promise<void>;
   writeContext(context: unknown): Promise<void>;
   appendTranscript(message: string): Promise<void>;
@@ -63,7 +68,14 @@ export interface RunEvidenceRecorder {
     patch: Partial<
       Pick<
         RunEvidenceSummary,
-        'status' | 'finishedAt' | 'exitCode' | 'errorDetails'
+        | 'status'
+        | 'finishedAt'
+        | 'durationMs'
+        | 'model'
+        | 'totalTokens'
+        | 'costUsd'
+        | 'exitCode'
+        | 'errorDetails'
       >
     >,
   ): Promise<void>;
@@ -95,6 +107,9 @@ export interface RunEvidenceView extends Pick<
   | 'diffPath'
 > {
   model?: string;
+  durationMs?: number;
+  totalTokens?: number;
+  costUsd?: number;
   hasDiff: boolean;
   changedFiles: RunEvidenceChangedFile[];
   additions: number;
@@ -143,7 +158,7 @@ function resolveWorkspacePath(workspaceRoot: string, filePath: string): string {
     : path.join(workspaceRoot, filePath);
 }
 
-function extractModel(command: RunnerCommandConfig): string | undefined {
+export function extractModel(command: RunnerCommandConfig): string | undefined {
   const args = command.args ?? [];
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
@@ -262,7 +277,10 @@ export async function findLatestRunEvidence(
     status: latest.status,
     provider: latest.provider,
     label: latest.label,
-    model: extractModel(latest.command),
+    model: latest.model ?? extractModel(latest.command),
+    durationMs: latest.durationMs,
+    totalTokens: latest.totalTokens,
+    costUsd: latest.costUsd,
     startedAt: latest.startedAt,
     finishedAt: latest.finishedAt,
     exitCode: latest.exitCode,
@@ -277,6 +295,7 @@ export async function findLatestRunEvidence(
 
 class FileRunEvidenceRecorder implements RunEvidenceRecorder {
   readonly paths: RunEvidenceRecorder['paths'];
+  readonly startedAt: string;
   private summary: RunEvidenceSummary;
 
   constructor(
@@ -285,6 +304,7 @@ class FileRunEvidenceRecorder implements RunEvidenceRecorder {
     runDir: string,
     startedAt: string,
   ) {
+    this.startedAt = startedAt;
     const promptPath = path.join(runDir, 'prompt.md');
     const contextPath = path.join(runDir, 'context.json');
     const transcriptPath = path.join(runDir, 'transcript.log');

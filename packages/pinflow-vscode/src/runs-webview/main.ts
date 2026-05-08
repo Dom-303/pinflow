@@ -4,6 +4,7 @@ import './components/pinflow-run-detail.js';
 import './components/pinflow-runs-app.js';
 import './components/pinflow-runs-header.js';
 import './components/pinflow-empty-state.js';
+import './components/pinflow-compare-panel.js';
 import type { PinflowRunsApp } from './components/pinflow-runs-app.js';
 import type { PinFlowRunEvidence } from '../core/run-evidence.js';
 import {

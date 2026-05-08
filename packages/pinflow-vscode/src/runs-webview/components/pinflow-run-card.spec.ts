@@ -194,3 +194,152 @@ describe('<pinflow-run-card> expanded detail', () => {
     expect(events[0].detail.runId).toBe('r_clicked');
   });
 });
+
+describe('<pinflow-run-card> compare mode', () => {
+  const mounted: PinflowRunCard[] = [];
+
+  function mount(run: PinFlowRunEvidence): PinflowRunCard {
+    const el = document.createElement('pinflow-run-card') as PinflowRunCard;
+    el.run = run;
+    document.body.appendChild(el);
+    mounted.push(el);
+    return el;
+  }
+
+  afterEach(() => {
+    while (mounted.length) mounted.pop()!.remove();
+  });
+
+  it('renders a checkbox affordance only in compare mode', async () => {
+    // Arrange
+    const el = mount(makeRun());
+
+    // Act
+    await el.updateComplete;
+    const before = el.shadowRoot!.querySelector('.checkbox');
+    el.compareMode = true;
+    await el.updateComplete;
+    const after = el.shadowRoot!.querySelector('.checkbox');
+
+    // Assert
+    expect(before).toBeNull();
+    expect(after).not.toBeNull();
+  });
+
+  it('reflects selected onto host attribute and aria-checked', async () => {
+    // Arrange
+    const el = mount(makeRun());
+    el.compareMode = true;
+    el.selected = true;
+
+    // Act
+    await el.updateComplete;
+
+    // Assert
+    expect(el.hasAttribute('selected')).toBe(true);
+    expect(
+      el.shadowRoot!.querySelector('.checkbox')!.getAttribute('aria-checked'),
+    ).toBe('true');
+  });
+
+  it('emits pinflow-card:select instead of click when compareMode is on', async () => {
+    // Arrange
+    const el = mount(makeRun({ runId: 'r_sel' }));
+    el.compareMode = true;
+    await el.updateComplete;
+
+    const selectEvents: Array<CustomEvent<{ runId: string }>> = [];
+    const clickEvents: Array<CustomEvent<{ runId: string }>> = [];
+    el.addEventListener('pinflow-card:select', (e) =>
+      selectEvents.push(e as CustomEvent<{ runId: string }>),
+    );
+    el.addEventListener('pinflow-card:click', (e) =>
+      clickEvents.push(e as CustomEvent<{ runId: string }>),
+    );
+
+    // Act
+    el.shadowRoot!
+      .querySelector<HTMLElement>('.card')!
+      .dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true }));
+
+    // Assert
+    expect(clickEvents).toHaveLength(0);
+    expect(selectEvents).toHaveLength(1);
+    expect(selectEvents[0].detail.runId).toBe('r_sel');
+  });
+});
+
+describe('<pinflow-run-card> cost metadata', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('renders a cost-meta line when at least one cost field is present', async () => {
+    // Arrange
+    const el = document.createElement('pinflow-run-card') as PinflowRunCard;
+    el.run = makeRun({
+      summary: {
+        status: 'processed',
+        startedAt: '2026-05-08T10:00:00Z',
+        provider: 'codex',
+        model: 'gpt-5.5',
+        totalTokens: 12_400,
+        costUsd: 0.05,
+        durationMs: 47_000,
+      },
+    });
+
+    // Act
+    document.body.appendChild(el);
+    await el.updateComplete;
+
+    // Assert
+    const meta = el.shadowRoot!.querySelector('.cost-meta');
+    expect(meta).not.toBeNull();
+    const text = meta!.textContent ?? '';
+    expect(text).toContain('codex · gpt-5.5');
+    expect(text).toContain('12.4k tok');
+    expect(text).toContain('~$0.05');
+    expect(text).toContain('47s');
+  });
+
+  it('omits the cost-meta line entirely when no cost fields are populated', async () => {
+    // Arrange
+    const el = document.createElement('pinflow-run-card') as PinflowRunCard;
+    el.run = makeRun({
+      summary: { status: 'processed', startedAt: '2026-05-08T10:00:00Z' },
+    });
+
+    // Act
+    document.body.appendChild(el);
+    await el.updateComplete;
+
+    // Assert
+    expect(el.shadowRoot!.querySelector('.cost-meta')).toBeNull();
+  });
+
+  it('renders only the populated segments when others are missing', async () => {
+    // Arrange
+    const el = document.createElement('pinflow-run-card') as PinflowRunCard;
+    el.run = makeRun({
+      summary: {
+        status: 'processed',
+        startedAt: '2026-05-08T10:00:00Z',
+        durationMs: 12_000,
+        // model, totalTokens, costUsd missing
+      },
+    });
+
+    // Act
+    document.body.appendChild(el);
+    await el.updateComplete;
+
+    // Assert
+    const meta = el.shadowRoot!.querySelector('.cost-meta');
+    expect(meta).not.toBeNull();
+    const text = meta!.textContent ?? '';
+    expect(text).toContain('12s');
+    expect(text).not.toContain('tok');
+    expect(text).not.toContain('$');
+  });
+});

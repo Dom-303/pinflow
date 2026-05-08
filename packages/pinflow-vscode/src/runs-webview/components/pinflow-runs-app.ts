@@ -4,8 +4,11 @@ import { repeat } from 'lit/directives/repeat.js';
 import './pinflow-runs-header.js';
 import './pinflow-empty-state.js';
 import './pinflow-folder-section.js';
+import './pinflow-compare-panel.js';
 import type { PinFlowChangedFile, PinFlowRunEvidence } from '../../core/run-evidence.js';
 import type { RunsWebviewSettings } from '../../core/views/runs-webview-messages.js';
+
+const MAX_COMPARE_SELECTION = 2;
 
 // node:path is not available in the browser; the webview only needs basename.
 function basename(p: string): string {
@@ -23,6 +26,8 @@ export class PinflowRunsApp extends LitElement {
   @state() private activeRunId: string | null = null;
   @state() private liveTranscript = '';
   @state() private liveChangedFiles: readonly PinFlowChangedFile[] | null = null;
+  @state() private compareMode = false;
+  @state() private selectedRunIds: ReadonlySet<string> = new Set();
 
   private static readonly ACTIVE_RUN_STORAGE_KEY = 'pinflow.runs.activeRunId';
 
@@ -40,12 +45,44 @@ export class PinflowRunsApp extends LitElement {
       if (stored) this.activeRunId = stored;
     } catch {} // eslint-disable-line no-empty
     this.addEventListener('pinflow-card:click', this.handleCardClick as EventListener);
+    this.addEventListener('pinflow-card:select', this.handleCardSelect as EventListener);
+    this.addEventListener('pinflow-compare-mode-toggle', this.handleCompareModeToggle);
+    this.addEventListener('pinflow-compare-clear', this.handleCompareClear);
   }
 
   override disconnectedCallback(): void {
     this.removeEventListener('pinflow-card:click', this.handleCardClick as EventListener);
+    this.removeEventListener('pinflow-card:select', this.handleCardSelect as EventListener);
+    this.removeEventListener('pinflow-compare-mode-toggle', this.handleCompareModeToggle);
+    this.removeEventListener('pinflow-compare-clear', this.handleCompareClear);
     super.disconnectedCallback();
   }
+
+  private handleCompareModeToggle = (): void => {
+    if (this.compareMode) {
+      this.compareMode = false;
+      this.selectedRunIds = new Set();
+      return;
+    }
+    this.compareMode = true;
+    this.selectedRunIds = new Set();
+  };
+
+  private handleCompareClear = (): void => {
+    this.selectedRunIds = new Set();
+  };
+
+  private handleCardSelect = (event: CustomEvent<{ runId: string }>): void => {
+    if (!this.compareMode) return;
+    const runId = event.detail.runId;
+    const next = new Set(this.selectedRunIds);
+    if (next.has(runId)) {
+      next.delete(runId);
+    } else if (next.size < MAX_COMPARE_SELECTION) {
+      next.add(runId);
+    }
+    this.selectedRunIds = next;
+  };
 
   private handleCardClick = (event: CustomEvent<{ runId: string }>): void => {
     const clickedRunId = event.detail.runId;
@@ -112,8 +149,19 @@ export class PinflowRunsApp extends LitElement {
       (sum, runs) => sum + runs.length,
       0,
     );
+    const [leftRun, rightRun] = this.resolveSelectedPair();
+    const showComparePanel = this.compareMode && leftRun !== null && rightRun !== null;
     return html`
-      <pinflow-runs-header .count=${totalRuns}></pinflow-runs-header>
+      <pinflow-runs-header
+        .count=${totalRuns}
+        .compareMode=${this.compareMode}
+        .selectedCount=${this.selectedRunIds.size}
+      ></pinflow-runs-header>
+      <div class="compare-slot">
+        ${showComparePanel
+          ? html`<pinflow-compare-panel .left=${leftRun} .right=${rightRun}></pinflow-compare-panel>`
+          : null}
+      </div>
       <div class="sections">
         ${repeat(
           folderPaths,
@@ -130,11 +178,27 @@ export class PinflowRunsApp extends LitElement {
               .activeRunId=${this.activeRunId}
               .liveTranscript=${this.liveTranscript}
               .liveChangedFiles=${this.liveChangedFiles}
+              .compareMode=${this.compareMode}
+              .selectedRunIds=${this.selectedRunIds}
             ></pinflow-folder-section>
           `,
         )}
       </div>
     `;
+  }
+
+  private resolveSelectedPair(): [PinFlowRunEvidence | null, PinFlowRunEvidence | null] {
+    if (this.selectedRunIds.size !== MAX_COMPARE_SELECTION) return [null, null];
+    const lookup = new Map<string, PinFlowRunEvidence>();
+    for (const runs of Object.values(this.runsByFolder)) {
+      for (const run of runs) {
+        if (run.runId) lookup.set(run.runId, run);
+      }
+    }
+    const ids = Array.from(this.selectedRunIds);
+    const left = lookup.get(ids[0]) ?? null;
+    const right = lookup.get(ids[1]) ?? null;
+    return [left, right];
   }
 }
 

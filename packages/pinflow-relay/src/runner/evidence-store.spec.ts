@@ -162,4 +162,77 @@ describe('FileRunEvidenceStore', () => {
       await rm(workspaceRoot, { recursive: true, force: true });
     }
   });
+
+  it('persists run cost metadata (model, tokens, cost, duration) when present in the patch', async () => {
+    const workspaceRoot = await mkdtemp(
+      path.join(tmpdir(), 'pinflow-evidence-'),
+    );
+
+    try {
+      const store = new FileRunEvidenceStore({
+        now: () => new Date(2026, 4, 8, 10, 0, 0),
+      });
+
+      const recorder = await store.createRun({
+        annotationId: 'ann_cost_1',
+        provider: 'codex',
+        label: 'PinFlow Runner (codex)',
+        workspaceRoot,
+        command: {
+          command: 'codex',
+          args: ['exec', '-'],
+          promptMode: 'stdin',
+        },
+      });
+
+      await recorder.updateSummary({
+        status: 'processed',
+        exitCode: 0,
+        finishedAt: '2026-05-08T10:00:30.000Z',
+        durationMs: 30_000,
+        model: 'gpt-5.5',
+        totalTokens: 12_400,
+        costUsd: 0.05,
+      });
+
+      const summary = JSON.parse(
+        await readFile(recorder.paths.summaryPath, 'utf8'),
+      ) as {
+        durationMs?: number;
+        model?: string;
+        totalTokens?: number;
+        costUsd?: number;
+      };
+      expect(summary.durationMs).toBe(30_000);
+      expect(summary.model).toBe('gpt-5.5');
+      expect(summary.totalTokens).toBe(12_400);
+      expect(summary.costUsd).toBe(0.05);
+    } finally {
+      await rm(workspaceRoot, { recursive: true, force: true });
+    }
+  });
+
+  it('exposes the recorder startedAt timestamp so the runner can compute durations', async () => {
+    const workspaceRoot = await mkdtemp(
+      path.join(tmpdir(), 'pinflow-evidence-'),
+    );
+
+    try {
+      const store = new FileRunEvidenceStore({
+        now: () => new Date('2026-05-08T10:00:00.000Z'),
+      });
+
+      const recorder = await store.createRun({
+        annotationId: 'ann_started_1',
+        provider: 'codex',
+        label: 'PinFlow Runner (codex)',
+        workspaceRoot,
+        command: { command: 'codex', args: [], promptMode: 'stdin' },
+      });
+
+      expect(recorder.startedAt).toBe('2026-05-08T10:00:00.000Z');
+    } finally {
+      await rm(workspaceRoot, { recursive: true, force: true });
+    }
+  });
 });

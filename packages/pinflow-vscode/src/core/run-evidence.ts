@@ -20,6 +20,10 @@ export interface PinFlowRunSummary {
   readonly sourceLocation?: PinFlowSourceLocation;
   readonly startedAt?: string;
   readonly finishedAt?: string;
+  readonly durationMs?: number;
+  readonly model?: string;
+  readonly totalTokens?: number;
+  readonly costUsd?: number;
   readonly promptPath?: string;
   readonly transcriptPath?: string;
   readonly diffPath?: string;

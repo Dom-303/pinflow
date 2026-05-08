@@ -2,6 +2,12 @@ import { LitElement, css, html, type PropertyValues } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
 import type { PinFlowChangedFile, PinFlowRunEvidence } from '../../core/run-evidence.js';
+import {
+  formatCostUsd,
+  formatDurationMs,
+  formatProviderModel,
+  formatTokens,
+} from '../format-run-metadata.js';
 
 const STICKY_BOTTOM_THRESHOLD_PX = 32;
 
@@ -10,20 +16,18 @@ function basename(p: string): string {
   return idx >= 0 ? p.slice(idx + 1) : p;
 }
 
-function formatDuration(startedAt: string | undefined, finishedAt: string | undefined): string {
-  if (!startedAt || !finishedAt) return '';
-  try {
-    const ms = new Date(finishedAt).getTime() - new Date(startedAt).getTime();
-    if (!Number.isFinite(ms) || ms < 0) return '';
-    if (ms < 1000) return `${ms}ms`;
-    const s = Math.round(ms / 1000);
-    if (s < 60) return `${s}s`;
-    const m = Math.floor(s / 60);
-    const rs = s % 60;
-    return `${m}m ${rs}s`;
-  } catch {
-    return '';
+function deriveDurationMs(
+  explicit: number | undefined,
+  startedAt: string | undefined,
+  finishedAt: string | undefined,
+): number | undefined {
+  if (typeof explicit === 'number' && Number.isFinite(explicit) && explicit >= 0) {
+    return explicit;
   }
+  if (!startedAt || !finishedAt) return undefined;
+  const ms = new Date(finishedAt).getTime() - new Date(startedAt).getTime();
+  if (!Number.isFinite(ms) || ms < 0) return undefined;
+  return ms;
 }
 
 @customElement('pinflow-run-detail')
@@ -254,11 +258,30 @@ export class PinflowRunDetail extends LitElement {
       ? `${basename(source.file)}${source.line !== undefined ? `:${source.line}` : ''}`
       : '';
     const provider = summary?.provider;
-    const duration = formatDuration(summary?.startedAt, summary?.finishedAt);
+    const model = summary?.model;
+    const totalTokens = summary?.totalTokens;
+    const costUsd = summary?.costUsd;
+    const durationMs = deriveDurationMs(
+      summary?.durationMs,
+      summary?.startedAt,
+      summary?.finishedAt,
+    );
     const errorDetails = (summary as { errorDetails?: string } | undefined)?.errorDetails;
     const promptPath = this.run?.promptPath;
     const fileCount = this.changedFiles.length;
-    const metaText = [provider ? `via ${provider}` : '', duration].filter(Boolean).join(' · ');
+    const agentLabel = model
+      ? formatProviderModel(provider, model)
+      : provider
+        ? `via ${provider}`
+        : '';
+    const metaText = [
+      agentLabel,
+      totalTokens !== undefined ? `${formatTokens(totalTokens)} tok` : '',
+      costUsd !== undefined ? formatCostUsd(costUsd) : '',
+      durationMs !== undefined ? formatDurationMs(durationMs) : '',
+    ]
+      .filter(Boolean)
+      .join(' · ');
     return html`<div class="root">
       <section class="request">
         <div class="intent">${intentText}</div>

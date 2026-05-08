@@ -22,6 +22,7 @@ import type {
   RunnerStatus,
 } from '../schema.js';
 import {
+  extractModel,
   FileRunEvidenceStore,
   type RunEvidenceRecorder,
   type RunEvidenceStore,
@@ -32,6 +33,7 @@ import {
   type RunOutputMode,
 } from './output-format.js';
 import { buildRunContextPayload } from './context-payload.js';
+import { buildRunCostMetadata } from './cost-metadata.js';
 import { buildRunnerPrompt } from './prompt.js';
 
 export interface RunnerCommandConfig {
@@ -594,10 +596,18 @@ export class PinflowRunner {
         AnnotationStatusEnum.PROCESSED,
         {},
       );
+      const finishedAt = new Date().toISOString();
+      const costMetadata = await buildRunCostMetadata({
+        transcriptPath: recorder.paths.transcriptPath,
+        startedAt: recorder.startedAt,
+        finishedAt,
+        fallbackModel: extractModel(this.options.command),
+      });
       await recorder.updateSummary({
         status: 'processed',
         exitCode: result.code,
-        finishedAt: new Date().toISOString(),
+        finishedAt,
+        ...costMetadata,
       });
       await this.sendHeartbeat('idle');
       return 'processed';
@@ -635,11 +645,19 @@ export class PinflowRunner {
     exitCode?: number | null,
   ): Promise<void> {
     await recorder.appendTranscript(`[pinflow-runner] Failed: ${errorDetails}\n`);
+    const finishedAt = new Date().toISOString();
+    const costMetadata = await buildRunCostMetadata({
+      transcriptPath: recorder.paths.transcriptPath,
+      startedAt: recorder.startedAt,
+      finishedAt,
+      fallbackModel: extractModel(this.options.command),
+    });
     await recorder.updateSummary({
       status: 'failed',
       errorDetails,
       exitCode,
-      finishedAt: new Date().toISOString(),
+      finishedAt,
+      ...costMetadata,
     });
     await this.client.updateAnnotationStatus(
       annotationId,

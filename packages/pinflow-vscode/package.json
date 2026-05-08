@@ -1,8 +1,8 @@
 {
   "name": "pinflow-vscode",
   "displayName": "PinFlow",
-  "version": "0.0.1",
-  "description": "VS Code extension for viewing the local PinFlow workflow.",
+  "version": "0.1.0",
+  "description": "Editor-native view of the local PinFlow workflow — live agent transcripts (Codex, Claude), native diffs, cost tracking, side-by-side run compare.",
   "type": "module",
   "publisher": "dom-303",
   "main": "./dist/extension.cjs",
@@ -25,15 +25,31 @@
     "onStartupFinished"
   ],
   "categories": [
+    "AI",
     "Other"
   ],
   "keywords": [
     "pinflow",
-    "ui-to-code",
+    "ai",
+    "ai-agents",
+    "agents",
+    "claude",
+    "codex",
+    "openai",
+    "anthropic",
+    "llm",
     "coding-agent",
+    "ui-to-code",
+    "design-to-code",
+    "diff",
+    "diff-viewer",
+    "cost-tracking",
+    "token-tracking",
+    "live-transcript",
     "vscode-extension",
     "developer-tools"
   ],
+  "qna": "marketplace",
   "contributes": {
     "viewsContainers": {
       "activitybar": [
